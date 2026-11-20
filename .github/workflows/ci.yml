@@ -19,6 +19,9 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version-file: .nvmrc
+          # setup-node v5 caches the packageManager's store by default, which needs pnpm on PATH
+          # before corepack has enabled it. Turn that off; corepack provides pnpm below.
+          package-manager-cache: false
       - name: Enable pnpm (version from packageManager)
         run: corepack enable
       - name: Install
