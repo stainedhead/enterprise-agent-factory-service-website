@@ -38,7 +38,7 @@
 
 | Milestone | Streams | Tasks | Done |
 |---|---|---|---|
-| M0 Foundations | 10 (+ exit) | 69 | 44 |
+| M0 Foundations | 10 (+ exit) | 69 | 53 |
 | M1 Teams & access | 10 (+ exit) | 46 | 0 |
 | M2 Agents & secrets | 7 (+ exit) | 41 | 0 |
 | M3 Spend control | 6 (+ exit) | 24 | 0 |
@@ -170,15 +170,15 @@ Owns: `infrastructure/auth/`, `infrastructure/config/`, `infrastructure/storage/
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M0-A1 | Runtime config: fetch `/config.json` with `cache: "no-store"`, validate (data-dictionary §6), defaults; missing or invalid → configuration error page, not a blank screen | FR-035, D43 | M0-W1 |
-| [ ] | M0-A2 | Providers: `ListSignInProviders` (fallback `providersFallback` on failure); one provider → straight to it; several → picker with the default preselected; remember the choice (provider id only) via `PreferencesPort` | WEB-US-7.1, WEB-2 | M0-A1 |
-| [ ] | M0-A3 | Deep links: `?provider=idp_…` skips the picker; `?teamId=` signs in with remembered/default provider and opens that team; a team not in `GetMe` → not-found page with *Sign in with another provider*, never confirming existence | WEB-US-7.2, WEB-US-7.3, WD-14 | M0-A2, M0-H1 |
-| [ ] | M0-A4 | OIDC with `oauth4webapi`: PKCE `S256`, `state`, `nonce`; verifier in `sessionStorage` only until the callback, then removed; wrong `state` or `nonce` refused with an error page; URL cleaned after callback | WEB-US-7.4, WEB-2 | M0-A2 |
-| [ ] | M0-A5 | `TokenStore` in memory only (access, ID, refresh); SDK `bearer` supplier with `forceRefresh` (refresh grant); unit test: no storage API is called with a token | WEB-US-7.5 (part), WEB-2 | M0-A4 |
-| [ ] | M0-A6 | Silent renew 60 s before expiry, computed from `expires_in` (clock-skew safe) (refresh token, else hidden-iframe `prompt=none`, WD-30); reload runs top-level `prompt=none` and returns to the same route without the IdP page | WEB-US-7.6 (part) | M0-A5 |
-| [ ] | M0-A7 | Session expired: a `401` that survives the SDK refresh shows "Your session has expired", keeps route and non-secret drafts (in-memory `DraftStore`), clears every registered `SecretInput`, re-authenticates and restores | WEB-US-7.7 | M0-A5, M0-U8 |
-| [ ] | M0-A8 | Sign out: clear tokens and the query cache, `BroadcastChannel("afs-session")` signs out other tabs, provider end-session with `id_token_hint`, land on `/signed-out` | WEB-US-7.8 (part) | M0-A5 |
-| [ ] | M0-A9 | Idle sign-out after `idleTimeoutMinutes` (default 60) without activity (fake clock tests) | WEB-US-7.9, WD-16 | M0-A8 |
+| [x] | M0-A1 | Runtime config: fetch `/config.json` with `cache: "no-store"`, validate (data-dictionary §6), defaults; missing or invalid → configuration error page, not a blank screen | FR-035, D43 | M0-W1 |
+| [x] | M0-A2 | Providers: `ListSignInProviders` (fallback `providersFallback` on failure); one provider → straight to it; several → picker with the default preselected; remember the choice (provider id only) via `PreferencesPort` | WEB-US-7.1, WEB-2 | M0-A1 |
+| [x] | M0-A3 | Deep links: `?provider=idp_…` skips the picker; `?teamId=` signs in with remembered/default provider and opens that team; a team not in `GetMe` → not-found page with *Sign in with another provider*, never confirming existence | WEB-US-7.2, WEB-US-7.3, WD-14 | M0-A2, M0-H1 |
+| [x] | M0-A4 | OIDC with `oauth4webapi`: PKCE `S256`, `state`, `nonce`; verifier in `sessionStorage` only until the callback, then removed; wrong `state` or `nonce` refused with an error page; URL cleaned after callback | WEB-US-7.4, WEB-2 | M0-A2 |
+| [x] | M0-A5 | `TokenStore` in memory only (access, ID, refresh); SDK `bearer` supplier with `forceRefresh` (refresh grant); unit test: no storage API is called with a token | WEB-US-7.5 (part), WEB-2 | M0-A4 |
+| [x] | M0-A6 | Silent renew 60 s before expiry, computed from `expires_in` (clock-skew safe) (refresh token, else hidden-iframe `prompt=none`, WD-30); reload runs top-level `prompt=none` and returns to the same route without the IdP page | WEB-US-7.6 (part) | M0-A5 |
+| [x] | M0-A7 | Session expired: a `401` that survives the SDK refresh shows "Your session has expired", keeps route and non-secret drafts (in-memory `DraftStore`), clears every registered `SecretInput`, re-authenticates and restores | WEB-US-7.7 | M0-A5, M0-U8 |
+| [x] | M0-A8 | Sign out: clear tokens and the query cache, `BroadcastChannel("afs-session")` signs out other tabs, provider end-session with `id_token_hint`, land on `/signed-out` | WEB-US-7.8 (part) | M0-A5 |
+| [x] | M0-A9 | Idle sign-out after `idleTimeoutMinutes` (default 60) without activity (fake clock tests) | WEB-US-7.9, WD-16 | M0-A8 |
 
 ### M0-H · Shell, routing and caller identity
 

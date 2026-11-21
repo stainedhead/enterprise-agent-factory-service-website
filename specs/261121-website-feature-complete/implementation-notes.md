@@ -93,6 +93,8 @@ architectural ones into ADRs (`docs/architectural-decision-record.md`, ADR-005 o
 | DV-5 | `Versioned` carries optional `id`/`name`/`key` so that both a resource and a `{ id, version }` literal type-check | M0-C6 |
 | DV-7 | The contract has 160 JSON 2xx response examples (170 counts every content type and status); all 160 replay through their SDK method | M0-P5 |
 | DV-8 | Under Bun, Vitest's default forks pool fails to terminate workers (`setMaxListeners`); the Bun run uses `--pool=threads`. The Chromium run needs `PW_CHROMIUM_PATH` only where Playwright's own browser is not installed | M0-P4 |
+| DV-9 | Non-secret form drafts are serialised to `sessionStorage` (`afs.drafts`) for the top-level re-authentication redirect and restored then removed at boot; secret values are never drafts and `SecretInput`s are cleared on expiry | M0-A7 |
+| DV-10 | `OidcClient` is validated against an in-process fake IdP (`e2e/fake-afs/idp.ts`, shared with the Bun IdP server); ID-token signatures are not verified in the browser (oauth4webapi does not, TLS to the token endpoint is the trust root) | M0-A4 |
 | DV-6 | SDK tests set `X-Request-Id` limits and Retry-After behaviour with an injected `sleep`; non-JSON error bodies map known statuses (401/403/404/412/428/429/503) to their code and others to `InternalError` | M0-C2 |
 
 ## 5. Lessons learned
