@@ -38,7 +38,7 @@
 
 | Milestone | Streams | Tasks | Done |
 |---|---|---|---|
-| M0 Foundations | 10 (+ exit) | 69 | 32 |
+| M0 Foundations | 10 (+ exit) | 69 | 41 |
 | M1 Teams & access | 10 (+ exit) | 46 | 0 |
 | M2 Agents & secrets | 7 (+ exit) | 41 | 0 |
 | M3 Spend control | 6 (+ exit) | 24 | 0 |
@@ -144,15 +144,15 @@ Owns: `presentation/components/`, `presentation/styles/`.
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M0-U1 | Design tokens and base styles from the mockup CSS (research.md §5) as CSS modules: palette, Open Sans 14 px, header 40 px, side nav 232 px, role pill colours; contrast test (tokens meet AA) | WEB-5 (part), WEB-US-42.2 (part), WD-18 | M0-S1 |
-| [ ] | M0-U2 | `Button` (primary, normal, link; `disabledReason` → focusable tooltip "Requires <role>"), `Tooltip`, `ActionsMenu` (APG menu button) | WEB-3 (part), WEB-US-36.1 (part) | M0-U1 |
-| [ ] | M0-U3 | `Table`: text filter, property filters, server pagination (`maxResults`/`nextToken`; an expired or refused token → restart from page 1 with a notice), preferences (page size, columns) through `PreferencesPort`, selection, sorting, empty/loading/error states | WEB-5 | M0-U1 |
-| [ ] | M0-U4 | `StatusIndicator` (dot + word from `domain/status`), `Alert` (request id with copy button), `Banner`, `LiveRegion` (polite announcements of status changes) | WEB-US-10.3, WEB-US-9.1 (part), WEB-US-42.1 (part), WEB-11 | M0-U1, M0-D3 |
-| [ ] | M0-U5 | `Modal`, `ConfirmDialog` (optional note), `TypeToConfirm`, `OneTimeSecretDialog` (*Copy*, warning, value only in a ref, cleared on close) | WEB-US-11.3 (part), WEB-8 | M0-U2 |
-| [ ] | M0-U6 | `Wizard` (steps, *Next* disabled until the step is valid, review step) and `FormField` (label, hint, error from `ValidationError.details.fields[]`) | WEB-5, WEB-US-14.1 (part) | M0-U2 |
-| [ ] | M0-U7 | `Tabs` (APG), `PageHeader` (title, *Info*, right-aligned actions, one primary), `Breadcrumbs`, `KeyValue`, `CopyButton`, `Badge` (*Unmetered*, *Template retired*), `DiffView` | WEB-5 | M0-U1 |
-| [ ] | M0-U8 | `SecretInput` (uncontrolled, masked, `autocomplete="off"`, value read by ref at submit, cleared on submit/cancel/error, registry for session clear) and `CliPreview` (renders a `CliCommand`) | WEB-US-11.2, WEB-6 (part), WEB-8 | M0-U2 |
-| [ ] | M0-U9 | axe-core component helper and keyboard tests for every component (focus order, Escape, arrow keys in menus and tabs) | WEB-US-42.1 (part), WEB-10, NFR-8 | M0-U2..U8 |
+| [x] | M0-U1 | Design tokens and base styles from the mockup CSS (research.md §5) as CSS modules: palette, Open Sans 14 px, header 40 px, side nav 232 px, role pill colours; contrast test (tokens meet AA) | WEB-5 (part), WEB-US-42.2 (part), WD-18 | M0-S1 |
+| [x] | M0-U2 | `Button` (primary, normal, link; `disabledReason` → focusable tooltip "Requires <role>"), `Tooltip`, `ActionsMenu` (APG menu button) | WEB-3 (part), WEB-US-36.1 (part) | M0-U1 |
+| [x] | M0-U3 | `Table`: text filter, property filters, server pagination (`maxResults`/`nextToken`; an expired or refused token → restart from page 1 with a notice), preferences (page size, columns) through `PreferencesPort`, selection, sorting, empty/loading/error states | WEB-5 | M0-U1 |
+| [x] | M0-U4 | `StatusIndicator` (dot + word from `domain/status`), `Alert` (request id with copy button), `Banner`, `LiveRegion` (polite announcements of status changes) | WEB-US-10.3, WEB-US-9.1 (part), WEB-US-42.1 (part), WEB-11 | M0-U1, M0-D3 |
+| [x] | M0-U5 | `Modal`, `ConfirmDialog` (optional note), `TypeToConfirm`, `OneTimeSecretDialog` (*Copy*, warning, value only in a ref, cleared on close) | WEB-US-11.3 (part), WEB-8 | M0-U2 |
+| [x] | M0-U6 | `Wizard` (steps, *Next* disabled until the step is valid, review step) and `FormField` (label, hint, error from `ValidationError.details.fields[]`) | WEB-5, WEB-US-14.1 (part) | M0-U2 |
+| [x] | M0-U7 | `Tabs` (APG), `PageHeader` (title, *Info*, right-aligned actions, one primary), `Breadcrumbs`, `KeyValue`, `CopyButton`, `Badge` (*Unmetered*, *Template retired*), `DiffView` | WEB-5 | M0-U1 |
+| [x] | M0-U8 | `SecretInput` (uncontrolled, masked, `autocomplete="off"`, value read by ref at submit, cleared on submit/cancel/error, registry for session clear) and `CliPreview` (renders a `CliCommand`) | WEB-US-11.2, WEB-6 (part), WEB-8 | M0-U2 |
+| [x] | M0-U9 | axe-core component helper and keyboard tests for every component (focus order, Escape, arrow keys in menus and tabs) | WEB-US-42.1 (part), WEB-10, NFR-8 | M0-U2..U8 |
 
 ### M0-W · Hosting and build
 

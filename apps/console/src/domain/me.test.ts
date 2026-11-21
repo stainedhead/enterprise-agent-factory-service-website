@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { activeRole, can, hasNoAccess, type Me, teamOf } from "./me.js";
+import { activeRole, can, hasNoAccess, type Me, type MeTeam, teamOf } from "./me.js";
 import { CATALOG, ENTRIES, type Permission } from "./permission.js";
 
 const VIEWER_PERMS = ENTRIES.filter((e) =>
@@ -77,7 +77,7 @@ describe("can (M0-D1)", () => {
       ...viewer,
       teams: [
         {
-          ...viewer.teams[0]!,
+          ...(viewer.teams[0] as MeTeam),
           permissions: [...VIEWER_PERMS, "teams:get-kubeconfig" as Permission],
         },
       ],

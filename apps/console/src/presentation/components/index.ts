@@ -1,0 +1,26 @@
+// The design system's public surface (architecture.md §3.6).
+export { ActionsMenu, type MenuAction } from "./ActionsMenu.js";
+export { Alert, type AlertKind } from "./Alert.js";
+export { Badge } from "./Badge.js";
+export { Banner } from "./Banner.js";
+export { Breadcrumbs, type Crumb } from "./Breadcrumbs.js";
+export { Button } from "./Button.js";
+export { CliPreview } from "./CliPreview.js";
+export { ConfirmDialog } from "./ConfirmDialog.js";
+export { CopyButton } from "./CopyButton.js";
+export { DiffView } from "./DiffView.js";
+export { type FieldError, FormField, fieldMessage } from "./FormField.js";
+export { KeyValue } from "./KeyValue.js";
+export { LiveRegion } from "./LiveRegion.js";
+export { Modal } from "./Modal.js";
+export { OneTimeSecretDialog, type OneTimeSecretHandle } from "./OneTimeSecretDialog.js";
+export { PageHeader } from "./PageHeader.js";
+export { SecretInput, type SecretInputHandle } from "./SecretInput.js";
+export { StatusIndicator } from "./StatusIndicator.js";
+export { clearAllSecretInputs } from "./secretRegistry.js";
+export { Table, type TableColumn, type TableProps } from "./Table.js";
+export { type TabItem, Tabs } from "./Tabs.js";
+export { Tooltip } from "./Tooltip.js";
+export { TypeToConfirm } from "./TypeToConfirm.js";
+export { useServerPages } from "./useServerPages.js";
+export { Wizard, type WizardStep } from "./Wizard.js";

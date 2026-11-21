@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
 import type { Me } from "./me.js";
-import { EXTRA_ROUTES, NAV_ITEMS, routeFor, screenFor, visibleItems } from "./navigation.js";
+import {
+  EXTRA_ROUTES,
+  NAV_ITEMS,
+  type NavItem,
+  routeFor,
+  screenFor,
+  visibleItems,
+} from "./navigation.js";
 import { ENTRIES } from "./permission.js";
 import { SCREEN_IDS } from "./screens.js";
 
@@ -94,6 +101,6 @@ describe("navigation (M0-D4)", () => {
     expect(screenFor(secrets, admin, "team_a")).toBe("T4");
     expect(screenFor(overview, admin)).toBe("T1");
     expect(routeFor(overview, "team_a")).toBe("/t/team_a");
-    expect(routeFor(NAV_ITEMS[0]!)).toBe("/");
+    expect(routeFor(NAV_ITEMS[0] as NavItem)).toBe("/");
   });
 });
