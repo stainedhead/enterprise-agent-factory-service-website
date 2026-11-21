@@ -1,92 +1,218 @@
 /**
- * Roles and permissions, mirroring internal/authz in enterprise-agent-factory-service-restapi.
- * Used only to shape the UI (hide or disable controls). The API is the enforcement point.
+ * The permission catalog, mirroring `internal/authz` in -restapi through the pinned
+ * `permissions.json` (drift-tested in permission.test.ts). Used only to shape the UI; the API is the
+ * enforcement point.
  */
-export type Role = "service_admin" | "team_admin" | "team_viewer";
+export type Role = "team_viewer" | "team_admin" | "service_admin" | "security_operator";
 
-export type Permission =
-  | "teams:create"
-  | "teams:delete"
-  | "teams:read"
-  | "teams:write"
-  | "teams:suspend"
-  | "agents:read"
-  | "agents:write"
-  | "members:read"
-  | "members:write"
-  | "secrets:read-metadata"
-  | "secrets:write"
-  | "identities:read"
-  | "identities:write"
-  | "budgets:read"
-  | "budgets:write"
-  | "budgets:set-ceiling"
-  | "usage:read"
-  | "logs:read"
-  | "logs:write"
-  | "notifications:read"
-  | "notifications:write"
-  | "api-keys:write"
-  | "audit:read"
-  | "admin:settings"
-  | "admin:models"
-  | "admin:export"
-  | "admin:audit";
+export type Condition =
+  | "assignedOrOwnRepos"
+  | "mayManageAwsAccounts"
+  | "assignedTeam"
+  | "viewerKubectl";
 
-export interface Binding {
-  role: Role;
-  /** Absent for service_admin. */
-  teamId?: string;
+export interface Grant {
+  readonly role: Role | "workload";
+  readonly condition?: Condition;
 }
 
-export interface Principal {
-  subject: string;
-  displayName: string;
-  bindings: readonly Binding[];
+export interface CatalogEntry {
+  readonly permission: Permission;
+  readonly grants: readonly Grant[];
 }
 
-const VIEWER: readonly Permission[] = [
-  "teams:read",
-  "agents:read",
-  "members:read",
-  "secrets:read-metadata",
-  "identities:read",
-  "budgets:read",
-  "usage:read",
-  "logs:read",
-  "notifications:read",
-  "audit:read",
-];
+export const CATALOG = [
+  {
+    permission: "teams:read",
+    grants: [{ role: "team_viewer" }, { role: "team_admin" }, { role: "service_admin" }],
+  },
+  { permission: "teams:write", grants: [{ role: "team_admin" }, { role: "service_admin" }] },
+  { permission: "teams:suspend", grants: [{ role: "team_admin" }, { role: "service_admin" }] },
+  { permission: "teams:create", grants: [{ role: "service_admin" }] },
+  { permission: "teams:delete", grants: [{ role: "service_admin" }] },
+  { permission: "teams:set-guardrails", grants: [{ role: "service_admin" }] },
+  {
+    permission: "teams:set-aws-accounts",
+    grants: [{ role: "team_admin", condition: "mayManageAwsAccounts" }, { role: "service_admin" }],
+  },
+  {
+    permission: "teams:read-directory",
+    grants: [{ role: "service_admin" }, { role: "security_operator" }],
+  },
+  {
+    permission: "members:read",
+    grants: [{ role: "team_viewer" }, { role: "team_admin" }, { role: "service_admin" }],
+  },
+  { permission: "members:write", grants: [{ role: "team_admin" }, { role: "service_admin" }] },
+  { permission: "api-keys:read", grants: [{ role: "team_admin" }, { role: "service_admin" }] },
+  { permission: "api-keys:write", grants: [{ role: "team_admin" }, { role: "service_admin" }] },
+  {
+    permission: "agents:read",
+    grants: [{ role: "team_viewer" }, { role: "team_admin" }, { role: "service_admin" }],
+  },
+  { permission: "agents:write", grants: [{ role: "team_admin" }, { role: "service_admin" }] },
+  {
+    permission: "secrets:read-metadata",
+    grants: [{ role: "team_viewer" }, { role: "team_admin" }, { role: "service_admin" }],
+  },
+  { permission: "secrets:write", grants: [{ role: "team_admin" }, { role: "service_admin" }] },
+  {
+    permission: "config:read",
+    grants: [{ role: "team_viewer" }, { role: "team_admin" }, { role: "service_admin" }],
+  },
+  { permission: "config:write", grants: [{ role: "team_admin" }, { role: "service_admin" }] },
+  {
+    permission: "identities:read",
+    grants: [{ role: "team_viewer" }, { role: "team_admin" }, { role: "service_admin" }],
+  },
+  { permission: "identities:write", grants: [{ role: "team_admin" }, { role: "service_admin" }] },
+  {
+    permission: "external-systems:read",
+    grants: [{ role: "team_viewer" }, { role: "team_admin" }, { role: "service_admin" }],
+  },
+  {
+    permission: "external-systems:write",
+    grants: [{ role: "team_admin" }, { role: "service_admin" }],
+  },
+  {
+    permission: "budgets:read",
+    grants: [{ role: "team_viewer" }, { role: "team_admin" }, { role: "service_admin" }],
+  },
+  { permission: "budgets:write", grants: [{ role: "team_admin" }, { role: "service_admin" }] },
+  {
+    permission: "usage:read",
+    grants: [{ role: "team_viewer" }, { role: "team_admin" }, { role: "service_admin" }],
+  },
+  {
+    permission: "reports:read",
+    grants: [{ role: "team_viewer" }, { role: "team_admin" }, { role: "service_admin" }],
+  },
+  { permission: "reports:schedule", grants: [{ role: "team_admin" }, { role: "service_admin" }] },
+  {
+    permission: "tags:read",
+    grants: [{ role: "team_viewer" }, { role: "team_admin" }, { role: "service_admin" }],
+  },
+  { permission: "tags:write", grants: [{ role: "team_admin" }, { role: "service_admin" }] },
+  {
+    permission: "logs:read",
+    grants: [{ role: "team_viewer" }, { role: "team_admin" }, { role: "service_admin" }],
+  },
+  { permission: "logs:write", grants: [{ role: "team_admin" }, { role: "service_admin" }] },
+  {
+    permission: "notifications:read",
+    grants: [{ role: "team_viewer" }, { role: "team_admin" }, { role: "service_admin" }],
+  },
+  {
+    permission: "notifications:write",
+    grants: [{ role: "team_admin" }, { role: "service_admin" }],
+  },
+  {
+    permission: "audit:read",
+    grants: [{ role: "team_viewer" }, { role: "team_admin" }, { role: "service_admin" }],
+  },
+  {
+    permission: "revisions:read",
+    grants: [{ role: "team_viewer" }, { role: "team_admin" }, { role: "service_admin" }],
+  },
+  { permission: "revisions:restore", grants: [{ role: "team_admin" }, { role: "service_admin" }] },
+  {
+    permission: "models:read",
+    grants: [{ role: "team_viewer" }, { role: "team_admin" }, { role: "service_admin" }],
+  },
+  { permission: "admin:settings", grants: [{ role: "service_admin" }] },
+  { permission: "admin:models", grants: [{ role: "service_admin" }] },
+  { permission: "admin:pricing", grants: [{ role: "service_admin" }] },
+  { permission: "admin:identity-providers", grants: [{ role: "service_admin" }] },
+  { permission: "admin:service-tags", grants: [{ role: "service_admin" }] },
+  { permission: "admin:external-systems", grants: [{ role: "service_admin" }] },
+  { permission: "admin:storage-classes", grants: [{ role: "service_admin" }] },
+  { permission: "admin:agent-templates", grants: [{ role: "service_admin" }] },
+  { permission: "admin:accounts", grants: [{ role: "service_admin" }] },
+  { permission: "admin:reports", grants: [{ role: "service_admin" }] },
+  { permission: "admin:audit", grants: [{ role: "service_admin" }] },
+  { permission: "admin:export", grants: [{ role: "service_admin" }] },
+  {
+    permission: "pools:read",
+    grants: [{ role: "team_viewer" }, { role: "team_admin" }, { role: "service_admin" }],
+  },
+  { permission: "pools:write", grants: [{ role: "team_admin" }, { role: "service_admin" }] },
+  {
+    permission: "teams:get-kubeconfig",
+    grants: [
+      { role: "team_viewer", condition: "viewerKubectl" },
+      { role: "team_admin", condition: "viewerKubectl" },
+      { role: "service_admin" },
+    ],
+  },
+  {
+    permission: "work-orders:read",
+    grants: [
+      { role: "team_viewer", condition: "assignedOrOwnRepos" },
+      { role: "team_admin", condition: "assignedOrOwnRepos" },
+      { role: "service_admin" },
+      { role: "security_operator" },
+    ],
+  },
+  {
+    permission: "work-orders:write",
+    grants: [{ role: "service_admin" }, { role: "security_operator" }],
+  },
+  {
+    permission: "work-orders:report",
+    grants: [{ role: "team_admin", condition: "assignedTeam" }, { role: "service_admin" }],
+  },
+  {
+    permission: "swarm-templates:read",
+    grants: [{ role: "service_admin" }, { role: "security_operator" }],
+  },
+  { permission: "admin:swarm-templates", grants: [{ role: "service_admin" }] },
+  { permission: "admin:cost-tag-status", grants: [{ role: "service_admin" }] },
+] as const satisfies readonly { permission: string; grants: readonly Grant[] }[];
 
-const TEAM_ADMIN: readonly Permission[] = [
-  ...VIEWER,
-  "teams:write",
-  "teams:suspend",
-  "agents:write",
-  "members:write",
-  "secrets:write",
-  "identities:write",
-  "budgets:write",
-  "logs:write",
-  "notifications:write",
-  "api-keys:write",
-];
+/** Every permission of the contract (58). */
+export type Permission = (typeof CATALOG)[number]["permission"];
 
-const ROLE_PERMISSIONS: Record<Exclude<Role, "service_admin">, readonly Permission[]> = {
-  team_admin: TEAM_ADMIN,
-  team_viewer: VIEWER,
+/** The catalog with its wide type, for iteration. */
+export const ENTRIES: readonly CatalogEntry[] = CATALOG;
+
+export const PERMISSIONS: readonly Permission[] = CATALOG.map((e) => e.permission);
+
+export type RoleLabel = "team viewer" | "team-admin" | "service admin" | "security operator";
+
+const LABELS: Record<Role, RoleLabel> = {
+  team_viewer: "team viewer",
+  team_admin: "team-admin",
+  service_admin: "service admin",
+  security_operator: "security operator",
 };
 
-/** Whether the principal may perform `permission` on `teamId` ("" for service-level actions). */
-export function can(principal: Principal, permission: Permission, teamId = ""): boolean {
-  return principal.bindings.some((b) => {
-    if (b.role === "service_admin") return b.teamId === undefined;
-    return (
-      b.teamId !== undefined && b.teamId === teamId && ROLE_PERMISSIONS[b.role].includes(permission)
-    );
-  });
+/** The roles that hold `permission` unconditionally, in ascending order of privilege. */
+export function rolesGranting(permission: Permission): Role[] {
+  const entry = CATALOG.find((e) => e.permission === permission);
+  if (!entry) return [];
+  const order: Role[] = ["team_viewer", "team_admin", "service_admin", "security_operator"];
+  return order.filter((r) =>
+    (entry.grants as readonly Grant[]).some((g) => g.role === r && g.condition === undefined),
+  );
 }
 
-export function isServiceAdmin(principal: Principal): boolean {
-  return principal.bindings.some((b) => b.role === "service_admin" && b.teamId === undefined);
+/**
+ * The lowest role that grants `permission` unconditionally, for the "Requires <role>" tooltip.
+ * Conditional grants name the service admin, who holds the permission without the condition.
+ */
+export function requiredRoleLabel(permission: Permission): RoleLabel {
+  const roles = rolesGranting(permission);
+  const lowest = roles.find((r) => r !== "security_operator") ?? roles[0] ?? "service_admin";
+  return LABELS[lowest];
+}
+
+/** Whether the security operator column grants `permission`. */
+export function securityOperatorGrants(permission: Permission): boolean {
+  return CATALOG.some(
+    (e) =>
+      e.permission === permission &&
+      (e.grants as readonly Grant[]).some(
+        (g) => g.role === "security_operator" && g.condition === undefined,
+      ),
+  );
 }

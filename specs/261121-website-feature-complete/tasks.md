@@ -38,7 +38,7 @@
 
 | Milestone | Streams | Tasks | Done |
 |---|---|---|---|
-| M0 Foundations | 10 (+ exit) | 69 | 26 |
+| M0 Foundations | 10 (+ exit) | 69 | 32 |
 | M1 Teams & access | 10 (+ exit) | 46 | 0 |
 | M2 Agents & secrets | 7 (+ exit) | 41 | 0 |
 | M3 Spend control | 6 (+ exit) | 24 | 0 |
@@ -131,12 +131,12 @@ Owns: `domain/` (replaces `permission.ts` and its test).
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M0-D1 | `me.ts`: `Me`/`MeTeam` (contract §5 + `servicePermissions`, F-1); `can(me, permission, teamId?)`; table tests for every role allowed and denied, incl. security operator and service admin allowed `teams:read-directory` and team-admin, viewer and team API key denied | WEB-US-8.1, WEB-4, CQ-4 | M0-S1 |
-| [ ] | M0-D2 | `permission.ts`: the 58-permission catalog with four roles and conditional grants; `requiredRoleLabel()`; drift test against `packages/sdk/contract/permissions.json` (every permission, role and condition) | WEB-US-8.3, WEB-4 | M0-S2 |
-| [ ] | M0-D3 | `status.ts`: §4.2 vocabulary and dots (never `Running`, `Healthy`, `Blocked (cap)`; unknown phase passes through grey); `PollPolicy` (5 s up to 2 min for Pending/Reconciling, then 30 s; Degraded 30 s; Ready/Failed stop; hidden stop; `Retry-After` floor); `generationNote(generation, observed)` | WEB-US-9.1 (part), WEB-US-9.2 (part), WEB-US-9.6 (part), WEB-7, D24, W-1 | — |
-| [ ] | M0-D4 | `navigation.ts`: every IA item of PRD §4.1 (incl. T7 at *Configuration › Configuration values*, WD-13) with screen id, route and `visibleWhen`; tests: team roles never see Governance or Platform; viewer never sees *API keys*; *Pools & stages* only for ephemeral teams; S10 absent for team-admins | WEB-US-8.5 (part), WEB-US-8.7 (part), WEB-US-20.8 (part), WEB-18 | M0-D1 |
-| [ ] | M0-D5 | `money.ts` (scaled-`bigint` decimal compare/add/percent/format, never `Number`), `names.ts` (name regex, credential-like config names), `labels.ts` (enum → label, unknown passthrough), `time.ts` (browser time zone, UTC on hover text) | SDK-10 (console), PRD §2 non-goals | — |
-| [ ] | M0-D6 | `search.ts`: filter over a `SearchIndex` from ≥ 2 characters, ≤ 10 matches grouped by type, stable order | WEB-US-8.8 (part), D44 | — |
+| [x] | M0-D1 | `me.ts`: `Me`/`MeTeam` (contract §5 + `servicePermissions`, F-1); `can(me, permission, teamId?)`; table tests for every role allowed and denied, incl. security operator and service admin allowed `teams:read-directory` and team-admin, viewer and team API key denied | WEB-US-8.1, WEB-4, CQ-4 | M0-S1 |
+| [x] | M0-D2 | `permission.ts`: the 58-permission catalog with four roles and conditional grants; `requiredRoleLabel()`; drift test against `packages/sdk/contract/permissions.json` (every permission, role and condition) | WEB-US-8.3, WEB-4 | M0-S2 |
+| [x] | M0-D3 | `status.ts`: §4.2 vocabulary and dots (never `Running`, `Healthy`, `Blocked (cap)`; unknown phase passes through grey); `PollPolicy` (5 s up to 2 min for Pending/Reconciling, then 30 s; Degraded 30 s; Ready/Failed stop; hidden stop; `Retry-After` floor); `generationNote(generation, observed)` | WEB-US-9.1 (part), WEB-US-9.2 (part), WEB-US-9.6 (part), WEB-7, D24, W-1 | — |
+| [x] | M0-D4 | `navigation.ts`: every IA item of PRD §4.1 (incl. T7 at *Configuration › Configuration values*, WD-13) with screen id, route and `visibleWhen`; tests: team roles never see Governance or Platform; viewer never sees *API keys*; *Pools & stages* only for ephemeral teams; S10 absent for team-admins | WEB-US-8.5 (part), WEB-US-8.7 (part), WEB-US-20.8 (part), WEB-18 | M0-D1 |
+| [x] | M0-D5 | `money.ts` (scaled-`bigint` decimal compare/add/percent/format, never `Number`), `names.ts` (name regex, credential-like config names), `labels.ts` (enum → label, unknown passthrough), `time.ts` (browser time zone, UTC on hover text) | SDK-10 (console), PRD §2 non-goals | — |
+| [x] | M0-D6 | `search.ts`: filter over a `SearchIndex` from ≥ 2 characters, ≤ 10 matches grouped by type, stable order | WEB-US-8.8 (part), D44 | — |
 
 ### M0-U · UI kit
 
