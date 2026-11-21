@@ -43,17 +43,21 @@ Type-checking is always `tsc --noEmit` (or `tsc -p tsconfig.build.json` for SDK 
 
 ```
 packages/sdk/
-  src/client.ts            AfsClient: base request, auth header, error mapping
-  src/errors.ts            AfsError and error codes
-  src/generated/           types generated from api/openapi.yaml (not hand-edited; added with the first resource)
-  src/resources/           ergonomic per-resource clients (teams, agents, secrets, ...) as they are built
-apps/console/src/
-  domain/                  entities, value objects, policies (pure TypeScript)
-  application/ports/       interfaces the outer layers implement
-  application/usecases/    one class per use case
-  infrastructure/          adapters implementing ports: @afs/sdk, OIDC session, browser storage
-  presentation/            React components, view models, hooks, routes
-  main/                    composition root: builds adapters, wires use cases, renders
+  contract/                pinned OpenAPI snapshot + permissions.json + operations.json + contract.lock.json
+  tools/                   contract-sync, codegen (emits src/generated), size-check, tsdoc-check
+  src/core/                transport, auth, retry, idempotency, concurrency, pagination, errors
+  src/generated/           types, operation table and resource modules generated from the contract (never hand-edited)
+  src/resources/           hand-written extras (waitFor, reports)
+  src/testing/             fake fetch helpers for tests (not exported)
+  test/                    contract replay, tree-shake, runtime matrix
+apps/console/
+  deploy/                  headers policy, cache behaviours, config schema (consumed by the platform Terraform)
+  e2e/                     Playwright specs, fake AFS API, fake OIDC IdP, visual baselines
+  src/domain/              entities, value objects, policies (pure TypeScript)
+  src/application/         ports and use cases
+  src/infrastructure/      adapters implementing ports: @afs/sdk, OIDC session, config, storage
+  src/presentation/        React components, shell, routes, screens
+  src/main/                composition root: builds adapters, wires use cases, renders
 docs/  user-docs/  specs/
 ```
 
@@ -114,9 +118,10 @@ All of these must pass before every commit (`bun run gate` runs them in order):
 
 ```bash
 bun install --frozen-lockfile
+bun run contract:check   # pinned contract matches contract.lock.json
 bun run lint      # biome check . (format + lint)
 bun run typecheck # tsc 7 --noEmit in every package
-bun run test      # vitest run in every package
+bun run test:cover # vitest with coverage (>= 90% on domain and application)
 bun run build     # SDK declarations + console bundle
 ```
 
@@ -130,7 +135,7 @@ bun run build     # SDK declarations + console bundle
 - [ ] No `any`; external data is narrowed at the infrastructure edge
 - [ ] SDK public surface documented and exported from `src/index.ts` only
 - [ ] Accessible: labels on inputs, roles on status and alert regions, keyboard reachable
-- [ ] No hardcoded endpoints, tenant ids or credentials (use `VITE_*` config)
+- [ ] No hardcoded endpoints, tenant ids or credentials (runtime `config.json`, one build for all environments; no per-environment `VITE_*`)
 
 Critical or important findings (security, authorization, secret handling) are fixed before commit.
 

@@ -38,7 +38,7 @@
 
 | Milestone | Streams | Tasks | Done |
 |---|---|---|---|
-| M0 Foundations | 10 (+ exit) | 69 | 0 |
+| M0 Foundations | 10 (+ exit) | 69 | 5 |
 | M1 Teams & access | 10 (+ exit) | 46 | 0 |
 | M2 Agents & secrets | 7 (+ exit) | 41 | 0 |
 | M3 Spend control | 6 (+ exit) | 24 | 0 |
@@ -77,11 +77,11 @@ Owns: root `package.json`, `packages/sdk/package.json`, `apps/console/package.js
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M0-S1 | Add the dependencies of architecture.md §8 at exact versions (latest stable, ≥ 2 weeks old); prove each runs under TypeScript 7 and Bun 1.4 (a smoke import test per package); record versions in `docs/technical-details.md` | SDK-9 (part), NFR-7, WD-9 | — |
-| [ ] | M0-S2 | Contract snapshot: copy `openapi.yaml`, `permissions.json`, `operations.json` from `-restapi` `747a484` into `packages/sdk/contract/`; `contract.lock.json`; `tools/contract-sync.ts` with `contract:check` (sha256 compare; test: a changed byte fails) and `contract:update --ref` (fetch via GitHub raw, rewrite lock, run codegen, print op/schema diff; tested with a fake fetch) | SDK-1 (part), WD-2, plan.md §5 | M0-S1 |
-| [ ] | M0-S3 | Pre-create every shared list (architecture.md §3.2) with placeholders and `NotBuiltYet`; extend `architecture.test.ts`: `domain`/`application` reference no `window`, `document`, `fetch` or storage; only `infrastructure/storage/` touches `localStorage`/`sessionStorage`/`indexedDB`; `presentation` imports no `oauth4webapi`; a red test per new rule | WEB-18 (part), NFR-6, WD-18 | M0-S1 |
-| [ ] | M0-S4 | Gate and CI: `bun run gate` = frozen install, `contract:check`, `codegen:check`, lint, typecheck, `test:cover` (≥ 90% lines/branches on `domain` and `application`), build, `size`, `tsdoc`; Vitest setup that throws on any unmocked `fetch`; CI jobs: gate, SDK runtime matrix (Node 22, Bun, Chromium), Playwright (chromium + smoke firefox/webkit) with report artifacts | WEB-US-1.6 (part), WEB-US-4.3 (part), NFR-7 | M0-S2 |
-| [ ] | M0-S5 | `AGENTS.md`: replace the "use `VITE_*` config" checklist line with runtime `config.json` (D43); add `contract/`, `tools/`, `e2e/`, `deploy/` to the layout; `docs/technical-details.md` toolchain and scripts | FR-034, WD-19 | M0-S4 |
+| [x] | M0-S1 | Add the dependencies of architecture.md §8 at exact versions (latest stable, ≥ 2 weeks old); prove each runs under TypeScript 7 and Bun 1.4 (a smoke import test per package); record versions in `docs/technical-details.md` | SDK-9 (part), NFR-7, WD-9 | — |
+| [x] | M0-S2 | Contract snapshot: copy `openapi.yaml`, `permissions.json`, `operations.json` from `-restapi` `747a484` into `packages/sdk/contract/`; `contract.lock.json`; `tools/contract-sync.ts` with `contract:check` (sha256 compare; test: a changed byte fails) and `contract:update --ref` (fetch via GitHub raw, rewrite lock, run codegen, print op/schema diff; tested with a fake fetch) | SDK-1 (part), WD-2, plan.md §5 | M0-S1 |
+| [x] | M0-S3 | Pre-create every shared list (architecture.md §3.2) with placeholders and `NotBuiltYet`; extend `architecture.test.ts`: `domain`/`application` reference no `window`, `document`, `fetch` or storage; only `infrastructure/storage/` touches `localStorage`/`sessionStorage`/`indexedDB`; `presentation` imports no `oauth4webapi`; a red test per new rule | WEB-18 (part), NFR-6, WD-18 | M0-S1 |
+| [x] | M0-S4 | Gate and CI: `bun run gate` = frozen install, `contract:check`, `codegen:check`, lint, typecheck, `test:cover` (≥ 90% lines/branches on `domain` and `application`), build, `size`, `tsdoc`; Vitest setup that throws on any unmocked `fetch`; CI jobs: gate, SDK runtime matrix (Node 22, Bun, Chromium), Playwright (chromium + smoke firefox/webkit) with report artifacts | WEB-US-1.6 (part), WEB-US-4.3 (part), NFR-7 | M0-S2 |
+| [x] | M0-S5 | `AGENTS.md`: replace the "use `VITE_*` config" checklist line with runtime `config.json` (D43); add `contract/`, `tools/`, `e2e/`, `deploy/` to the layout; `docs/technical-details.md` toolchain and scripts | FR-034, WD-19 | M0-S4 |
 
 ### M0-G · Code generation (SDK)
 

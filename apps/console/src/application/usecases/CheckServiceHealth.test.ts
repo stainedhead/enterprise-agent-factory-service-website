@@ -15,4 +15,21 @@ describe("CheckServiceHealth", () => {
     });
     await expect(uc.execute()).resolves.toEqual({ state: "down", reason: "connection refused" });
   });
+
+  it("reports down when the API says unhealthy", async () => {
+    const uc = new CheckServiceHealth({ check: async () => ({ healthy: false }) });
+    await expect(uc.execute()).resolves.toEqual({
+      state: "down",
+      reason: "API reported unhealthy",
+    });
+  });
+
+  it("reports unreachable for a non-Error throw", async () => {
+    const uc = new CheckServiceHealth({
+      check: async () => {
+        throw "boom";
+      },
+    });
+    await expect(uc.execute()).resolves.toEqual({ state: "down", reason: "unreachable" });
+  });
 });

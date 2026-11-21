@@ -19,7 +19,7 @@
 | 2 | Research and data modeling | Complete | research.md, data-dictionary.md |
 | 3 | Architecture and planning | Complete | architecture.md, plan.md |
 | 4 | Task breakdown | Complete | tasks.md: 51 streams, 259 tasks |
-| 5 | Implementation (M0–M6) | Not Started | Next: step 3, M0 |
+| 5 | Implementation (M0–M6) | In Progress | Step 3, M0 (5/69) |
 | 6 | Completion and archival | Not Started | |
 
 ## Phase 0 checklist
@@ -32,7 +32,7 @@
 
 | Milestone | Status | Tasks done |
 |---|---|---|
-| M0 Foundations | Not Started | 0 / 69 |
+| M0 Foundations | In Progress | 5 / 69 |
 | M1 Teams & access | Not Started | 0 / 46 |
 | M2 Agents & secrets | Not Started | 0 / 41 |
 | M3 Spend control | Not Started | 0 / 24 |
@@ -47,5 +47,6 @@ none blocks M0.
 
 ## Recent activity
 
+- 2026-11-21: M0 M0-S1, M0-S2, M0-S3, M0-S4, M0-S5 done (5/69).
 - 2026-11-21: `create-spec` (step 1): spec directory, phase files and dashboard created; PRD moved in.
 - 2026-11-21: `review-spec` (step 2): implementation-ready; 13 findings fixed (spec.md §15), M0-H10 added; traceability generated (182/182 criteria).

@@ -19,6 +19,17 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:cover": "vitest run --coverage",
+    "contract:check": "bun tools/contract-sync.ts check",
+    "contract:update": "bun tools/contract-sync.ts update"
+  },
+  "devDependencies": {
+    "@vitest/browser": "5.1.1",
+    "@vitest/browser-playwright": "5.1.1",
+    "@vitest/coverage-v8": "5.1.1",
+    "happy-dom": "21.0.4",
+    "playwright": "1.63.0",
+    "yaml": "2.9.1"
   }
 }

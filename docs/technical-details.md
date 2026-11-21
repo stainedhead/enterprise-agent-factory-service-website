@@ -16,3 +16,28 @@ consumers resolve `types`/`import` from `dist/`.
 
 `domain` → `application` (use cases, ports) → `infrastructure` (adapters over `@afs/sdk`) →
 `presentation` (React) → `main` (composition root). Enforced by `src/architecture.test.ts`.
+
+## Dependencies added in M0 (exact versions, verified to import under TypeScript 7 and Bun 1.4.4)
+
+| Package | Version | Where | Use |
+|---|---|---|---|
+| `yaml` | 2.9.1 | sdk (dev) | parse the OpenAPI in codegen and tests |
+| `@tanstack/react-query` | 5.108.2 | console | server-state cache |
+| `react-router` | 8.5.2 | console | routing |
+| `oauth4webapi` | 3.8.9 | console | OIDC code + PKCE, no storage of its own |
+| `web-vitals` | 6.2.3 | console | LCP, INP, CLS |
+| `@testing-library/react` / `user-event` / `dom` | 16.3.3 / 14.6.13 / 10.4.2 | console (dev) | component tests |
+| `happy-dom` | 21.0.4 | both (dev) | Vitest DOM |
+| `axe-core` / `@axe-core/playwright` | 4.14.1 / 4.14.0 | console (dev) | accessibility checks |
+| `@playwright/test` / `playwright` | 1.63.0 | console / sdk (dev) | e2e, visual, SDK browser run |
+| `@vitest/coverage-v8`, `@vitest/browser`, `@vitest/browser-playwright` | 5.1.1 | dev | coverage thresholds, SDK Chromium run |
+
+No chart library, no CSS-in-JS, no ESLint or Prettier, no npm or pnpm lockfile.
+
+## Scripts
+
+- `bun run gate`: frozen install, `contract:check`, lint, typecheck, `test:cover`, build (plus `codegen:check`, `size` and `tsdoc` as they land).
+- `bun run contract:check`: sha256 of `packages/sdk/contract/*` against `contract.lock.json`.
+- `bun run --filter '@afs/sdk' contract:update -- --ref <tag|commit>`: the only way to move the snapshot.
+- `bun run test:cover`: Vitest with v8 coverage; the console fails below 90% on `domain` and `application`.
+- An unmocked `fetch` throws in every test (`test/setup.ts`).
