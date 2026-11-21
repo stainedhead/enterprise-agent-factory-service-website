@@ -38,7 +38,7 @@
 
 | Milestone | Streams | Tasks | Done |
 |---|---|---|---|
-| M0 Foundations | 10 (+ exit) | 69 | 53 |
+| M0 Foundations | 10 (+ exit) | 69 | 63 |
 | M1 Teams & access | 10 (+ exit) | 46 | 0 |
 | M2 Agents & secrets | 7 (+ exit) | 41 | 0 |
 | M3 Spend control | 6 (+ exit) | 24 | 0 |
@@ -186,16 +186,16 @@ Owns: `presentation/shell/`, `presentation/routes/` (except `registry.tsx` lines
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M0-H1 | Router from `navigation.ts` + `registry.tsx`; `NotFoundPage` for unknown routes and for teams/resources the caller cannot see; viewport < 1024 px notice; test: every nav item resolves to a route and a registered screen, every route has a screen | WEB-US-8.7, WEB-18 | M0-D4, M0-S3 |
-| [ ] | M0-H2 | `application/errors.ts` (AppError kinds) and `infrastructure/sdk/errors.ts` (AfsError → AppError, keeping `requestId`, `details.fields`, `requiredPermission`, `reason`); SDK client built with the OIDC supplier and `onContractMismatch` | WEB-11 (part), WEB-3 (part) | M0-C10, M0-A5 |
-| [ ] | M0-H3 | `GetMe` use case and adapter; fetched at sign-in, on window focus when older than 5 min, and after any `AccessDenied` (W-2); a boot-time failure shows a full-page "AFS is not responding" with *Retry* | WEB-US-8.4, W-2 | M0-H2 |
-| [ ] | M0-H4 | Global header: brand, environment name, identity menu with *Sign out*, role pill (orange service admin, blue team-admin, grey viewer, *Security operator*) and team | WEB-US-8.5 (part), WEB-3 | M0-H3, M0-U1 |
-| [ ] | M0-H5 | Side navigation filtered by `visibleWhen(me, team)`; breadcrumbs from routes | WEB-US-8.5 (part), WEB-US-8.7 (part), WEB-5 | M0-H1, M0-H3 |
-| [ ] | M0-H6 | Team switcher: exactly the teams in `GetMe`; *All teams* for service admins | WEB-US-8.6 | M0-H3 |
-| [ ] | M0-H7 | Header search: `/` focuses it; sources from `search/sources.ts` (teams in M0; agents, pools, work orders added by their streams) using list calls only; ≤ 10 grouped matches; Enter opens | WEB-US-8.8 (part), WEB-5, D44 | M0-D6, M0-H5 |
-| [ ] | M0-H8 | Access-denied alert naming `details.requiredPermission` with the request id, for any call | WEB-US-8.9, WEB-3 | M0-H2, M0-U4 |
-| [ ] | M0-H9 | Contract notice: dismissible "A newer version of AFS is available; reload" when the SDK reports a mismatch | WEB-US-5.5 (part), D47 | M0-H2 |
-| [ ] | M0-H10 | No-access page (CD-10): a principal with no team binding and neither service role sees "No access yet" with *Sign out*; the console never calls `ListTeams` or service routes for them | WEB-3, WD-27 | M0-H3 |
+| [x] | M0-H1 | Router from `navigation.ts` + `registry.tsx`; `NotFoundPage` for unknown routes and for teams/resources the caller cannot see; viewport < 1024 px notice; test: every nav item resolves to a route and a registered screen, every route has a screen | WEB-US-8.7, WEB-18 | M0-D4, M0-S3 |
+| [x] | M0-H2 | `application/errors.ts` (AppError kinds) and `infrastructure/sdk/errors.ts` (AfsError → AppError, keeping `requestId`, `details.fields`, `requiredPermission`, `reason`); SDK client built with the OIDC supplier and `onContractMismatch` | WEB-11 (part), WEB-3 (part) | M0-C10, M0-A5 |
+| [x] | M0-H3 | `GetMe` use case and adapter; fetched at sign-in, on window focus when older than 5 min, and after any `AccessDenied` (W-2); a boot-time failure shows a full-page "AFS is not responding" with *Retry* | WEB-US-8.4, W-2 | M0-H2 |
+| [x] | M0-H4 | Global header: brand, environment name, identity menu with *Sign out*, role pill (orange service admin, blue team-admin, grey viewer, *Security operator*) and team | WEB-US-8.5 (part), WEB-3 | M0-H3, M0-U1 |
+| [x] | M0-H5 | Side navigation filtered by `visibleWhen(me, team)`; breadcrumbs from routes | WEB-US-8.5 (part), WEB-US-8.7 (part), WEB-5 | M0-H1, M0-H3 |
+| [x] | M0-H6 | Team switcher: exactly the teams in `GetMe`; *All teams* for service admins | WEB-US-8.6 | M0-H3 |
+| [x] | M0-H7 | Header search: `/` focuses it; sources from `search/sources.ts` (teams in M0; agents, pools, work orders added by their streams) using list calls only; ≤ 10 grouped matches; Enter opens | WEB-US-8.8 (part), WEB-5, D44 | M0-D6, M0-H5 |
+| [x] | M0-H8 | Access-denied alert naming `details.requiredPermission` with the request id, for any call | WEB-US-8.9, WEB-3 | M0-H2, M0-U4 |
+| [x] | M0-H9 | Contract notice: dismissible "A newer version of AFS is available; reload" when the SDK reports a mismatch | WEB-US-5.5 (part), D47 | M0-H2 |
+| [x] | M0-H10 | No-access page (CD-10): a principal with no team binding and neither service role sees "No access yet" with *Sign out*; the console never calls `ListTeams` or service routes for them | WEB-3, WD-27 | M0-H3 |
 
 ### M0-E · E2E harness
 
