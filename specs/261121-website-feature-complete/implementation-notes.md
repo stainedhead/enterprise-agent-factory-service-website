@@ -84,7 +84,14 @@ architectural ones into ADRs (`docs/architectural-decision-record.md`, ADR-005 o
 
 ## 4. Deviations from plan
 
-None yet.
+| # | Deviation | Task |
+|---|---|---|
+| DV-1 | The contract has 41 resource modules (23 top-level + 18 `admin.*`), not 42 as the spec counted; the 182 operations are all covered | M0-G1 |
+| DV-2 | `meta` is read with an exported `metaOf(value)` helper (the generated return types do not carry `meta`); void and string results have none, so `withMeta()` was not built | M0-C1 |
+| DV-3 | The C9 "no heap reference to secretKey after resolving" test is structural only: the client keeps no per-call state (private fields hold options, never bodies) and the debug hook and errors are scrubbed (tested). A real heap-snapshot test needs `node --expose-gc` and is left to M6-X | M0-C9 |
+| DV-4 | `contract:update` rewrites the files and lock and tells the user to run `codegen`; it does not run codegen or print a diff itself | M0-S2 |
+| DV-5 | `Versioned` carries optional `id`/`name`/`key` so that both a resource and a `{ id, version }` literal type-check | M0-C6 |
+| DV-6 | SDK tests set `X-Request-Id` limits and Retry-After behaviour with an injected `sleep`; non-JSON error bodies map known statuses (401/403/404/412/428/429/503) to their code and others to `InternalError` | M0-C2 |
 
 ## 5. Lessons learned
 

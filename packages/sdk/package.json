@@ -22,9 +22,12 @@
     "test": "vitest run",
     "test:cover": "vitest run --coverage",
     "contract:check": "bun tools/contract-sync.ts check",
-    "contract:update": "bun tools/contract-sync.ts update"
+    "contract:update": "bun tools/contract-sync.ts update",
+    "codegen": "bun tools/codegen/index.ts",
+    "codegen:check": "bun tools/codegen/index.ts --check"
   },
   "devDependencies": {
+    "@types/node": "24.19.2",
     "@vitest/browser": "5.1.1",
     "@vitest/browser-playwright": "5.1.1",
     "@vitest/coverage-v8": "5.1.1",

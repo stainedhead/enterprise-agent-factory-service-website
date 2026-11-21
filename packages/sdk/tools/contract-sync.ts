@@ -3,7 +3,7 @@
 import { createHash } from "node:crypto";
 import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 export const CONTRACT_FILES = ["openapi.yaml", "permissions.json", "operations.json"] as const;
 export type ContractFile = (typeof CONTRACT_FILES)[number];
@@ -81,7 +81,7 @@ export async function updateContract(opts: {
   return lock;
 }
 
-if (import.meta.main) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const [cmd, ...rest] = process.argv.slice(2);
   if (cmd === "check") {
     const problems = checkContract();

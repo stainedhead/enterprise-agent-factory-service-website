@@ -42,6 +42,7 @@
       "name": "@afs/sdk",
       "version": "0.0.1",
       "devDependencies": {
+        "@types/node": "24.19.2",
         "@vitest/browser": "5.1.1",
         "@vitest/browser-playwright": "5.1.1",
         "@vitest/coverage-v8": "5.1.1",
