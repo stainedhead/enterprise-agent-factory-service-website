@@ -4,7 +4,7 @@
 |---|---|
 | **Status** | Draft for review, feature-complete scope; revised after `review-prd` (2026-11-21) |
 | **Author** | J (Enterprise Architecture), drafted with Claude |
-| **Parent** | [Root PRD](https://github.com/stainedhead/enterprise-agent-factory-service/blob/main/enterprise-agent-factory-service-initial-PRD.md) (§4 roles; §5 UX, IA and screens; §6.14 stories US-1..US-24; §9 release plan; §10.1 decisions D23–D56) |
+| **Parent** | [Root PRD](https://github.com/stainedhead/enterprise-agent-factory-service/blob/main/enterprise-agent-factory-service-initial-PRD.md) (§4 roles; §5 UX, IA and screens; §6.14 stories US-1..US-26; §9 release plan; §10.1 decisions D23–D57) |
 | **Consumes** | [API contract](https://github.com/stainedhead/enterprise-agent-factory-service/blob/main/docs/contracts/api-contract.md) via `-restapi/api/openapi.yaml`, pinned at a release tag (§9) |
 | **Provides** | `@afs/sdk` (public TypeScript surface, semver) and the web console |
 | **Runtime** | Bun 1.4 (Node.js 22 fallback); TypeScript 7; React 19; Vite 8; Vitest 5; Biome 2; Playwright for e2e and visual checks |
@@ -82,12 +82,12 @@ The **AC** column names the stories in §5 whose criteria prove each requirement
 | WEB-13 | Work orders (P3, P6) for security operators and service admins, read-only for assigned and owning teams; owners chosen through `ListTeamDirectory` (D38); swarm templates (P5) for service admins | WO-1..6 | P2 | WEB-US-40, WEB-US-41 |
 | WEB-14 | Isolation tier on team detail, editable by service admins only | TEAM-6 | P1 | WEB-US-23 |
 | WEB-15 | Viewer kubectl switch on team detail (service admins only); with it on, team members see *Download kubeconfig* and the CLI command | ACC-5 | P2 | WEB-US-23 |
-| WEB-16 | Service settings (S10): settings keys, identity providers, storage classes, agent templates (WEB-20), service API keys and security operators | ACC-1, ACC-2, ACC-4, AGT-9 | P0–P2 | WEB-US-20 |
+| WEB-16 | Service settings (S10): settings keys, identity providers, storage classes, agent templates (WEB-20), service notification channels (OPS-5), service API keys and security operators | ACC-1, ACC-2, ACC-4, AGT-9 | P0–P2 | WEB-US-20 |
 | WEB-17 | Export and import (S11): create and download an export bundle; import with dry-run plan and account map | CFG-4..6 | P1 | WEB-US-21 |
 | WEB-18 | Every IA navigation item maps to a screen id and route (§4.1); a test fails if a navigation item has no route or a route has no screen | §5.2 | P0 | WEB-US-8 |
 | WEB-19 | S9 shows cost allocation tag status per key and the one-time activation banner until acknowledged | TAG-7 | P2 | WEB-US-19 |
 | WEB-20 | S10 *Agent templates* tab (AGT-11) for service admins; T3 and *Create pool* offer only enabled templates and their allowed image digests | AGT-2, AGT-11 | P0 | WEB-US-22 |
-| WEB-21 | Log delivery and notification channels (T14) | OPS-1, OPS-3, BUD-2 | P1 | WEB-US-34 |
+| WEB-21 | Log delivery and notification channels (T14) | OPS-1, OPS-3 | P1 | WEB-US-34 |
 | WEB-22 | Team history (T15): activity and audit, config revisions with diff and restore (dry-run first) | CFG-3, CFG-6 | P0 | WEB-US-35 |
 
 ## 4. Information architecture and routes
@@ -113,7 +113,7 @@ The **AC** column names the stories in §5 whose criteria prove each requirement
 | Team › Agents | T2 list and detail panel (tabs: secrets & identity T8, external systems T10, usage T12, logs, revisions); T3 create | `/t/:teamId/agents[/:agentId]`, `/t/:teamId/agents/new` |
 | Team › Pools & stages | P4 (ephemeral teams only) | `/t/:teamId/pools` |
 | Team › Members & access | T6 *Members* tab | `/t/:teamId/members` |
-| Team › API keys | T6 *API keys* tab (team-admins and service admins only, D49) | `/t/:teamId/members/api-keys` |
+| Team › API keys | T6 *API keys* tab (team-admins and service admins only, D50) | `/t/:teamId/members/api-keys` |
 | Configuration › Secrets | T4 (V2 for viewers) | `/t/:teamId/secrets` |
 | Configuration › Agent identities | T8, team view (every agent's identity and links, opening the agent's T8 tab) | `/t/:teamId/identities` |
 | Configuration › External systems | T9 | `/t/:teamId/external-systems` |
@@ -145,7 +145,7 @@ Status is a dot plus a word, never colour alone, using only the contract's terms
 | Agent `paused`, pool `state` | Paused (pool: Enabled, Paused, Deleting, Deleted) | grey |
 | Condition `BudgetExhausted=True` on a Ready resource | Budget blocked | red |
 
-The console never shows `Running`, `Healthy` or `Blocked (cap)`; root §5.4 still uses them (OQ-W8).
+The console never shows `Running`, `Healthy` or `Blocked (cap)`.
 
 ## 5. User stories and acceptance criteria
 
@@ -219,7 +219,7 @@ client for every operation.
 - `secrets.create({…, value})` sends the value once; the SDK never logs request bodies, and its error
   objects, debug hooks and retry diagnostics never include request bodies.
 - `apiKeys.create()` returns `secretKey` to the caller only; the SDK keeps no copy. Given a replayed
-  create (D51), `secretKey` is `undefined` and `meta.idempotentReplayed === true`.
+  create (D52), `secretKey` is `undefined` and `meta.idempotentReplayed === true`.
 
 ### Console, all roles
 
@@ -246,7 +246,7 @@ client for every operation.
 **WEB-US-8 · A shell that follows the API's decision.** *(ACC-3, §5.1, §5.2; WEB-3, WEB-4, WEB-5, WEB-18)*
 - `can()` returns `true` only for permissions in `GetMe.teams[teamId].permissions[]`, or for any
   permission when `serviceAdmin` is true, or for `work-orders:read`/`write` when `securityOperator` is
-  true (plus `swarm-templates:read`, D37); table tests cover each role's allowed and denied case.
+  true (plus `swarm-templates:read`, D37, and `teams:read-directory`, D56); table tests cover each role's allowed and denied case: a security operator and a service admin are allowed `teams:read-directory`, a team-admin, a viewer and a team API key are denied it.
 - Given a team-admin of a team with `mayManageAwsAccounts = false`, the S6 filter is read-only with the
   tooltip "Requires service admin" (because `teams:set-aws-accounts` is absent from `permissions[]`),
   and with it `true`, the filter is editable.
@@ -288,7 +288,7 @@ client for every operation.
   value is not held in React state after the request is sent.
 - The new API key's `secretKey` is shown once in a dialog with *Copy* and a warning; it is not cached,
   and after the dialog closes only the prefix is ever shown.
-- The CLI preview for create-secret shows `--value file://<path>` (never the value).
+- The CLI preview for create-secret shows `--secret-value file://<path>` (never the value).
 
 ### Console, service admin
 
@@ -300,7 +300,7 @@ client for every operation.
 - A warning banner appears when any team-day is over the variance threshold or price proposals are
   pending, with counts and links to S8 *Reconciliation* and S4.
 
-**WEB-US-13 · Teams (S2).** *(TEAM-1, TEAM-7, BUD-1)*
+**WEB-US-13 · Teams (S2).** *(US-23, US-24, TEAM-1, TEAM-7, BUD-1)*
 - The table shows slug, kind, state, agent count, spend against budget, cost center and expiry
   (ephemeral only), filterable by kind and state.
 - *Actions* on a selected team: *Suspend*, *Resume*, *Set ceiling*, *Raise ceiling temporarily* and
@@ -308,6 +308,9 @@ client for every operation.
   API's `ValidationError`.
 - *Raise ceiling temporarily* (D34) takes an amount and an expiry; the row then shows the override and
   when it ends.
+- Given a team is suspended, its row shows state *Suspended*; *Delete* is for service admins only (a
+  team-admin has no S2 and the API answers `403` to `DeleteTeam`); after deletion the row shows *Deleted*
+  and its usage, cost and history stay readable.
 - Given a team-admin or viewer opens `/teams`, the not-found page is shown; they reach their teams
   through the team switcher only.
 
@@ -354,11 +357,11 @@ client for every operation.
 - The one-time "activate cost allocation tags in AWS Billing" banner stays until a service admin
   acknowledges it; team roles never see S9 and its API calls return `403`.
 
-**WEB-US-20 · Service settings (S10).** *(ACC-1, ACC-4, AGT-9; WEB-16)*
+**WEB-US-20 · Service settings (S10).** *(US-21, ACC-1, ACC-4, AGT-9, OPS-5; WEB-16)*
 - *Settings* lists every key from `GetSettings` with value, default, allowed range and last change;
   *Edit* validates the range before sending `PutSetting` with `If-Match`.
 - *Identity providers*: add, edit and disable Okta or Entra ID providers (issuer, client id, groups
-  claim) and choose the default; the list shows the teams using each; *Disable* is disabled for a
+  claim, console client id and CLI client id) and choose the default; the list shows the teams using each; *Disable* is disabled for a
   provider in use, and the API's `409` is shown if it races; any client secret is entered write-only
   (WEB-US-11) and only its ARN is shown.
 - *Storage classes*: add, edit and remove the classes T3 offers and mark the default; a class in use
@@ -367,13 +370,16 @@ client for every operation.
 - *Service API keys*: create keys with the `security_operator` role only, shown once (WEB-US-11), with
   expiry ≤ 90 days; list shows prefix, expiry and last use.
 - *Security operators*: add or remove users and IdP groups.
+- *Notification channels* (service level, OPS-5): add, edit and delete the service's email, Slack, webhook
+  and Jira channels used for service events and, through `work_orders.notification_channel_id`, for
+  outside work order contacts; deleting the channel named in that setting shows the API's `409`.
 - Given a team-admin, S10 is not in the navigation and its routes show the not-found page.
 
 **WEB-US-21 · Export and import (S11).** *(US-13, CFG-4..6; WEB-17)*
 - *Create export* starts `CreateExport`, shows its progress, and lists past exports with size, checksum
-  and download link; a note says the bundle holds no secret values.
+  and, once complete, the download link, which is valid 7 days and then shows as expired (D49); a note says the bundle holds no secret values.
 - *Import* takes a bundle and an account map (source → target account ids); *Dry run* is the default and
-  shows the plan (create, update, skip per resource); *Apply* is enabled only after a dry run of
+  shows the plan (create, update, skip per resource) from the same synchronous call that *Apply* repeats with `dryRun=false`; a bundle over 100 MB is refused client-side; *Apply* is enabled only after a dry run of
   the same inputs and asks for confirmation.
 
 **WEB-US-22 · Agent templates (S10 tab).** *(AGT-2, AGT-11; WEB-20)*
@@ -396,12 +402,14 @@ client for every operation.
 
 ### Console, team-admin
 
-**WEB-US-24 · Team overview (T1).** *(US-2, US-13, TEAM-5)*
+**WEB-US-24 · Team overview (T1).** *(US-2, US-13, US-23, TEAM-5)*
 - T1 shows namespace, cluster, IAM role ARN (copyable), cost center, phase with conditions (type, status,
   reason, message, time), budget burn against amount, agent health counts and recent activity.
 - The *Models* tab lists the team's enabled models; only service admins can edit it.
 - A *Work orders* card lists work orders assigned to the team or touching its repositories
   (`ListTeamWorkOrders`), read-only.
+- Given a suspended team, T1 shows state *Suspended*, write controls are disabled with "Team is
+  suspended", and the API's `409` is shown if a write races; *Resume* stays available.
 - *Suspend* and *Resume* are in *Actions*; *Edit* changes display name, description, owner and sign-in
   provider (among the enabled providers).
 - Given the team is *Suspended* (TEAM-9), every page of the team shows a banner and every mutating
@@ -443,12 +451,14 @@ client for every operation.
 - Rotate asks for the new value and warns which agents will restart.
 - Deleting a bound secret shows the API's `409` with the agents that use it, each linked.
 
-**WEB-US-28 · Budget and usage (T5).** *(US-9, BUD-1..5)*
+**WEB-US-28 · Budget and usage (T5).** *(US-9, US-24, BUD-1..5)*
 - T5 shows month-to-date spend, month-end forecast with projected cap date, action at exhaustion, latest
   reconciliation, daily spend split into Bedrock tokens and EKS compute, and spend by agent.
 - *Edit budget* takes amount, thresholds and (service admins only, persistent teams only) the action at
   exhaustion (D33); an amount above the ceiling is refused client-side with the ceiling named, and by the
   API with `ValidationError`.
+- Given a team-admin, the ceiling, override, quotas and *notify* controls are not offered (service admins
+  only); the API's `403` is shown if forced.
 - A link opens T14 *Notifications*, where threshold alerts are delivered.
 
 **WEB-US-29 · Members and API keys (T6).** *(US-2)*
@@ -457,9 +467,9 @@ client for every operation.
 - *API keys* creates a key with name, role and expiry (≤ 90 days, default 30); the secret is shown once
   (WEB-US-11); the list shows prefix, role, expiry and last use.
 - Given a viewer, membership controls are disabled with "Requires team-admin" and the *API keys* tab is
-  not shown (D49).
+  not shown (D50).
 - The page shows the team's sign-in provider; team-admins can change it among the enabled providers.
-- Given a `CreateApiKey` retry is replayed without `secretKey` (D51), the dialog says the key was created
+- Given a `CreateApiKey` retry is replayed without `secretKey` (D52), the dialog says the key was created
   but cannot be shown again, and offers *Delete key*.
 
 **WEB-US-30 · Configuration values (T7).** *(US-5, CFG-7)*
@@ -492,16 +502,18 @@ client for every operation.
   tags; fixed tags and system tags are read-only; viewers see everything read-only.
 - Tags dropped from Bedrock request metadata because of the 16-pair limit (D27) are listed.
 
-**WEB-US-34 · Log delivery and notifications (T14).** *(OPS-1, BUD-2; WEB-21)*
+**WEB-US-34 · Log delivery and notifications (T14).** *(US-19, OPS-1, OPS-3; WEB-21)*
 - *Log delivery* lists destinations (CloudWatch, S3, OTLP, Splunk HEC, Datadog) with status and last
   delivery; team-admins add, edit and delete them; credentials are chosen as secret references, never
   typed into the form.
 - *Notifications* lists channels (Slack, email, webhook, Jira) with the events each receives and its
   delivery status; *Send test* sends one test message and shows the result.
 - Deleting a channel used by a report schedule lists the schedules first.
-- Viewers see both tabs read-only.
+- A failed delivery shows on the channel with its error.
+- Viewers see both tabs read-only: create, edit and delete are disabled with "Requires team-admin", and the
+  API's `403` for `CreateLogDestination` or `CreateNotificationChannel` is shown if forced.
 
-**WEB-US-35 · History (T15).** *(US-13, US-14, CFG-2, CFG-3; WEB-22)*
+**WEB-US-35 · History (T15).** *(US-13, US-14, US-20, CFG-2, CFG-3; WEB-22)*
 - *Activity & audit* lists the team's audit records (actor, action, resource, outcome, request id) with
   the S5 filters and CSV download.
 - *Config revisions* lists revisions per resource with author and time; selecting two shows a diff.
@@ -554,18 +566,25 @@ client for every operation.
   persistent teams.
 
 **WEB-US-40 · Work orders (P3, P6).** *(US-16, D37, D38; WEB-13)*
-- A security operator signs in to a console with only *Work orders*; the list filters by status,
+- A security operator signs in to a console with only *Work orders* and *Swarm templates* (read-only); the list filters by status,
   severity, SLA state and team, showing team names from `ListTeamDirectory`.
 - *Create work order* takes CVE, severity, SLA, template (from `ListSwarmTemplates`, enabled only), cap
-  and repositories with an owner each: a team picked from `ListTeamDirectory` by slug or name, an email,
-  or both. It shows the CLI command with `--repos host/owner/repo=team_…,ops@example.com`.
+  and repositories, each with an owner picker (D38): a team picked from `ListTeamDirectory` by slug or
+  name, an email, or both, or no owner at all, in which case `afs-api` resolves it from the teams'
+  `AFS_OWNED_REPOS` configuration (an exact entry beats a wildcard; an explicit owner always wins).
+- The picker pre-fills from the resolution: when `CreateWorkOrder` answers `400` with
+  `details.ambiguousRepos`, each listed repository's picker is pre-filled with the candidate teams to
+  choose from, and with `details.unownedRepos` those repositories are highlighted and need an owner;
+  after a successful create each repository shows whether its owner came from *team configuration* or was
+  *explicit* (`ownerSource`). The CLI preview shows `--repos host/owner/repo` for a repository with no
+  owner chosen and `--repos host/owner/repo=team_…,ops@example.com` for one with owners.
 - A second work order for an open CVE shows the API's `409` with a link to the existing one.
 - The detail shows SLA state, remediation team with spend against cap, one row per repository with
   status, PR link and notifications sent; *Cancel* asks for a reason.
 - A team-admin or viewer of an owning team sees the work order read-only, with only their repositories'
   rows; opening a work order with no link to their teams shows the not-found page (API `404`).
 
-**WEB-US-41 · Swarm templates (P5).** *(WO-2)*
+**WEB-US-41 · Swarm templates (P5).** *(US-22, WO-2)*
 - Service admins create and edit templates (stages, pools, handoffs, secrets needed, configuration, cap,
   TTL, teardown), see revisions, and enable or disable a template; a disabled template is not offered
   in *Create work order*.
@@ -610,7 +629,7 @@ replaced in M0.
   (no `unsafe-inline` scripts), HSTS, `Referrer-Policy: no-referrer`, `X-Content-Type-Options: nosniff`.
 - **CORS** is allowed by `afs-api` only from origins in setting `api.cors_origins`; it must allow headers
   `Authorization`, `Content-Type`, `If-Match`, `Idempotency-Key`, `X-Request-Id` and expose `ETag`,
-  `X-Request-Id`, `Idempotent-Replayed`, `Retry-After` (dependency, §9).
+  `X-Request-Id`, `Idempotent-Replayed`, `Retry-After`, `X-Afs-Contract-Version` and `X-Afs-Next-Token` (dependency, §9).
 
 ## 7. Non-functional requirements
 
@@ -647,13 +666,11 @@ replaced in M0.
 | M0 | S3 bucket, CloudFront distribution, response headers policy and `config.json` per environment | platform (Terraform) |
 | M0 | IdP SPA app registrations in Okta and Entra ID per environment (PKCE, redirect URIs, refresh token rotation, groups claim) | J / IdP admins |
 | M0 | Dev environment with seeded test users per role for e2e | platform |
-| M1–M6 | A contract tag holding each milestone's operations before the console work starts (M1 teams, members, settings, identity providers; M2 agents, secrets, config, external systems, storage classes, agent templates (needs the `-db` `agent_templates` table, D53); M3 budget, usage, reports, notifications; M4 audit, tags, accounts, role links, exports, log delivery; M5 pools, kubeconfig, cost tag status; M6 work orders, swarm templates, `ListTeamDirectory`, service keys) | `-restapi` |
+| M1–M6 | A contract tag holding each milestone's operations before the console work starts (M1 teams, members, settings, identity providers; M2 agents, secrets, config, external systems, storage classes, agent templates (needs the `-db` `agent_templates` table, D54); M3 budget, usage, reports, notifications; M4 audit, tags, accounts, role links, exports, log delivery; M5 pools, kubeconfig, cost tag status; M6 work orders, swarm templates, `ListTeamDirectory`, service keys) | `-restapi` |
 
 ## 10. Delivery
 
-Milestones match the root §9. Placement of S10, S11, T14 and T15 is this PRD's proposal until root §9
-names those screens; it follows the requirement ids root §9 already places (for example CFG-5/6 and
-OPS-1/3 in M4).
+Milestones match the root §9.
 
 | Root milestone | This repository |
 |---|---|
@@ -661,7 +678,7 @@ OPS-1/3 in M4).
 | M1 Teams & access | S1–S3, T1, T6, V1; S10 *Settings* and *Identity providers*; T15 audit and revisions (restore in M4); WEB-6, WEB-7, WEB-11; SDK-7 |
 | M2 Agents & secrets | T2–T4, T7, T9, T10, S7, V2; S10 *Storage classes* and *Agent templates* (WEB-20); WEB-8 |
 | M3 Spend control | T5, S4, S8, T11, T12; T14 notifications; WEB-9 (without scheduling); SDK-8 |
-| M4 Production readiness | S5, S6, S9, T8, T13; T14 log delivery; S11 export and import (WEB-17); report scheduling (RPT-8); T15 restore; agent identities (AGT-5) |
+| M4 Production readiness | S5, S6, S9, T8, T13; T14 log delivery; S11 export and import (WEB-17); report scheduling (RPT-8); T15 restore; agent identities (AGT-5); S10 *Notification channels* (service level, OPS-5) |
 | M5 Budgeted workloads and swarms | P2, P4 (WEB-12); isolation tier (WEB-14); viewer kubectl (WEB-15); cost tag status (WEB-19, TAG-7) |
 | M6 CVE remediation | P3, P5, P6 (WEB-13); security operator role; S10 *Service API keys* and *Security operators*; feature complete |
 
@@ -681,14 +698,13 @@ OPS-1/3 in M4).
 
 | # | Question | Owner | Needed by |
 |---|---|---|---|
-| OQ-W1 | Mockups for S10, S11, T14 and T15; add *Configuration values* (T7) to the root IA and its navigation table; place S10, S11, T14 and T15 in root §9 | root (J) | M1 |
+| OQ-W1 | Mockups for S10, S11, T14 and T15; add *Configuration values* (T7) to the root IA and its navigation table | root (J) | M1 |
 | OQ-W2 | Should `ListSignInProviders` accept `?teamId=` and return that team's provider, so a `?teamId=` deep link picks the right provider before sign-in (it would reveal which provider a team id uses)? | `-restapi` / J | M1 |
-| OQ-W3 | How CSV responses paginate (token in a header or a trailer), so `asCsv()` can fetch every page and keep one header row (D39) | `-restapi` | M3 |
+| OQ-W3 | Resolved: the next page's token travels in the response header `X-Afs-Next-Token` (absent on the last page), so `asCsv()` fetches every page and keeps one header row (D39, API contract §1) | `-restapi` | M3 |
 | OQ-W4 | Telemetry backend for Web Vitals and errors (CloudWatch RUM or the OpenTelemetry collector) | platform | M1 |
 | OQ-W5 | Idle sign-out default: 60 min proposed; confirm against the enterprise session policy | J | M0 |
 | OQ-W6 | Revisit push status (SSE) instead of polling if reconcile lag or rate limits make polling costly | web lead | after M3 |
 | OQ-W7 | Whether the web and CLI share golden CLI-command fixtures for WEB-6 | `-cli` / web lead | M1 |
-| OQ-W8 | Root §5.4 key flows say `Running`, `Blocked (cap)` and `Healthy`, which D24 replaces; root to align | root | M1 |
 | OQ-9 | IdP-to-IAM federation for viewer kubectl (shapes the *Download kubeconfig* instructions) | J | M5 |
 
 ### 12.2 Decisions applied here
@@ -705,8 +721,8 @@ OPS-1/3 in M4).
 | D43 | S3 + CloudFront, runtime `config.json`, CORS from `api.cors_origins` | §6.2 |
 | D44 | Header search is a client-side filter; no search API | WEB-5, WEB-US-8 |
 | D47 | `X-Afs-Contract-Version` exposed by the SDK; console shows a reload notice when newer | SDK-10, WEB-US-5 |
-| D49 | *API keys* tab only for team-admins and service admins | WEB-US-29 |
-| D51 | A replayed `CreateApiKey` never returns the key again | WEB-US-6, WEB-US-29 |
+| D50 | *API keys* tab only for team-admins and service admins | WEB-US-29 |
+| D52 | A replayed `CreateApiKey` never returns the key again | WEB-US-6, WEB-US-29 |
 | W-1 | Polling 5 s for 2 min, then 30 s; stop on `Ready`/`Failed` or hidden page; `waitFor` uses the same cadence | WEB-7, SDK-7 |
 | W-2 | `GetMe` refetched at sign-in, on focus after 5 min and after any `AccessDenied` | WEB-US-8 |
 | W-3 | Visual snapshots approved against mockups by the web lead; 0.5% pixel threshold | §8 |
