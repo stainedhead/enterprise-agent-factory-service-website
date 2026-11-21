@@ -4,7 +4,7 @@
 |---|---|
 | **Status** | Draft for review, feature-complete scope; revised after `review-prd` (2026-11-21) |
 | **Author** | J (Enterprise Architecture), drafted with Claude |
-| **Parent** | [Root PRD](https://github.com/stainedhead/enterprise-agent-factory-service/blob/main/enterprise-agent-factory-service-initial-PRD.md) (§4 roles; §5 UX, IA and screens; §6.13 stories US-1..US-18; §9 release plan; §10.1 decisions D23–D46) |
+| **Parent** | [Root PRD](https://github.com/stainedhead/enterprise-agent-factory-service/blob/main/enterprise-agent-factory-service-initial-PRD.md) (§4 roles; §5 UX, IA and screens; §6.14 stories US-1..US-24; §9 release plan; §10.1 decisions D23–D56) |
 | **Consumes** | [API contract](https://github.com/stainedhead/enterprise-agent-factory-service/blob/main/docs/contracts/api-contract.md) via `-restapi/api/openapi.yaml`, pinned at a release tag (§9) |
 | **Provides** | `@afs/sdk` (public TypeScript surface, semver) and the web console |
 | **Runtime** | Bun 1.4 (Node.js 22 fallback); TypeScript 7; React 19; Vite 8; Vitest 5; Biome 2; Playwright for e2e and visual checks |
