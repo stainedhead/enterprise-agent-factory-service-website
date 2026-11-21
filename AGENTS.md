@@ -136,7 +136,7 @@ Critical or important findings (security, authorization, secret handling) are fi
 
 ## Agent workflow
 
-1. **Understand:** read the root PRD (section 5 is the UI by role), `docs/solution-design.md`, this file
+1. **Understand:** this repository's PRD (`enterprise-agent-factory-service-website-PRD.md`), the shared contracts in the root's `docs/contracts/`, the root PRD (section 5 is the UI by role), `docs/solution-design.md`, this file
    and the active spec.
 2. **Plan:** name the affected layers and packages.
 3. **Red → Green → Refactor.**
