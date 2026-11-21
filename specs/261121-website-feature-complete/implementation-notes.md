@@ -48,6 +48,7 @@ architectural ones into ADRs (`docs/architectural-decision-record.md`, ADR-005 o
 | WD-32 | The S6 component also renders for team roles in the team's *Agent identities* view, editable only when `teams:set-aws-accounts` is in the team's `permissions[]` | WEB-US-8.2 needs a team-admin view of the S6 filter, and S6 itself sits on the service admin team detail page | A second team-admin route outside the IA |
 | WD-33 | `can()` without a team reads `Me.servicePermissions` when present, else `serviceAdmin` → all and `securityOperator` → its column | F-1: the OpenAPI has `servicePermissions`; the PRD rule is the fallback (CQ-4) | Ignoring `servicePermissions` |
 | WD-34 | Streams own files (tasks.md *How to use*), shared lists pre-created with placeholders in M0-S3; `M6-X1` fails if any `NotBuiltYet` or `notImplementedPort` remains | Parallel worktrees without merge conflicts | Free-for-all edits |
+| WD-35 | S8's overview is `/reports`, reached through *Governance › Cost reconciliation* (S8 tabs *Overview* and *Reconciliation*) and S1 links; the IA has no separate *Reports* item | PRD §4.1 lists only the reconciliation route for S8 | Adding a nav item outside the IA |
 
 ## 2. Contract questions raised with other repositories
 

@@ -4,7 +4,7 @@
 |---|---|
 | **Feature** | website-feature-complete |
 | **Date** | 2026-11-21 |
-| **Status** | Draft (step 1) |
+| **Status** | Reviewed (step 2) |
 
 ## 1. Overview
 
@@ -121,6 +121,8 @@ structure:
 | `presentation/screens/t14-delivery/tabs.ts`, `t15-history/tabs.ts` | the two tabs each | none |
 | `presentation/search/sources.ts` | search source (teams, agents, pools, work orders) | none |
 | `e2e/fake-afs/fixtures/index.ts` | fixture module per area | none |
+| `packages/sdk/tools/codegen/emitters.ts` | codegen emitter (schemas, operations, resources; CLI table from M1-L) | the three M0 emitters |
+| `packages/sdk/src/index.ts` (from M1) | export of an SDK extra (`waitFor`, reports) | — |
 | `e2e/visual/approvals.json` | screen | all 33 screens `pending`, no baseline |
 
 `domain/navigation.ts` holds the full IA from M0 (every item, every route); it is owned by M0-D and
@@ -170,7 +172,7 @@ grant (or reports expiry, which starts the session-expired flow).
 
 `AppShell` = `GlobalHeader` (brand, search, environment name, role pill, identity menu with *Sign out*) +
 `SideNav` (groups from `navigation.ts` filtered by `visibleWhen(me, team)`; team context shows the team
-switcher) + `Breadcrumbs` + routed page. Team context is the `:teamId` route segment; *All teams* for
+switcher; *Governance › Cost reconciliation* opens S8, whose tabs are *Overview* (`/reports`) and *Reconciliation*, WD-35) + `Breadcrumbs` + routed page. Team context is the `:teamId` route segment; *All teams* for
 service admins returns to `/teams`. Route guard: an unknown route, a team not in `GetMe` (for non-service
 admins), or a `NotFound` from the API renders `NotFoundPage` (never confirms existence). Viewport < 1024
 px renders the "Use a wider window" notice instead of the shell.

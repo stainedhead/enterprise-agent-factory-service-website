@@ -4,7 +4,7 @@
 |---|---|
 | **Feature** | website-feature-complete |
 | **Date** | 2026-11-21 |
-| **Status** | Planning (step 1, 2026-11-21) |
+| **Status** | Reviewed (step 2, 2026-11-21); M0 not started |
 
 ## How to use this file
 
@@ -16,7 +16,7 @@
   `*.test.ts(x)` and `*.spec.ts` files beside them, plus **one line** in a shared list (architecture.md
   §3.2: `presentation/routes/registry.tsx`, `main/wiring.ts`, the `tabs.ts`/`sections.ts`/`cards.ts`
   lists, `presentation/search/sources.ts`, `e2e/fake-afs/fixtures/index.ts`, `e2e/visual/approvals.json`,
-  and from M1 on `packages/sdk/src/index.ts`). Editing anything else is a dependency on another stream
+  `packages/sdk/tools/codegen/emitters.ts`, and from M1 on `packages/sdk/src/index.ts`). Editing anything else is a dependency on another stream
   and must be listed in *Depends*. Paths below are relative to `apps/console/src/` unless they start with
   `packages/`, `apps/` or `e2e/` (= `apps/console/e2e/`).
 - **Area files.** A console area stream owns, for its area `<a>`: `application/ports/<a>.ts`,
@@ -38,14 +38,14 @@
 
 | Milestone | Streams | Tasks | Done |
 |---|---|---|---|
-| M0 Foundations | 10 (+ exit) | 68 | 0 |
+| M0 Foundations | 10 (+ exit) | 69 | 0 |
 | M1 Teams & access | 10 (+ exit) | 46 | 0 |
 | M2 Agents & secrets | 7 (+ exit) | 41 | 0 |
 | M3 Spend control | 6 (+ exit) | 24 | 0 |
 | M4 Production readiness | 8 (+ exit) | 34 | 0 |
 | M5 Budgeted workloads and swarms | 4 (+ exit) | 19 | 0 |
 | M6 CVE remediation and completion | 6 (+ exit) | 26 | 0 |
-| **Total** | **51** | **258** | **0** |
+| **Total** | **51** | **259** | **0** |
 
 ## External dependencies and contract questions
 
@@ -85,7 +85,7 @@ Owns: root `package.json`, `packages/sdk/package.json`, `apps/console/package.js
 
 ### M0-G · Code generation (SDK)
 
-Owns: `packages/sdk/tools/codegen/`, `packages/sdk/src/generated/` (output), `packages/sdk/src/generated.coverage.test.ts`.
+Owns: `packages/sdk/tools/codegen/` (incl. the shared list `emitters.ts`), `packages/sdk/src/generated/` (output), `packages/sdk/src/generated.coverage.test.ts`.
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
@@ -101,7 +101,7 @@ Owns: `packages/sdk/src/core/`, `packages/sdk/src/index.ts`, `packages/sdk/src/t
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M0-C1 | Transport: URL building (encoded path params, query), `Accept`, JSON body, `X-Request-Id` from `requestId` option, `ResponseMeta` (status, requestId, etag, contractVersion, idempotentReplayed) as non-enumerable `meta`; unknown fields kept but ignored; `204` → void; `text/csv` and `application/yaml` bodies as strings | WEB-US-5.3, WEB-US-5.2 (part), WEB-US-5.4 (part), SDK-10 | M0-G1 |
+| [ ] | M0-C1 | Transport: URL building (encoded path params, query), `Accept`, JSON body, `X-Request-Id` from `requestId` option (> 64 chars → `TypeError` before sending), `ResponseMeta` (status, requestId, etag, contractVersion, idempotentReplayed) as non-enumerable `meta`; unknown fields kept but ignored; `204` → void; `text/csv` and `application/yaml` bodies as strings | WEB-US-5.3, WEB-US-5.2 (part), WEB-US-5.4 (part), SDK-10 | M0-G1 |
 | [ ] | M0-C2 | `AfsError`: open `code`, `status`, `requestId`, `details`, `toJSON()`, ten getters; a non-JSON error body (e.g. `502` HTML) → `code: "InternalError"`, message ≤ 200 chars; `428` → `isPreconditionRequired`; table test: each code sets its getter and no other; unknown `"NewCode"` kept | WEB-US-1.5, WEB-US-1.3 (part), WEB-US-5.4 (part), SDK-5 | M0-C1 |
 | [ ] | M0-C3 | Auth: `bearer(supplier)` and `apiKey("afsk_…")`; latest token per request; on `401` call supplier once with `forceRefresh: true` and retry once; second `401` throws `isUnauthenticated`; never a third attempt; API key never calls a supplier | WEB-US-2.1, WEB-US-2.2, WEB-US-2.3, SDK-2 | M0-C1 |
 | [ ] | M0-C4 | Retry: full jitter (`random(0, min(cap, base·2^n))`, base 200 ms, cap 5 s, 3 retries, configurable, injectable random/sleep); `429` honours `Retry-After`, > 30 s → throw `isThrottled` at once; `503` up to 3 retries then `isUnavailable` with the last `requestId`; network errors only for `GET`/`PUT`/`DELETE`/`POST`+key; `400`, `401` (after refresh), `403`, `404`, `412`, `428` never retried; `PATCH` network error not retried; abort during backoff rejects ≤ 50 ms and sends nothing more | WEB-US-3.1, WEB-US-3.2, WEB-US-3.5, WEB-US-3.6, SDK-6 | M0-C2 |
@@ -146,7 +146,7 @@ Owns: `presentation/components/`, `presentation/styles/`.
 |---|---|---|---|---|
 | [ ] | M0-U1 | Design tokens and base styles from the mockup CSS (research.md §5) as CSS modules: palette, Open Sans 14 px, header 40 px, side nav 232 px, role pill colours; contrast test (tokens meet AA) | WEB-5 (part), WEB-US-42.2 (part), WD-18 | M0-S1 |
 | [ ] | M0-U2 | `Button` (primary, normal, link; `disabledReason` → focusable tooltip "Requires <role>"), `Tooltip`, `ActionsMenu` (APG menu button) | WEB-3 (part), WEB-US-36.1 (part) | M0-U1 |
-| [ ] | M0-U3 | `Table`: text filter, property filters, server pagination (`maxResults`/`nextToken`), preferences (page size, columns) through `PreferencesPort`, selection, sorting, empty/loading/error states | WEB-5 | M0-U1 |
+| [ ] | M0-U3 | `Table`: text filter, property filters, server pagination (`maxResults`/`nextToken`; an expired or refused token → restart from page 1 with a notice), preferences (page size, columns) through `PreferencesPort`, selection, sorting, empty/loading/error states | WEB-5 | M0-U1 |
 | [ ] | M0-U4 | `StatusIndicator` (dot + word from `domain/status`), `Alert` (request id with copy button), `Banner`, `LiveRegion` (polite announcements of status changes) | WEB-US-10.3, WEB-US-9.1 (part), WEB-US-42.1 (part), WEB-11 | M0-U1, M0-D3 |
 | [ ] | M0-U5 | `Modal`, `ConfirmDialog` (optional note), `TypeToConfirm`, `OneTimeSecretDialog` (*Copy*, warning, value only in a ref, cleared on close) | WEB-US-11.3 (part), WEB-8 | M0-U2 |
 | [ ] | M0-U6 | `Wizard` (steps, *Next* disabled until the step is valid, review step) and `FormField` (label, hint, error from `ValidationError.details.fields[]`) | WEB-5, WEB-US-14.1 (part) | M0-U2 |
@@ -175,7 +175,7 @@ Owns: `infrastructure/auth/`, `infrastructure/config/`, `infrastructure/storage/
 | [ ] | M0-A3 | Deep links: `?provider=idp_…` skips the picker; `?teamId=` signs in with remembered/default provider and opens that team; a team not in `GetMe` → not-found page with *Sign in with another provider*, never confirming existence | WEB-US-7.2, WEB-US-7.3, WD-14 | M0-A2, M0-H1 |
 | [ ] | M0-A4 | OIDC with `oauth4webapi`: PKCE `S256`, `state`, `nonce`; verifier in `sessionStorage` only until the callback, then removed; wrong `state` or `nonce` refused with an error page; URL cleaned after callback | WEB-US-7.4, WEB-2 | M0-A2 |
 | [ ] | M0-A5 | `TokenStore` in memory only (access, ID, refresh); SDK `bearer` supplier with `forceRefresh` (refresh grant); unit test: no storage API is called with a token | WEB-US-7.5 (part), WEB-2 | M0-A4 |
-| [ ] | M0-A6 | Silent renew 60 s before expiry (refresh token, else hidden-iframe `prompt=none`, WD-30); reload runs top-level `prompt=none` and returns to the same route without the IdP page | WEB-US-7.6 (part) | M0-A5 |
+| [ ] | M0-A6 | Silent renew 60 s before expiry, computed from `expires_in` (clock-skew safe) (refresh token, else hidden-iframe `prompt=none`, WD-30); reload runs top-level `prompt=none` and returns to the same route without the IdP page | WEB-US-7.6 (part) | M0-A5 |
 | [ ] | M0-A7 | Session expired: a `401` that survives the SDK refresh shows "Your session has expired", keeps route and non-secret drafts (in-memory `DraftStore`), clears every registered `SecretInput`, re-authenticates and restores | WEB-US-7.7 | M0-A5, M0-U8 |
 | [ ] | M0-A8 | Sign out: clear tokens and the query cache, `BroadcastChannel("afs-session")` signs out other tabs, provider end-session with `id_token_hint`, land on `/signed-out` | WEB-US-7.8 (part) | M0-A5 |
 | [ ] | M0-A9 | Idle sign-out after `idleTimeoutMinutes` (default 60) without activity (fake clock tests) | WEB-US-7.9, WD-16 | M0-A8 |
@@ -188,13 +188,14 @@ Owns: `presentation/shell/`, `presentation/routes/` (except `registry.tsx` lines
 |---|---|---|---|---|
 | [ ] | M0-H1 | Router from `navigation.ts` + `registry.tsx`; `NotFoundPage` for unknown routes and for teams/resources the caller cannot see; viewport < 1024 px notice; test: every nav item resolves to a route and a registered screen, every route has a screen | WEB-US-8.7, WEB-18 | M0-D4, M0-S3 |
 | [ ] | M0-H2 | `application/errors.ts` (AppError kinds) and `infrastructure/sdk/errors.ts` (AfsError → AppError, keeping `requestId`, `details.fields`, `requiredPermission`, `reason`); SDK client built with the OIDC supplier and `onContractMismatch` | WEB-11 (part), WEB-3 (part) | M0-C10, M0-A5 |
-| [ ] | M0-H3 | `GetMe` use case and adapter; fetched at sign-in, on window focus when older than 5 min, and after any `AccessDenied` (W-2) | WEB-US-8.4, W-2 | M0-H2 |
+| [ ] | M0-H3 | `GetMe` use case and adapter; fetched at sign-in, on window focus when older than 5 min, and after any `AccessDenied` (W-2); a boot-time failure shows a full-page "AFS is not responding" with *Retry* | WEB-US-8.4, W-2 | M0-H2 |
 | [ ] | M0-H4 | Global header: brand, environment name, identity menu with *Sign out*, role pill (orange service admin, blue team-admin, grey viewer, *Security operator*) and team | WEB-US-8.5 (part), WEB-3 | M0-H3, M0-U1 |
 | [ ] | M0-H5 | Side navigation filtered by `visibleWhen(me, team)`; breadcrumbs from routes | WEB-US-8.5 (part), WEB-US-8.7 (part), WEB-5 | M0-H1, M0-H3 |
 | [ ] | M0-H6 | Team switcher: exactly the teams in `GetMe`; *All teams* for service admins | WEB-US-8.6 | M0-H3 |
 | [ ] | M0-H7 | Header search: `/` focuses it; sources from `search/sources.ts` (teams in M0; agents, pools, work orders added by their streams) using list calls only; ≤ 10 grouped matches; Enter opens | WEB-US-8.8 (part), WEB-5, D44 | M0-D6, M0-H5 |
 | [ ] | M0-H8 | Access-denied alert naming `details.requiredPermission` with the request id, for any call | WEB-US-8.9, WEB-3 | M0-H2, M0-U4 |
 | [ ] | M0-H9 | Contract notice: dismissible "A newer version of AFS is available; reload" when the SDK reports a mismatch | WEB-US-5.5 (part), D47 | M0-H2 |
+| [ ] | M0-H10 | No-access page (CD-10): a principal with no team binding and neither service role sees "No access yet" with *Sign out*; the console never calls `ListTeams` or service routes for them | WEB-3, WD-27 | M0-H3 |
 
 ### M0-E · E2E harness
 
@@ -269,7 +270,7 @@ Owns: area files: `teams`; `presentation/screens/s2-teams/`, `presentation/scree
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
 | [ ] | M1-T1 | `TeamsPort`, SDK adapter and use cases: list, get, create, update (incl. guardrail fields), delete, suspend, resume, status, models list/put, tags get/put, service-tag list for S3 | WEB-US-13.1 (part) | M1-Q1 |
-| [ ] | M1-T2 | S2 table: slug, kind, state, agent count, spend against budget, cost center, expiry (ephemeral only); filters kind and state; `?view=budgets` columns | WEB-US-13.1, WEB-1 (part) | M1-T1 |
+| [ ] | M1-T2 | S2 table: slug, kind, state, agent count, spend against budget (spend from `GetServiceReport` grouped by team, one call per page), cost center, expiry (ephemeral only); filters kind and state; `?view=budgets` columns | WEB-US-13.1, WEB-1 (part) | M1-T1 |
 | [ ] | M1-T3 | S2 *Actions*: *Suspend*, *Resume*, *Delete* (type the slug), *Set ceiling* (API `ValidationError` below the budget shown), *Raise ceiling temporarily* (amount, expiry, reason; row shows the override and when it ends) | WEB-US-13.2, WEB-US-13.3, D34 | M1-T2 |
 | [ ] | M1-T4 | S2 states: *Suspended*; after deletion *Deleted* with usage, cost and history links still readable; *Delete* only for service admins; team-admin or viewer opening `/teams` gets the not-found page | WEB-US-13.4, WEB-US-13.5 | M1-T2 |
 | [ ] | M1-T5 | S3 wizard: details, models and network, budget, members, review; *Next* gated per step; review shows everything and the CLI command; `budgetStepVariants.ts` list (P2 adds its line) | WEB-US-14.1, WEB-6 | M1-T1, M1-L3 |
@@ -352,7 +353,7 @@ C starts once A1's port lands (A1 first, merged early). Merge order: A, C, S, V,
 
 ### M2-A · Agents (T2)
 
-Owns: area files: `agents`; `presentation/screens/t2-agents/` (table, detail panel, `panelTabs.ts`, `tabs/logs/`, `tabs/revisions/`); search source line for agents.
+Owns: area files: `agents`; `presentation/screens/t2-agents/` (table, detail panel, `panelTabs.ts`, `tabs/logs/`, `tabs/revisions/`; not `tabs/external-systems/`, which M2-E owns); search source line for agents.
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
@@ -763,10 +764,248 @@ Owns: `packages/sdk/contract/`, `packages/sdk/src/generated/`, `domain/generated
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M6-X1 | Merge; gate, CI and full e2e green; every criterion in the traceability table proven by a passing test; status 100%; dashboard step 3 complete | all | all M6 |
+| [ ] | M6-X1 | Merge; gate, CI and full e2e green; every criterion in the traceability table proven by a passing test; a check fails if any `NotBuiltYet` route or `notImplementedPort` remains; status 100%; dashboard step 3 complete | all | all M6 |
 
 ---
 
 ## Traceability
 
-Generated from the tables above at step 2 (review); regenerate when tasks change.
+Generated from the tables above at step 2 (review) by checking every `AC / Req` cell; regenerate when tasks change. Every one of the 182 criteria and every PRD requirement has at least one task.
+
+### Story criteria → tasks
+
+| Criterion | Tasks |
+|---|---|
+| WEB-US-1.1 | M0-G5 |
+| WEB-US-1.2 | M0-G3, M0-C6 |
+| WEB-US-1.3 | M0-C2, M0-C6 |
+| WEB-US-1.4 | M0-C7 |
+| WEB-US-1.5 | M0-C2 |
+| WEB-US-1.6 | M0-S4, M0-C10 |
+| WEB-US-2.1 | M0-C3 |
+| WEB-US-2.2 | M0-C3 |
+| WEB-US-2.3 | M0-C3 |
+| WEB-US-2.4 | M0-C9 |
+| WEB-US-3.1 | M0-C4 |
+| WEB-US-3.2 | M0-C4 |
+| WEB-US-3.3 | M0-C5 |
+| WEB-US-3.4 | M0-C5 |
+| WEB-US-3.5 | M0-C4 |
+| WEB-US-3.6 | M0-C4 |
+| WEB-US-4.1 | M1-K1 |
+| WEB-US-4.2 | M0-C11, M3-K1 |
+| WEB-US-4.3 | M0-S4, M0-P4 |
+| WEB-US-4.4 | M0-P1, M0-P2 |
+| WEB-US-4.5 | M0-P3 |
+| WEB-US-5.1 | M0-G2, M0-P5 |
+| WEB-US-5.2 | M0-G2, M0-C1, M0-P5 |
+| WEB-US-5.3 | M0-C1 |
+| WEB-US-5.4 | M0-C1, M0-C2 |
+| WEB-US-5.5 | M0-C8, M0-H9 |
+| WEB-US-6.1 | M0-G3, M0-C9 |
+| WEB-US-6.2 | M0-C9, M1-M5 |
+| WEB-US-7.1 | M0-A2, M0-E4 |
+| WEB-US-7.2 | M0-A3 |
+| WEB-US-7.3 | M0-A3 |
+| WEB-US-7.4 | M0-A4 |
+| WEB-US-7.5 | M0-A5, M0-E4 |
+| WEB-US-7.6 | M0-A6, M0-E4 |
+| WEB-US-7.7 | M0-A7 |
+| WEB-US-7.8 | M0-A8, M0-E4 |
+| WEB-US-7.9 | M0-A9 |
+| WEB-US-8.1 | M0-D1 |
+| WEB-US-8.2 | M4-W3, M4-I6 |
+| WEB-US-8.3 | M0-D2 |
+| WEB-US-8.4 | M0-H3 |
+| WEB-US-8.5 | M0-D4, M0-H4, M0-H5, M0-E5, M6-O1, M6-O2 |
+| WEB-US-8.6 | M0-H6 |
+| WEB-US-8.7 | M0-D4, M0-H1, M0-H5 |
+| WEB-US-8.8 | M0-D6, M0-H7, M0-E5, M6-W8 |
+| WEB-US-8.9 | M0-H8 |
+| WEB-US-9.1 | M0-D3, M0-U4, M1-Q6, M1-O1 |
+| WEB-US-9.2 | M0-D3, M1-Q2, M1-T7 |
+| WEB-US-9.3 | M1-Q2 |
+| WEB-US-9.4 | M1-Q3 |
+| WEB-US-9.5 | M1-Q4 |
+| WEB-US-9.6 | M0-D3, M2-A3 |
+| WEB-US-10.1 | M1-Q5 |
+| WEB-US-10.2 | M1-Q1 |
+| WEB-US-10.3 | M0-U4 |
+| WEB-US-11.1 | M1-Q6, M1-Y1, M1-M6, M2-S7, M2-X1, M6-K3, M6-Q4 |
+| WEB-US-11.2 | M0-U8, M1-N3, M2-S2 |
+| WEB-US-11.3 | M0-U5, M1-M2, M6-K1 |
+| WEB-US-11.4 | M1-L2, M2-S6 |
+| WEB-US-12.1 | M1-D1 |
+| WEB-US-12.2 | M1-D2 |
+| WEB-US-12.3 | M1-D3 |
+| WEB-US-13.1 | M1-T1, M1-T2 |
+| WEB-US-13.2 | M1-T3 |
+| WEB-US-13.3 | M1-T3 |
+| WEB-US-13.4 | M1-T4 |
+| WEB-US-13.5 | M1-T4 |
+| WEB-US-14.1 | M0-U6, M1-L3, M1-T5 |
+| WEB-US-14.2 | M1-T6 |
+| WEB-US-14.3 | M1-T6 |
+| WEB-US-14.4 | M1-T7 |
+| WEB-US-15.1 | M3-P1 |
+| WEB-US-16.1 | M4-A1 |
+| WEB-US-16.2 | M4-A2 |
+| WEB-US-16.3 | M4-A3 |
+| WEB-US-17.1 | M4-W1 |
+| WEB-US-17.2 | M4-W2 |
+| WEB-US-17.3 | M4-W3 |
+| WEB-US-18.1 | M2-F1 |
+| WEB-US-18.2 | M2-F2 |
+| WEB-US-18.3 | M2-F3 |
+| WEB-US-18.4 | M2-F4 |
+| WEB-US-19.1 | M4-G1 |
+| WEB-US-19.2 | M4-G2 |
+| WEB-US-19.3 | M5-T1 |
+| WEB-US-19.4 | M4-G3 |
+| WEB-US-20.1 | M1-N2 |
+| WEB-US-20.2 | M1-N3 |
+| WEB-US-20.3 | M2-G1 |
+| WEB-US-20.4 | M2-G2 |
+| WEB-US-20.5 | M6-K1 |
+| WEB-US-20.6 | M6-K2 |
+| WEB-US-20.7 | M4-N1 |
+| WEB-US-20.8 | M0-D4, M1-N1 |
+| WEB-US-21.1 | M4-E1 |
+| WEB-US-21.2 | M4-E2 |
+| WEB-US-22.1 | M2-G2 |
+| WEB-US-22.2 | M2-C1, M5-P3 |
+| WEB-US-22.3 | M2-A7, M5-P7 |
+| WEB-US-23.1 | M5-G1 |
+| WEB-US-23.2 | M5-G2 |
+| WEB-US-23.3 | M5-G3 |
+| WEB-US-24.1 | M1-O1 |
+| WEB-US-24.2 | M1-O2 |
+| WEB-US-24.3 | M1-O3 |
+| WEB-US-24.4 | M1-O4 |
+| WEB-US-24.5 | M1-O5 |
+| WEB-US-24.6 | M1-O4 |
+| WEB-US-25.1 | M2-A1, M2-A2 |
+| WEB-US-25.2 | M2-A3 |
+| WEB-US-25.3 | M2-A4 |
+| WEB-US-25.4 | M2-A5, M4-I5 |
+| WEB-US-25.5 | M2-A6 |
+| WEB-US-26.1 | M2-C1 |
+| WEB-US-26.2 | M2-C2 |
+| WEB-US-26.3 | M2-C3 |
+| WEB-US-26.4 | M2-C4 |
+| WEB-US-26.5 | M2-C5 |
+| WEB-US-26.6 | M2-C3 |
+| WEB-US-26.7 | M1-L3, M2-C6 |
+| WEB-US-27.1 | M2-S2 |
+| WEB-US-27.2 | M2-S3 |
+| WEB-US-27.3 | M2-S4 |
+| WEB-US-27.4 | M2-S5 |
+| WEB-US-28.1 | M3-B1 |
+| WEB-US-28.2 | M3-B2 |
+| WEB-US-28.3 | M3-B3 |
+| WEB-US-28.4 | M3-B4 |
+| WEB-US-29.1 | M1-M1 |
+| WEB-US-29.2 | M1-M2 |
+| WEB-US-29.3 | M1-M3 |
+| WEB-US-29.4 | M1-M4 |
+| WEB-US-29.5 | M1-M5 |
+| WEB-US-30.1 | M2-V1 |
+| WEB-US-30.2 | M2-V2 |
+| WEB-US-30.3 | M2-V3 |
+| WEB-US-30.4 | M2-V4 |
+| WEB-US-31.1 | M4-I1 |
+| WEB-US-31.2 | M4-I2 |
+| WEB-US-31.3 | M4-I3 |
+| WEB-US-31.4 | M4-I4 |
+| WEB-US-32.1 | M2-E1 |
+| WEB-US-32.2 | M2-E2 |
+| WEB-US-32.3 | M2-E3 |
+| WEB-US-33.1 | M4-G4 |
+| WEB-US-33.2 | M4-G5 |
+| WEB-US-34.1 | M4-L1 |
+| WEB-US-34.2 | M3-N1, M3-N2 |
+| WEB-US-34.3 | M3-N3 |
+| WEB-US-34.4 | M3-N4 |
+| WEB-US-34.5 | M3-N5, M4-L2 |
+| WEB-US-35.1 | M1-H1 |
+| WEB-US-35.2 | M1-H2 |
+| WEB-US-35.3 | M4-S3 |
+| WEB-US-36.1 | M0-U2, M1-O6, M1-X1, M2-X1, M3-X1, M4-X1, M5-X1, M6-Q3 |
+| WEB-US-36.2 | M2-S3 |
+| WEB-US-37.1 | M3-C2, M3-R1, M3-R6 |
+| WEB-US-37.2 | M3-R2, M3-R6 |
+| WEB-US-37.3 | M3-R3 |
+| WEB-US-37.4 | M3-R4 |
+| WEB-US-37.5 | M3-R5 |
+| WEB-US-37.6 | M4-S1 |
+| WEB-US-37.7 | M4-S2 |
+| WEB-US-38.1 | M5-E1 |
+| WEB-US-38.2 | M5-E2 |
+| WEB-US-38.3 | M5-E3 |
+| WEB-US-39.1 | M5-P2 |
+| WEB-US-39.2 | M5-P3 |
+| WEB-US-39.3 | M5-P4 |
+| WEB-US-39.4 | M5-P5 |
+| WEB-US-39.5 | M5-P6 |
+| WEB-US-39.6 | M5-P7 |
+| WEB-US-40.1 | M6-O1, M6-W2 |
+| WEB-US-40.2 | M6-W3 |
+| WEB-US-40.3 | M6-W4 |
+| WEB-US-40.4 | M6-W5 |
+| WEB-US-40.5 | M6-W6 |
+| WEB-US-40.6 | M6-W7 |
+| WEB-US-41.1 | M6-T1 |
+| WEB-US-41.2 | M6-O1, M6-T2 |
+| WEB-US-42.1 | M0-U4, M0-U9, M0-E5, M1-T9, M1-O7, M1-M6, M1-D4, M1-N4, M1-H3, M2-A8, M2-C7, M2-S7, M2-V5, M2-E4, M2-F5, M2-G4, M3-C1, M3-B5, M3-P2, M3-R7, M3-N6, M4-A4, M4-W4, M4-G6, M4-I7, M4-L3, M4-E3, M4-S4, M4-N2, M5-E4, M5-P8, M5-G4, M6-W9, M6-T3, M6-K3, M6-Q1 |
+| WEB-US-42.2 | M0-U1, M0-E3, M1-T9, M1-O7, M1-M6, M1-D4, M1-N4, M1-H3, M2-A8, M2-C7, M2-S7, M2-V5, M2-E4, M2-F5, M2-G4, M3-B5, M3-P2, M3-R7, M3-N6, M4-A4, M4-W4, M4-G6, M4-I7, M4-L3, M4-E3, M4-N2, M5-E4, M5-P8, M5-T2, M6-W9, M6-T3, M6-K3, M6-Q2 |
+
+### Requirements → tasks
+
+| Requirement | Tasks |
+|---|---|
+| SDK-1 | M0-S2, M0-G1, M0-G4, M0-G5, M6-U1 |
+| SDK-2 | M0-C3 |
+| SDK-3 | M0-G4, M0-C7 |
+| SDK-4 | M0-G3, M0-C5, M0-C6 |
+| SDK-5 | M0-C2 |
+| SDK-6 | M0-C4 |
+| SDK-7 | M1-K1 |
+| SDK-8 | M0-C11, M3-K1 |
+| SDK-9 | M0-S1, M0-C10, M0-P1, M0-P3, M0-P4 |
+| SDK-10 | M0-G2, M0-C1, M0-C8, M0-D5 |
+| SDK-11 | M0-G3, M0-C9 |
+| WEB-1 | M1-T2, M1-T8, M4-I6, M6-Q2 |
+| WEB-2 | M0-A2, M0-A4, M0-A5, M0-E2 |
+| WEB-3 | M0-U2, M0-H2, M0-H4, M0-H8, M0-H10, M6-O1 |
+| WEB-4 | M0-D1, M0-D2 |
+| WEB-5 | M0-U1, M0-U3, M0-U6, M0-U7, M0-H5, M0-H7 |
+| WEB-6 | M0-U8, M1-L1, M1-L2, M1-L3, M1-T5, M2-C6, M2-S6, M5-P6, M6-W4 |
+| WEB-7 | M0-D3, M1-Q2 |
+| WEB-8 | M0-U5, M0-U8, M1-Q6, M2-S1 |
+| WEB-9 | M3-C1, M3-C2, M3-R1, M3-R3 |
+| WEB-10 | M0-U9, M6-Q1 |
+| WEB-11 | M0-U4, M0-H2, M1-Q5 |
+| WEB-12 | M5-P1, M5-P2 |
+| WEB-13 | M6-W1, M6-W3, M6-T1 |
+| WEB-14 | M5-G1 |
+| WEB-15 | M5-G1, M5-G3 |
+| WEB-16 | M1-N1, M2-G1, M4-N1, M6-K1, M6-K2 |
+| WEB-17 | M4-E1, M4-E2 |
+| WEB-18 | M0-S3, M0-D4, M0-H1, M2-G3 |
+| WEB-19 | M4-G3, M5-T1 |
+| WEB-20 | M2-C1, M2-G2, M2-G3, M5-P3 |
+| WEB-21 | M3-N1, M4-L1 |
+| WEB-22 | M1-H1, M1-H2, M4-S3 |
+| NFR-1 | M0-W3, M6-Q5 |
+| NFR-2 | M0-P2 |
+| NFR-3 | M0-W1, M6-Q5 |
+| NFR-4 | M1-Q1, M1-Q4, M1-Q7 |
+| NFR-5 | M1-Y1 |
+| NFR-6 | M0-S3, M6-Q6 |
+| NFR-7 | M0-S1, M0-S4, M6-Q7 |
+| NFR-8 | M0-U9, M6-Q1 |
+| FR-034 | M0-S5, M0-W1 |
+| FR-035 | M0-A1 |
+| FR-036 | M0-W2 |
+| FR-037 | M0-W1, M0-W2, M6-Q6 |
+| FR-038 | M0-W2, M0-E1 |

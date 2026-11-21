@@ -4,14 +4,15 @@
 |---|---|
 | **Feature** | website-feature-complete |
 | **Date** | 2026-11-21 |
-| **Status** | Planning (step 1) |
+| **Status** | Reviewed (step 2); implementation (step 3) not started |
 
 ## 1. Development approach
 
 - **Milestone agents in order, M0 → M6.** Each runs its milestone's streams in parallel git worktrees
   (branches `wt/<milestone>-<stream>` off `feat/website-feature-complete`), merges them in the listed order,
   runs the exit task, and only then does the next milestone start. Only the milestone agent ticks
-  `tasks.md` and updates `status.md` and the dashboard.
+  `tasks.md` and updates `status.md` and the dashboard. Worker agents run on `claude-sonnet-4-6`
+  (implm-frm-prd); the milestone agent reviews each stream's diff against its *Owns* line before merging.
 - **TDD per task.** Red (the task's AC tests fail for the right reason), green, refactor; `bun run gate`
   green before each commit. Commits reference `specs/261121-website-feature-complete` and the task ids.
 - **Generated before hand-written.** The SDK is generated from the pinned snapshot; screens never call
