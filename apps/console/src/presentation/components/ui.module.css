@@ -357,3 +357,13 @@
   white-space: pre-wrap;
   word-break: break-all;
 }
+.menuWrap {
+  position: relative;
+  display: inline-block;
+}
+.notice {
+  padding: 0 20px 8px;
+}
+.block {
+  display: block;
+}

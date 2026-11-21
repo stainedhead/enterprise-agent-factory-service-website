@@ -32,7 +32,7 @@
 
 | Milestone | Status | Tasks done |
 |---|---|---|
-| M0 Foundations | In Progress | 41 / 69 |
+| M0 Foundations | In Progress | 44 / 69 |
 | M1 Teams & access | Not Started | 0 / 46 |
 | M2 Agents & secrets | Not Started | 0 / 41 |
 | M3 Spend control | Not Started | 0 / 24 |
@@ -47,6 +47,7 @@ none blocks M0.
 
 ## Recent activity
 
+- 2026-11-21: M0 M0-W1, M0-W2, M0-W3 done (44/69).
 - 2026-11-21: M0 M0-U1, M0-U2, M0-U3, M0-U4, M0-U5, M0-U6, M0-U7, M0-U8, M0-U9 done (41/69).
 - 2026-11-21: M0 M0-D1, M0-D2, M0-D3, M0-D4, M0-D5, M0-D6 done (32/69).
 - 2026-11-21: M0 M0-P1, M0-P2, M0-P3, M0-P4, M0-P5 done (26/69).

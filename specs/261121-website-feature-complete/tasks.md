@@ -38,7 +38,7 @@
 
 | Milestone | Streams | Tasks | Done |
 |---|---|---|---|
-| M0 Foundations | 10 (+ exit) | 69 | 41 |
+| M0 Foundations | 10 (+ exit) | 69 | 44 |
 | M1 Teams & access | 10 (+ exit) | 46 | 0 |
 | M2 Agents & secrets | 7 (+ exit) | 41 | 0 |
 | M3 Spend control | 6 (+ exit) | 24 | 0 |
@@ -160,9 +160,9 @@ Owns: `apps/console/vite.config.ts`, `apps/console/index.html`, `apps/console/pu
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M0-W1 | Vite: hashed asset names, no inline script, CSS modules, browser targets (last 2 majors), `mode=e2e` compiles the test-only debug hook, drop `VITE_AFS_ENDPOINT`; local `public/config.json` | FR-034, FR-037, NFR-3 | M0-S1 |
-| [ ] | M0-W2 | `deploy/`: `response-headers-policy.json` (CSP of FR-037 with placeholders + `frame-src <issuers>` per WD-30, HSTS, `no-referrer`, `nosniff`), `cache-behaviors.json`, `config.schema.json`; `build-output.test.ts` (no inline script, hashed assets, `index.html` refs only hashed files) | FR-036, FR-037, FR-038, WD-19 | M0-W1 |
-| [ ] | M0-W3 | `size:console`: initial route ≤ 300 KB gzip; in the gate | NFR-1 | M0-W1 |
+| [x] | M0-W1 | Vite: hashed asset names, no inline script, CSS modules, browser targets (last 2 majors), `mode=e2e` compiles the test-only debug hook, drop `VITE_AFS_ENDPOINT`; local `public/config.json` | FR-034, FR-037, NFR-3 | M0-S1 |
+| [x] | M0-W2 | `deploy/`: `response-headers-policy.json` (CSP of FR-037 with placeholders + `frame-src <issuers>` per WD-30, HSTS, `no-referrer`, `nosniff`), `cache-behaviors.json`, `config.schema.json`; `build-output.test.ts` (no inline script, hashed assets, `index.html` refs only hashed files) | FR-036, FR-037, FR-038, WD-19 | M0-W1 |
+| [x] | M0-W3 | `size:console`: initial route ≤ 300 KB gzip; in the gate | NFR-1 | M0-W1 |
 
 ### M0-A · Sign-in, session and runtime config
 

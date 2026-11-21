@@ -6,10 +6,12 @@ import { CheckServiceHealth } from "../application/usecases/CheckServiceHealth.j
 import { SdkServiceHealth } from "../infrastructure/sdk/SdkServiceHealth.js";
 import { App } from "../presentation/App.js";
 import { type UseCases, UseCasesContext } from "../presentation/AppContext.js";
-import { loadConfig } from "./config.js";
 
-const config = loadConfig(import.meta.env);
-const client = new AfsClient({ endpoint: config.apiEndpoint });
+// Interim until M0-A1 (runtime config) and M0-H (shell) replace this file.
+const config = (await (await fetch("/config.json", { cache: "no-store" })).json()) as {
+  apiUrl: string;
+};
+const client = new AfsClient({ endpoint: config.apiUrl });
 const useCases: UseCases = {
   checkServiceHealth: new CheckServiceHealth(new SdkServiceHealth(client)),
 };

@@ -18,7 +18,7 @@
     "contract:check": "bun run --filter '@afs/sdk' contract:check",
     "test:cover": "bun run --filter '*' test:cover",
     "codegen:check": "bun run --filter '@afs/sdk' codegen:check",
-    "size": "bun run --filter '@afs/sdk' size",
+    "size": "bun run --filter '@afs/sdk' size && bun run --filter '@afs/console' size",
     "tsdoc": "bun run --filter '@afs/sdk' tsdoc"
   },
   "devDependencies": {

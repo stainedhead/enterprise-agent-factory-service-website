@@ -159,7 +159,7 @@ export function Table<T>(p: TableProps<T>) {
         )}
       </div>
       {p.notice && (
-        <div role="status" className={s.hint} style={{ padding: "0 20px 8px" }}>
+        <div role="status" className={`${s.hint} ${s.notice}`}>
           {p.notice}
         </div>
       )}
@@ -285,7 +285,7 @@ export function Table<T>(p: TableProps<T>) {
           <fieldset>
             <legend>Columns</legend>
             {p.columns.map((c) => (
-              <label key={c.id} style={{ display: "block" }}>
+              <label key={c.id} className={s.block}>
                 <input
                   type="checkbox"
                   checked={!hidden.includes(c.id)}

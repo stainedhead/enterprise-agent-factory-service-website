@@ -47,7 +47,7 @@ export function ActionsMenu({
   };
 
   return (
-    <span ref={wrap} style={{ position: "relative", display: "inline-block" }}>
+    <span ref={wrap} className={s.menuWrap}>
       <Button
         aria-haspopup="menu"
         aria-expanded={open}
