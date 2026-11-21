@@ -116,7 +116,7 @@ export function emitSchemas(c: Contract): string {
     const t = typeOf(s, false);
     const isObj = t.startsWith("{") && !s.allOf;
     out.push(
-      doc(s.description, ""),
+      doc(s.description ?? `${name} (OpenAPI schema \`${name}\`).`, ""),
       isObj ? `export interface ${name} ${t}\n` : `export type ${name} = ${t};\n`,
     );
     if (inputs.has(name)) {

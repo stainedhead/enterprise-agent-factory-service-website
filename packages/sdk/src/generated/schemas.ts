@@ -5,6 +5,7 @@ declare const moneyBrand: unique symbol;
 /** USD amount as a decimal string with at most 6 fraction digits; never a number. */
 export type Money = string & { readonly [moneyBrand]: true };
 
+/** AddMemberRequest (OpenAPI schema `AddMemberRequest`). */
 
 export interface AddMemberRequest {
   email?: string;
@@ -15,6 +16,7 @@ export interface AddMemberRequest {
   userId?: string;
 }
 
+/** AddSecurityOperatorRequest (OpenAPI schema `AddSecurityOperatorRequest`). */
 
 export interface AddSecurityOperatorRequest {
   email?: string;
@@ -49,6 +51,7 @@ export interface Agent {
   volume?: AgentVolume;
 }
 
+/** AgentIdentity (OpenAPI schema `AgentIdentity`). */
 
 export interface AgentIdentity {
   readonly createdAt?: Timestamp;
@@ -79,6 +82,7 @@ export interface AgentList {
   nextToken?: string;
 }
 
+/** AgentTemplate (OpenAPI schema `AgentTemplate`). */
 
 export interface AgentTemplate {
   allowedDigests: string[];
@@ -102,6 +106,7 @@ export interface AgentTemplateList {
   nextToken?: string;
 }
 
+/** AgentVolume (OpenAPI schema `AgentVolume`). */
 
 export interface AgentVolume {
   onDelete?: "snapshot_then_delete" | "delete" | "retain" | (string & {});
@@ -113,6 +118,7 @@ export interface AgentVolume {
   storageClass?: string;
 }
 
+/** AllowedAccount (OpenAPI schema `AllowedAccount`). */
 
 export interface AllowedAccount {
   accountId: AwsAccountId;
@@ -128,6 +134,7 @@ export interface AllowedAccountList {
   nextToken?: string;
 }
 
+/** AmbiguousRepo (OpenAPI schema `AmbiguousRepo`). */
 
 export interface AmbiguousRepo {
   /** host/owner/repo */
@@ -135,6 +142,7 @@ export interface AmbiguousRepo {
   teamIds: string[];
 }
 
+/** ApiKey (OpenAPI schema `ApiKey`). */
 
 export interface ApiKey {
   readonly createdAt: Timestamp;
@@ -157,6 +165,7 @@ export interface ApiKeyList {
   nextToken?: string;
 }
 
+/** AuditEvent (OpenAPI schema `AuditEvent`). */
 
 export interface AuditEvent {
   /** operationId or reconciler action */
@@ -185,9 +194,11 @@ export interface AuditEventList {
   nextToken?: string;
 }
 
+/** AwsAccountId (OpenAPI schema `AwsAccountId`). */
 
 export type AwsAccountId = string;
 
+/** Budget (OpenAPI schema `Budget`). */
 
 export interface Budget {
   amountUsd: Money;
@@ -208,11 +219,13 @@ export interface Budget {
   readonly version: number;
 }
 
+/** CancelWorkOrderRequest (OpenAPI schema `CancelWorkOrderRequest`). */
 
 export interface CancelWorkOrderRequest {
   reason: string;
 }
 
+/** CatalogSystemRequest (OpenAPI schema `CatalogSystemRequest`). */
 
 export interface CatalogSystemRequest {
   category: "dev_tools" | "collaboration" | "email" | "cloud" | "identity" | "llm" | "other" | (string & {});
@@ -224,6 +237,7 @@ export interface CatalogSystemRequest {
   slug: string;
 }
 
+/** Condition (OpenAPI schema `Condition`). */
 
 export interface Condition {
   lastTransitionTime: Timestamp;
@@ -239,6 +253,7 @@ export interface Condition {
 
 export type ConfigName = string;
 
+/** ConfigValue (OpenAPI schema `ConfigValue`). */
 
 export interface ConfigValue {
   name: ConfigName;
@@ -258,12 +273,14 @@ export interface ConfigValueList {
   nextToken?: string;
 }
 
+/** CostList (OpenAPI schema `CostList`). */
 
 export interface CostList {
   items: CostRow[];
   nextToken?: string;
 }
 
+/** CostReconciliation (OpenAPI schema `CostReconciliation`). */
 
 export interface CostReconciliation {
   billedUsd: Money;
@@ -283,6 +300,7 @@ export interface CostReconciliationList {
   nextToken?: string;
 }
 
+/** CostRow (OpenAPI schema `CostRow`). */
 
 export interface CostRow {
   agentId?: string | null;
@@ -294,6 +312,7 @@ export interface CostRow {
   source: "gateway" | "cur_bedrock" | "cur_eks" | "cur_other" | (string & {});
 }
 
+/** CostTagStatus (OpenAPI schema `CostTagStatus`). */
 
 export interface CostTagStatus {
   awsStatus: "active" | "inactive" | "unknown" | (string & {});
@@ -312,6 +331,7 @@ export interface CostTagStatusList {
   nextToken?: string;
 }
 
+/** CreateAgentIdentityRequest (OpenAPI schema `CreateAgentIdentityRequest`). */
 
 export interface CreateAgentIdentityRequest {
   externalRef: string;
@@ -319,6 +339,7 @@ export interface CreateAgentIdentityRequest {
   secretId?: string;
 }
 
+/** CreateAgentRequest (OpenAPI schema `CreateAgentRequest`). */
 
 export interface CreateAgentRequest {
   description?: string;
@@ -333,6 +354,7 @@ export interface CreateAgentRequest {
   volume?: AgentVolume;
 }
 
+/** CreateApiKeyRequest (OpenAPI schema `CreateApiKeyRequest`). */
 
 export interface CreateApiKeyRequest {
   /** At most 90 days ahead */
@@ -341,12 +363,14 @@ export interface CreateApiKeyRequest {
   role: "team_admin" | "team_viewer" | (string & {});
 }
 
+/** CreateExportRequest (OpenAPI schema `CreateExportRequest`). */
 
 export interface CreateExportRequest {
   /** Teams to export; omit for every team */
   teamIds?: string[];
 }
 
+/** CreateIdentityProviderRequest (OpenAPI schema `CreateIdentityProviderRequest`). */
 
 export interface CreateIdentityProviderRequest {
   cliClientId: string;
@@ -360,6 +384,7 @@ export interface CreateIdentityProviderRequest {
   name: string;
 }
 
+/** CreateLogDestinationRequest (OpenAPI schema `CreateLogDestinationRequest`). */
 
 export interface CreateLogDestinationRequest {
   config: Record<string, unknown>;
@@ -369,6 +394,7 @@ export interface CreateLogDestinationRequest {
   secretId?: string;
 }
 
+/** CreateModelPriceRequest (OpenAPI schema `CreateModelPriceRequest`). */
 
 export interface CreateModelPriceRequest {
   cacheReadUsdPerMtok?: Money;
@@ -378,6 +404,7 @@ export interface CreateModelPriceRequest {
   outputUsdPerMtok: Money;
 }
 
+/** CreateModelRequest (OpenAPI schema `CreateModelRequest`). */
 
 export interface CreateModelRequest {
   contextWindow: number;
@@ -389,6 +416,7 @@ export interface CreateModelRequest {
   provider: string;
 }
 
+/** CreateNotificationChannelRequest (OpenAPI schema `CreateNotificationChannelRequest`). */
 
 export interface CreateNotificationChannelRequest {
   config: Record<string, unknown>;
@@ -399,6 +427,7 @@ export interface CreateNotificationChannelRequest {
   secretId?: string;
 }
 
+/** CreatePoolRequest (OpenAPI schema `CreatePoolRequest`). */
 
 export interface CreatePoolRequest {
   description?: string;
@@ -415,6 +444,7 @@ export interface CreatePoolRequest {
   workers: number;
 }
 
+/** CreatePoolRoleLinkRequest (OpenAPI schema `CreatePoolRoleLinkRequest`). */
 
 export interface CreatePoolRoleLinkRequest {
   accountId: AwsAccountId;
@@ -423,6 +453,7 @@ export interface CreatePoolRoleLinkRequest {
   roleName: string;
 }
 
+/** CreateReportScheduleRequest (OpenAPI schema `CreateReportScheduleRequest`). */
 
 export interface CreateReportScheduleRequest {
   cadence: "daily" | "weekly" | "monthly" | (string & {});
@@ -434,6 +465,7 @@ export interface CreateReportScheduleRequest {
   report: "usage" | "costs" | "activity" | "traffic" | (string & {});
 }
 
+/** CreateRoleLinkRequest (OpenAPI schema `CreateRoleLinkRequest`). */
 
 export interface CreateRoleLinkRequest {
   maxSessionSeconds?: number;
@@ -441,6 +473,7 @@ export interface CreateRoleLinkRequest {
   roleArn: string;
 }
 
+/** CreateSecretRequest (OpenAPI schema `CreateSecretRequest`). */
 
 export interface CreateSecretRequest {
   agentId?: string;
@@ -456,6 +489,7 @@ export interface CreateSecretRequest {
   value: SecretValue;
 }
 
+/** CreateServiceApiKeyRequest (OpenAPI schema `CreateServiceApiKeyRequest`). */
 
 export interface CreateServiceApiKeyRequest {
   /** At most 90 days ahead */
@@ -464,11 +498,13 @@ export interface CreateServiceApiKeyRequest {
   role: "security_operator" | (string & {});
 }
 
+/** CreateSnapshotRequest (OpenAPI schema `CreateSnapshotRequest`). */
 
 export interface CreateSnapshotRequest {
   description?: string;
 }
 
+/** CreateStageRequest (OpenAPI schema `CreateStageRequest`). */
 
 export interface CreateStageRequest {
   description?: string;
@@ -476,6 +512,7 @@ export interface CreateStageRequest {
   position: number;
 }
 
+/** CreateSwarmTemplateRequest (OpenAPI schema `CreateSwarmTemplateRequest`). */
 
 export interface CreateSwarmTemplateRequest {
   budgetUsd: Money;
@@ -488,6 +525,7 @@ export interface CreateSwarmTemplateRequest {
   ttlHours: number;
 }
 
+/** CreateTeamRequest (OpenAPI schema `CreateTeamRequest`). */
 
 export interface CreateTeamRequest {
   /** Needs teams:set-aws-accounts on update */
@@ -521,6 +559,7 @@ export interface CreateTeamRequest {
   viewerKubectl?: boolean;
 }
 
+/** CreateWorkOrderRequest (OpenAPI schema `CreateWorkOrderRequest`). */
 
 export interface CreateWorkOrderRequest {
   budgetUsd?: Money;
@@ -533,11 +572,13 @@ export interface CreateWorkOrderRequest {
   title: string;
 }
 
+/** DecidePriceProposalRequest (OpenAPI schema `DecidePriceProposalRequest`). */
 
 export interface DecidePriceProposalRequest {
   note?: string;
 }
 
+/** DeclareExternalSystemRequest (OpenAPI schema `DeclareExternalSystemRequest`). */
 
 export interface DeclareExternalSystemRequest {
   category: "dev_tools" | "collaboration" | "email" | "cloud" | "identity" | "llm" | "other" | (string & {});
@@ -560,6 +601,7 @@ export interface DeliveryStatus {
   lastTestId?: string | null;
 }
 
+/** Error (OpenAPI schema `Error`). */
 
 export interface Error {
   code: ErrorCode;
@@ -587,6 +629,7 @@ export interface ErrorDetails {
   unownedRepos?: string[];
 }
 
+/** Export (OpenAPI schema `Export`). */
 
 export interface Export {
   readonly createdAt: Timestamp;
@@ -613,6 +656,7 @@ export interface ExportList {
   nextToken?: string;
 }
 
+/** ExternalSystem (OpenAPI schema `ExternalSystem`). */
 
 export interface ExternalSystem {
   readonly builtin: boolean;
@@ -643,11 +687,13 @@ export interface ExternalSystemList {
   nextToken?: string;
 }
 
+/** ExternalSystemState (OpenAPI schema `ExternalSystemState`). */
 
 export interface ExternalSystemState {
   enabled: boolean;
 }
 
+/** FieldError (OpenAPI schema `FieldError`). */
 
 export interface FieldError {
   field: string;
@@ -663,6 +709,7 @@ export interface FirstAdmin {
   userId?: string;
 }
 
+/** HealthStatus (OpenAPI schema `HealthStatus`). */
 
 export interface HealthStatus {
   /** Per dependency: ok or the failure */
@@ -670,6 +717,7 @@ export interface HealthStatus {
   status: "ok" | "ready" | "not ready" | (string & {});
 }
 
+/** IdentityProvider (OpenAPI schema `IdentityProvider`). */
 
 export interface IdentityProvider {
   cliClientId: string;
@@ -704,6 +752,7 @@ export interface IdentityProviderList {
 
 export type ImageRef = string;
 
+/** ImportReport (OpenAPI schema `ImportReport`). */
 
 export interface ImportReport {
   dryRun: boolean;
@@ -720,6 +769,7 @@ export interface ImportRequest {
   bundle: Record<string, unknown>;
 }
 
+/** ImportTeamResult (OpenAPI schema `ImportTeamResult`). */
 
 export interface ImportTeamResult {
   changes: string[];
@@ -732,6 +782,7 @@ export interface ImportTeamResult {
 
 export type Kubeconfig = string;
 
+/** LogDestination (OpenAPI schema `LogDestination`). */
 
 export interface LogDestination {
   /** Kind-specific settings; never a credential (use secretId) */
@@ -758,6 +809,7 @@ export interface LogDestinationList {
   nextToken?: string;
 }
 
+/** Me (OpenAPI schema `Me`). */
 
 export interface Me {
   principal: Principal;
@@ -768,6 +820,7 @@ export interface Me {
   teams: MeTeam[];
 }
 
+/** MeTeam (OpenAPI schema `MeTeam`). */
 
 export interface MeTeam {
   /** Effective permissions on this team (D42); UX only */
@@ -777,6 +830,7 @@ export interface MeTeam {
   teamId: string;
 }
 
+/** Member (OpenAPI schema `Member`). */
 
 export interface Member {
   readonly createdAt?: Timestamp;
@@ -801,6 +855,7 @@ export interface MemberList {
   nextToken?: string;
 }
 
+/** Model (OpenAPI schema `Model`). */
 
 export interface Model {
   contextWindow: number;
@@ -821,6 +876,7 @@ export interface ModelList {
   nextToken?: string;
 }
 
+/** ModelPrice (OpenAPI schema `ModelPrice`). */
 
 export interface ModelPrice {
   cacheReadUsdPerMtok?: Money;
@@ -846,6 +902,7 @@ export interface ModelPriceList {
 
 export type Name = string;
 
+/** NotificationChannel (OpenAPI schema `NotificationChannel`). */
 
 export interface NotificationChannel {
   /** Kind-specific settings; never a credential (use secretId) */
@@ -884,6 +941,7 @@ export interface NotificationTestResult {
   testId: string;
 }
 
+/** OrgAccount (OpenAPI schema `OrgAccount`). */
 
 export interface OrgAccount {
   accountId: AwsAccountId;
@@ -900,9 +958,11 @@ export interface OrgAccountList {
   nextToken?: string;
 }
 
+/** Phase (OpenAPI schema `Phase`). */
 
 export type Phase = "Pending" | "Reconciling" | "Ready" | "Degraded" | "Failed" | "Deleting" | (string & {});
 
+/** Pool (OpenAPI schema `Pool`). */
 
 export interface Pool {
   readonly createdAt?: Timestamp;
@@ -929,6 +989,7 @@ export interface Pool {
   workers: number;
 }
 
+/** PoolHandoffs (OpenAPI schema `PoolHandoffs`). */
 
 export interface PoolHandoffs {
   toPoolIds: string[];
@@ -943,6 +1004,7 @@ export interface PoolList {
   nextToken?: string;
 }
 
+/** PoolRoleLink (OpenAPI schema `PoolRoleLink`). */
 
 export interface PoolRoleLink {
   accountId: AwsAccountId;
@@ -970,12 +1032,14 @@ export interface PoolRoleLinkList {
   nextToken?: string;
 }
 
+/** PoolSecretBindings (OpenAPI schema `PoolSecretBindings`). */
 
 export interface PoolSecretBindings {
   items: SecretBinding[];
   readonly version?: number;
 }
 
+/** PoolStatus (OpenAPI schema `PoolStatus`). */
 
 export interface PoolStatus {
   generation: number;
@@ -990,6 +1054,7 @@ export interface PoolStatus {
   };
 }
 
+/** PriceProposal (OpenAPI schema `PriceProposal`). */
 
 export interface PriceProposal {
   cacheReadUsdPerMtok?: Money;
@@ -1015,6 +1080,7 @@ export interface PriceProposalList {
   nextToken?: string;
 }
 
+/** Principal (OpenAPI schema `Principal`). */
 
 export interface Principal {
   email?: string;
@@ -1023,6 +1089,7 @@ export interface Principal {
   type: "user" | "api_key" | "workload" | (string & {});
 }
 
+/** PutAgentTemplateRequest (OpenAPI schema `PutAgentTemplateRequest`). */
 
 export interface PutAgentTemplateRequest {
   allowedDigests: string[];
@@ -1033,6 +1100,7 @@ export interface PutAgentTemplateRequest {
   harness: string;
 }
 
+/** PutBudgetRequest (OpenAPI schema `PutBudgetRequest`). */
 
 export interface PutBudgetRequest {
   amountUsd: Money;
@@ -1043,6 +1111,7 @@ export interface PutBudgetRequest {
   thresholds?: number[];
 }
 
+/** PutConfigValueRequest (OpenAPI schema `PutConfigValueRequest`). */
 
 export interface PutConfigValueRequest {
   source: "literal" | "namespace" | (string & {});
@@ -1050,26 +1119,31 @@ export interface PutConfigValueRequest {
   value?: string;
 }
 
+/** PutNamespaceConfigValueRequest (OpenAPI schema `PutNamespaceConfigValueRequest`). */
 
 export interface PutNamespaceConfigValueRequest {
   value: string;
 }
 
+/** PutPoolHandoffsRequest (OpenAPI schema `PutPoolHandoffsRequest`). */
 
 export interface PutPoolHandoffsRequest {
   toPoolIds: string[];
 }
 
+/** PutPoolSecretBindingsRequest (OpenAPI schema `PutPoolSecretBindingsRequest`). */
 
 export interface PutPoolSecretBindingsRequest {
   items: SecretBinding[];
 }
 
+/** PutSecretValueRequest (OpenAPI schema `PutSecretValueRequest`). */
 
 export interface PutSecretValueRequest {
   value: SecretValue;
 }
 
+/** PutServiceTagRequest (OpenAPI schema `PutServiceTagRequest`). */
 
 export interface PutServiceTagRequest {
   allowedValues?: string[];
@@ -1079,12 +1153,14 @@ export interface PutServiceTagRequest {
   value?: string;
 }
 
+/** PutSettingRequest (OpenAPI schema `PutSettingRequest`). */
 
 export interface PutSettingRequest {
   /** JSON value of the setting's type */
   value: unknown;
 }
 
+/** PutStorageClassRequest (OpenAPI schema `PutStorageClassRequest`). */
 
 export interface PutStorageClassRequest {
   description?: string;
@@ -1092,17 +1168,20 @@ export interface PutStorageClassRequest {
   volumeType: "gp3" | "io2" | (string & {});
 }
 
+/** PutTeamModelsRequest (OpenAPI schema `PutTeamModelsRequest`). */
 
 export interface PutTeamModelsRequest {
   modelIds: string[];
 }
 
+/** PutTeamTagsRequest (OpenAPI schema `PutTeamTagsRequest`). */
 
 export interface PutTeamTagsRequest {
   /** Team-owned keys only */
   tags: TagValue[];
 }
 
+/** Quotas (OpenAPI schema `Quotas`). */
 
 export interface Quotas {
   cpu?: string;
@@ -1111,6 +1190,7 @@ export interface Quotas {
   storage?: string;
 }
 
+/** Report (OpenAPI schema `Report`). */
 
 export interface Report {
   groupBy: string[];
@@ -1133,12 +1213,14 @@ export interface ReportQuery {
   to?: Timestamp;
 }
 
+/** ReportRange (OpenAPI schema `ReportRange`). */
 
 export interface ReportRange {
   from: Timestamp;
   to: Timestamp;
 }
 
+/** ReportSchedule (OpenAPI schema `ReportSchedule`). */
 
 export interface ReportSchedule {
   cadence: "daily" | "weekly" | "monthly" | (string & {});
@@ -1177,12 +1259,14 @@ export interface ResourceStatus {
   status: Status;
 }
 
+/** Resources (OpenAPI schema `Resources`). */
 
 export interface Resources {
   cpu?: string;
   memory?: string;
 }
 
+/** RestoreChange (OpenAPI schema `RestoreChange`). */
 
 export interface RestoreChange {
   action: "create" | "update" | "delete" | "skip" | (string & {});
@@ -1196,6 +1280,7 @@ export interface RestoreChange {
   resourceKind: string;
 }
 
+/** RestoreResult (OpenAPI schema `RestoreResult`). */
 
 export interface RestoreResult {
   changes: RestoreChange[];
@@ -1205,11 +1290,13 @@ export interface RestoreResult {
   skipped?: RestoreChange[];
 }
 
+/** RestoreRevisionRequest (OpenAPI schema `RestoreRevisionRequest`). */
 
 export interface RestoreRevisionRequest {
   dryRun?: boolean;
 }
 
+/** Revision (OpenAPI schema `Revision`). */
 
 export interface Revision {
   changedAt: Timestamp;
@@ -1231,6 +1318,7 @@ export interface RevisionList {
   nextToken?: string;
 }
 
+/** RoleLink (OpenAPI schema `RoleLink`). */
 
 export interface RoleLink {
   readonly accountId: AwsAccountId;
@@ -1265,6 +1353,7 @@ export interface RotateSecretRequest {
   value: SecretValue;
 }
 
+/** ScalePoolRequest (OpenAPI schema `ScalePoolRequest`). */
 
 export interface ScalePoolRequest {
   workers: number;
@@ -1296,6 +1385,7 @@ export interface Secret {
   readonly versionId?: string;
 }
 
+/** SecretBinding (OpenAPI schema `SecretBinding`). */
 
 export interface SecretBinding {
   delivery: "env" | "file" | (string & {});
@@ -1316,6 +1406,7 @@ export interface SecretList {
 
 export type SecretValue = string;
 
+/** SecurityOperator (OpenAPI schema `SecurityOperator`). */
 
 export interface SecurityOperator {
   readonly createdAt?: Timestamp;
@@ -1347,6 +1438,7 @@ export interface ServiceNotificationChannelList {
   nextToken?: string;
 }
 
+/** ServiceTag (OpenAPI schema `ServiceTag`). */
 
 export interface ServiceTag {
   allowedValues?: string[] | null;
@@ -1367,6 +1459,7 @@ export interface ServiceTagList {
   nextToken?: string;
 }
 
+/** Setting (OpenAPI schema `Setting`). */
 
 export interface Setting {
   /** Allowed values, as root PRD §6.13 states them */
@@ -1410,6 +1503,7 @@ export interface SignInProviderList {
   nextToken?: string;
 }
 
+/** Snapshot (OpenAPI schema `Snapshot`). */
 
 export interface Snapshot {
   readonly agentId: string;
@@ -1430,6 +1524,7 @@ export interface SnapshotList {
   nextToken?: string;
 }
 
+/** Stage (OpenAPI schema `Stage`). */
 
 export interface Stage {
   readonly createdAt?: Timestamp;
@@ -1460,6 +1555,7 @@ export interface Status {
   updatedAt: Timestamp;
 }
 
+/** StorageClass (OpenAPI schema `StorageClass`). */
 
 export interface StorageClass {
   readonly createdAt?: Timestamp;
@@ -1479,6 +1575,7 @@ export interface StorageClassList {
   nextToken?: string;
 }
 
+/** SwarmTemplate (OpenAPI schema `SwarmTemplate`). */
 
 export interface SwarmTemplate {
   budgetUsd: Money;
@@ -1505,6 +1602,7 @@ export interface SwarmTemplateList {
   nextToken?: string;
 }
 
+/** SwarmTemplateSpec (OpenAPI schema `SwarmTemplateSpec`). */
 
 export interface SwarmTemplateSpec {
   configValues?: Record<string, unknown>[];
@@ -1514,12 +1612,14 @@ export interface SwarmTemplateSpec {
   stages: Record<string, unknown>[];
 }
 
+/** TagValue (OpenAPI schema `TagValue`). */
 
 export interface TagValue {
   key: string;
   value: string;
 }
 
+/** Team (OpenAPI schema `Team`). */
 
 export interface Team {
   /** Needs teams:set-aws-accounts on update */
@@ -1570,6 +1670,7 @@ export interface TeamBudgetInput {
   thresholds?: number[];
 }
 
+/** TeamDirectoryEntry (OpenAPI schema `TeamDirectoryEntry`). */
 
 export interface TeamDirectoryEntry {
   displayName: string;
@@ -1593,11 +1694,13 @@ export interface TeamList {
   nextToken?: string;
 }
 
+/** TeamModels (OpenAPI schema `TeamModels`). */
 
 export interface TeamModels {
   items: Model[];
 }
 
+/** TeamTag (OpenAPI schema `TeamTag`). */
 
 export interface TeamTag {
   key: string;
@@ -1605,6 +1708,7 @@ export interface TeamTag {
   value?: string;
 }
 
+/** TeamTags (OpenAPI schema `TeamTags`). */
 
 export interface TeamTags {
   /** Keys left out of Bedrock requestMetadata because of its pair limit (D27) */
@@ -1617,6 +1721,7 @@ export interface TeamTags {
 
 export type Timestamp = string;
 
+/** UpdateAgentRequest (OpenAPI schema `UpdateAgentRequest`). */
 
 export interface UpdateAgentRequest {
   description?: string;
@@ -1630,6 +1735,7 @@ export interface UpdateAgentRequest {
   volume?: AgentVolume;
 }
 
+/** UpdateCatalogSystemRequest (OpenAPI schema `UpdateCatalogSystemRequest`). */
 
 export interface UpdateCatalogSystemRequest {
   description?: string;
@@ -1640,6 +1746,7 @@ export interface UpdateCatalogSystemRequest {
   name?: string;
 }
 
+/** UpdateExternalSystemRequest (OpenAPI schema `UpdateExternalSystemRequest`). */
 
 export interface UpdateExternalSystemRequest {
   description?: string;
@@ -1650,6 +1757,7 @@ export interface UpdateExternalSystemRequest {
   purpose?: string;
 }
 
+/** UpdateIdentityProviderRequest (OpenAPI schema `UpdateIdentityProviderRequest`). */
 
 export interface UpdateIdentityProviderRequest {
   cliClientId?: string;
@@ -1661,6 +1769,7 @@ export interface UpdateIdentityProviderRequest {
   name?: string;
 }
 
+/** UpdateLogDestinationRequest (OpenAPI schema `UpdateLogDestinationRequest`). */
 
 export interface UpdateLogDestinationRequest {
   config?: Record<string, unknown>;
@@ -1669,11 +1778,13 @@ export interface UpdateLogDestinationRequest {
   secretId?: string | null;
 }
 
+/** UpdateMemberRequest (OpenAPI schema `UpdateMemberRequest`). */
 
 export interface UpdateMemberRequest {
   role: "team_admin" | "team_viewer" | (string & {});
 }
 
+/** UpdateModelRequest (OpenAPI schema `UpdateModelRequest`). */
 
 export interface UpdateModelRequest {
   contextWindow?: number;
@@ -1682,6 +1793,7 @@ export interface UpdateModelRequest {
   maxOutputTokens?: number;
 }
 
+/** UpdateNotificationChannelRequest (OpenAPI schema `UpdateNotificationChannelRequest`). */
 
 export interface UpdateNotificationChannelRequest {
   config?: Record<string, unknown>;
@@ -1691,6 +1803,7 @@ export interface UpdateNotificationChannelRequest {
   secretId?: string | null;
 }
 
+/** UpdatePoolRequest (OpenAPI schema `UpdatePoolRequest`). */
 
 export interface UpdatePoolRequest {
   description?: string;
@@ -1706,6 +1819,7 @@ export interface UpdatePoolRequest {
   workers?: number;
 }
 
+/** UpdateReportScheduleRequest (OpenAPI schema `UpdateReportScheduleRequest`). */
 
 export interface UpdateReportScheduleRequest {
   cadence?: "daily" | "weekly" | "monthly" | (string & {});
@@ -1715,6 +1829,7 @@ export interface UpdateReportScheduleRequest {
   query?: ReportQuery;
 }
 
+/** UpdateSecretRequest (OpenAPI schema `UpdateSecretRequest`). */
 
 export interface UpdateSecretRequest {
   description?: string;
@@ -1725,12 +1840,14 @@ export interface UpdateSecretRequest {
   };
 }
 
+/** UpdateStageRequest (OpenAPI schema `UpdateStageRequest`). */
 
 export interface UpdateStageRequest {
   description?: string;
   position?: number;
 }
 
+/** UpdateSwarmTemplateRequest (OpenAPI schema `UpdateSwarmTemplateRequest`). */
 
 export interface UpdateSwarmTemplateRequest {
   budgetUsd?: Money;
@@ -1772,6 +1889,7 @@ export interface UpdateWorkOrderRepoRequest {
   status: "pending" | "in_progress" | "pr_opened" | "merged" | "not_affected" | "failed" | "skipped" | (string & {});
 }
 
+/** UpdateWorkOrderRequest (OpenAPI schema `UpdateWorkOrderRequest`). */
 
 export interface UpdateWorkOrderRequest {
   addRepos?: WorkOrderRepoInput[];
@@ -1780,6 +1898,7 @@ export interface UpdateWorkOrderRequest {
   title?: string;
 }
 
+/** Usage (OpenAPI schema `Usage`). */
 
 export interface Usage {
   groupBy: string[];
@@ -1792,6 +1911,7 @@ export interface Usage {
   totals: UsageRow;
 }
 
+/** UsageRow (OpenAPI schema `UsageRow`). */
 
 export interface UsageRow {
   calls: number;
@@ -1802,6 +1922,7 @@ export interface UsageRow {
   outputTokens?: number;
 }
 
+/** WorkOrder (OpenAPI schema `WorkOrder`). */
 
 export interface WorkOrder {
   readonly assignedAt?: Timestamp | null;
@@ -1837,6 +1958,7 @@ export interface WorkOrderList {
   nextToken?: string;
 }
 
+/** WorkOrderNotification (OpenAPI schema `WorkOrderNotification`). */
 
 export interface WorkOrderNotification {
   kind: string;
@@ -1844,6 +1966,7 @@ export interface WorkOrderNotification {
   sentAt: Timestamp;
 }
 
+/** WorkOrderProgress (OpenAPI schema `WorkOrderProgress`). */
 
 export interface WorkOrderProgress {
   failedOrSkipped: number;
@@ -1854,6 +1977,7 @@ export interface WorkOrderProgress {
   repos: number;
 }
 
+/** WorkOrderRepo (OpenAPI schema `WorkOrderRepo`). */
 
 export interface WorkOrderRepo {
   detail?: string | null;
@@ -1872,6 +1996,7 @@ export interface WorkOrderRepo {
   readonly version?: number;
 }
 
+/** WorkOrderRepoInput (OpenAPI schema `WorkOrderRepoInput`). */
 
 export interface WorkOrderRepoInput {
   host: string;

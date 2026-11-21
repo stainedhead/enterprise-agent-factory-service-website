@@ -12,6 +12,7 @@ export type AfsErrorCode =
   | "Unavailable"
   | (string & {});
 
+/** Fields of an {@link AfsError}. */
 export interface AfsErrorInit {
   status: number;
   code: AfsErrorCode;

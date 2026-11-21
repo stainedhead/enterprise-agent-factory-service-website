@@ -77,6 +77,7 @@ export interface DebugEvent {
   readonly requestId?: string;
 }
 
+/** Reported once when the server's contract version is newer than the SDK's. */
 export interface ContractMismatch {
   readonly server: string;
   readonly client: string;

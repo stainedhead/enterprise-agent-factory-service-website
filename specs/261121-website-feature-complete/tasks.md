@@ -38,7 +38,7 @@
 
 | Milestone | Streams | Tasks | Done |
 |---|---|---|---|
-| M0 Foundations | 10 (+ exit) | 69 | 21 |
+| M0 Foundations | 10 (+ exit) | 69 | 26 |
 | M1 Teams & access | 10 (+ exit) | 46 | 0 |
 | M2 Agents & secrets | 7 (+ exit) | 41 | 0 |
 | M3 Spend control | 6 (+ exit) | 24 | 0 |
@@ -119,11 +119,11 @@ Owns: `packages/sdk/tools/size-check.ts`, `packages/sdk/tools/tsdoc-check.ts`, `
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M0-P1 | ESM-only build, `sideEffects: false`, `exports` map; tree-shake test: a Vite library build of a file importing only `AfsClient` and `teams` contains no marker string of any other module | WEB-US-4.4 (part), SDK-9 | M0-C10 |
-| [ ] | M0-P2 | `size:sdk`: core ≤ 25 KB gzip and each of the 42 modules ≤ 3 KB gzip; CI fails above | WEB-US-4.4 (part), NFR-2 | M0-P1 |
-| [ ] | M0-P3 | `tsdoc`: reads emitted `dist/*.d.ts`, fails on any export reachable from `src/index.ts` without a preceding TSDoc block; generated code carries TSDoc from OpenAPI summaries | WEB-US-4.5, SDK-9 | M0-P1 |
-| [ ] | M0-P4 | Runtime matrix: the same SDK suite under Node 22 (`vitest`), Bun 1.4 (`bun --bun vitest`) and Chromium (Vitest browser mode, Playwright provider) | WEB-US-4.3, SDK-9 | M0-C10 |
-| [ ] | M0-P5 | Contract replay: each of the 170 OpenAPI response examples is served by the fake fetch to its SDK method and parsed without error; money examples stay strings; `-restapi`'s `permissions.json` checksum matches the lock | WEB-US-5.1, WEB-US-5.2 (part), PRD §8 | M0-C10 |
+| [x] | M0-P1 | ESM-only build, `sideEffects: false`, `exports` map; tree-shake test: a Vite library build of a file importing only `AfsClient` and `teams` contains no marker string of any other module | WEB-US-4.4 (part), SDK-9 | M0-C10 |
+| [x] | M0-P2 | `size:sdk`: core ≤ 25 KB gzip and each of the 42 modules ≤ 3 KB gzip; CI fails above | WEB-US-4.4 (part), NFR-2 | M0-P1 |
+| [x] | M0-P3 | `tsdoc`: reads emitted `dist/*.d.ts`, fails on any export reachable from `src/index.ts` without a preceding TSDoc block; generated code carries TSDoc from OpenAPI summaries | WEB-US-4.5, SDK-9 | M0-P1 |
+| [x] | M0-P4 | Runtime matrix: the same SDK suite under Node 22 (`vitest`), Bun 1.4 (`bun --bun vitest`) and Chromium (Vitest browser mode, Playwright provider) | WEB-US-4.3, SDK-9 | M0-C10 |
+| [x] | M0-P5 | Contract replay: each of the 170 OpenAPI response examples is served by the fake fetch to its SDK method and parsed without error; money examples stay strings; `-restapi`'s `permissions.json` checksum matches the lock | WEB-US-5.1, WEB-US-5.2 (part), PRD §8 | M0-C10 |
 
 ### M0-D · Console domain
 

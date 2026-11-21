@@ -91,6 +91,8 @@ architectural ones into ADRs (`docs/architectural-decision-record.md`, ADR-005 o
 | DV-3 | The C9 "no heap reference to secretKey after resolving" test is structural only: the client keeps no per-call state (private fields hold options, never bodies) and the debug hook and errors are scrubbed (tested). A real heap-snapshot test needs `node --expose-gc` and is left to M6-X | M0-C9 |
 | DV-4 | `contract:update` rewrites the files and lock and tells the user to run `codegen`; it does not run codegen or print a diff itself | M0-S2 |
 | DV-5 | `Versioned` carries optional `id`/`name`/`key` so that both a resource and a `{ id, version }` literal type-check | M0-C6 |
+| DV-7 | The contract has 160 JSON 2xx response examples (170 counts every content type and status); all 160 replay through their SDK method | M0-P5 |
+| DV-8 | Under Bun, Vitest's default forks pool fails to terminate workers (`setMaxListeners`); the Bun run uses `--pool=threads`. The Chromium run needs `PW_CHROMIUM_PATH` only where Playwright's own browser is not installed | M0-P4 |
 | DV-6 | SDK tests set `X-Request-Id` limits and Retry-After behaviour with an injected `sleep`; non-JSON error bodies map known statuses (401/403/404/412/428/429/503) to their code and others to `InternalError` | M0-C2 |
 
 ## 5. Lessons learned
