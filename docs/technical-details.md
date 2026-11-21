@@ -1,8 +1,9 @@
 # Technical details
 
-## Toolchain (verified 2026-11-20)
+## Toolchain (verified 2026-11-21)
 
-Node.js 22+, pnpm 12.21.0, TypeScript 7.0.2, Vite 8.3.8, Vitest 5.1.1, Biome 2.6.8, React 19.3.1.
+Bun 1.4.4 (runtime, package manager, workspaces via `workspaces` in `package.json`, lockfile `bun.lock`),
+Node.js 22+ as fallback runtime, TypeScript 7.0.2, Vite 8.3.8, Vitest 5.1.1, Biome 2.6.8, React 19.3.1.
 
 ## Workspace resolution
 

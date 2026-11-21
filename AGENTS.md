@@ -5,7 +5,7 @@ Rules for AI agents and human contributors working in this repository.
 ## Project summary
 
 `enterprise-agent-factory-service-website` is the TypeScript part of the Enterprise Agent Factory Service
-(AFS). It is a pnpm workspace with two packages:
+(AFS). It is a Bun workspace with two packages:
 
 - `packages/sdk` — **`@afs/sdk`**, the accelerator SDK: a typed, ergonomic wrapper over the AFS REST API
   for the console, pipelines and other TypeScript consumers.
@@ -26,8 +26,8 @@ Status: scaffolded. The SDK has a base client and error mapping; the console has
 
 | Tool | Version | Notes |
 |---|---|---|
-| Node.js | 22 or later (`.nvmrc`) | |
-| pnpm | 12.21.0 | Pinned in `packageManager`; run `corepack enable` once |
+| Bun | 1.4.4 | Runtime and package manager, pinned in `packageManager`; lockfile `bun.lock` (ADR-004) |
+| Node.js | 22 or later (`.nvmrc`) | Fallback runtime only, for a tool that does not run on Bun. Do not add pnpm or npm lockfiles |
 | TypeScript | 7.0.2 | The native compiler. Used for type-checking and SDK declaration builds only |
 | Biome | 2.6.8 | Lint and format. **Do not add ESLint or Prettier** (see below) |
 | Vitest | 5.1.1 | Unit and component tests |
@@ -110,17 +110,17 @@ All three phases are mandatory; refactor is not optional.
 
 ## Quality gate
 
-All of these must pass before every commit (`pnpm gate` runs them in order):
+All of these must pass before every commit (`bun run gate` runs them in order):
 
 ```bash
-pnpm install --frozen-lockfile
-pnpm lint         # biome check . (format + lint)
-pnpm typecheck    # tsc 7 --noEmit in every package
-pnpm test         # vitest run in every package
-pnpm build        # SDK declarations + console bundle
+bun install --frozen-lockfile
+bun run lint      # biome check . (format + lint)
+bun run typecheck # tsc 7 --noEmit in every package
+bun run test      # vitest run in every package
+bun run build     # SDK declarations + console bundle
 ```
 
-`pnpm format` applies Biome fixes. Lint, type, test or build failures: fix before going further.
+`bun run audit` (high and above, production deps) runs in CI. `bun run format` applies Biome fixes. Lint, type, test or build failures: fix before going further.
 
 ## Code design review (before every commit)
 
@@ -140,7 +140,7 @@ Critical or important findings (security, authorization, secret handling) are fi
    and the active spec.
 2. **Plan:** name the affected layers and packages.
 3. **Red → Green → Refactor.**
-4. **Quality gate:** `pnpm gate`.
+4. **Quality gate:** `bun run gate`.
 5. **Design review:** the checklist above.
 6. **Document:** `docs/` for architectural changes, `user-docs/` for SDK or console usage changes.
 7. **Update status:** `specs/<feature>/status.md` after every task. Mandatory.
@@ -154,7 +154,7 @@ material, and must not link into `specs/`.
 
 ## Git
 
-Clear commit messages that reference the spec directory when there is one. Commit `pnpm-lock.yaml`.
+Clear commit messages that reference the spec directory when there is one. Commit `bun.lock`.
 Do not commit `node_modules/`, `dist/`, coverage or `.env` files. Work on a branch and open a pull
 request into `main`.
 
