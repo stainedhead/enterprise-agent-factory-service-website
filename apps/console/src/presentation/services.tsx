@@ -20,6 +20,7 @@ import type {
   ApiKeysUseCases,
   MembersUseCases,
 } from "../application/usecases/members/MembersUseCases.js";
+import type { NotificationsUseCases } from "../application/usecases/notifications/NotificationsUseCases.js";
 import type { OverviewUseCases } from "../application/usecases/overview/OverviewUseCases.js";
 import type { ReportsUseCases } from "../application/usecases/reports/ReportsUseCases.js";
 import type { SecretsUseCases } from "../application/usecases/secrets/SecretsUseCases.js";
@@ -42,6 +43,7 @@ export interface AppServices {
   readonly adminPricing: AdminPricingUseCases;
   readonly budgets: BudgetsUseCases;
   readonly reports: ReportsUseCases;
+  readonly notifications: NotificationsUseCases;
   readonly secrets: SecretsUseCases;
   readonly history: HistoryUseCases;
   readonly identityProviders: IdentityProvidersUseCases;

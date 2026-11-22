@@ -20,6 +20,7 @@ import {
   ApiKeysUseCases,
   MembersUseCases,
 } from "../application/usecases/members/MembersUseCases.js";
+import { NotificationsUseCases } from "../application/usecases/notifications/NotificationsUseCases.js";
 import { OverviewUseCases } from "../application/usecases/overview/OverviewUseCases.js";
 import { ReportsUseCases } from "../application/usecases/reports/ReportsUseCases.js";
 import { SecretsUseCases } from "../application/usecases/secrets/SecretsUseCases.js";
@@ -45,6 +46,7 @@ import {
 } from "../infrastructure/sdk/externalSystems.js";
 import { SdkAudit, SdkRevisions } from "../infrastructure/sdk/history.js";
 import { SdkApiKeys, SdkMembers } from "../infrastructure/sdk/members.js";
+import { SdkNotifications } from "../infrastructure/sdk/notifications.js";
 import { SdkOverview, SdkWorkOrders } from "../infrastructure/sdk/overview.js";
 import { SdkReports } from "../infrastructure/sdk/reports.js";
 import { SdkSecrets } from "../infrastructure/sdk/secrets.js";
@@ -101,6 +103,9 @@ export function buildServices(
     teams: new TeamsUseCases(teamsPort, clock),
     adminModels: new AdminModelsUseCases(adminModelsPort, clock),
     adminPricing: new AdminPricingUseCases(new SdkAdminPricing(client), adminModelsPort, clock),
+    notifications: new NotificationsUseCases(new SdkNotifications(client), {
+      setTimeout: (fn, ms) => globalThis.setTimeout(fn, ms),
+    }),
     reports: new ReportsUseCases(new SdkReports(client), clock),
     budgets: new BudgetsUseCases(new SdkBudgets(client), clock),
     settings: new SettingsUseCases(new SdkSettings(client)),

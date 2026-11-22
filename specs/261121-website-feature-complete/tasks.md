@@ -41,11 +41,11 @@
 | M0 Foundations | 10 (+ exit) | 69 | 69 |
 | M1 Teams & access | 10 (+ exit) | 46 | 46 |
 | M2 Agents & secrets | 7 (+ exit) | 41 | 41 |
-| M3 Spend control | 6 (+ exit) | 24 | 17 |
+| M3 Spend control | 6 (+ exit) | 24 | 23 |
 | M4 Production readiness | 8 (+ exit) | 34 | 0 |
 | M5 Budgeted workloads and swarms | 4 (+ exit) | 19 | 0 |
 | M6 CVE remediation and completion | 6 (+ exit) | 26 | 0 |
-| **Total** | **51** | **259** | **174** |
+| **Total** | **51** | **259** | **180** |
 
 ## External dependencies and contract questions
 
@@ -517,12 +517,12 @@ Owns: area files: `notifications`; `presentation/screens/t14-delivery/` (page, `
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M3-N1 | T14 page with two tabs (log delivery added in M4); *Notifications*: channels (Slack, email, webhook, Jira) with events and delivery status; create, edit, delete (channel credentials as secret references) | WEB-US-34.2 (part), WEB-21 | — |
-| [ ] | M3-N2 | *Send test*: one test message; `200` shows delivered or the error; `202 pending` polls the channel status until reported (CD-3) | WEB-US-34.2 | M3-N1 |
-| [ ] | M3-N3 | Deleting a channel used by a report schedule lists the schedules first | WEB-US-34.3 | M3-N1 |
-| [ ] | M3-N4 | A failed delivery shows on the channel with its error | WEB-US-34.4 | M3-N1 |
-| [ ] | M3-N5 | Viewers: create, edit, delete disabled "Requires team-admin"; the API's `403` for `CreateNotificationChannel` shown if forced | WEB-US-34.5 (part) | M3-N1 |
-| [ ] | M3-N6 | e2e, axe, visual (S2 pattern; approval pending OQ-W1) | WEB-US-42.1 (part), WEB-US-42.2 (part) | M3-N1..N5 |
+| [x] | M3-N1 | T14 page with two tabs (log delivery added in M4); *Notifications*: channels (Slack, email, webhook, Jira) with events and delivery status; create, edit, delete (channel credentials as secret references) | WEB-US-34.2 (part), WEB-21 | — |
+| [x] | M3-N2 | *Send test*: one test message; `200` shows delivered or the error; `202 pending` polls the channel status until reported (CD-3) | WEB-US-34.2 | M3-N1 |
+| [x] | M3-N3 | Deleting a channel used by a report schedule lists the schedules first | WEB-US-34.3 | M3-N1 |
+| [x] | M3-N4 | A failed delivery shows on the channel with its error | WEB-US-34.4 | M3-N1 |
+| [x] | M3-N5 | Viewers: create, edit, delete disabled "Requires team-admin"; the API's `403` for `CreateNotificationChannel` shown if forced | WEB-US-34.5 (part) | M3-N1 |
+| [x] | M3-N6 | e2e, axe, visual (S2 pattern; approval pending OQ-W1) | WEB-US-42.1 (part), WEB-US-42.2 (part) | M3-N1..N5 |
 
 ### M3-X · Exit
 
