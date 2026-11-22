@@ -23,7 +23,9 @@ const seedTemplates = (): Json[] => [
         { name: "pr-writer", stage: "fix", workers: 16 },
       ],
       handoffs: [{ from: "dep-scanner", to: ["pr-writer"] }],
-      secrets: [{ name: "github-token" }],
+      secrets: [
+        { pool: "pr-writer", name: "github-token", delivery: "env", target: "GITHUB_TOKEN" },
+      ],
       configValues: [{ name: "BASE_BRANCH", value: "main" }],
     },
     budgetUsd: "500.00",

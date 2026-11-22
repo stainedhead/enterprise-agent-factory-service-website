@@ -9,9 +9,8 @@ TypeScript for the Enterprise Agent Factory Service, as a Bun workspace:
 Part of [enterprise-agent-factory-service](https://github.com/stainedhead/enterprise-agent-factory-service);
 the console screens by role are in its initial PRD.
 
-**Status:** feature complete on `feat/website-feature-complete`. Open item: M6-U1, re-pinning the API contract to a
-`-restapi` release tag, which waits for `-restapi` to merge and tag (CQ-1); until then the contract is pinned to a
-`-restapi` branch commit.
+**Status:** feature complete. The API contract is pinned to `-restapi` `main` at `d887609` (no release tag yet);
+moving the pin to a tag is a `contract:update --ref <tag>` and a regenerate.
 
 ## What is here
 

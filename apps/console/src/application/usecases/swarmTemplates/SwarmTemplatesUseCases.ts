@@ -68,6 +68,48 @@ export const draftOf = (t: SwarmTemplateRecord): TemplateDraft => ({
   specText: specText(t.spec),
 });
 
+const SECRET_NAME = /^[a-z][a-z0-9-]{0,62}$/;
+const ENV_TARGET = /^[A-Z_][A-Z0-9_]{0,127}$/;
+const FILE_TARGET = /^\/[A-Za-z0-9._/-]{1,255}$/;
+
+/** Template secrets are typed `{pool, name, description?, delivery?, target?}` (contract 1.1.0, ADR-013). */
+function validateSecrets(
+  secrets: readonly Record<string, unknown>[],
+  poolNames: ReadonlySet<string>,
+): string | undefined {
+  const seen = new Set<string>();
+  const targets = new Set<string>();
+  for (const [i, x] of secrets.entries()) {
+    const at = `Secret ${i + 1}`;
+    if (typeof x.pool !== "string" || !x.pool) return `${at} needs a "pool"`;
+    if (typeof x.name !== "string" || !x.name) return `${at} needs a "name"`;
+    if (!poolNames.has(x.pool)) return `${at}: pool "${x.pool}" is not defined in this template`;
+    if (!SECRET_NAME.test(x.name))
+      return `${at}: use lower-case letters, digits and hyphens for the name, starting with a letter`;
+    if (seen.has(x.name)) return `${at}: duplicate secret "${x.name}"`;
+    seen.add(x.name);
+    if (x.delivery !== undefined && x.delivery !== "env" && x.delivery !== "file")
+      return `${at}: delivery must be env or file`;
+    if (
+      x.description !== undefined &&
+      (typeof x.description !== "string" || x.description.length > 1000)
+    )
+      return `${at}: description must be text of at most 1000 characters`;
+    if (x.target !== undefined) {
+      const file = x.delivery === "file";
+      if (typeof x.target !== "string" || !(file ? FILE_TARGET : ENV_TARGET).test(x.target))
+        return file
+          ? `${at}: a file target is an absolute path`
+          : `${at}: an environment variable target uses upper-case letters, digits and underscores`;
+      const key = `${x.pool}:${x.target}`;
+      if (targets.has(key)) return `${at}: target "${x.target}" is used twice in pool "${x.pool}"`;
+      targets.add(key);
+    }
+  }
+  if (secrets.length > 100) return "A template holds at most 100 secrets";
+  return undefined;
+}
+
 /** Parses the spec text: an object whose `stages` and `pools` are non-empty arrays; other sections are arrays. */
 export function parseSpec(text: string): { spec?: SwarmTemplateSpec; error?: string } {
   let v: unknown;
@@ -92,6 +134,11 @@ export function parseSpec(text: string): { spec?: SwarmTemplateSpec; error?: str
   const pools = (o.pools as Record<string, unknown>[] | undefined) ?? [];
   if (stages.length === 0) return { error: "Add at least one stage" };
   if (pools.length === 0) return { error: "Add at least one pool" };
+  const secretError = validateSecrets(
+    (o.secrets as Record<string, unknown>[] | undefined) ?? [],
+    new Set(pools.map((x) => String(x.name))),
+  );
+  if (secretError) return { error: secretError };
   return {
     spec: {
       stages,

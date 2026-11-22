@@ -228,7 +228,7 @@ A work order's page shows its SLA, the remediation team and spend against the ca
 
 ## Swarm templates
 
-*Swarm templates* lists the templates a work order's remediation team is built from, with state, spend cap, time to live, teardown rule and version; select one to see its stages, pools, handoffs, secrets needed and configuration. Service admins create, edit, enable, disable and delete templates (a new template starts disabled; a template used by an open work order cannot be deleted). The spec is edited as JSON with the sections `stages`, `pools`, `handoffs`, `secrets` and `configValues`. Security operators see the page read-only; a disabled template is not offered when creating a work order.
+*Swarm templates* lists the templates a work order's remediation team is built from, with state, spend cap, time to live, teardown rule and version; select one to see its stages, pools, handoffs, secrets needed and configuration. Service admins create, edit, enable, disable and delete templates (a new template starts disabled; a template used by an open work order cannot be deleted). The spec is edited as JSON with the sections `stages`, `pools`, `handoffs`, `secrets` and `configValues`. Each secret is `{"pool": ..., "name": ...}` with an optional `description`, `delivery` (`env` or `file`) and `target` (an environment variable name or an absolute path); the pool must be one the template defines, and the console checks this before it saves. Security operators see the page read-only; a disabled template is not offered when creating a work order.
 
 ## Service API keys and security operators (`/settings/service-api-keys`, `/settings/security-operators`, service admins)
 

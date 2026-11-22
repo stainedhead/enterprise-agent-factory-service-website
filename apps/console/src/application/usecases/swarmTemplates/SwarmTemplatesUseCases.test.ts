@@ -84,9 +84,32 @@ describe("parseSpec", () => {
   ])("refuses %s", (text, msg) => expect(parseSpec(text).error).toContain(msg));
   it("keeps the optional sections it was given", () => {
     const p = parseSpec(
-      '{"stages":[{"name":"a"}],"pools":[{"name":"b"}],"handoffs":[],"secrets":[{"name":"s"}],"configValues":[]}',
+      '{"stages":[{"name":"a"}],"pools":[{"name":"b"}],"handoffs":[],"secrets":[{"pool":"b","name":"s"}],"configValues":[]}',
     );
-    expect(p.spec?.secrets).toEqual([{ name: "s" }]);
+    expect(p.spec?.secrets).toEqual([{ pool: "b", name: "s" }]);
+  });
+  const withSecrets = (secrets: string) =>
+    `{"stages":[{"name":"a"}],"pools":[{"name":"b"}],"secrets":${secrets}}`;
+  it.each([
+    ['[{"name":"s"}]', 'Secret 1 needs a "pool"'],
+    ['[{"pool":"b"}]', 'Secret 1 needs a "name"'],
+    ['[{"pool":"nope","name":"s"}]', 'pool "nope" is not defined'],
+    ['[{"pool":"b","name":"Bad_Name"}]', "lower-case letters"],
+    ['[{"pool":"b","name":"s","delivery":"tty"}]', "env or file"],
+    ['[{"pool":"b","name":"s"},{"pool":"b","name":"s"}]', 'duplicate secret "s"'],
+    ['[{"pool":"b","name":"s","target":"lower"}]', "environment variable"],
+    ['[{"pool":"b","name":"s","delivery":"file","target":"rel/path"}]', "absolute path"],
+  ])("refuses template secrets %s", (secrets, msg) =>
+    expect(parseSpec(withSecrets(secrets)).error).toContain(msg),
+  );
+  it("accepts typed template secrets", () => {
+    const p = parseSpec(
+      withSecrets(
+        '[{"pool":"b","name":"gh-token","description":"d","delivery":"env","target":"GH_TOKEN"},{"pool":"b","name":"key-file","delivery":"file","target":"/etc/key"}]',
+      ),
+    );
+    expect(p.error).toBeUndefined();
+    expect(p.spec?.secrets).toHaveLength(2);
   });
 });
 
@@ -99,7 +122,7 @@ describe("summarise", () => {
       ],
       pools: [{ name: "w", workers: 3 }, { name: "x" }],
       handoffs: [{ from: "w", to: ["x", "y"] }],
-      secrets: [{ name: "gh" }],
+      secrets: [{ pool: "w", name: "gh" }],
       configValues: [{ name: "BRANCH" }],
     });
     expect(s).toEqual({

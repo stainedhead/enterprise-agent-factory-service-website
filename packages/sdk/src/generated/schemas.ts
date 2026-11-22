@@ -1610,7 +1610,17 @@ export interface SwarmTemplateSpec {
   configValues?: Record<string, unknown>[];
   handoffs?: Record<string, unknown>[];
   pools: Record<string, unknown>[];
-  secrets?: Record<string, unknown>[];
+  /** Secrets a remediation team gets, created empty (the team sets the value with PutSecretValue), each bound to one of the template's pools. A template never holds a value. */
+  secrets?: ({
+    delivery?: "env" | "file" | (string & {});
+    description?: string;
+    /** Unique within the template. */
+    name: string;
+    /** A pool the template defines. */
+    pool: string;
+    /** An env variable name (^[A-Z_][A-Z0-9_]{0,127}$, default the upper-case name with underscores) or, for file delivery, an absolute path (^/[A-Za-z0-9._/-]{1,255}$). Unique within the pool. */
+    target?: string;
+  })[];
   stages: Record<string, unknown>[];
 }
 

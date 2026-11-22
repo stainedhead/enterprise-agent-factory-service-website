@@ -1598,7 +1598,8 @@
     "sdk": "notificationChannels.test()",
     "screen": "T14",
     "priority": "P1",
-    "csv": false
+    "csv": false,
+    "notes": "(`200 NotificationTestResult` with `delivered`, or `202` with `pending: true` while the reconciler has not reported within 10 s; emits `notification.test_requested`)"
   },
   {
     "operationId": "ListAuditEvents",
@@ -1651,7 +1652,7 @@
     "screen": "T15",
     "priority": "P1",
     "csv": false,
-    "notes": "(`dryRun` supported)"
+    "notes": "(`dryRun` supported; answers `RestoreResult`)"
   },
   {
     "operationId": "ListWorkOrders",

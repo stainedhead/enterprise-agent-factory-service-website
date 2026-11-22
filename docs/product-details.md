@@ -46,8 +46,7 @@ Unit coverage is at least 90% on `domain` and `application`.
 
 ## Open items
 
-- M6-U1: re-pin the contract to the `-restapi` release tag once it merges to `main` and tags (CQ-1). Known
-  upstream changes waiting for it: typed swarm template `secrets` entries and an `UpdateWorkOrderRepo` change
-  (implementation-notes DV-62 in the spec).
+- The contract is pinned to `-restapi` `main` at `d887609` (M6-U1 done). Re-pin to a release tag once `-restapi`
+  tags one (CQ-1); `@afs/sdk` 1.0.0 follows that tag.
 - Contract questions CQ-13, CQ-14 and CQ-24 (in-use `409` dependents, agent persona field, tag activation time)
   are tracked in the spec; the console works around them as recorded there.

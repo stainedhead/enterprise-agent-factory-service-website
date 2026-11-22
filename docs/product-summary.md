@@ -15,9 +15,8 @@ API's `AccessDenied` as the real answer.
 
 ## Status
 
-Feature complete. One task remains open, M6-U1: re-pin the contract snapshot to a `-restapi` release tag. It
-waits for `-restapi` to merge to `main` and tag a release (CQ-1). Until then the contract stays pinned to a
-`feat/restapi-feature-complete` commit.
+Feature complete. The contract snapshot is pinned to `-restapi` `main` at `d887609`. Re-pinning to a release tag
+waits for `-restapi` to tag one (CQ-1).
 
 Requirements and the console design by role: the root repository's `enterprise-agent-factory-service-initial-PRD.md`.
 Usage: [user-docs/README.md](../user-docs/README.md). Details: [product-details.md](product-details.md).

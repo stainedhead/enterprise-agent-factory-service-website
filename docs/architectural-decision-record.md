@@ -108,13 +108,13 @@ Decisions local to this repository. Cross-repo decisions live in the root reposi
 - Consequences: a reload signs the user in again through the IdP; the secret sentinel e2e test fails if a secret
   value reaches storage, a URL or a log.
 
-## ADR-013 Contract pinned to a branch commit until `-restapi` tags a release (M6-U1)
+## ADR-013 Contract pinned to a `-restapi` commit until it tags a release (M6-U1)
 
-- Status: Accepted, follow-up open
-- Context: `-restapi` has no release tag (CQ-1) and its feature branch is still moving (DV-62).
-- Decision: re-pin deliberately at each milestone exit (DV-34, DV-40, DV-49, DV-56); stay on `549a2f2` for now.
-  M6-U1 re-pins with `contract:update --ref <tag>`, regenerates, validates typed swarm template secrets in
-  `parseSpec` and updates the fixtures, after `-restapi` merges to `main` and tags.
+- Status: Accepted; the commit pin is done, the tag pin is open
+- Context: `-restapi` has no release tag (CQ-1). Its feature branch moved until it merged to `main` (DV-62).
+- Decision: re-pin deliberately at each milestone exit (DV-34, DV-40, DV-49, DV-56). M6-U1 pinned `-restapi`
+  `main` at `d887609` with `contract:update --ref <sha>`, regenerated, validated typed swarm template secrets in
+  `parseSpec` and updated the fixtures. Re-pin to a tag with the same command when `-restapi` tags one.
 - Consequences: the SDK and console may lag small upstream contract edits; `contract:check` guarantees the pin is
   what the generated code was built from.
 

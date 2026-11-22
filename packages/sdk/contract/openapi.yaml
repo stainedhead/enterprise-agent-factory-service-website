@@ -4144,8 +4144,33 @@ components:
             type: object
           type: array
         secrets:
+          description: Secrets a remediation team gets, created empty (the team sets the value with PutSecretValue), each bound to one of the template's pools. A template never holds a value.
           items:
+            properties:
+              delivery:
+                default: env
+                enum:
+                  - env
+                  - file
+                type: string
+              description:
+                maxLength: 1000
+                type: string
+              name:
+                description: Unique within the template.
+                pattern: ^[a-z][a-z0-9-]{0,62}$
+                type: string
+              pool:
+                description: A pool the template defines.
+                type: string
+              target:
+                description: An env variable name (^[A-Z_][A-Z0-9_]{0,127}$, default the upper-case name with underscores) or, for file delivery, an absolute path (^/[A-Za-z0-9._/-]{1,255}$). Unique within the pool.
+                type: string
+            required:
+              - pool
+              - name
             type: object
+          maxItems: 100
           type: array
         stages:
           items:
@@ -5177,12 +5202,12 @@ paths:
             application/json:
               example:
                 checks:
-                  database: connection refused
+                  database: unavailable
                   schema: ok
                 status: not ready
               schema:
                 $ref: '#/components/schemas/HealthStatus'
-          description: A dependency is not ready
+          description: A dependency is not ready. Each failing check reports only the word unavailable; the cause is logged with the request id
           headers:
             X-Afs-Contract-Version:
               $ref: '#/components/headers/XAfsContractVersion'
@@ -18420,7 +18445,7 @@ paths:
       x-afs-sdk: workOrders.repos.list()
   /v1/work-orders/{workOrderId}/repos/{host}/{owner}/{repo}:
     patch:
-      description: '{status, prUrl?, prNumber?, detail?}'
+      description: '{status, prUrl?, prNumber?, detail?}. A workload principal (a worker of the assigned team) holds no read of the repository version, so it may omit If-Match: the update then applies to the current version. A version it does send is compared (412 when stale). Every other caller must send If-Match.'
       operationId: UpdateWorkOrderRepo
       parameters:
         - in: path

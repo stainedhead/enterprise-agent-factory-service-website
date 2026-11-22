@@ -142,7 +142,7 @@ export function TemplateDialog({
       </FormField>
       <FormField
         label="Spec"
-        hint="JSON with stages, pools, handoffs, secrets (names needed) and configValues"
+        hint="JSON with stages, pools, handoffs, secrets (each with a pool and a name) and configValues"
         error={msg("spec")}
       >
         <textarea
