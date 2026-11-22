@@ -134,7 +134,7 @@ describe("Session", () => {
     });
     expect(session.state).toBe("expired");
     expect(seen).toEqual(["active", "expired"]);
-    expect(clear).toHaveBeenCalled();
+    expect(clear).not.toHaveBeenCalled(); // the page and its cache stay for re-authentication
     await expect(session.accessToken({ forceRefresh: false })).rejects.toBeInstanceOf(AuthError);
   });
   it("expires when the refresh grant throws or the provider is unknown", async () => {

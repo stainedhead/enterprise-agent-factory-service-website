@@ -50,12 +50,19 @@ export function NoAccessPage({ onSignOut }: { onSignOut: () => void }) {
 }
 
 /** Unknown routes and teams or resources the caller cannot see render the same page (WD-14). */
-export function NotFoundPage() {
+export function NotFoundPage({ team = false }: { team?: boolean }) {
   return (
     <section aria-labelledby="nf-title">
       <h1 id="nf-title">Page not found</h1>
       <p>The page does not exist, or you do not have access to it.</p>
-      <Link to="/">Go to the start page</Link>
+      <p>
+        <Link to="/">Go to the start page</Link>
+      </p>
+      {team && (
+        <p>
+          <Link to="/sign-in?pick=1">Sign in with another provider</Link>
+        </p>
+      )}
     </section>
   );
 }

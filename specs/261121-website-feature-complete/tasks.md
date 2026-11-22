@@ -38,7 +38,7 @@
 
 | Milestone | Streams | Tasks | Done |
 |---|---|---|---|
-| M0 Foundations | 10 (+ exit) | 69 | 63 |
+| M0 Foundations | 10 (+ exit) | 69 | 68 |
 | M1 Teams & access | 10 (+ exit) | 46 | 0 |
 | M2 Agents & secrets | 7 (+ exit) | 41 | 0 |
 | M3 Spend control | 6 (+ exit) | 24 | 0 |
@@ -203,11 +203,11 @@ Owns: `apps/console/playwright.config.ts`, `e2e/` (core: `fake-afs/server.ts`, `
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M0-E1 | Fake AFS API (Bun): fixtures per area via `fixtures/index.ts`, each body validated against the pinned OpenAPI at load; principal from bearer token; `If-Match` (`412`/`428`), `Idempotency-Key` (replay, `409`), `429`/`503` injection; `X-Request-Id`, `X-Afs-Contract-Version`, CORS headers of FR-038; request recorder | FR-038, plan.md §4 | M0-S2 |
-| [ ] | M0-E2 | Fake OIDC IdP: discovery, authorize (auto-consent per seeded user: `svc-admin`, `team-admin`, `viewer`, `sec-op`), token (refresh rotation), JWKS, `prompt=none`, end-session | WEB-2 (part) | M0-E1 |
-| [ ] | M0-E3 | Playwright config and helpers: projects (chromium; firefox/webkit smoke; `dev` opt-in), axe helper (serious/critical fail), visual helper (1440 × 900, scale 2, 0.5%), sentinel scanner (query + mutation cache via e2e hook, storages, cookies, URL, history, console, telemetry requests, DOM), mutating-request and per-interval request counters; `visual/report.ts` side-by-side mockup vs snapshot HTML artifact | WEB-US-42.2 (part), W-3, WD-10, WD-11 | M0-E1 |
-| [ ] | M0-E4 | Sign-in e2e: after sign-in no token in `localStorage`, `sessionStorage`, IndexedDB, cookies or URL; reload returns to the same route without the IdP page; sign-out in one tab signs out a second tab and lands on `/signed-out`; picker and deep links | WEB-US-7.5, WEB-US-7.6 (part), WEB-US-7.8 (part), WEB-US-7.1 (part) | M0-A9, M0-H1, M0-E2, M0-E3 |
-| [ ] | M0-E5 | Shell e2e per seeded user: navigation per role, team switcher, search sends no request other than its list calls, auth/system pages axe-clean; visual baselines for sign-in and not-found | WEB-US-8.5 (part), WEB-US-8.8 (part), WEB-US-42.1 (part) | M0-H7, M0-E3 |
+| [x] | M0-E1 | Fake AFS API (Bun): fixtures per area via `fixtures/index.ts`, each body validated against the pinned OpenAPI at load; principal from bearer token; `If-Match` (`412`/`428`), `Idempotency-Key` (replay, `409`), `429`/`503` injection; `X-Request-Id`, `X-Afs-Contract-Version`, CORS headers of FR-038; request recorder | FR-038, plan.md §4 | M0-S2 |
+| [x] | M0-E2 | Fake OIDC IdP: discovery, authorize (auto-consent per seeded user: `svc-admin`, `team-admin`, `viewer`, `sec-op`), token (refresh rotation), JWKS, `prompt=none`, end-session | WEB-2 (part) | M0-E1 |
+| [x] | M0-E3 | Playwright config and helpers: projects (chromium; firefox/webkit smoke; `dev` opt-in), axe helper (serious/critical fail), visual helper (1440 × 900, scale 2, 0.5%), sentinel scanner (query + mutation cache via e2e hook, storages, cookies, URL, history, console, telemetry requests, DOM), mutating-request and per-interval request counters; `visual/report.ts` side-by-side mockup vs snapshot HTML artifact | WEB-US-42.2 (part), W-3, WD-10, WD-11 | M0-E1 |
+| [x] | M0-E4 | Sign-in e2e: after sign-in no token in `localStorage`, `sessionStorage`, IndexedDB, cookies or URL; reload returns to the same route without the IdP page; sign-out in one tab signs out a second tab and lands on `/signed-out`; picker and deep links | WEB-US-7.5, WEB-US-7.6 (part), WEB-US-7.8 (part), WEB-US-7.1 (part) | M0-A9, M0-H1, M0-E2, M0-E3 |
+| [x] | M0-E5 | Shell e2e per seeded user: navigation per role, team switcher, search sends no request other than its list calls, auth/system pages axe-clean; visual baselines for sign-in and not-found | WEB-US-8.5 (part), WEB-US-8.8 (part), WEB-US-42.1 (part) | M0-H7, M0-E3 |
 
 ### M0-X · Exit
 

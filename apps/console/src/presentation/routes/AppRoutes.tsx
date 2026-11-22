@@ -52,11 +52,14 @@ function Shell() {
 /** Session-bound layout: the caller is loaded, then the shell wraps every console route. */
 function ConsoleLayout() {
   return (
-    <MeGate>
+    <>
+      {/* outside the gate: they must outlive the caller being cleared on sign-out */}
       <SignedOutWatcher />
       <SessionExpiredDialog />
-      <Shell />
-    </MeGate>
+      <MeGate>
+        <Shell />
+      </MeGate>
+    </>
   );
 }
 
@@ -71,7 +74,7 @@ function ScreenRoute({ def }: { def: RouteDef }) {
     return item ? <Navigate to={routeFor(item)} replace /> : <NotFoundPage />;
   }
   // A team the caller is not bound to is "not found", never "forbidden" (WD-14).
-  if (teamId && !me.serviceAdmin && !teamOf(me, teamId)) return <NotFoundPage />;
+  if (teamId && !me.serviceAdmin && !teamOf(me, teamId)) return <NotFoundPage team />;
   if (def.item && !def.item.visibleWhen(me, teamId ? { teamId } : undefined))
     return <NotFoundPage />;
   const screen = def.item ? screenFor(def.item, me, teamId) : def.screen;

@@ -36,11 +36,12 @@
         "axe-core": "4.14.1",
         "happy-dom": "21.0.4",
         "vite": "8.3.8",
+        "yaml": "2.9.1",
       },
     },
     "packages/sdk": {
       "name": "@afs/sdk",
-      "version": "0.0.1",
+      "version": "0.1.0",
       "devDependencies": {
         "@types/node": "24.19.2",
         "@vitest/browser": "5.1.1",

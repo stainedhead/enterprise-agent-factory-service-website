@@ -1,8 +1,28 @@
 // Shared list: one fixture module per area, added by the area stream.
-export interface Fixture {
-  method: string;
-  path: string;
-  role?: string;
-  response: { status: number; body?: unknown; headers?: Record<string, string> };
+import type { SeedUser } from "../users.js";
+import { coreFixtures } from "./core.js";
+
+export interface FixtureContext {
+  readonly principal: SeedUser | undefined;
+  readonly params: Readonly<Record<string, string>>;
+  readonly query: URLSearchParams;
+  readonly body: unknown;
+  /** Per-server settings a fixture may need, such as the fake IdP's issuer URL. */
+  readonly config: { readonly idpIssuer: string };
 }
-export const fixtureModules: readonly (readonly Fixture[])[] = [];
+
+export interface FixtureResponse {
+  status: number;
+  body?: unknown;
+  headers?: Record<string, string>;
+}
+
+/** A canned answer for one operation. The body is validated against the pinned OpenAPI. */
+export interface Fixture {
+  readonly method: string;
+  /** OpenAPI path template, for example `/v1/teams/{teamId}`. */
+  readonly path: string;
+  readonly response: FixtureResponse | ((ctx: FixtureContext) => FixtureResponse);
+}
+
+export const fixtureModules: readonly (readonly Fixture[])[] = [coreFixtures];

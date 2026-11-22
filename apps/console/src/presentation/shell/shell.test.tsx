@@ -40,6 +40,10 @@ describe("routing (M0-H1)", () => {
         .length,
     ).toBeGreaterThan(0);
     expect(screen.queryByText(/forbidden|denied/i)).toBeNull();
+    // only the team case offers another provider (A3)
+    expect(
+      within(other.view.container).getByRole("link", { name: "Sign in with another provider" }),
+    ).toBeTruthy();
   });
   it("admin-only areas are not found for team roles; a service admin reaches them", async () => {
     renderApp({ me: VIEWER, path: "/teams" });

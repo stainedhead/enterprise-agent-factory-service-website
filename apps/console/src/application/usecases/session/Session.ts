@@ -15,7 +15,7 @@ export interface SessionDeps {
   readonly channel: SessionChannelPort;
   readonly redirectUri: string;
   readonly providerById: (id: string) => ProviderInfo | undefined;
-  /** Clears cached server state on sign-out. */
+  /** Clears cached server state on sign-out (not on expiry, which must keep the page). */
   readonly clearCaches?: () => void;
 }
 
@@ -157,7 +157,8 @@ export class Session {
   #clear(state: SessionState): void {
     this.#cancel();
     this.#tokens = undefined;
-    this.deps.clearCaches?.();
+    // Expiry keeps cached data and the page as they are so work in progress survives re-authentication.
+    if (state === "signed-out") this.deps.clearCaches?.();
     this.#set(state);
   }
 

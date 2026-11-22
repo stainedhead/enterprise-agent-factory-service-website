@@ -7,7 +7,12 @@ export default defineConfig({
   resolve: { conditions: ["source", ...defaultClientConditions] },
   test: {
     environment: "happy-dom",
-    include: ["src/**/*.test.{ts,tsx}", "deploy/**/*.test.ts", "tools/**/*.test.ts"],
+    include: [
+      "src/**/*.test.{ts,tsx}",
+      "deploy/**/*.test.ts",
+      "tools/**/*.test.ts",
+      "e2e/**/*.test.ts",
+    ],
     setupFiles: ["./test/setup.ts"],
     coverage: {
       provider: "v8",

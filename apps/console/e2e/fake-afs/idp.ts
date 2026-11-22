@@ -67,7 +67,20 @@ export class FakeIdp {
     this.#refresh.clear();
   }
 
+  /** Adds CORS so the console (another origin) can use discovery and the token endpoint. */
   async handle(req: Request): Promise<Response> {
+    const cors = {
+      "access-control-allow-origin": "*",
+      "access-control-allow-headers": "Content-Type, Authorization",
+      "access-control-allow-methods": "GET, POST, OPTIONS",
+    };
+    if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
+    const res = await this.#route(req);
+    for (const [k, v] of Object.entries(cors)) res.headers.set(k, v);
+    return res;
+  }
+
+  async #route(req: Request): Promise<Response> {
     const url = new URL(req.url);
     this.requests.push({ method: req.method, path: url.pathname });
     const iss = this.#o.issuer;
