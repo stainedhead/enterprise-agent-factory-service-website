@@ -40,7 +40,7 @@
 |---|---|---|---|
 | M0 Foundations | 10 (+ exit) | 69 | 69 |
 | M1 Teams & access | 10 (+ exit) | 46 | 46 |
-| M2 Agents & secrets | 7 (+ exit) | 41 | 22 |
+| M2 Agents & secrets | 7 (+ exit) | 41 | 27 |
 | M3 Spend control | 6 (+ exit) | 24 | 0 |
 | M4 Production readiness | 8 (+ exit) | 34 | 0 |
 | M5 Budgeted workloads and swarms | 4 (+ exit) | 19 | 0 |
@@ -405,11 +405,11 @@ Owns: area files: `config`; `presentation/screens/t7-config/`.
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M2-V1 | Namespace table (name, value, description, agents using) and agent table (source *Namespace*/*Agent value*, effective value) | WEB-US-30.1 | — |
-| [ ] | M2-V2 | Credential-like names (`*password*`, `*secret*`, `*token*`, `*key*`) refused with a link to Secrets | WEB-US-30.2 | M2-V1 |
-| [ ] | M2-V3 | Saving a namespace value warns which agents restart; deleting a value agents link to is refused with the agents listed | WEB-US-30.3 | M2-V1 |
-| [ ] | M2-V4 | Viewers: both tables read-only | WEB-US-30.4 | M2-V1 |
-| [ ] | M2-V5 | e2e, axe, visual T7 (`16`) | WEB-US-42.1 (part), WEB-US-42.2 (part) | M2-V1..V4 |
+| [x] | M2-V1 | Namespace table (name, value, description, agents using) and agent table (source *Namespace*/*Agent value*, effective value) | WEB-US-30.1 | — |
+| [x] | M2-V2 | Credential-like names (`*password*`, `*secret*`, `*token*`, `*key*`) refused with a link to Secrets | WEB-US-30.2 | M2-V1 |
+| [x] | M2-V3 | Saving a namespace value warns which agents restart; deleting a value agents link to is refused with the agents listed | WEB-US-30.3 | M2-V1 |
+| [x] | M2-V4 | Viewers: both tables read-only | WEB-US-30.4 | M2-V1 |
+| [x] | M2-V5 | e2e, axe, visual T7 (`16`) | WEB-US-42.1 (part), WEB-US-42.2 (part) | M2-V1..V4 |
 
 ### M2-E · External systems, team and agent (T9, T10)
 
