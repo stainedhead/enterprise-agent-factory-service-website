@@ -8,7 +8,11 @@ import { scanForSentinels } from "../../helpers/sentinel.js";
 import { expect, test } from "../../helpers/test.js";
 
 const T = TEAMS[0].id;
-const ORIGINS = ["http://127.0.0.1:4173", ENDPOINTS.api, ENDPOINTS.idp];
+const ORIGINS = [
+  `http://127.0.0.1:${process.env.E2E_WEB_PORT ?? 4173}`,
+  ENDPOINTS.api,
+  ENDPOINTS.idp,
+];
 const CANCELLED = "afsk_CANCELLED_5b1e0c77d3a94f28";
 
 test("M6-Q4: no secret path leaves a value in any cache, storage, URL, history, console, telemetry or the DOM", async ({
@@ -88,4 +92,58 @@ test("M6-Q4: no secret path leaves a value in any cache, storage, URL, history, 
     await expect(page.getByRole("heading", { level: 1 }).first()).toBeVisible();
   }
   await clean("after navigating away");
+});
+
+const arm = async (operationId: string, requiredPermission: string) => {
+  const r = await fetch(`${ENDPOINTS.api}/__inject`, {
+    method: "POST",
+    body: JSON.stringify({ operationId, status: 403, times: 1, requiredPermission }),
+  });
+  if (!r.ok) throw new Error(`arming ${operationId}: ${r.status}`);
+};
+
+test("FR-002: a denied create and a denied rotate name the permission and leave no secret value anywhere", async ({
+  page,
+  signInAs,
+  observed,
+}) => {
+  test.setTimeout(120_000);
+  await openFrozen(page, signInAs, "svc-admin", `/t/${T}/secrets`);
+  const DENIED = "DENIED-5d1c8e02-sentinel";
+  const sentinels = [DENIED];
+  const clean = async (when: string) =>
+    expect(await scanForSentinels(page, sentinels, observed, ORIGINS), when).toEqual([]);
+
+  // create: denied by the API (the permission was revoked after GetMe)
+  await arm("CreateSecret", "secrets:write");
+  await page.getByRole("button", { name: "Create secret" }).click();
+  let d = page.getByRole("dialog");
+  await d.getByLabel("Name").fill("denied-token");
+  await d.getByLabel("Secret value").fill(DENIED);
+  await d.getByRole("button", { name: "Create secret" }).click();
+  await expect(d.getByText(/It requires/)).toContainText("secrets:write");
+  await expect(d.getByText(/Request id:/)).toBeVisible();
+  await expect(d.getByLabel("Secret value")).toHaveValue("");
+  await expect(page.getByRole("dialog")).toHaveCount(1);
+  await clean("after a denied CreateSecret");
+  await d.getByRole("button", { name: "Cancel" }).click();
+
+  // rotate
+  await arm("RotateSecret", "secrets:write");
+  await page.getByRole("button", { name: "Rotate github-bot-key" }).click();
+  d = page.getByRole("dialog");
+  await d.getByLabel("New secret value").fill(DENIED);
+  await d.getByRole("button", { name: "Rotate" }).click();
+  await expect(d.getByText(/It requires/)).toContainText("secrets:write");
+  await expect(d.getByLabel("New secret value")).toHaveValue("");
+  await clean("after a denied RotateSecret");
+  await d.getByRole("button", { name: "Cancel" }).click();
+
+  // the value was sent only to the two secret operations (and each was refused)
+  const writes = await requestsWhere((r) => r.mutating);
+  expect(writes.filter((w) => w.status === 403).map((w) => w.operationId)).toEqual([
+    "CreateSecret",
+    "RotateSecret",
+  ]);
+  await clean("after closing the dialogs");
 });
