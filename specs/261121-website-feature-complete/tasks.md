@@ -39,13 +39,13 @@
 | Milestone | Streams | Tasks | Done |
 |---|---|---|---|
 | M0 Foundations | 10 (+ exit) | 69 | 69 |
-| M1 Teams & access | 10 (+ exit) | 46 | 11 |
+| M1 Teams & access | 10 (+ exit) | 46 | 12 |
 | M2 Agents & secrets | 7 (+ exit) | 41 | 0 |
 | M3 Spend control | 6 (+ exit) | 24 | 0 |
 | M4 Production readiness | 8 (+ exit) | 34 | 0 |
 | M5 Budgeted workloads and swarms | 4 (+ exit) | 19 | 0 |
 | M6 CVE remediation and completion | 6 (+ exit) | 26 | 0 |
-| **Total** | **51** | **259** | **80** |
+| **Total** | **51** | **259** | **81** |
 
 ## External dependencies and contract questions
 
@@ -261,7 +261,7 @@ Owns: `infrastructure/telemetry/`, `application/ports/telemetry.ts`.
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M1-Y1 | Web Vitals (LCP, INP, CLS) and uncaught errors sent with `navigator.sendBeacon` to `telemetryUrl` when configured: route template (no ids, no query), build version, request ids only; tests prove no email, name, token, form value or secret value in any payload | NFR-5, WEB-US-11.1 (part), WD-15 | — |
+| [x] | M1-Y1 | Web Vitals (LCP, INP, CLS) and uncaught errors sent with `navigator.sendBeacon` to `telemetryUrl` when configured: route template (no ids, no query), build version, request ids only; tests prove no email, name, token, form value or secret value in any payload | NFR-5, WEB-US-11.1 (part), WD-15 | — |
 
 ### M1-T · Teams administration (S2, S3, team detail)
 

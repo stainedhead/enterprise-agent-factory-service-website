@@ -8,7 +8,11 @@ export default defineConfig(({ mode }) => ({
   // "source" resolves workspace packages (for example @afs/sdk) to their TypeScript sources.
   resolve: { conditions: ["source", ...defaultClientConditions] },
   // Compiled in only for `vite build --mode e2e`: the test-only debug hook (cache scanning for sentinels).
-  define: { __AFS_E2E__: JSON.stringify(mode === "e2e") },
+  define: {
+    __AFS_E2E__: JSON.stringify(mode === "e2e"),
+    // Reported with telemetry so a regression can be tied to a build (M1-Y1).
+    __AFS_BUILD__: JSON.stringify(process.env.AFS_BUILD ?? "dev"),
+  },
   css: { modules: { generateScopedName: "[name]__[local]__[hash:base64:5]" } },
   build: {
     // Last two majors of Chrome, Edge, Firefox and Safari (NFR-3).

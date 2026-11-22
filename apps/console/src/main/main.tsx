@@ -29,6 +29,8 @@ import {
   SessionDraftStorage,
   SessionFlowStore,
 } from "../infrastructure/storage/SessionFlowStore.js";
+import { BeaconTelemetry } from "../infrastructure/telemetry/BeaconTelemetry.js";
+import { startTelemetry } from "../infrastructure/telemetry/collect.js";
 import { AuthContext, type AuthServices } from "../presentation/auth/AuthContext.js";
 import { ConfigErrorPage } from "../presentation/auth/screens.js";
 import { createQueryClient } from "../presentation/query/createQueryClient.js";
@@ -47,6 +49,7 @@ const root = createRoot(rootEl);
 
 async function start(): Promise<void> {
   const config = await new HttpConfig().load();
+  startTelemetry({ port: new BeaconTelemetry(config.telemetryUrl), build: __AFS_BUILD__ });
   const clock = systemClock;
   const redirect = new BrowserRedirect();
   const prefs = new LocalPreferences();
