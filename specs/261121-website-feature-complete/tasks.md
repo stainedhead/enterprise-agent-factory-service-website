@@ -39,13 +39,13 @@
 | Milestone | Streams | Tasks | Done |
 |---|---|---|---|
 | M0 Foundations | 10 (+ exit) | 69 | 69 |
-| M1 Teams & access | 10 (+ exit) | 46 | 38 |
+| M1 Teams & access | 10 (+ exit) | 46 | 42 |
 | M2 Agents & secrets | 7 (+ exit) | 41 | 0 |
 | M3 Spend control | 6 (+ exit) | 24 | 0 |
 | M4 Production readiness | 8 (+ exit) | 34 | 0 |
 | M5 Budgeted workloads and swarms | 4 (+ exit) | 19 | 0 |
 | M6 CVE remediation and completion | 6 (+ exit) | 26 | 0 |
-| **Total** | **51** | **259** | **107** |
+| **Total** | **51** | **259** | **111** |
 
 ## External dependencies and contract questions
 
@@ -323,10 +323,10 @@ Owns: area files: `admin-settings`, `admin-identityProviders`; `presentation/scr
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M1-N1 | S10 page (S2 table pattern), `/settings/:section` routes from `tabs.ts`; team-admins: not in navigation, routes not-found | WEB-US-20.8, WEB-16 | M1-Q1 |
-| [ ] | M1-N2 | *Settings*: every key from `GetSettings` with value, default, allowed range, last change; *Edit* validates the range client-side before `PutSetting` with `If-Match` | WEB-US-20.1 | M1-N1, M1-Q5 |
-| [ ] | M1-N3 | *Identity providers*: add, edit, disable Okta or Entra ID (issuer, client id, groups claim, console and CLI client ids, CD-9) and choose default; list teams using each; *Disable* disabled when in use, API `409` shown on a race; client secret through `SecretInput` and `useSecretMutation`, only its ARN shown | WEB-US-20.2, WEB-US-11.2 (part) | M1-N1, M1-Q6 |
-| [ ] | M1-N4 | e2e, axe, visual (S2 pattern; approval pending OQ-W1) for both tabs | WEB-US-42.1 (part), WEB-US-42.2 (part) | M1-N2, M1-N3 |
+| [x] | M1-N1 | S10 page (S2 table pattern), `/settings/:section` routes from `tabs.ts`; team-admins: not in navigation, routes not-found | WEB-US-20.8, WEB-16 | M1-Q1 |
+| [x] | M1-N2 | *Settings*: every key from `GetSettings` with value, default, allowed range, last change; *Edit* validates the range client-side before `PutSetting` with `If-Match` | WEB-US-20.1 | M1-N1, M1-Q5 |
+| [x] | M1-N3 | *Identity providers*: add, edit, disable Okta or Entra ID (issuer, client id, groups claim, console and CLI client ids, CD-9) and choose default; list teams using each; *Disable* disabled when in use, API `409` shown on a race; client secret through `SecretInput` and `useSecretMutation`, only its ARN shown | WEB-US-20.2, WEB-US-11.2 (part) | M1-N1, M1-Q6 |
+| [x] | M1-N4 | e2e, axe, visual (S2 pattern; approval pending OQ-W1) for both tabs | WEB-US-42.1 (part), WEB-US-42.2 (part) | M1-N2, M1-N3 |
 
 ### M1-H · History: activity and revisions (T15)
 

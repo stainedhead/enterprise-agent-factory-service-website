@@ -7,10 +7,15 @@ import {
 } from "../application/usecases/members/MembersUseCases.js";
 import { OverviewUseCases } from "../application/usecases/overview/OverviewUseCases.js";
 import type { ListProviders } from "../application/usecases/session/ListProviders.js";
+import {
+  IdentityProvidersUseCases,
+  SettingsUseCases,
+} from "../application/usecases/settings/SettingsUseCases.js";
 import { TeamsUseCases } from "../application/usecases/teams/TeamsUseCases.js";
 import { SdkDashboard } from "../infrastructure/sdk/dashboard.js";
 import { SdkApiKeys, SdkMembers } from "../infrastructure/sdk/members.js";
 import { SdkOverview, SdkWorkOrders } from "../infrastructure/sdk/overview.js";
+import { SdkIdentityProviders, SdkSettings } from "../infrastructure/sdk/settings.js";
 import { SdkTeams } from "../infrastructure/sdk/teams.js";
 import type { AppServices } from "../presentation/services.js";
 
@@ -50,6 +55,8 @@ export function buildServices(
   return {
     signInProviders: shared.listProviders,
     teams: new TeamsUseCases(teamsPort, clock),
+    settings: new SettingsUseCases(new SdkSettings(client)),
+    identityProviders: new IdentityProvidersUseCases(new SdkIdentityProviders(client)),
     members: new MembersUseCases(new SdkMembers(client)),
     apiKeys: new ApiKeysUseCases(new SdkApiKeys(client), clock),
     overview: new OverviewUseCases(overviewPort, new SdkWorkOrders(client)),

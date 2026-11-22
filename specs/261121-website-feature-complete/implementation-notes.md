@@ -65,6 +65,7 @@ architectural ones into ADRs (`docs/architectural-decision-record.md`, ADR-005 o
 | CQ-9 | `Team` has no cluster name or IAM role ARN. T1 shows the cluster as "—" and takes the ARN from a `team_shared` agent's `iamRoleArn` (shown once such an agent exists). Needs a team-level field in the API. | M1-O1 |
 | CQ-10 | No aggregate of agent counts or agent health per team: S1 reads `ListAgents` for the first 50 active teams, five at a time, and says how many teams were not read. Needs an agent count and a degraded count in a service report. | M1-D1 |
 | CQ-11 | No reconciler-health endpoint: S1 reads the `reconciler` check of `GET /readyz` (else the overall status). Needs a documented check name. | M1-D1 |
+| CQ-12 | `CreateIdentityProvider` and `UpdateIdentityProvider` take only `clientSecretArn`; no client secret value field exists ("the value never reaches AFS"), although the task list and the data dictionary expect a write-only value. S10 therefore takes the ARN in a normal field (an ARN is not a secret) and shows only the ARN; no `SecretInput` is used there. | M1-N3 |
 
 ## 3. Edge cases and solutions (seeded at spec time; extend during implementation)
 
@@ -111,6 +112,7 @@ architectural ones into ADRs (`docs/architectural-decision-record.md`, ADR-005 o
 | DV-19 | `useTeamWriteGate` and `TeamLayout` read the team through the shared `teamKey` query, enabled only for service admins and callers bound to the team; `renderApp` (shell tests) now provides empty team and overview services via `shellScreenServices` because `/t/:id` renders the real T1. | M1-O4 |
 | DV-20 | A new API key's expiry is computed at submit as now + N days, minus one minute when N is 90, so the API's "at most 90 days ahead" holds despite clock skew (M1-M2). | M1-M2 |
 | DV-21 | S1 sums each live team's `maxBudgetUsd` as "the sum of budgets" (as S2 does) and takes month-to-date spend from the usage report grouped by team, rather than reading each team's `GetBudget` (N calls). *Reverted drift* is a `DriftCorrected=True` condition changed within 24 h on the team or one of its agents. | M1-D1, M1-D2 |
+| DV-22 | S10 section ids follow the navigation (`general` for *Settings*, `identity-providers`); the section is read from the path because the navigation items are literal routes (`/settings/general`) with no `:section` parameter. *Delete* for identity providers is not offered: *Disable* is the removal path the PRD names. | M1-N1, M1-N3 |
 
 ## 5. Lessons learned
 

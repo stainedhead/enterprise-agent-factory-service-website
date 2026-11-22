@@ -7,9 +7,15 @@ import type {
 } from "../application/usecases/members/MembersUseCases.js";
 import type { OverviewUseCases } from "../application/usecases/overview/OverviewUseCases.js";
 import type { ListProviders } from "../application/usecases/session/ListProviders.js";
+import type {
+  IdentityProvidersUseCases,
+  SettingsUseCases,
+} from "../application/usecases/settings/SettingsUseCases.js";
 import type { TeamsUseCases } from "../application/usecases/teams/TeamsUseCases.js";
 
 export interface AppServices {
+  readonly identityProviders: IdentityProvidersUseCases;
+  readonly settings: SettingsUseCases;
   readonly dashboard: DashboardUseCases;
   readonly apiKeys: ApiKeysUseCases;
   readonly members: MembersUseCases;

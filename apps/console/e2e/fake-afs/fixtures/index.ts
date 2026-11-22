@@ -4,6 +4,7 @@ import { coreFixtures } from "./core.js";
 import { dashboardFixtures } from "./dashboard.js";
 import { membersFixtures, resetMembers } from "./members.js";
 import { overviewFixtures, resetOverview } from "./overview.js";
+import { resetSettings, settingsFixtures } from "./settings.js";
 import { resetTeams, teamsFixtures } from "./teams.js";
 
 export interface FixtureContext {
@@ -35,7 +36,13 @@ export const fixtureModules: readonly (readonly Fixture[])[] = [
   overviewFixtures,
   membersFixtures,
   dashboardFixtures,
+  settingsFixtures,
 ];
 
 /** Stateful fixture modules register a reset here; the server calls them on `/__reset`. */
-export const fixtureResets: readonly (() => void)[] = [resetTeams, resetOverview, resetMembers];
+export const fixtureResets: readonly (() => void)[] = [
+  resetTeams,
+  resetOverview,
+  resetMembers,
+  resetSettings,
+];
