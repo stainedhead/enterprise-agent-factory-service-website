@@ -15,6 +15,7 @@ import { adminOrgAccountsFixtures } from "./admin-orgAccounts.js";
 import { adminServiceTagsFixtures, resetAdminServiceTags } from "./admin-serviceTags.js";
 import { agentsFixtures, resetAgents } from "./agents.js";
 import { budgetsFixtures, resetBudgets } from "./budgets.js";
+import { collaborationFixtures, resetCollaboration } from "./collaboration.js";
 import { configFixtures, resetConfig } from "./config.js";
 import { coreFixtures } from "./core.js";
 import { dashboardFixtures } from "./dashboard.js";
@@ -92,6 +93,7 @@ export const fixtureModules: readonly (readonly Fixture[])[] = [
   adminNotificationChannelsFixtures,
   poolsFixtures,
   adminApiKeysFixtures,
+  collaborationFixtures,
 ];
 
 /** Stateful fixture modules register a reset here; the server calls them on `/__reset`. */
@@ -119,4 +121,5 @@ export const fixtureResets: readonly (() => void)[] = [
   resetWorkOrders,
   resetSwarmTemplates,
   resetAdminApiKeys,
+  resetCollaboration,
 ];

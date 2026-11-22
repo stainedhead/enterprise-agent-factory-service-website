@@ -89,6 +89,9 @@ export class SdkTeams implements TeamsPort {
         ...(input.mayAddExternalSystems !== undefined && {
           mayAddExternalSystems: input.mayAddExternalSystems,
         }),
+        ...(input.mayExposeCollaboration !== undefined && {
+          mayExposeCollaboration: input.mayExposeCollaboration,
+        }),
         ...(input.mayManageAwsAccounts !== undefined && {
           mayManageAwsAccounts: input.mayManageAwsAccounts,
         }),
@@ -119,6 +122,9 @@ export class SdkTeams implements TeamsPort {
           ...(p.viewerKubectl !== undefined && { viewerKubectl: p.viewerKubectl }),
           ...(p.mayAddExternalSystems !== undefined && {
             mayAddExternalSystems: p.mayAddExternalSystems,
+          }),
+          ...(p.mayExposeCollaboration !== undefined && {
+            mayExposeCollaboration: p.mayExposeCollaboration,
           }),
           ...(p.mayManageAwsAccounts !== undefined && {
             mayManageAwsAccounts: p.mayManageAwsAccounts,

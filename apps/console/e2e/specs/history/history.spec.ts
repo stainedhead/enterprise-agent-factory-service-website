@@ -23,10 +23,17 @@ test.describe("T15 activity and audit", () => {
     await expect(page).toHaveURL(/outcome=denied/);
     await expect(page.getByRole("row").filter({ hasText: "denied" }).first()).toBeVisible();
     await expect(page.getByRole("row").filter({ hasText: "allowed" })).toHaveCount(0);
-    const lists = await requestsWhere(
-      (r) => r.operationId === "ListAuditEvents" && r.query.includes("outcome=denied"),
-    );
-    expect(lists.length).toBeGreaterThan(0);
+    // the rows can render from a cached page before the filtered request is recorded: wait for it
+    await expect
+      .poll(
+        async () =>
+          (
+            await requestsWhere(
+              (r) => r.operationId === "ListAuditEvents" && r.query.includes("outcome=denied"),
+            )
+          ).length,
+      )
+      .toBeGreaterThan(0);
   });
 
   test("a filter in the URL is applied on load", async ({ page, signInAs }) => {

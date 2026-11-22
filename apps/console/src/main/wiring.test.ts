@@ -13,6 +13,7 @@ import { buildServices } from "./wiring.js";
 /** Every key of AppServices: the compiler fails this literal when an area is added or removed. */
 const AREAS: Record<keyof AppServices, true> = {
   agents: true,
+  collaboration: true,
   configValues: true,
   createAgent: true,
   externalSystems: true,

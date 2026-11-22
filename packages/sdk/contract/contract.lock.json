@@ -1,12 +1,12 @@
 {
   "source": "github.com/stainedhead/enterprise-agent-factory-service-restapi",
-  "ref": "d8876092759b4025327607d5d7295f93e80c23ed",
-  "commit": "d8876092759b4025327607d5d7295f93e80c23ed",
-  "contractVersion": "1.1.0",
+  "ref": "763e939e8f9f83daa92a6ece7d7a7c555f1ff45b",
+  "commit": "763e939e8f9f83daa92a6ece7d7a7c555f1ff45b",
+  "contractVersion": "1.3.1",
   "files": {
-    "openapi.yaml": "000118d7128e0ad3ab9172aebd86745645019d656afbdb4419691ca8e16c1403",
-    "permissions.json": "27d93f6f0af951eb1f626e820474ebf387fbb31fb5e7d8a95ba6df0ef92418e5",
-    "operations.json": "e83e12238e071c081d8cb7873e383b3730452315d61f4a1b2ce149d57c138331"
+    "openapi.yaml": "12bb52959d31141d6577a0487a3c40318a2a542423e1adc30c947ac57bcdb357",
+    "permissions.json": "39063367ad1fa7efc67070ec4d66087f9889ebeda6ff4f5a8a111f7b552e11d6",
+    "operations.json": "355c2657ebaa465d006287f7692933bb32b214b960dcfe8b9ed988ef056baac2"
   },
-  "pinnedAt": "2026-11-22T12:12:17.965Z"
+  "pinnedAt": "2026-11-22T22:12:19.812Z"
 }

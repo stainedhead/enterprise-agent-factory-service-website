@@ -57,7 +57,11 @@ export class SdkAdminAgentTemplates implements AdminAgentTemplatesPort {
     return wrap<AgentTemplateRecord>(() =>
       adminAgentTemplates(this.client).put(
         target(ref),
-        compact({ ...input, allowedDigests: [...input.allowedDigests] }),
+        compact({
+          ...input,
+          allowedDigests: [...input.allowedDigests],
+          ...(input.capabilities && { capabilities: [...input.capabilities] }),
+        }),
       ),
     );
   }

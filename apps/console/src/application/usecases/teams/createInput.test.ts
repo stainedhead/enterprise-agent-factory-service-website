@@ -28,6 +28,7 @@ describe("toCreateInput", () => {
       ownerEmail: "o@x.co",
       identityProviderId: "idp_1",
       models: ["m1"],
+      mayExposeCollaboration: true,
       tags: [{ key: "env", value: "prod" }],
       budget: { amountUsd: "5000.00", thresholds: [50, 80, 100] },
       firstAdmin: { subjectType: "group", groupName: "g" },
@@ -45,5 +46,21 @@ describe("toCreateInput", () => {
     expect(r.budget).toEqual({ amountUsd: "1.00" });
     expect(r.firstAdmin).toEqual({ subjectType: "user", email: "a@b.co" });
     expect(r).not.toHaveProperty("costCenter");
+  });
+});
+
+describe("toCreateInput guardrail (WEB-US-52)", () => {
+  it("sends mayExposeCollaboration false only when the checkbox is cleared", () => {
+    const d = {
+      ...emptyTeamDraft(),
+      displayName: "P",
+      slug: "pay",
+      maxBudgetUsd: "10.00",
+      adminEmail: "a@b.co",
+    };
+    expect(toCreateInput(d).mayExposeCollaboration).toBe(true);
+    expect(toCreateInput({ ...d, mayExposeCollaboration: false }).mayExposeCollaboration).toBe(
+      false,
+    );
   });
 });

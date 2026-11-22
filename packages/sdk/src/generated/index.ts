@@ -3,6 +3,7 @@ import { AfsClient, type AfsClientOptions } from "../core/client.js";
 import { adminAgentTemplates } from "./resources/admin-agentTemplates.js";
 import { adminApiKeys } from "./resources/admin-apiKeys.js";
 import { adminAudit } from "./resources/admin-audit.js";
+import { adminCollaborationEndpoints } from "./resources/admin-collaborationEndpoints.js";
 import { adminCostTagStatus } from "./resources/admin-costTagStatus.js";
 import { adminExports } from "./resources/admin-exports.js";
 import { adminExternalSystems } from "./resources/admin-externalSystems.js";
@@ -24,6 +25,7 @@ import { apiKeys } from "./resources/apiKeys.js";
 import { audit } from "./resources/audit.js";
 import { auth } from "./resources/auth.js";
 import { budgets } from "./resources/budgets.js";
+import { collaboration } from "./resources/collaboration.js";
 import { config } from "./resources/config.js";
 import { externalSystems } from "./resources/externalSystems.js";
 import { health } from "./resources/health.js";
@@ -47,6 +49,7 @@ export { CONTRACT_VERSION, type OperationId, operations } from "./operations.js"
 export { adminAgentTemplates } from "./resources/admin-agentTemplates.js";
 export { adminApiKeys } from "./resources/admin-apiKeys.js";
 export { adminAudit } from "./resources/admin-audit.js";
+export { adminCollaborationEndpoints } from "./resources/admin-collaborationEndpoints.js";
 export { adminCostTagStatus } from "./resources/admin-costTagStatus.js";
 export { adminExports } from "./resources/admin-exports.js";
 export { adminExternalSystems } from "./resources/admin-externalSystems.js";
@@ -68,6 +71,7 @@ export { apiKeys } from "./resources/apiKeys.js";
 export { audit } from "./resources/audit.js";
 export { auth } from "./resources/auth.js";
 export { budgets } from "./resources/budgets.js";
+export { collaboration } from "./resources/collaboration.js";
 export { config } from "./resources/config.js";
 export { externalSystems } from "./resources/externalSystems.js";
 export { health } from "./resources/health.js";
@@ -97,6 +101,7 @@ export function createAfs(options: AfsClientOptions) {
     audit: audit(core),
     auth: auth(core),
     budgets: budgets(core),
+    collaboration: collaboration(core),
     config: config(core),
     externalSystems: externalSystems(core),
     health: health(core),
@@ -118,6 +123,7 @@ export function createAfs(options: AfsClientOptions) {
       agentTemplates: adminAgentTemplates(core),
       apiKeys: adminApiKeys(core),
       audit: adminAudit(core),
+      collaborationEndpoints: adminCollaborationEndpoints(core),
       costTagStatus: adminCostTagStatus(core),
       exports: adminExports(core),
       externalSystems: adminExternalSystems(core),

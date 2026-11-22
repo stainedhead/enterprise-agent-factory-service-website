@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { isAppError } from "../../../../application/errors.js";
-import type { Cadence } from "../../../../application/ports/reportSchedules.js";
-import type { ReportKind, ReportQuery } from "../../../../application/ports/reports.js";
+import type { Cadence, ScheduledKind } from "../../../../application/ports/reportSchedules.js";
+import type { ReportQuery } from "../../../../application/ports/reports.js";
 import {
   Alert,
   Button,
@@ -33,7 +33,7 @@ export function ScheduleDialog({
   onSaved,
 }: {
   teamId: string;
-  kind: ReportKind;
+  kind: ScheduledKind;
   title: string;
   query: ReportQuery;
   onClose: () => void;

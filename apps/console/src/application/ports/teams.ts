@@ -47,6 +47,8 @@ export interface TeamRecord {
   readonly viewerKubectl: boolean;
   readonly mayAddExternalSystems: boolean;
   readonly mayManageAwsAccounts: boolean;
+  /** Whether the team may publish its collaboration endpoints (a service guardrail, WEB-US-52). */
+  readonly mayExposeCollaboration?: boolean;
   readonly allowedAwsAccounts: readonly string[];
   readonly teardownRule?: string;
   /** When an ephemeral team was torn down, and why (`expired`, `cap_reached`, `work_complete`, `manual`). */
@@ -80,6 +82,7 @@ export interface CreateTeamInput {
   readonly viewerKubectl?: boolean;
   readonly mayAddExternalSystems?: boolean;
   readonly mayManageAwsAccounts?: boolean;
+  readonly mayExposeCollaboration?: boolean;
 }
 
 /** Fields of `UpdateTeam`; guardrail fields need `teams:set-guardrails` on the server. */
@@ -97,6 +100,7 @@ export interface UpdateTeamInput {
   readonly viewerKubectl?: boolean;
   readonly mayAddExternalSystems?: boolean;
   readonly mayManageAwsAccounts?: boolean;
+  readonly mayExposeCollaboration?: boolean;
   /** Glob patterns over account ids and names (`teams:set-aws-accounts`). */
   readonly allowedAwsAccounts?: readonly string[];
   readonly quotas?: QuotasRecord;

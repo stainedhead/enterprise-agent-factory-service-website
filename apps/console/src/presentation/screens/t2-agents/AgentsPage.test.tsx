@@ -251,3 +251,54 @@ describe("T2 viewer (M2-A6)", () => {
     expect(screen.queryByText("The action was not applied")).toBeNull();
   });
 });
+
+describe("T2 collaboration (WEB-US-53)", () => {
+  const withRoles = () =>
+    fakeAgentsPort({
+      list: vi.fn(async () => [
+        anAgent({
+          id: "agt_hub",
+          name: "paperclip-hub",
+          role: "collaboration",
+        }),
+        anAgent({
+          id: "agt_1",
+          name: "reviewer-bot",
+          role: "worker",
+          collaboration: { connect: true, linkState: "linked" },
+        }),
+        anAgent({
+          id: "agt_2",
+          name: "incident-scribe",
+          role: "worker",
+          collaboration: { connect: false, linkState: "disabled" },
+        }),
+        anAgent({ id: "agt_3", name: "plain-worker" }),
+      ]),
+    });
+  it("collaboration badge and paperclip column", async () => {
+    open({ agents: withRoles() });
+    const t = await screen.findByRole("table", { name: "Agents" });
+    const hub = (await within(t).findByText("paperclip-hub")).closest("tr") as HTMLElement;
+    expect(within(hub).getByText("Collaboration")).toBeTruthy();
+    expect(within(hub).getByText("—")).toBeTruthy();
+    const w1 = within(t).getByText("reviewer-bot").closest("tr") as HTMLElement;
+    expect(within(w1).getByText("linked")).toBeTruthy();
+    const w2 = within(t).getByText("incident-scribe").closest("tr") as HTMLElement;
+    expect(within(w2).getByText("Not connected")).toBeTruthy();
+    expect(
+      within(within(t).getByText("plain-worker").closest("tr") as HTMLElement).getByText(
+        "Not connected",
+      ),
+    ).toBeTruthy();
+  });
+  it("role filter follows the URL", async () => {
+    open({ agents: withRoles(), path: "/t/team_1/agents?role=collaboration" });
+    const t = await screen.findByRole("table", { name: "Agents" });
+    expect(await within(t).findByText("paperclip-hub")).toBeTruthy();
+    expect(within(t).queryByText("reviewer-bot")).toBeNull();
+    await userEvent.selectOptions(screen.getByLabelText("Role"), "worker");
+    expect(await within(t).findByText("reviewer-bot")).toBeTruthy();
+    expect(within(t).queryByText("paperclip-hub")).toBeNull();
+  });
+});

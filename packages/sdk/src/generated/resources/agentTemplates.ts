@@ -7,7 +7,7 @@ import type { AgentTemplate } from "../schemas.js";
 export function agentTemplates(core: AfsClient) {
   return {
     /** List agent templates (requires `models:read`). GET /v1/agent-templates */
-    list(opts?: CallOptions & { maxResults?: number; nextToken?: string }): Paginated<AgentTemplate> {
+    list(opts?: CallOptions & { capability?: "paperclip" | (string & {}); maxResults?: number; nextToken?: string }): Paginated<AgentTemplate> {
       return core.paginate<AgentTemplate>("ListAgentTemplates", { path: [] }, opts);
     },
   };

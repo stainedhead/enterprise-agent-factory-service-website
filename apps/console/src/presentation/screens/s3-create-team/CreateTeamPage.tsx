@@ -10,7 +10,7 @@ import {
   toCreateInput,
   validateStep,
 } from "../../../application/usecases/teams/teamDraft.js";
-import { buildCli, type CliValue } from "../../../domain/cli.js";
+import { boolFlag, buildCli, type CliCommand, type CliValue } from "../../../domain/cli.js";
 import { format } from "../../../domain/money.js";
 import {
   Alert,
@@ -64,6 +64,15 @@ export function cliValues(d: TeamDraft): Record<string, CliValue> {
   };
 }
 
+/** The `create-team` command with the guardrail as an AWS-style flag pair (`--may-expose-collaboration` or `--no-...`). */
+export function createTeamCli(d: TeamDraft): CliCommand {
+  const base = buildCli("CreateTeam", cliValues(d));
+  return {
+    ...base,
+    args: [...base.args, boolFlag("may-expose-collaboration", d.mayExposeCollaboration !== false)],
+  };
+}
+
 /** S3: the five-step onboarding wizard (WEB-US-14). */
 export function CreateTeamPage() {
   const me = useMe();
@@ -96,6 +105,10 @@ export function CreateTeamPage() {
   const errs = (step: StepId) =>
     validateStep(step, draft, tags, { ephemeralMaxDays: maxDays, now });
   const server = serverError?.kind === "validation" ? serverError.fields : {};
+  const slugError =
+    serverError?.reason === "hostname_held"
+      ? "A team with this name had a collaboration endpoint that was deleted recently. Its hostname is held for 30 days. Choose another name."
+      : server.slug;
   const variant = budgetStepVariants[draft.kind];
   const [busy, setBusy] = useState(false);
   const submit = async () => {
@@ -132,7 +145,7 @@ export function CreateTeamPage() {
           <FormField
             label="Slug"
             hint="Lowercase letters, digits and hyphens; immutable"
-            error={server.slug}
+            error={slugError}
           >
             <TextInput value={draft.slug} onChange={(e) => set("slug", e.target.value)} />
           </FormField>
@@ -236,6 +249,18 @@ export function CreateTeamPage() {
               {m.displayName} <span style={{ color: "var(--muted)" }}>({m.provider})</span>
             </label>
           ))}
+          <label style={{ display: "block" }}>
+            <input
+              type="checkbox"
+              checked={draft.mayExposeCollaboration !== false}
+              onChange={(e) => set("mayExposeCollaboration", e.target.checked)}
+            />{" "}
+            May publish collaboration endpoints
+          </label>
+          <p style={{ color: "var(--muted)" }}>
+            Lets this team switch on public access to its Paperclip. Turning it off stops both
+            public surfaces without losing the team's choices.
+          </p>
           <p style={{ color: "var(--muted)" }}>
             Egress is limited to the model gateway and the allow-listed external systems.
           </p>
@@ -371,6 +396,10 @@ export function CreateTeamPage() {
           },
           { label: "Models", value: draft.models.join(", ") || "—" },
           {
+            label: "May publish collaboration endpoints",
+            value: draft.mayExposeCollaboration !== false ? "Yes" : "No",
+          },
+          {
             label: draft.kind === "ephemeral" ? "Lifetime budget" : "Budget",
             value: draft.maxBudgetUsd ? safeFormat(draft.maxBudgetUsd) : "—",
           },
@@ -382,7 +411,7 @@ export function CreateTeamPage() {
           },
         ]}
       />
-      {allValid && <CliPreview command={buildCli("CreateTeam", cliValues(draft))} />}
+      {allValid && <CliPreview command={createTeamCli(draft)} />}
     </div>
   );
 

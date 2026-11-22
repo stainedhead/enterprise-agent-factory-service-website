@@ -66,6 +66,23 @@ const csv = await reports.team("team_01...", "usage", { range: "7d" }).asCsv();
 
 Rows carry the API's measure names; `asCsv()` returns the CSV exactly as the API sends it.
 
+## Team collaboration (Paperclip)
+
+```ts
+import { createCollaboration, createReports } from "@stainedhead/afs-sdk";
+
+const collab = createCollaboration(afsClient);
+const { webUi, restApi, hostname } = await collab.endpointUrl("team_01...");
+// a URL is returned only for a surface that is effective; otherwise null
+const rows = await createReports(afsClient).team("team_01...", "collaboration", {
+  range: "7d",
+  groupBy: ["person"],
+});
+```
+
+The SDK never calls Paperclip itself and never takes a Paperclip key. The `collaboration` report is usage only
+and cannot be scheduled. `AfsError.isSecretDetected` is true when the API refused a request because it held a secret.
+
 ## Handle errors
 
 ```ts

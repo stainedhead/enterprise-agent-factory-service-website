@@ -3,6 +3,7 @@
 import { createElement, type ReactNode } from "react";
 import { can, type Me } from "../../../domain/me.js";
 import { GuardrailsTab } from "../team-admin/tabs/guardrails/GuardrailsTab.js";
+import { CollaborationCard } from "./collaboration/CollaborationCard.js";
 import { EphemeralCard } from "./ephemeral/EphemeralCard.js";
 import { KubeconfigCard } from "./kubeconfig/KubeconfigCard.js";
 
@@ -23,6 +24,11 @@ export const cards: readonly CardDef[] = [
     id: "kubeconfig",
     visibleWhen: (me, teamId) => can(me, "teams:read", teamId),
     render: ({ teamId }) => createElement(KubeconfigCard, { teamId }),
+  },
+  {
+    id: "collaboration",
+    visibleWhen: (me, teamId) => can(me, "collaboration:read", teamId),
+    render: ({ teamId }) => createElement(CollaborationCard, { teamId }),
   },
   {
     id: "guardrails",

@@ -3,6 +3,9 @@
 
 import type { ReportKind, ReportQuery } from "./reports.js";
 
+/** The kinds a schedule may deliver: the collaboration report cannot be scheduled (SDK-13). */
+export type ScheduledKind = Exclude<ReportKind, "collaboration">;
+
 export type Cadence = "daily" | "weekly" | "monthly";
 
 export interface ReportScheduleRecord {
@@ -21,7 +24,7 @@ export interface ReportScheduleRecord {
 
 export interface ScheduleInput {
   readonly name: string;
-  readonly report: ReportKind;
+  readonly report: ScheduledKind;
   readonly cadence: Cadence;
   readonly channelId: string;
   readonly query: ReportQuery;

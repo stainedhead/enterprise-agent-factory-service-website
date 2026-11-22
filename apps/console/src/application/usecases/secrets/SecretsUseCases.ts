@@ -1,3 +1,4 @@
+import { RESERVED_NAME_TEXT, reservedSecretName } from "../../../domain/collaboration.js";
 import { isValidName } from "../../../domain/names.js";
 import { AppError } from "../../errors.js";
 import type {
@@ -48,6 +49,8 @@ export class SecretsUseCases {
           "Use 3 to 40 lower-case letters, digits and hyphens, starting with a letter",
         ),
       );
+    if (reservedSecretName(name, input.scope))
+      return Promise.reject(invalid("name", RESERVED_NAME_TEXT));
     if (input.scope === "agent" && !input.agentId)
       return Promise.reject(invalid("agentId", "Choose the agent this secret belongs to"));
     if (value === "") return Promise.reject(invalid("value", "Enter the secret value"));
@@ -76,6 +79,11 @@ export class SecretsUseCases {
   putValue(teamId: string, ref: SecretRef, value: string): Promise<void> {
     if (value === "") return Promise.reject(invalid("value", "Enter the secret value"));
     return this.port.putValue(teamId, { id: ref.id, version: ref.version }, value);
+  }
+
+  /** A secret AFS manages is rotated with no value: AFS generates the new one (WP-D15). */
+  rotateManaged(teamId: string, secretId: string): Promise<SecretRecord> {
+    return this.port.rotate(teamId, secretId);
   }
 
   rotate(teamId: string, secretId: string, value: string): Promise<SecretRecord> {

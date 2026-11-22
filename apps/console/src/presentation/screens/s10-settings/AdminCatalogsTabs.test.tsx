@@ -136,3 +136,38 @@ describe("S10 agent templates (M2-G2, G3)", () => {
     expect(disabled(add)).toBe(false);
   });
 });
+
+describe("S10 template capabilities (WEB-US-58)", () => {
+  it("capabilities column and edit", async () => {
+    const { templates } = open("agent-templates");
+    await userEvent.click(await screen.findByRole("button", { name: "Edit coder" }));
+    const d = await screen.findByRole("dialog");
+    expect(within(d).getByText(/cannot be used for workers/)).toBeTruthy();
+    await userEvent.click(within(d).getByRole("checkbox", { name: "paperclip" }));
+    await userEvent.click(within(d).getByRole("button", { name: "Save" }));
+    await waitFor(() => expect(templates.put).toHaveBeenCalled());
+    expect(templates.put.mock.calls[0]?.[1]).toMatchObject({ capabilities: ["paperclip"] });
+    expect(screen.getByRole("columnheader", { name: "Capabilities" })).toBeTruthy();
+  });
+  it("enabling or disabling keeps the capabilities", async () => {
+    const templates = fakeTemplatesPort();
+    templates.list.mockResolvedValue([
+      {
+        name: "hub",
+        harness: "paperclip",
+        enabled: true,
+        currentDigest: D1,
+        allowedDigests: [D1],
+        capabilities: ["paperclip"],
+        version: 1,
+      },
+    ] as never);
+    open("agent-templates", { templates });
+    await userEvent.click(await screen.findByRole("button", { name: "Disable hub" }));
+    await waitFor(() => expect(templates.put).toHaveBeenCalled());
+    expect(templates.put.mock.calls[0]?.[1]).toMatchObject({
+      capabilities: ["paperclip"],
+      enabled: false,
+    });
+  });
+});

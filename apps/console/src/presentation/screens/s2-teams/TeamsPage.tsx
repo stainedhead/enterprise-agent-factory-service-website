@@ -180,6 +180,14 @@ export function TeamsPage() {
       cell: (r) => r.team.costCenter ?? "—",
     },
     {
+      id: "mayExpose",
+      header: "May publish collaboration",
+      defaultHidden: true,
+      sortValue: (r) => (r.team.mayExposeCollaboration === false ? 0 : 1),
+      text: (r) => (r.team.mayExposeCollaboration === false ? "No" : "Yes"),
+      cell: (r) => (r.team.mayExposeCollaboration === false ? "No" : "Yes"),
+    },
+    {
       id: "expires",
       header: "Expires",
       cell: (r) =>

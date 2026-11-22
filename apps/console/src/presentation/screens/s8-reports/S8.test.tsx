@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import type { Me } from "../../../domain/me.js";
 import { SERVICE_ADMIN, TEAM_ADMIN, VIEWER } from "../../testing/harness.js";
-import { fakeReportsPort, reportsServices } from "../../testing/reports.js";
+import { aReport, fakeReportsPort, reportsServices } from "../../testing/reports.js";
 import { renderScreen } from "../../testing/screen.js";
 import S8 from "./index.js";
 
@@ -20,6 +20,25 @@ describe("S8 service reports (M3-R4, M3-R5)", () => {
       { level: "service" },
       "costs",
       expect.anything(),
+      expect.anything(),
+    );
+  });
+  it("runs the collaboration report across teams, grouped by team", async () => {
+    const port = fakeReportsPort();
+    port.run.mockResolvedValue(
+      aReport({
+        kind: "collaboration",
+        groupBy: ["team"],
+        rows: [{ team: "team_1", signIns: 3, requests: 9, deniedRequests: 1 }],
+        totals: { signIns: 3 },
+      }),
+    );
+    open(SERVICE_ADMIN, "/reports?tab=collaboration", port);
+    expect((await screen.findAllByText("team_1")).length).toBeGreaterThan(0);
+    expect(port.run).toHaveBeenCalledWith(
+      { level: "service" },
+      "collaboration",
+      expect.objectContaining({ groupBy: ["team"] }),
       expect.anything(),
     );
   });

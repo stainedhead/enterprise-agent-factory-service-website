@@ -84,5 +84,5 @@ Per-call options (`CallOptions`) include an `AbortSignal` and retry overrides.
 
 ## Publishing the SDK (maintainers)
 
-Push a tag `sdk-v<version>` (for example `sdk-v0.3.0`) or run the release workflow manually. The workflow
+Push a tag `sdk-v<version>` (for example `sdk-v1.0.1`) or run the release workflow manually. The workflow
 publishes `@stainedhead/afs-sdk` with the job's own token; no secret is stored. See [sdk.md](sdk.md) for consumers.

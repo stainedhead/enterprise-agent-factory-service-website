@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { type ReactNode, useState } from "react";
+import { useSearchParams } from "react-router";
 import { isAppError } from "../../../application/errors.js";
 import type { ReportKind, ReportScope } from "../../../application/ports/reports.js";
 import {
@@ -43,6 +44,21 @@ export interface ReportPanelProps {
   linkTeamId?: string | undefined;
 }
 
+/**
+ * The starting controls: `range` and `groupBy` from the URL when present (a link such as the collaboration
+ * page's *View all in Reports*), a group-by only if this report offers it, else month to date.
+ */
+export function initialParams(url: URLSearchParams, offered: readonly string[]): URLSearchParams {
+  const out = new URLSearchParams("range=mtd");
+  const range = url.get("range");
+  if (range) out.set("range", range);
+  const groupBy = (url.get("groupBy") ?? "")
+    .split(",")
+    .filter((g) => offered.includes(g) || g.startsWith("tag:"));
+  if (groupBy.length > 0) out.set("groupBy", groupBy.join(","));
+  return out;
+}
+
 const scopeKey = (s: ReportScope) =>
   s.level === "service" ? "service" : s.level === "team" ? s.teamId : `${s.teamId}/${s.agentId}`;
 
@@ -61,8 +77,9 @@ function Stat({ label, value, sub }: { label: string; value: string; sub?: strin
  */
 export function ReportPanel(p: ReportPanelProps) {
   const reports = useService("reports");
+  const [params] = useSearchParams();
   const [controls, setControls] = useState<ReportControlsValue>(() =>
-    controlsFromParams(new URLSearchParams("range=mtd"), {
+    controlsFromParams(initialParams(params, p.groupBy), {
       range: "mtd",
       groupBy: p.defaultGroupBy,
       filters: {},

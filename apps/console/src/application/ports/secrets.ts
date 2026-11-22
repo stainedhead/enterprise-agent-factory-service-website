@@ -13,6 +13,8 @@ export interface SecretRecord {
   readonly scope: string;
   readonly description?: string | undefined;
   readonly agentId?: string | undefined;
+  /** `user` (or absent) for the team's own secrets; `afs` and `paperclip` are managed and read-only (WEB-US-54). */
+  readonly managedBy?: string | undefined;
   readonly poolId?: string | undefined;
   readonly externalSystemId?: string | null | undefined;
   /** Ids of the agents (or pools) the secret is bound to. */
@@ -51,5 +53,6 @@ export interface SecretsPort {
   update(teamId: string, ref: SecretRef, input: UpdateSecretInput): Promise<SecretRecord>;
   delete(teamId: string, ref: SecretRef): Promise<void>;
   putValue(teamId: string, ref: SecretRef, value: string): Promise<void>;
-  rotate(teamId: string, secretId: string, value: string): Promise<SecretRecord>;
+  /** `value` is omitted for a secret AFS generates itself (`managedBy` afs). */
+  rotate(teamId: string, secretId: string, value?: string): Promise<SecretRecord>;
 }

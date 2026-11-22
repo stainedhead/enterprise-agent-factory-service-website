@@ -1,13 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router";
 import { isAppError } from "../../../application/errors.js";
 import {
   type CreateAgentDraft,
   type DraftErrors,
   validateDraft,
 } from "../../../application/usecases/agents-create/CreateAgentUseCases.js";
-import { buildCli } from "../../../domain/cli.js";
+import { boolFlag, buildCli } from "../../../domain/cli.js";
 import {
   Alert,
   Breadcrumbs,
@@ -15,21 +15,25 @@ import {
   Card,
   CliPreview,
   PageHeader,
+  Switch,
 } from "../../components/index.js";
 import { useDraft } from "../../hooks/useDraft.js";
 import { useTeamWriteGate } from "../../hooks/useTeamWriteGate.js";
 import { queryKey } from "../../query/keys.js";
 import { useService } from "../../services.js";
 import { agentsKey } from "../t2-agents/keys.js";
+import { collabKey } from "../t16-collaboration/keys.js";
 import { AgentSection } from "./sections/AgentSection.js";
 import { ConfigSection } from "./sections/ConfigSection.js";
 import { HelpPanel } from "./sections/HelpPanel.js";
 import { IdentitySection } from "./sections/IdentitySection.js";
 import { ModelResourcesSection } from "./sections/ModelResourcesSection.js";
+import { RoleSection } from "./sections/RoleSection.js";
 import { SecretsSection } from "./sections/SecretsSection.js";
 import { StorageSection } from "./sections/StorageSection.js";
 
 const EMPTY: CreateAgentDraft = {
+  role: "worker",
   name: "",
   template: "",
   image: "",
@@ -57,14 +61,15 @@ export function cliFor(teamId: string, d: CreateAgentDraft) {
           snapshotSchedule: d.snapshotSchedule,
           ...(d.snapshotRetain && { snapshotRetain: Number(d.snapshotRetain) }),
         };
-  return buildCli("CreateAgent", {
+  const base = buildCli("CreateAgent", {
     teamId,
+    role: d.role === "collaboration" ? "collaboration" : undefined,
     name: d.name || "<name>",
     template: d.template || "<template>",
     image: d.image || "<image>",
     modelId: d.modelId || "<model>",
     description: d.persona,
-    iamIdentity: d.iamIdentity,
+    iamIdentity: d.role === "collaboration" ? "dedicated" : d.iamIdentity,
     resources: Object.keys(resources).length > 0 ? resources : undefined,
     volume: {
       ...(d.sizeGiB && { sizeGiB: Number(d.sizeGiB) }),
@@ -81,12 +86,17 @@ export function cliFor(teamId: string, d: CreateAgentDraft) {
           }))
         : undefined,
   });
+  // `--collaboration-connect` / `--no-collaboration-connect` for a worker of a team that has Paperclip
+  return d.role !== "collaboration" && d.connect !== undefined
+    ? { ...base, args: [...base.args, boolFlag("collaboration-connect", d.connect)] }
+    : base;
 }
 
 /** T3 (WEB-US-26): create an agent; sections hold their own fields and the side panel shows the CLI command. */
 export function CreateAgentPage() {
   const { teamId = "" } = useParams();
   const navigate = useNavigate();
+  const [params] = useSearchParams();
   const agents = useService("agents");
   const teams = useService("teams");
   const secrets = useService("secrets");
@@ -100,14 +110,34 @@ export function CreateAgentPage() {
     setValue: setDraft,
     restored,
     discard,
-  } = useDraft<CreateAgentDraft>(`t3-create-agent:${teamId}`, EMPTY);
+  } = useDraft<CreateAgentDraft>(`t3-create-agent:${teamId}`, {
+    ...EMPTY,
+    role: params.get("role") === "collaboration" ? "collaboration" : "worker",
+  });
+  const [raced, setRaced] = useState(false);
   const [errors, setErrors] = useState<DraftErrors>({});
   const [unmapped, setUnmapped] = useState<string[]>([]);
 
-  const templates = useQuery({
+  const allTemplates = useQuery({
     queryKey: queryKey({ area: "agents", resource: "templates" }),
     queryFn: ({ signal }) => agents.templates(signal),
   });
+  const paperclipTemplates = useQuery({
+    queryKey: queryKey({ area: "agents", resource: "templates", id: "paperclip" }),
+    queryFn: ({ signal }) => agents.templates(signal, { capability: "paperclip" }),
+  });
+  const existing = useQuery({
+    queryKey: queryKey({ area: "agents", teamId, resource: "collaboration-agent" }),
+    queryFn: ({ signal }) => agents.collaborationAgent(teamId, signal),
+  });
+  const role = draft.role ?? "worker";
+  const collab = role === "collaboration";
+  // collaboration lists only templates with the paperclip capability; a worker lists none of them
+  const templates = {
+    data: collab
+      ? paperclipTemplates.data
+      : allTemplates.data?.filter((t) => !t.capabilities?.includes("paperclip")),
+  };
   const models = useQuery({
     queryKey: queryKey({ area: "teams", teamId, resource: "models" }),
     queryFn: ({ signal }) => teams.models(teamId, signal),
@@ -120,12 +150,47 @@ export function CreateAgentPage() {
     queryKey: queryKey({ area: "secrets", teamId, resource: "secrets" }),
     queryFn: ({ signal }) => secrets.list(teamId, signal),
   });
+  // only the team's own secrets can be bound; AFS and Paperclip manage theirs
+  const bindable = (secretList.data ?? []).filter((s) => !s.managedBy || s.managedBy === "user");
   const namespace = useQuery({
     queryKey: queryKey({ area: "config", teamId, resource: "namespace" }),
     queryFn: ({ signal }) => configValues.listNamespace(teamId, signal),
   });
 
   const set = (patch: Partial<CreateAgentDraft>) => setDraft((d) => ({ ...d, ...patch }));
+  const hasCollab = existing.data !== undefined;
+  const { connect: _drop, ...rest } = draft;
+  const effective: CreateAgentDraft = {
+    ...rest,
+    role,
+    ...(!collab && hasCollab && { connect: draft.connect ?? true }),
+    ...(collab && {
+      iamIdentity: "dedicated" as const,
+      snapshotSchedule: draft.snapshotSchedule === "off" ? "daily" : draft.snapshotSchedule,
+    }),
+  };
+  const onRole = (r: "worker" | "collaboration") => {
+    const list =
+      r === "collaboration"
+        ? paperclipTemplates.data
+        : allTemplates.data?.filter((t) => !t.capabilities?.includes("paperclip"));
+    const t = list?.find((x) => x.enabled);
+    set({
+      role: r,
+      template: t?.name ?? "",
+      image: t?.currentDigest ?? "",
+      cpu: t?.defaultResources?.cpu ?? "",
+      memory: t?.defaultResources?.memory ?? "",
+      ...(r === "collaboration"
+        ? {
+            iamIdentity: "dedicated",
+            snapshotSchedule: "daily",
+            snapshotRetain: "14",
+            onDelete: "snapshot_then_delete",
+          }
+        : { iamIdentity: "team_shared", snapshotRetain: "7" }),
+    });
+  };
   const applyTemplate = (name: string) => {
     const t = (templates.data ?? []).find((x) => x.name === name);
     set({
@@ -146,6 +211,11 @@ export function CreateAgentPage() {
     const t = templates.data.find((x) => x.enabled);
     setDraft((d) => ({
       ...d,
+      ...(d.role === "collaboration" && {
+        iamIdentity: "dedicated" as const,
+        snapshotSchedule: "daily",
+        snapshotRetain: "14",
+      }),
       ...(t && {
         template: t.name,
         image: t.currentDigest,
@@ -158,7 +228,7 @@ export function CreateAgentPage() {
   }, [templates.data, models.data, classes.data, setDraft]);
 
   const submit = useMutation({
-    mutationFn: () => create.create(teamId, draft, namespace.data ?? []),
+    mutationFn: () => create.create(teamId, effective, namespace.data ?? []),
     onSuccess: (r) => {
       discard();
       setErrors({});
@@ -167,9 +237,11 @@ export function CreateAgentPage() {
         setUnmapped(r.configFailures.map((f) => `${f.name}: ${f.message}`));
         return;
       }
-      navigate(`/t/${teamId}/agents/${r.agent.id}`);
+      void qc.invalidateQueries({ queryKey: collabKey(teamId) });
+      navigate(collab ? `/t/${teamId}/collaboration` : `/t/${teamId}/agents/${r.agent.id}`);
     },
     onError: (e) => {
+      if (isAppError(e) && e.reason === "collaboration_agent_exists") setRaced(true);
       if (isAppError(e) && e.kind === "validation") {
         setErrors(e.fields);
         const known = new Set(Object.keys(validateDraft(draft)));
@@ -183,7 +255,7 @@ export function CreateAgentPage() {
   });
   const qErr = submit.error;
   const apiErr = isAppError(qErr) ? qErr : undefined;
-  const cmd = cliFor(teamId, draft);
+  const cmd = cliFor(teamId, effective);
   const reason = write.reasonFor("agents:write");
 
   return (
@@ -227,6 +299,18 @@ export function CreateAgentPage() {
             submit.mutate();
           }}
         >
+          <RoleSection
+            teamId={teamId}
+            role={role}
+            onRole={onRole}
+            existingId={existing.data?.id}
+            racedExisting={raced}
+          />
+          {collab && templates.data?.length === 0 && (
+            <Alert kind="warning" title="No Paperclip template is enabled">
+              Ask a service admin.
+            </Alert>
+          )}
           <AgentSection
             draft={draft}
             set={set}
@@ -240,8 +324,24 @@ export function CreateAgentPage() {
             errors={errors}
             models={models.data ?? []}
           />
-          <StorageSection draft={draft} set={set} errors={errors} classes={classes.data ?? []} />
-          <IdentitySection draft={draft} set={set} errors={errors} />
+          <StorageSection
+            draft={draft}
+            set={set}
+            errors={errors}
+            classes={classes.data ?? []}
+            noOff={collab}
+          />
+          <IdentitySection draft={draft} set={set} errors={errors} lockedDedicated={collab} />
+          {!collab && (
+            <Card title="Paperclip">
+              <Switch
+                label="Connect to Paperclip"
+                checked={effective.connect ?? false}
+                disabledReason={hasCollab ? undefined : "This team has no collaboration agent"}
+                onChange={(on) => set({ connect: on })}
+              />
+            </Card>
+          )}
           <HelpPanel />
           <ConfigSection
             draft={draft}
@@ -254,7 +354,7 @@ export function CreateAgentPage() {
             draft={draft}
             set={set}
             errors={errors}
-            secrets={secretList.data ?? []}
+            secrets={bindable}
             readOnlyReason={reason}
           />
           <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>

@@ -3,6 +3,7 @@ import { isAppError } from "../../../application/errors.js";
 import type { SecretRecord } from "../../../application/ports/secrets.js";
 import { managedPath } from "../../../application/usecases/secrets/SecretsUseCases.js";
 import { buildCli } from "../../../domain/cli.js";
+import { managedRefusalText } from "../../../domain/collaboration.js";
 import {
   Alert,
   Button,
@@ -202,8 +203,9 @@ export function RotateSecretDialog({
 }) {
   const secrets = useService("secrets");
   const value = useRef<SecretInputHandle>(null);
+  const managed = secret.managedBy === "afs";
   const rotate = useSecretMutation((v: { value: string }) =>
-    secrets.rotate(teamId, secret.id, v.value),
+    managed ? secrets.rotateManaged(teamId, secret.id) : secrets.rotate(teamId, secret.id, v.value),
   );
   const err = isAppError(rotate.error) ? rotate.error : undefined;
   const cli = buildCli("RotateSecret", { teamId, secretId: secret.id, value: undefined });
@@ -222,7 +224,7 @@ export function RotateSecretDialog({
             variant="primary"
             disabled={rotate.pending}
             onClick={async () => {
-              const r = await rotate.run({ value: value.current?.read() ?? "" });
+              const r = await rotate.run({ value: managed ? "" : (value.current?.read() ?? "") });
               if (r) onRotated();
             }}
           >
@@ -239,16 +241,20 @@ export function RotateSecretDialog({
       {err?.isAccessDenied && <DeniedAlert error={err} />}
       {err && !err.isAccessDenied && Object.keys(err.fields).length === 0 && (
         <Alert kind="error" title="The secret was not rotated" requestId={err.requestId}>
-          {err.message}
+          {managedRefusalText(err.reason, secret.managedBy) ?? err.message}
         </Alert>
       )}
-      <FormField
-        label="New secret value"
-        hint="Sent once and never shown again."
-        error={err?.fields.value}
-      >
-        <SecretInput ref={value} />
-      </FormField>
+      {managed ? (
+        <p>AFS generates the new value. Agents that use it restart.</p>
+      ) : (
+        <FormField
+          label="New secret value"
+          hint="Sent once and never shown again."
+          error={err?.fields.value}
+        >
+          <SecretInput ref={value} />
+        </FormField>
+      )}
       <CliPreview command={cli} />
     </Modal>
   );

@@ -26,8 +26,8 @@ const baselines = (dir: string): string[] =>
 const onDisk = new Set(baselines(join(import.meta.dirname, "..", "specs")));
 
 describe("visual approvals (M6-Q2)", () => {
-  it("has an entry for each of the 33 screens and nothing else", () => {
-    expect(SCREEN_IDS).toHaveLength(33);
+  it("has an entry for each of the 35 screens and nothing else", () => {
+    expect(SCREEN_IDS).toHaveLength(35);
     expect(Object.keys(approvals).sort()).toEqual([...SCREEN_IDS].sort());
   });
   it.each(SCREEN_IDS)("%s has a baseline on disk and a recorded status", (id) => {
@@ -38,10 +38,12 @@ describe("visual approvals (M6-Q2)", () => {
       expect(a.date, `${id}: date`).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     }
     expect(a?.snapshots.length).toBeGreaterThan(0);
-    for (const s of a?.snapshots ?? []) expect(onDisk.has(s), `${id}: ${s}`).toBe(true);
+    // a pending screen's baseline is created by the CI regeneration ([regen-baselines]) and then approved
+    if (a?.status === "approved")
+      for (const s of a.snapshots) expect(onDisk.has(s), `${id}: ${s}`).toBe(true);
   });
-  it("records all 33 screens as approved by J on 2026-11-22", () => {
-    for (const id of SCREEN_IDS) {
+  it("records every screen but the Paperclip ones as approved by J on 2026-11-22", () => {
+    for (const id of SCREEN_IDS.filter((i) => i !== "T16" && i !== "V3")) {
       expect(approvals[id]).toMatchObject({
         status: "approved",
         approver: "J",

@@ -47,6 +47,26 @@ admins and service admins only) creates a key with a name, a role and an expiry 
 default). The secret is shown once; copy it before you close the dialog. If a retry returns the key without
 its secret, the dialog says so and offers **Delete key** so you can create a new one.
 
+## Team collaboration (`/t/<team>/collaboration`)
+
+![Team collaboration](../docs/images/screenshots/30-team-collaboration.png)
+
+Each team can have one collaboration agent that runs Paperclip (board, chat and roster). **Create agent** has a
+*Role* step: choose *Collaboration agent* to create it. On the collaboration page team admins see the agent's
+status, switch the **public web UI** and **REST API** on or off (turning one on asks for confirmation, and a
+change takes effect within a minute), connect or disconnect the team's worker agents, see the secrets AFS and
+Paperclip manage (names and state only, never values), and read recent access. **Actions** edits the
+endpoints, rotates keys and changes the registration mode. Team viewers and the team collaborator role see a
+read-only version with the same status and a link to open Paperclip.
+
+![Read-only collaboration](../docs/images/screenshots/30a-viewer-collaboration.png)
+
+Service admins decide which teams may publish endpoints (team guardrail *May publish collaboration endpoints*),
+set the seven `collab.*` values on **Service settings, Collaboration**, mark agent templates with the
+`paperclip` capability, and choose a collaboration agent template in a swarm template. **Reports,
+Collaboration** (team and service) counts sign-ins, people, requests, denied requests and secret detections by
+day, surface, reason or person, with an *Service admin entry* badge; it cannot be scheduled.
+
 ## Agents (`/t/<team>/agents`)
 
 ![Agents](../docs/images/screenshots/07-team-agents.png)

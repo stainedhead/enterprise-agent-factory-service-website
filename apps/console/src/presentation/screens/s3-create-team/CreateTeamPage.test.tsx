@@ -220,3 +220,44 @@ describe("S3 drafts (FR-004, D-3)", () => {
     expect(draftIds(drafts)).toEqual([FORM]);
   });
 });
+
+describe("S3 collaboration guardrail (WEB-US-52)", () => {
+  it("guardrail checkbox default on, cli includes the flag, and clearing it sends false", async () => {
+    const { port } = open();
+    await fillDetails();
+    await userEvent.click(next());
+    const box = (await screen.findByLabelText(
+      "May publish collaboration endpoints",
+    )) as HTMLInputElement;
+    expect(box.checked).toBe(true);
+    await userEvent.click(box);
+    await userEvent.click(await screen.findByLabelText(/Model One/));
+    await userEvent.click(next());
+    await userEvent.type(screen.getByLabelText("Monthly budget (USD)"), "5000.00");
+    await userEvent.click(next());
+    await userEvent.type(screen.getByLabelText("Admin email"), "lead@example.com");
+    await userEvent.click(next());
+    expect(document.querySelector("code")?.textContent).toContain("--no-may-expose-collaboration");
+    await userEvent.click(screen.getByRole("button", { name: "Create team" }));
+    await waitFor(() => expect(port.create).toHaveBeenCalled());
+    expect(port.create.mock.calls[0]?.[0]).toMatchObject({ mayExposeCollaboration: false });
+  });
+  it("default cli says --may-expose-collaboration", async () => {
+    open();
+    await fillAll();
+    expect(document.querySelector("code")?.textContent).toMatch(/--may-expose-collaboration(\s|$)/);
+  });
+  it("hostname_held on the slug", async () => {
+    open({
+      create: vi.fn(async () => {
+        throw new AppError({ kind: "conflict", message: "held", reason: "hostname_held" });
+      }),
+    });
+    await fillAll();
+    await userEvent.click(screen.getByRole("button", { name: "Create team" }));
+    expect(await screen.findByText("held")).toBeTruthy();
+    for (let i = 0; i < 4; i++)
+      await userEvent.click(screen.getByRole("button", { name: "Previous" }));
+    expect(await screen.findByText(/hostname is held for 30 days/)).toBeTruthy();
+  });
+});

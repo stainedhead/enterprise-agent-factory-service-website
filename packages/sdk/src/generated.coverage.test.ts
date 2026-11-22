@@ -35,10 +35,10 @@ describe("generated coverage (M0-G5)", () => {
     .filter((o) => o.operationId)
     .map((o) => ({ id: o.operationId as string, sdk: o["x-afs-sdk"] as string }));
 
-  it("exposes exactly the 182 operations of the contract (WEB-US-1.1)", () => {
+  it("exposes exactly the 189 operations of the contract (WEB-US-1.1)", () => {
     const facade = leaves(afs).sort();
-    expect(fromYaml).toHaveLength(182);
-    expect(operationsJson).toHaveLength(182);
+    expect(fromYaml).toHaveLength(189);
+    expect(operationsJson).toHaveLength(189);
     expect(facade).toEqual(fromYaml.map((o) => o.sdk).sort());
     expect(facade).toEqual(operationsJson.map((o) => o.sdk).sort());
   });

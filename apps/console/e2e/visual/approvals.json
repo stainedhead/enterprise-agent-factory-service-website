@@ -233,5 +233,15 @@
     "mockup": "29-sec-work-order-detail.png",
     "approver": "J",
     "date": "2026-11-22"
+  },
+  "T16": {
+    "status": "pending",
+    "snapshots": ["30-team-collaboration"],
+    "mockup": "30-ta-collaboration.png"
+  },
+  "V3": {
+    "status": "pending",
+    "snapshots": ["30a-viewer-collaboration"],
+    "mockup": "31-tv-collaboration.png"
   }
 }

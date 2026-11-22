@@ -5,7 +5,7 @@ import { control } from "./control.js";
 export const FROZEN_NOW = "2026-11-22T10:00:00Z";
 
 type SignIn = (
-  user: "svc-admin" | "team-admin" | "viewer" | "sec-op",
+  user: "svc-admin" | "team-admin" | "viewer" | "collaborator" | "sec-op",
   path?: string,
 ) => Promise<void>;
 
@@ -25,7 +25,7 @@ export async function spaGo(page: Page, path: string): Promise<void> {
 export async function openFrozen(
   page: Page,
   signInAs: SignIn,
-  user: "svc-admin" | "team-admin" | "viewer" | "sec-op",
+  user: "svc-admin" | "team-admin" | "viewer" | "collaborator" | "sec-op",
   path: string,
   now: string = FROZEN_NOW,
 ): Promise<void> {

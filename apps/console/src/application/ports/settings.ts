@@ -48,6 +48,10 @@ export interface IdentityProviderRecord {
   readonly version: number;
   /** The Secrets Manager ARN of the confidential client's secret; the value never reaches AFS. */
   readonly clientSecretArn?: string | null | undefined;
+  /** The collaboration (Paperclip edge) client of this provider (WEB-US-58). */
+  readonly collabClientId?: string | null | undefined;
+  /** A Secrets Manager reference; never a value. Needs `collabClientId`. */
+  readonly collabClientSecretArn?: string | null | undefined;
   /** Only on a single read: the teams using this provider. */
   readonly teams?: readonly TeamRef[] | undefined;
 }
@@ -60,6 +64,8 @@ export interface CreateIdentityProviderInput {
   readonly cliClientId: string;
   readonly groupsClaim?: string;
   readonly clientSecretArn?: string;
+  readonly collabClientId?: string;
+  readonly collabClientSecretArn?: string;
   readonly isDefault?: boolean;
   readonly enabled?: boolean;
 }
@@ -71,6 +77,8 @@ export interface UpdateIdentityProviderInput {
   readonly groupsClaim?: string;
   /** `null` clears the ARN. */
   readonly clientSecretArn?: string | null;
+  readonly collabClientId?: string | null;
+  readonly collabClientSecretArn?: string | null;
   readonly isDefault?: boolean;
   readonly enabled?: boolean;
 }

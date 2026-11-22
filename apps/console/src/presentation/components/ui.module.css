@@ -206,6 +206,14 @@
   padding: 20px 24px;
   min-width: 360px;
   max-width: 560px;
+  max-height: calc(100vh - 32px);
+  display: flex;
+  flex-direction: column;
+}
+.dialogBody {
+  overflow-y: auto;
+  min-height: 0;
+  flex: 1 1 auto;
 }
 .dialog h2 {
   margin: 0 0 12px;
@@ -216,6 +224,7 @@
   gap: 8px;
   justify-content: flex-end;
   margin-top: 16px;
+  flex: none;
 }
 .field {
   margin-bottom: 14px;
@@ -323,6 +332,10 @@
   color: var(--purple);
   border-color: var(--purple);
 }
+.badgeAmber {
+  color: var(--amber);
+  border-color: var(--amber);
+}
 .badgeGrey {
   color: var(--muted);
   border-color: #9aa5b1;
@@ -369,4 +382,13 @@
 }
 .block {
   display: block;
+}
+
+.switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.switch input[aria-disabled="true"] {
+  cursor: not-allowed;
 }

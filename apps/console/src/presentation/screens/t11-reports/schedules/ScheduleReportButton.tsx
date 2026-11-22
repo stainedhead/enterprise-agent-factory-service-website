@@ -1,5 +1,6 @@
 import { useState } from "react";
-import type { ReportKind, ReportQuery } from "../../../../application/ports/reports.js";
+import type { ScheduledKind } from "../../../../application/ports/reportSchedules.js";
+import type { ReportQuery } from "../../../../application/ports/reports.js";
 import { Button } from "../../../components/index.js";
 import { gate } from "../../../hooks/gate.js";
 import { useMe } from "../../../shell/ShellContext.js";
@@ -13,7 +14,7 @@ export function ScheduleReportButton({
   query,
 }: {
   teamId: string;
-  kind: ReportKind;
+  kind: ScheduledKind;
   title: string;
   query: ReportQuery;
 }) {

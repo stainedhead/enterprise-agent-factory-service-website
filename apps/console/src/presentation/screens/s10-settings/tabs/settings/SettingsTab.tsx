@@ -3,6 +3,7 @@ import { useState } from "react";
 import { isAppError } from "../../../../../application/errors.js";
 import type { SettingRecord } from "../../../../../application/ports/settings.js";
 import { settingText } from "../../../../../application/usecases/settings/SettingsUseCases.js";
+import { isCollabSetting } from "../../../../../domain/collaboration.js";
 import { formatLocal } from "../../../../../domain/time.js";
 import {
   Alert,
@@ -81,7 +82,7 @@ export function SettingsTab() {
             ),
           },
         ]}
-        items={list.data ?? []}
+        items={(list.data ?? []).filter((s) => !isCollabSetting(s.key))}
         getRowId={(s) => s.key}
       />
       {editing && (

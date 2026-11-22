@@ -61,5 +61,5 @@ const csv = await reports.team("team_01...", "usage", { range: "7d" }).asCsv();
 
 ## Versions
 
-Releases are cut by pushing a tag `sdk-v<version>` (for example `sdk-v0.3.0`); the version is taken from the tag.
+Releases are cut by pushing a tag `sdk-v<version>` (for example `sdk-v1.0.1`); the version is taken from the tag.
 Pull requests that touch the SDK run a publish dry run and publish nothing.

@@ -14,10 +14,23 @@ const SAFE = /^[A-Za-z0-9_./:=@+,-]+$/;
 const quote = (v: string): string =>
   SAFE.test(v) || v === "file://<path>" ? v : `'${v.replace(/'/g, "'\\''")}'`;
 
+/** A flag that takes no value (`--flag`), as the AWS CLI spells a boolean (`--x` or `--no-x`). */
+export const BARE_FLAG = "\u0001bare";
+
+/** The AWS CLI boolean pair: `--name` when on, `--no-name` when off. */
+export const boolFlag = (name: string, on: boolean): readonly [string, string] => [
+  on ? name : `no-${name}`,
+  BARE_FLAG,
+];
+
 /** Renders the command line. Lists are space-separated; empty values are skipped. */
 export function renderCli(cmd: CliCommand): string {
   const parts = ["afs", cmd.service, cmd.operation];
   for (const [flag, value] of cmd.args) {
+    if (value === BARE_FLAG) {
+      parts.push(`--${flag}`);
+      continue;
+    }
     if (value === undefined || (Array.isArray(value) && value.length === 0) || value === "")
       continue;
     const vals = Array.isArray(value) ? (value as readonly string[]) : [value as string];

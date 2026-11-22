@@ -39,6 +39,8 @@ const emptyDraft: IdentityProviderDraft = {
   cliClientId: "",
   groupsClaim: "",
   clientSecretArn: "",
+  collabClientId: "",
+  collabClientSecretArn: "",
   isDefault: false,
 };
 const draftOf = (p: IdentityProviderRecord): IdentityProviderDraft => ({
@@ -49,6 +51,8 @@ const draftOf = (p: IdentityProviderRecord): IdentityProviderDraft => ({
   cliClientId: p.cliClientId,
   groupsClaim: p.groupsClaim,
   clientSecretArn: p.clientSecretArn ?? "",
+  collabClientId: p.collabClientId ?? "",
+  collabClientSecretArn: p.collabClientSecretArn ?? "",
   isDefault: p.isDefault,
 });
 
@@ -191,6 +195,12 @@ export function IdentityProvidersTab() {
             },
             { id: "default", header: "Default", cell: (p) => (p.isDefault ? "Default" : "—") },
             {
+              id: "collab",
+              header: "Collaboration",
+              text: (p) => (p.collabClientId ? "Configured" : "Not configured"),
+              cell: (p) => (p.collabClientId ? "Configured" : "Not configured"),
+            },
+            {
               id: "secret",
               header: "Client secret",
               cell: (p) => (p.clientSecretArn ? <code>{p.clientSecretArn}</code> : "None"),
@@ -275,6 +285,8 @@ function ProviderDialog({
         cliClientId: d.cliClientId || "<cli-client-id>",
         ...(d.groupsClaim && { groupsClaim: d.groupsClaim }),
         ...(d.clientSecretArn && { clientSecretArn: d.clientSecretArn }),
+        ...(d.collabClientId && { collabClientId: d.collabClientId }),
+        ...(d.collabClientSecretArn && { collabClientSecretArn: d.collabClientSecretArn }),
         ...(d.isDefault && { isDefault: "true" }),
       });
 
@@ -359,6 +371,25 @@ function ProviderDialog({
           onChange={(e) => set("clientSecretArn", e.target.value)}
         />
       </FormField>
+      <fieldset>
+        <legend>Collaboration sign-in</legend>
+        <FormField label="Collaboration client id" error={f.collabClientId}>
+          <TextInput
+            value={d.collabClientId ?? ""}
+            onChange={(e) => set("collabClientId", e.target.value)}
+          />
+        </FormField>
+        <FormField
+          label="Collaboration client secret ARN"
+          hint="A Secrets Manager ARN, never a value. Used by the collaboration endpoint. One redirect URI per environment: https://<collab base domain>/oauth2/callback."
+          error={f.collabClientSecretArn}
+        >
+          <TextInput
+            value={d.collabClientSecretArn ?? ""}
+            onChange={(e) => set("collabClientSecretArn", e.target.value)}
+          />
+        </FormField>
+      </fieldset>
       {!existing && (
         <label style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 12 }}>
           <input

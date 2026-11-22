@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import type { SwarmTemplateRecord, SwarmTemplatesPort } from "../../ports/swarmTemplates.js";
 import {
+  collaborationChoices,
   draftOf,
   emptyDraft,
   parseSpec,
@@ -182,5 +183,54 @@ describe("SwarmTemplatesUseCases writes (M6-T1)", () => {
     expect(Object.keys(validateTemplate(emptyDraft, true))).toEqual(
       expect.arrayContaining(["name", "budgetUsd", "spec"]),
     );
+  });
+});
+
+describe("collaboration agent of a swarm template (WEB-US-62)", () => {
+  const TPL = "tpl_01JD2Q3R4S5T6V7W8X9Y0Z0001";
+  const at = (name: string, over: object = {}) => ({
+    name,
+    id: `tpl_${name}`,
+    harness: "hermes",
+    enabled: true,
+    currentDigest: "sha256:a",
+    allowedDigests: ["sha256:a"],
+    capabilities: ["paperclip"],
+    ...over,
+  });
+  it("offers only enabled agent templates with the paperclip capability", () => {
+    expect(
+      collaborationChoices([
+        at("pc"),
+        at("off", { enabled: false }),
+        at("plain", { capabilities: undefined }),
+        at("noid", { id: undefined }),
+      ] as never),
+    ).toEqual([{ value: "tpl_pc", label: "pc" }]);
+  });
+  it("sends the choice in the spec on create and leaves it out when none", async () => {
+    const p = port();
+    const uc = new SwarmTemplatesUseCases(p);
+    await uc.create(valid({ collaborationTemplateId: TPL }));
+    await uc.create(valid());
+    expect(vi.mocked(p.create).mock.calls[0]?.[0].spec.collaboration).toEqual({ templateId: TPL });
+    expect(vi.mocked(p.create).mock.calls[1]?.[0].spec.collaboration).toBeUndefined();
+  });
+  it("round-trips the saved choice and sends the whole spec when only it changes", async () => {
+    const p = port();
+    const cur = t("a", true, {
+      spec: { stages: [{ name: "s" }], pools: [{ name: "w" }], collaboration: { templateId: TPL } },
+    });
+    expect(draftOf(cur).collaborationTemplateId).toBe(TPL);
+    await expect(new SwarmTemplatesUseCases(p).update(cur, draftOf(cur))).rejects.toMatchObject({
+      message: "Nothing has changed",
+    });
+    await new SwarmTemplatesUseCases(p).update(cur, {
+      ...draftOf(cur),
+      collaborationTemplateId: "",
+    });
+    const patch = vi.mocked(p.update).mock.calls[0]?.[1];
+    expect(patch?.spec?.collaboration).toBeUndefined();
+    expect(patch?.spec?.stages).toEqual([{ name: "s" }]);
   });
 });

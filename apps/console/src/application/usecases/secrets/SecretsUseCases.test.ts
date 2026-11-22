@@ -49,3 +49,21 @@ describe("SecretsUseCases (M2-S1)", () => {
     expect(p.rotate).not.toHaveBeenCalled();
   });
 });
+
+describe("reserved names and managed rotation (WEB-US-54)", () => {
+  it("refuses paperclip names except the worker key on an agent", async () => {
+    const p = {
+      create: vi.fn(async () => ({ id: "s" })),
+      rotate: vi.fn(async () => ({ id: "s" })),
+    };
+    const u = new SecretsUseCases(p as never);
+    for (const name of ["paperclip", "paperclip-hub"]) {
+      const e = await u.create("t", { scope: "team", name }, "v").catch((x) => x);
+      expect(e.fields.name).toBe("This name is reserved for Paperclip");
+    }
+    await u.create("t", { scope: "agent", name: "paperclip-agent-api-key", agentId: "agt_1" }, "v");
+    expect(p.create).toHaveBeenCalledTimes(1);
+    await u.rotateManaged("t", "sec_1");
+    expect(p.rotate).toHaveBeenCalledWith("t", "sec_1");
+  });
+});

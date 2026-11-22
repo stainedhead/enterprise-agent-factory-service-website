@@ -30,10 +30,18 @@ function meWithRole(role: Role): Me {
   };
 }
 const NOBODY: Me = { ...base, serviceAdmin: false, securityOperator: false, teams: [] };
-const ROLES: readonly Role[] = ["team_viewer", "team_admin", "security_operator", "service_admin"];
+const ROLES: readonly Role[] = [
+  "team_viewer",
+  "team_collaborator",
+  "team_admin",
+  "security_operator",
+  "service_admin",
+];
 /** Team roles are asked inside their team; the service roles are asked without one. */
 const scope = (role: Role): string | undefined =>
-  role === "team_viewer" || role === "team_admin" ? "team_a" : undefined;
+  role === "team_viewer" || role === "team_collaborator" || role === "team_admin"
+    ? "team_a"
+    : undefined;
 
 describe("every permission has a denied case (M6-Q7)", () => {
   it.each(PERMISSIONS)("%s is allowed exactly to the roles that hold it", (p) => {

@@ -1,6 +1,15 @@
+import {
+  addLink,
+  createCollaborationFor,
+  HUB_AGENT_ID,
+  hasCollaboration,
+  linkOf,
+  removeCollaborationFor,
+  WORKER_IDS,
+} from "./collaboration.js";
 import { TEAMS } from "./core.js";
 import type { Fixture, FixtureContext, FixtureResponse } from "./index.js";
-import { bindSecret } from "./secrets.js";
+import { addBootSecrets, bindSecret } from "./secrets.js";
 
 type Json = Record<string, unknown>;
 
@@ -80,6 +89,52 @@ const seedAgents = (): Json[] => [
     createdAt: ts,
     updatedAt: ts,
   },
+  {
+    id: HUB_AGENT_ID,
+    name: "paperclip-hub",
+    role: "collaboration",
+    template: "paperclip-hub",
+    image: digestOf("paperclip", "7c"),
+    modelId: "anthropic.claude-sonnet-4-5",
+    iamIdentity: "dedicated",
+    iamRoleArn: "arn:aws:iam::000000000000:role/afs/agents/afs-payments/paperclip-hub",
+    paused: false,
+    version: 1,
+    generation: 6,
+    status: { conditions: [], observedGeneration: 6, phase: "Ready", updatedAt: ts },
+    volume: {
+      sizeGiB: 100,
+      storageClass: "gp3",
+      onDelete: "snapshot_then_delete",
+      snapshotSchedule: "daily",
+      snapshotRetain: 14,
+    },
+    secretBindings: [],
+    createdAt: ts,
+    updatedAt: ts,
+  },
+  ...(
+    [
+      ["ledger-maintainer", WORKER_IDS.ledger],
+      ["dependency-updater", WORKER_IDS.dependency],
+      ["release-notes-bot", WORKER_IDS.releaseNotes],
+    ] as const
+  ).map(([name, id]) => ({
+    id,
+    name,
+    role: "worker",
+    template: "coder",
+    image: digestOf("coder"),
+    modelId: "anthropic.claude-sonnet-4-5",
+    iamIdentity: "team_shared",
+    paused: false,
+    version: 1,
+    generation: 1,
+    status: ok(),
+    secretBindings: [],
+    createdAt: ts,
+    updatedAt: ts,
+  })),
 ];
 
 let agents = new Map<string, Json[]>();
@@ -102,6 +157,13 @@ export const agentsOf = (teamId: string): Json[] => {
     agents.set(teamId, a);
   }
   return a;
+};
+
+/** Adds the worker's `collaboration` link state (absent on the collaboration agent) and a default role. */
+const decorate = (teamId: string, a: Json): Json => {
+  const role = (a.role as string | undefined) ?? "worker";
+  const link = role === "worker" ? linkOf(teamId, String(a.id)) : undefined;
+  return { ...a, role, ...(link ? { collaboration: link } : {}) };
 };
 
 const notFound = (what: string): FixtureResponse => ({
@@ -163,6 +225,17 @@ export const TEMPLATES: Json[] = [
     version: 1,
   },
   {
+    name: "paperclip-hub",
+    description: "Paperclip collaboration agent",
+    harness: "paperclip",
+    enabled: true,
+    capabilities: ["paperclip"],
+    currentDigest: digestOf("paperclip", "7c"),
+    allowedDigests: [digestOf("paperclip", "7c")],
+    defaultResources: { cpu: "2", memory: "8Gi" },
+    version: 1,
+  },
+  {
     name: "legacy",
     harness: "hermes",
     enabled: false,
@@ -191,7 +264,15 @@ export const agentsFixtures: readonly Fixture[] = [
   {
     method: "GET",
     path: "/v1/teams/{teamId}/agents",
-    response: ({ params }) => ({ status: 200, body: { items: agentsOf(params.teamId ?? "") } }),
+    response: ({ params, query }) => {
+      const teamId = params.teamId ?? "";
+      const role = query.get("role");
+      const items = agentsOf(teamId)
+        .map((a) => decorate(teamId, a))
+        .filter((a) => !role || (a.role ?? "worker") === role);
+      const max = Number(query.get("maxResults") ?? 0);
+      return { status: 200, body: { items: max > 0 ? items.slice(0, max) : items } };
+    },
   },
   {
     method: "POST",
@@ -203,9 +284,24 @@ export const agentsFixtures: readonly Fixture[] = [
       const list = agentsOf(params.teamId ?? "");
       if (list.some((a) => a.name === b.name))
         return invalid("name", "An agent with this name exists");
+      const role = b.role === "collaboration" ? "collaboration" : "worker";
+      if (
+        role === "collaboration" &&
+        (hasCollaboration(params.teamId ?? "") || list.some((x) => x.role === "collaboration"))
+      )
+        return {
+          status: 409,
+          body: {
+            code: "Conflict",
+            message: "This team already has a collaboration agent",
+            requestId: "req_fake_collab_exists",
+            details: { reason: "collaboration_agent_exists" },
+          },
+        };
       seq += 1;
       const a: Json = {
         ...b,
+        role,
         id: `agt_${NS}${String(100 + seq).padStart(4, "0")}`,
         iamIdentity: b.iamIdentity ?? "team_shared",
         paused: false,
@@ -219,7 +315,16 @@ export const agentsFixtures: readonly Fixture[] = [
       list.push(a);
       for (const sb of (a.secretBindings as { secretId: string }[]) ?? [])
         bindSecret(params.teamId ?? "", sb.secretId, String(a.id));
-      return { status: 201, body: a };
+      delete a.collaboration;
+      if (role === "collaboration") {
+        createCollaborationFor(params.teamId ?? "", String(a.id));
+        addBootSecrets(params.teamId ?? "", String(a.id));
+      } else {
+        const connect = (b.collaboration as { connect?: boolean } | undefined)?.connect === true;
+        if (hasCollaboration(params.teamId ?? ""))
+          addLink(params.teamId ?? "", String(a.id), String(a.name), connect);
+      }
+      return { status: 201, body: decorate(params.teamId ?? "", a) };
     },
   },
   {
@@ -227,7 +332,9 @@ export const agentsFixtures: readonly Fixture[] = [
     path: "/v1/teams/{teamId}/agents/{agentId}",
     response: (ctx) => {
       const { cur } = find(ctx);
-      return cur ? { status: 200, body: cur } : notFound("Agent");
+      return cur
+        ? { status: 200, body: decorate(ctx.params.teamId ?? "", cur) }
+        : notFound("Agent");
     },
   },
   {
@@ -262,7 +369,11 @@ export const agentsFixtures: readonly Fixture[] = [
   {
     method: "DELETE",
     path: "/v1/teams/{teamId}/agents/{agentId}",
-    response: action((a) => next(a, { status: ok("Deleting") }), 202),
+    response: (ctx) => {
+      const { cur } = find(ctx);
+      if (cur?.role === "collaboration") removeCollaborationFor(ctx.params.teamId ?? "");
+      return action((a) => next(a, { status: ok("Deleting") }), 202)(ctx);
+    },
   },
   {
     method: "GET",
@@ -319,7 +430,19 @@ export const agentsFixtures: readonly Fixture[] = [
   {
     method: "GET",
     path: "/v1/agent-templates",
-    response: { status: 200, body: { items: TEMPLATES } },
+    response: ({ query }) => {
+      const cap = query.get("capability");
+      return {
+        status: 200,
+        body: {
+          items: cap
+            ? TEMPLATES.filter((t) =>
+                ((t.capabilities as string[] | undefined) ?? []).includes(cap),
+              )
+            : TEMPLATES,
+        },
+      };
+    },
   },
   {
     method: "GET",

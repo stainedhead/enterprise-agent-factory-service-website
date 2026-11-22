@@ -9,6 +9,7 @@ import {
 import type {
   AgentRecord,
   AgentRef,
+  AgentRole,
   AgentsPort,
   AgentTemplateRecord,
   CreateAgentInput,
@@ -57,11 +58,21 @@ const toAgent = (a: Awaited<ReturnType<ReturnType<typeof agents>["get"]>>): Agen
 export class SdkAgents implements AgentsPort {
   constructor(private readonly client: AfsClient) {}
 
-  list(teamId: string, signal?: AbortSignal): Promise<readonly AgentRecord[]> {
+  list(
+    teamId: string,
+    signal?: AbortSignal,
+    opts?: { readonly role?: AgentRole },
+  ): Promise<readonly AgentRecord[]> {
     return wrap(async () =>
-      (await all(agents(this.client).list(teamId, { maxResults: 100, ...sig(signal) }))).map(
-        toAgent,
-      ),
+      (
+        await all(
+          agents(this.client).list(teamId, {
+            maxResults: 100,
+            ...(opts?.role ? { role: opts.role } : {}),
+            ...sig(signal),
+          }),
+        )
+      ).map(toAgent),
     );
   }
   get(teamId: string, agentId: string, signal?: AbortSignal): Promise<AgentRecord> {
@@ -110,8 +121,19 @@ export class SdkAgents implements AgentsPort {
       agents(this.client).snapshots.create(teamId, agentId, description ? { description } : {}),
     );
   }
-  templates(signal?: AbortSignal): Promise<readonly AgentTemplateRecord[]> {
-    return wrap(() => all(agentTemplates(this.client).list({ maxResults: 100, ...sig(signal) })));
+  templates(
+    signal?: AbortSignal,
+    opts?: { readonly capability?: string },
+  ): Promise<readonly AgentTemplateRecord[]> {
+    return wrap(() =>
+      all(
+        agentTemplates(this.client).list({
+          maxResults: 100,
+          ...(opts?.capability ? { capability: opts.capability } : {}),
+          ...sig(signal),
+        }),
+      ),
+    );
   }
   storageClasses(signal?: AbortSignal) {
     return wrap<readonly StorageClassRecord[]>(() =>

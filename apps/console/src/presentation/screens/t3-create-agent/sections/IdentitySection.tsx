@@ -1,6 +1,7 @@
 import { Card, FormField } from "../../../components/index.js";
 import type { SectionProps } from "./types.js";
 
+export const LOCKED_TEXT = "Collaboration agents always have their own AWS identity";
 export const REMOVE_CROSS_ACCOUNT_FIRST = "Remove cross-account roles first";
 
 /**
@@ -13,7 +14,8 @@ export function IdentitySection({
   set,
   errors,
   crossAccountLinks = 0,
-}: SectionProps & { crossAccountLinks?: number }) {
+  lockedDedicated = false,
+}: SectionProps & { crossAccountLinks?: number; lockedDedicated?: boolean }) {
   const blocked = crossAccountLinks > 0;
   return (
     <Card title="AWS identity">
@@ -23,12 +25,17 @@ export function IdentitySection({
       </p>
       <FormField
         label="IAM identity"
-        hint={blocked ? REMOVE_CROSS_ACCOUNT_FIRST : undefined}
+        hint={lockedDedicated ? LOCKED_TEXT : blocked ? REMOVE_CROSS_ACCOUNT_FIRST : undefined}
         error={errors.iamIdentity}
       >
         <select
-          value={draft.iamIdentity}
-          onChange={(e) => set({ iamIdentity: e.target.value as "team_shared" | "dedicated" })}
+          value={lockedDedicated ? "dedicated" : draft.iamIdentity}
+          aria-disabled={lockedDedicated || undefined}
+          title={lockedDedicated ? LOCKED_TEXT : undefined}
+          onChange={(e) => {
+            if (!lockedDedicated)
+              set({ iamIdentity: e.target.value as "team_shared" | "dedicated" });
+          }}
         >
           <option
             value="team_shared"

@@ -1,5 +1,6 @@
 import * as money from "../../../domain/money.js";
 import { AppError } from "../../errors.js";
+import type { AgentTemplateRecord } from "../../ports/agents.js";
 import type {
   SwarmTemplateInput,
   SwarmTemplatePatch,
@@ -30,6 +31,8 @@ export interface TemplateDraft {
   readonly ttlHours: string;
   readonly teardownRule: TeardownRule;
   readonly specText: string;
+  /** The agent template (`tpl_…`) for the remediation team's collaboration agent; empty for none. */
+  readonly collaborationTemplateId: string;
 }
 
 export const SPEC_KEYS = ["stages", "pools", "handoffs", "secrets", "configValues"] as const;
@@ -56,6 +59,7 @@ export const emptyDraft: TemplateDraft = {
   ttlHours: "72",
   teardownRule: "at_work_complete",
   specText: specText({ stages: [], pools: [] }),
+  collaborationTemplateId: "",
 };
 
 export const draftOf = (t: SwarmTemplateRecord): TemplateDraft => ({
@@ -66,7 +70,24 @@ export const draftOf = (t: SwarmTemplateRecord): TemplateDraft => ({
   ttlHours: String(t.ttlHours),
   teardownRule: t.teardownRule as TeardownRule,
   specText: specText(t.spec),
+  collaborationTemplateId: t.spec.collaboration?.templateId ?? "",
 });
+
+/** The agent templates a swarm template may name: enabled ones that carry the `paperclip` capability. */
+export const collaborationChoices = (
+  templates: readonly AgentTemplateRecord[],
+): { value: string; label: string }[] =>
+  templates
+    .filter((t) => t.enabled && t.id !== undefined && t.capabilities?.includes("paperclip"))
+    .map((t) => ({ value: t.id as string, label: t.name }));
+
+/** The spec the API receives: the edited sections plus the collaboration choice. */
+export function specOf(d: TemplateDraft): SwarmTemplateSpec {
+  const spec = parseSpec(d.specText).spec as SwarmTemplateSpec;
+  return d.collaborationTemplateId
+    ? { ...spec, collaboration: { templateId: d.collaborationTemplateId } }
+    : spec;
+}
 
 const SECRET_NAME = /^[a-z][a-z0-9-]{0,62}$/;
 const ENV_TARGET = /^[A-Z_][A-Z0-9_]{0,127}$/;
@@ -218,7 +239,7 @@ export class SwarmTemplatesUseCases {
       ttlHours: Number(d.ttlHours),
       teardownRule: d.teardownRule,
       enabled: false,
-      spec: parseSpec(d.specText).spec as SwarmTemplateSpec,
+      spec: specOf(d),
     };
     return this.port.create(input);
   }
@@ -226,14 +247,15 @@ export class SwarmTemplatesUseCases {
   update(t: SwarmTemplateRecord, d: TemplateDraft) {
     const fields = validateTemplate(d, false);
     if (Object.keys(fields).length > 0) return Promise.reject(invalid(fields));
-    const spec = parseSpec(d.specText).spec as SwarmTemplateSpec;
+    const spec = specOf(d);
     const budget = money.toMoney(money.parse(d.budgetUsd.trim()));
     const patch: SwarmTemplatePatch = {
       ...(d.description.trim() !== (t.description ?? "") && { description: d.description.trim() }),
       ...(money.compare(budget, t.budgetUsd) !== 0 && { budgetUsd: budget }),
       ...(Number(d.ttlHours) !== t.ttlHours && { ttlHours: Number(d.ttlHours) }),
       ...(d.teardownRule !== t.teardownRule && { teardownRule: d.teardownRule }),
-      ...(specText(spec) !== specText(t.spec) && { spec }),
+      ...((specText(spec) !== specText(t.spec) ||
+        d.collaborationTemplateId !== (t.spec.collaboration?.templateId ?? "")) && { spec }),
     };
     if (Object.keys(patch).length === 0)
       return Promise.reject(new AppError({ kind: "validation", message: "Nothing has changed" }));

@@ -103,6 +103,10 @@
   background: var(--pill-tv);
   border-color: var(--pill-tv-line);
 }
+.pillCollaborator {
+  background: var(--pill-tc);
+  border-color: var(--pill-tc-line);
+}
 .pillSecOp {
   background: var(--pill-so);
   border-color: var(--pill-so-line);

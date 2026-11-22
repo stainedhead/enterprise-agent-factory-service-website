@@ -912,6 +912,105 @@
     "csv": false
   },
   {
+    "operationId": "GetTeamCollaboration",
+    "section": "4.4b",
+    "method": "GET",
+    "path": "/v1/teams/{teamId}/collaboration",
+    "permission": "collaboration:read",
+    "scope": "team",
+    "cli": "collaboration describe-collaboration",
+    "sdk": "collaboration.get()",
+    "screen": "T16, V3, T1",
+    "priority": "P0",
+    "csv": false
+  },
+  {
+    "operationId": "PutTeamCollaboration",
+    "section": "4.4b",
+    "method": "PUT",
+    "path": "/v1/teams/{teamId}/collaboration",
+    "permission": "collaboration:manage",
+    "scope": "team",
+    "cli": "collaboration put-collaboration",
+    "sdk": "collaboration.put()",
+    "screen": "T16",
+    "priority": "P0",
+    "csv": false
+  },
+  {
+    "operationId": "ListCollaborationLinks",
+    "section": "4.4b",
+    "method": "GET",
+    "path": "/v1/teams/{teamId}/collaboration/links",
+    "query": [
+      "linkState",
+      "connect"
+    ],
+    "permission": "collaboration:read",
+    "scope": "team",
+    "cli": "collaboration list-collaboration-links",
+    "sdk": "collaboration.links.list()",
+    "screen": "T16",
+    "priority": "P0 (C1)",
+    "csv": false
+  },
+  {
+    "operationId": "ConnectAgentToCollaboration",
+    "section": "4.4b",
+    "method": "POST",
+    "path": "/v1/teams/{teamId}/collaboration/links/{agentId}:connect",
+    "permission": "collaboration:manage",
+    "scope": "team",
+    "cli": "collaboration connect-agent",
+    "sdk": "collaboration.connectAgent()",
+    "screen": "T16",
+    "priority": "P0 (C1)",
+    "csv": false
+  },
+  {
+    "operationId": "DisconnectAgentFromCollaboration",
+    "section": "4.4b",
+    "method": "POST",
+    "path": "/v1/teams/{teamId}/collaboration/links/{agentId}:disconnect",
+    "permission": "collaboration:manage",
+    "scope": "team",
+    "cli": "collaboration disconnect-agent",
+    "sdk": "collaboration.disconnectAgent()",
+    "screen": "T16",
+    "priority": "P0 (C1)",
+    "csv": false
+  },
+  {
+    "operationId": "RotateCollaborationKeys",
+    "section": "4.4b",
+    "method": "POST",
+    "path": "/v1/teams/{teamId}/collaboration:rotate-keys",
+    "permission": "collaboration:manage",
+    "scope": "team",
+    "cli": "collaboration rotate-collaboration-keys",
+    "sdk": "collaboration.rotateKeys()",
+    "screen": "T16",
+    "priority": "P1",
+    "csv": false
+  },
+  {
+    "operationId": "ListCollaborationEndpoints",
+    "section": "4.4b",
+    "method": "GET",
+    "path": "/v1/admin/collaboration-endpoints",
+    "query": [
+      "teamId",
+      "state"
+    ],
+    "permission": "admin:settings",
+    "scope": "service",
+    "cli": "admin list-collaboration-endpoints",
+    "sdk": "admin.collaborationEndpoints.list()",
+    "screen": "S10",
+    "priority": "P0 (C2)",
+    "csv": true
+  },
+  {
     "operationId": "ListAgentRoleLinks",
     "section": "4.5",
     "method": "GET",
@@ -1759,7 +1858,7 @@
     "screen": "P6",
     "priority": "P2",
     "csv": false,
-    "notes": "`{status, prUrl?, prNumber?, detail?}`"
+    "notes": "`{status, prUrl?, prNumber?, detail?}` (`If-Match` optional for a workload principal, §2, CD-12)"
   },
   {
     "operationId": "ListTeamWorkOrders",
@@ -1879,7 +1978,7 @@
     "screen": "S10",
     "priority": "P0",
     "csv": false,
-    "notes": "(every key of root PRD §6.13 with value, default and range)"
+    "notes": "(every key of root PRD §6.13 with value, default and range, including the seven `collab.*` keys of the Paperclip PRD §6.9 (`collab.base_domain` unset reads `null`); the database-only keys `work_orders.cost_center` and `work_orders.owner_email` are not exposed, CD-8)"
   },
   {
     "operationId": "PutSetting",
@@ -1919,7 +2018,8 @@
     "sdk": "admin.identityProviders.create()",
     "screen": "S10",
     "priority": "P0",
-    "csv": false
+    "csv": false,
+    "notes": "(v1.3.0: optional `collabClientId` and `collabClientSecretArn`, a Secrets Manager reference, never the value; `collabClientSecretArn` needs `collabClientId`; `ListSignInProviders` never returns them)"
   },
   {
     "operationId": "GetIdentityProvider",

@@ -12,6 +12,7 @@ const PILL: Record<ActiveRole, { label: string; cls: string }> = {
   service_admin: { label: "Service admin", cls: s.pillAdmin as string },
   security_operator: { label: "Security operator", cls: s.pillSecOp as string },
   team_admin: { label: "Team-admin", cls: s.pillTeamAdmin as string },
+  team_collaborator: { label: "Team collaborator", cls: s.pillCollaborator as string },
   team_viewer: { label: "Team viewer", cls: s.pillViewer as string },
   workload: { label: "Workload", cls: s.pillViewer as string },
   none: { label: "No role", cls: s.pillViewer as string },

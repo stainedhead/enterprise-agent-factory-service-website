@@ -56,3 +56,26 @@ describe("contract:update", () => {
     ).rejects.toThrow("HTTP 404");
   });
 });
+
+describe("pinned snapshot (SDK-16)", () => {
+  it("pins v1.3.1 with the team_collaborator role and the five collaboration permissions", () => {
+    const lock = JSON.parse(readFileSync(join(CONTRACT_DIR, "contract.lock.json"), "utf8"));
+    expect(lock.contractVersion).toBe("1.3.1");
+    expect(lock.commit).toMatch(/^[0-9a-f]{40}$/);
+    const perms = JSON.parse(readFileSync(join(CONTRACT_DIR, "permissions.json"), "utf8")) as {
+      roles: string[];
+      permissions: { name: string }[];
+    };
+    expect(perms.roles).toContain("team_collaborator");
+    const names = perms.permissions
+      .map((p) => p.name)
+      .filter((n) => n.startsWith("collaboration:"));
+    expect(names.sort()).toEqual([
+      "collaboration:access",
+      "collaboration:api",
+      "collaboration:contribute",
+      "collaboration:manage",
+      "collaboration:read",
+    ]);
+  });
+});

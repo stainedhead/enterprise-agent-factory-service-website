@@ -170,3 +170,97 @@ describe("T4 rotate and delete (M2-S4, S5)", () => {
     void aSecret;
   });
 });
+
+describe("T4 managed secrets (WEB-US-54)", () => {
+  const managedList = () =>
+    fakeSecretsPort({
+      list: vi.fn(async () => [
+        aSecret(),
+        aSecret({
+          id: "sec_afs",
+          name: "paperclip-better-auth-secret",
+          managedBy: "afs",
+          boundTo: [],
+          agentId: "agt_hub",
+          scope: "agent",
+        }),
+        aSecret({
+          id: "sec_master",
+          name: "paperclip-secrets-master-key",
+          managedBy: "afs",
+          boundTo: [],
+          scope: "agent",
+        }),
+        aSecret({
+          id: "sec_pc",
+          name: "paperclip-agent-key",
+          managedBy: "paperclip",
+          boundTo: [],
+          scope: "agent",
+        }),
+      ]),
+    });
+  const rowOf = async (name: string) =>
+    (await screen.findByText(name)).closest("tr") as HTMLElement;
+
+  it("managed by column and filter", async () => {
+    open({ secrets: managedList() });
+    const r = await rowOf("paperclip-better-auth-secret");
+    expect(within(r).getByText("Managed by AFS")).toBeTruthy();
+    expect(
+      within(await rowOf("paperclip-agent-key")).getByText("Managed by Paperclip"),
+    ).toBeTruthy();
+    expect(within(await rowOf("github-bot-key")).getAllByText("Team").length).toBeGreaterThan(0);
+    await userEvent.selectOptions(screen.getByLabelText("Managed by"), "paperclip");
+    expect(screen.queryByText("github-bot-key")).toBeNull();
+    expect(screen.getByText("paperclip-agent-key")).toBeTruthy();
+  });
+  it("managed rows are read-only with tooltips", async () => {
+    open({ secrets: managedList() });
+    const r = await rowOf("paperclip-agent-key");
+    expect(disabled(within(r).getByRole("button", { name: "Delete paperclip-agent-key" }))).toBe(
+      true,
+    );
+    expect(disabled(within(r).getByRole("button", { name: "Rotate paperclip-agent-key" }))).toBe(
+      true,
+    );
+    expect(within(r).getByText("Not bindable")).toBeTruthy();
+    const a = await rowOf("paperclip-better-auth-secret");
+    expect(
+      disabled(within(a).getByRole("button", { name: "Delete paperclip-better-auth-secret" })),
+    ).toBe(true);
+  });
+  it("master key rotate disabled", async () => {
+    open({ secrets: managedList() });
+    const r = await rowOf("paperclip-secrets-master-key");
+    expect(
+      disabled(within(r).getByRole("button", { name: "Rotate paperclip-secrets-master-key" })),
+    ).toBe(true);
+  });
+  it("rotate afs row has no value field and sends no value", async () => {
+    const { secrets } = open({ secrets: managedList() });
+    const r = await rowOf("paperclip-better-auth-secret");
+    await userEvent.click(
+      within(r).getByRole("button", { name: "Rotate paperclip-better-auth-secret" }),
+    );
+    const d = within(screen.getByRole("dialog"));
+    expect(d.getByText(/AFS generates the new value/)).toBeTruthy();
+    expect(d.queryByLabelText("New secret value")).toBeNull();
+    await userEvent.click(d.getByRole("button", { name: "Rotate" }));
+    await waitFor(() => expect(secrets.rotate).toHaveBeenCalled());
+    expect(secrets.rotate.mock.calls[0]).toEqual(["team_1", "sec_afs"]);
+  });
+  it("a managed row cannot be deleted from the table", async () => {
+    const secrets = managedList();
+    secrets.delete.mockRejectedValue(
+      new AppError({ kind: "conflict", message: "no", reason: "managed_secret" }),
+    );
+    // a team-owned row whose delete the API refuses
+    secrets.list.mockResolvedValue([
+      aSecret({ managedBy: "afs", id: "sec_x", name: "forced-one" }),
+    ]);
+    open({ secrets });
+    const r = await rowOf("forced-one");
+    expect(disabled(within(r).getByRole("button", { name: "Delete forced-one" }))).toBe(true);
+  });
+});

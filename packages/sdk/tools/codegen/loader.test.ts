@@ -7,22 +7,22 @@ import { loadContract, unlistedSecretLooking } from "./loader.js";
 const c = loadContract(CONTRACT_DIR);
 
 describe("loader (M0-G1, G3)", () => {
-  it("loads 182 operations with the documented method counts", () => {
-    expect(c.operations).toHaveLength(182);
+  it("loads 189 operations with the documented method counts", () => {
+    expect(c.operations).toHaveLength(189);
     const count = (m: string) => c.operations.filter((o) => o.method === m).length;
     expect([count("GET"), count("POST"), count("DELETE"), count("PATCH"), count("PUT")]).toEqual([
-      79, 44, 26, 17, 16,
+      82, 47, 26, 17, 17,
     ]);
   });
-  it("finds 8 CSV operations, 43 required If-Match, and Idempotency-Key on every POST", () => {
-    expect(c.operations.filter((o) => o.csv)).toHaveLength(8);
+  it("finds 9 CSV operations, 43 required If-Match, and Idempotency-Key on every POST", () => {
+    expect(c.operations.filter((o) => o.csv)).toHaveLength(9);
     expect(c.operations.filter((o) => o.ifMatch === "required")).toHaveLength(43);
     for (const o of c.operations.filter((x) => x.method === "POST"))
       expect(o.idempotencyKey).toBe(true);
   });
-  it("parses x-afs-sdk namespaces and modules (23 top-level + 18 admin; the spec counted 42)", () => {
+  it("parses x-afs-sdk namespaces and modules (24 top-level + 19 admin)", () => {
     const mods = new Set(c.operations.map((o) => o.module));
-    expect(mods.size).toBe(41);
+    expect(mods.size).toBe(43);
     expect(c.operations.find((o) => o.operationId === "ListTeamModels")?.sdk).toEqual({
       namespace: ["teams", "models"],
       method: "list",

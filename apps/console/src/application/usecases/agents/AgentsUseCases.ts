@@ -36,6 +36,16 @@ export class AgentsUseCases {
     return agents.map((a) => ({ ...a, costUsd: costs ? (costs[a.id] ?? "0.00") : undefined }));
   }
 
+  /** The team's collaboration agent, or `undefined` when it has none (T3 role step, WEB-US-45). */
+  async collaborationAgent(teamId: string, signal?: AbortSignal): Promise<AgentRecord | undefined> {
+    return (await this.port.list(teamId, signal, { role: "collaboration" }))[0];
+  }
+
+  /** The team's worker agents (the ones that can connect to Paperclip). */
+  workers(teamId: string, signal?: AbortSignal): Promise<readonly AgentRecord[]> {
+    return this.port.list(teamId, signal, { role: "worker" });
+  }
+
   get(teamId: string, agentId: string, signal?: AbortSignal): Promise<AgentRecord> {
     return this.port.get(teamId, agentId, signal);
   }
@@ -80,8 +90,11 @@ export class AgentsUseCases {
     return this.port.createSnapshot(teamId, agentId, description?.trim() || undefined);
   }
 
-  templates(signal?: AbortSignal): Promise<readonly AgentTemplateRecord[]> {
-    return this.port.templates(signal);
+  templates(
+    signal?: AbortSignal,
+    opts?: { readonly capability?: string },
+  ): Promise<readonly AgentTemplateRecord[]> {
+    return this.port.templates(signal, opts);
   }
 
   storageClasses(signal?: AbortSignal): Promise<readonly StorageClassRecord[]> {

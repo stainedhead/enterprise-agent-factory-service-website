@@ -1,11 +1,14 @@
+import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { isAppError } from "../../../application/errors.js";
 import type { SwarmTemplateRecord } from "../../../application/ports/swarmTemplates.js";
 import {
+  collaborationChoices,
   draftOf,
   emptyDraft,
   KINDS,
   MAX_TTL_HOURS,
+  specOf,
   TEARDOWN_RULES,
   type TemplateDraft,
   validateTemplate,
@@ -20,6 +23,8 @@ import {
   SelectInput,
   TextInput,
 } from "../../components/index.js";
+import { queryKey } from "../../query/keys.js";
+import { useOptionalService } from "../../services.js";
 
 /** *Create template* and *Edit template*: the name and kind are fixed once created. */
 export function TemplateDialog({
@@ -36,6 +41,14 @@ export function TemplateDialog({
   onSave: (d: TemplateDraft) => void;
 }) {
   const creating = template === undefined;
+  const catalog = useOptionalService("adminAgentTemplates");
+  const templates = useQuery({
+    queryKey: queryKey({ area: "admin-catalogs", resource: "agent-templates" }),
+    queryFn: ({ signal }) => (catalog ? catalog.list(signal) : Promise.resolve([])),
+    enabled: catalog !== undefined,
+  });
+  const choices = collaborationChoices(templates.data ?? []);
+  // A saved choice that is no longer offered (disabled or lost the capability) stays visible so it can be changed.
   const [d, setD] = useState<TemplateDraft>(template ? draftOf(template) : emptyDraft);
   const [touched, setTouched] = useState(false);
   const errors = validateTemplate(d, creating);
@@ -49,7 +62,7 @@ export function TemplateDialog({
   };
   let spec: unknown;
   try {
-    spec = JSON.parse(d.specText);
+    spec = errors.spec ? undefined : specOf(d);
   } catch {
     spec = undefined;
   }
@@ -150,6 +163,28 @@ export function TemplateDialog({
           spellCheck={false}
           value={d.specText}
           onChange={(e) => set("specText", e.target.value)}
+        />
+      </FormField>
+      <FormField
+        label="Collaboration agent"
+        hint="Optional. Adds a Paperclip collaboration agent to the remediation team; only enabled agent templates with the paperclip capability are offered."
+      >
+        <SelectInput
+          value={d.collaborationTemplateId}
+          onChange={(e) => set("collaborationTemplateId", e.target.value)}
+          options={[
+            { value: "", label: "None" },
+            ...choices,
+            ...(d.collaborationTemplateId &&
+            !choices.some((c) => c.value === d.collaborationTemplateId)
+              ? [
+                  {
+                    value: d.collaborationTemplateId,
+                    label: `${d.collaborationTemplateId} (not available)`,
+                  },
+                ]
+              : []),
+          ]}
         />
       </FormField>
       <CliPreview command={cli} />
