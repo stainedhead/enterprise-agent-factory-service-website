@@ -4,21 +4,40 @@ import { expect, test } from "../../helpers/test.js";
 
 const T = TEAMS[0].id;
 const route = `/t/${T}/agents/new`;
-/** Records every `Storage.setItem` call made by the console, across the re-authentication redirect. */
-async function recordStorageWrites(page: import("@playwright/test").Page): Promise<string[]> {
-  const writes: string[] = [];
+/**
+ * Records every `Storage.setItem` call made by the console, across the re-authentication redirect.
+ * The page navigates to the IdP right after the carrier write, and a call through an exposed binding can be lost
+ * to that navigation, so each write is also kept synchronously in `window.name` (it survives same-site
+ * navigations) and merged in by `all()`.
+ */
+async function recordStorageWrites(
+  page: import("@playwright/test").Page,
+): Promise<{ all: () => Promise<string[]> }> {
+  const bound: string[] = [];
   await page.exposeFunction("__recordStorageWrite", (k: string, v: string) => {
-    writes.push(`${k}=${v}`);
+    bound.push(`${k}=${v}`);
   });
   await page.addInitScript(() => {
     const w = window as unknown as { __recordStorageWrite?: (k: string, v: string) => void };
     const set = Storage.prototype.setItem;
     Storage.prototype.setItem = function (k: string, v: string) {
+      try {
+        const kept: string[] = window.name.startsWith("[") ? JSON.parse(window.name) : [];
+        kept.push(`${k}=${String(v)}`);
+        window.name = JSON.stringify(kept);
+      } catch {
+        // recording only; the binding below still sees the write
+      }
       w.__recordStorageWrite?.(k, String(v));
       return set.call(this, k, v);
     };
   });
-  return writes;
+  return {
+    all: async () => {
+      const kept = await page.evaluate(() => (window.name.startsWith("[") ? window.name : "[]"));
+      return [...bound, ...(JSON.parse(kept) as string[])];
+    },
+  };
 }
 
 // T3 has no secret input (bindings pick an existing secret by id). The secret-dialog half of FR-004 AC2 (a
@@ -28,7 +47,7 @@ test.describe("drafts across re-authentication (FR-004)", () => {
     page,
     signInAs,
   }) => {
-    const writes = await recordStorageWrites(page);
+    const recorder = await recordStorageWrites(page);
     // a token that is due for renewal almost at once, with no refresh token: renewal goes through the IdP session
     await control.idp({ ttl: 63, refresh: false });
     await signInAs("team-admin", route);
@@ -62,6 +81,7 @@ test.describe("drafts across re-authentication (FR-004)", () => {
     await expect(page.getByLabel("Template")).toHaveValue("coder");
 
     // the only draft write is the carrier key, holding the form's non-secret fields, no token
+    const writes = await recorder.all();
     const draftWrites = writes.filter((w) => w.startsWith("afs.drafts="));
     expect(draftWrites.length).toBeGreaterThan(0);
     for (const w of writes) {
