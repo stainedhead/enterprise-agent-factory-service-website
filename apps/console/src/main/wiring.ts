@@ -4,6 +4,7 @@ import { AgentsUseCases } from "../application/usecases/agents/AgentsUseCases.js
 import { CreateAgentUseCases } from "../application/usecases/agents-create/CreateAgentUseCases.js";
 import { ConfigUseCases } from "../application/usecases/config/ConfigUseCases.js";
 import { DashboardUseCases } from "../application/usecases/dashboard/DashboardUseCases.js";
+import { AdminExternalSystemsUseCases } from "../application/usecases/externalSystems/AdminExternalSystemsUseCases.js";
 import { ExternalSystemsUseCases } from "../application/usecases/externalSystems/ExternalSystemsUseCases.js";
 import { HistoryUseCases } from "../application/usecases/history/HistoryUseCases.js";
 import {
@@ -21,7 +22,10 @@ import { TeamsUseCases } from "../application/usecases/teams/TeamsUseCases.js";
 import { SdkAgents } from "../infrastructure/sdk/agents.js";
 import { SdkConfig } from "../infrastructure/sdk/config.js";
 import { SdkDashboard } from "../infrastructure/sdk/dashboard.js";
-import { SdkExternalSystems } from "../infrastructure/sdk/externalSystems.js";
+import {
+  SdkAdminExternalSystems,
+  SdkExternalSystems,
+} from "../infrastructure/sdk/externalSystems.js";
 import { SdkAudit, SdkRevisions } from "../infrastructure/sdk/history.js";
 import { SdkApiKeys, SdkMembers } from "../infrastructure/sdk/members.js";
 import { SdkOverview, SdkWorkOrders } from "../infrastructure/sdk/overview.js";
@@ -71,6 +75,7 @@ export function buildServices(
     secrets: new SecretsUseCases(new SdkSecrets(client)),
     configValues,
     externalSystems: new ExternalSystemsUseCases(new SdkExternalSystems(client)),
+    adminExternalSystems: new AdminExternalSystemsUseCases(new SdkAdminExternalSystems(client)),
     createAgent: new CreateAgentUseCases(agentsUseCases, configValues),
     teams: new TeamsUseCases(teamsPort, clock),
     settings: new SettingsUseCases(new SdkSettings(client)),

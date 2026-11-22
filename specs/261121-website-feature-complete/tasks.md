@@ -40,7 +40,7 @@
 |---|---|---|---|
 | M0 Foundations | 10 (+ exit) | 69 | 69 |
 | M1 Teams & access | 10 (+ exit) | 46 | 46 |
-| M2 Agents & secrets | 7 (+ exit) | 41 | 31 |
+| M2 Agents & secrets | 7 (+ exit) | 41 | 36 |
 | M3 Spend control | 6 (+ exit) | 24 | 0 |
 | M4 Production readiness | 8 (+ exit) | 34 | 0 |
 | M5 Budgeted workloads and swarms | 4 (+ exit) | 19 | 0 |
@@ -428,11 +428,11 @@ Owns: area files: `admin-externalSystems`; `presentation/screens/s7-external-sys
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M2-F1 | Built-in systems have no *Delete*; add, edit, delete custom systems with endpoints | WEB-US-18.1 | — |
-| [ ] | M2-F2 | Service-level switch; teams then show *Off for all teams* | WEB-US-18.2 | M2-F1 |
-| [ ] | M2-F3 | Enabling an *Unmetered* system needs a confirmation naming what is not counted or capped | WEB-US-18.3 | M2-F1 |
-| [ ] | M2-F4 | Below the catalog: choose teams that may declare their own systems (`mayAddExternalSystems`) | WEB-US-18.4 | M2-F1 |
-| [ ] | M2-F5 | e2e, axe, visual S7 (`19`) | WEB-US-42.1 (part), WEB-US-42.2 (part) | M2-F1..F4 |
+| [x] | M2-F1 | Built-in systems have no *Delete*; add, edit, delete custom systems with endpoints | WEB-US-18.1 | — |
+| [x] | M2-F2 | Service-level switch; teams then show *Off for all teams* | WEB-US-18.2 | M2-F1 |
+| [x] | M2-F3 | Enabling an *Unmetered* system needs a confirmation naming what is not counted or capped | WEB-US-18.3 | M2-F1 |
+| [x] | M2-F4 | Below the catalog: choose teams that may declare their own systems (`mayAddExternalSystems`) | WEB-US-18.4 | M2-F1 |
+| [x] | M2-F5 | e2e, axe, visual S7 (`19`) | WEB-US-42.1 (part), WEB-US-42.2 (part) | M2-F1..F4 |
 
 ### M2-G · Service settings: storage classes and agent templates (S10)
 

@@ -1,4 +1,9 @@
-import { type AfsClient, externalSystems } from "@afs/sdk";
+import { type AfsClient, adminExternalSystems, externalSystems } from "@afs/sdk";
+import type {
+  AdminExternalSystemsPort,
+  CatalogSystemInput,
+  CatalogSystemUpdate,
+} from "../../application/ports/adminExternalSystems.js";
 import type {
   DeclareSystemInput,
   ExternalSystemRecord,
@@ -110,5 +115,40 @@ export class SdkExternalSystems implements ExternalSystemsPort {
         }),
       ),
     );
+  }
+}
+
+/** `admin.externalSystems.*` mapped to {@link AdminExternalSystemsPort}. */
+export class SdkAdminExternalSystems implements AdminExternalSystemsPort {
+  constructor(private readonly client: AfsClient) {}
+
+  list(signal?: AbortSignal) {
+    return wrap(async () =>
+      (await all(adminExternalSystems(this.client).list({ maxResults: 100, ...sig(signal) }))).map(
+        toSystem,
+      ),
+    );
+  }
+  create(input: CatalogSystemInput) {
+    return wrap(async () =>
+      toSystem(
+        await adminExternalSystems(this.client).create(
+          compact({ ...input, endpoints: [...input.endpoints] }),
+        ),
+      ),
+    );
+  }
+  update(ref: SystemRef, patch: CatalogSystemUpdate) {
+    return wrap(async () =>
+      toSystem(
+        await adminExternalSystems(this.client).update(
+          target(ref),
+          compact({ ...patch, ...(patch.endpoints && { endpoints: [...patch.endpoints] }) }),
+        ),
+      ),
+    );
+  }
+  delete(ref: SystemRef) {
+    return wrap(() => adminExternalSystems(this.client).delete(target(ref)));
   }
 }

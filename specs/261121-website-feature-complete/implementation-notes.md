@@ -125,6 +125,7 @@ architectural ones into ADRs (`docs/architectural-decision-record.md`, ADR-005 o
 | DV-30 | The external-systems team/agent port, adapter, use cases and fixtures (`externalSystems` area) were written before S2 because *Create secret* offers an optional external system; their screens (T9, T10) are still M2-E. T4 and V2 share one page (`SecretsPage`, V2 with `viewer`): V2 omits the value column and row actions and keeps *Create secret* disabled "Requires team-admin". `PutSecretValue` has a use case and adapter method but no screen control (*Rotate* covers changing a value); the managed path preview is `afs/<namespace>/[<agent>/]<name>`, the prefix and shape taken from the contract examples. | M2-S1 |
 | DV-31 | T7 namespace table has no description column: the contract's config value carries no description. The agent table is read-only here; agent values are edited from create/edit agent. | M2-V1 |
 | DV-32 | Declare system is shown disabled (reason given) rather than hidden when the team may not declare; the e2e fake team 1 has mayAddExternalSystems true. T10 refreshes on invalidation after a switch, not on a timer (the list has no in-flight phases). | M2-E2 |
+| DV-33 | S7: 'Unmetered' is read-only in the contract (not in CatalogSystemRequest); built-in rows can be edited and switched but not deleted. Teams-may-declare list reads all teams via listRows (spend call tolerated) and uses UpdateTeam. | M2-F4 |
 
 ## 5. Lessons learned
 

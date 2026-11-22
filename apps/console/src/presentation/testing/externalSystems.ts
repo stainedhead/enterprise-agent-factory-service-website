@@ -1,8 +1,10 @@
 import { type Mock, vi } from "vitest";
+import type { AdminExternalSystemsPort } from "../../application/ports/adminExternalSystems.js";
 import type {
   ExternalSystemRecord,
   ExternalSystemsPort,
 } from "../../application/ports/externalSystems.js";
+import { AdminExternalSystemsUseCases } from "../../application/usecases/externalSystems/AdminExternalSystemsUseCases.js";
 import { ExternalSystemsUseCases } from "../../application/usecases/externalSystems/ExternalSystemsUseCases.js";
 
 export const aSystem = (over: Partial<ExternalSystemRecord> = {}): ExternalSystemRecord => ({
@@ -64,4 +66,35 @@ export function fakeExternalSystemsPort(
 
 export const externalSystemsServices = (p: ExternalSystemsPort) => ({
   externalSystems: new ExternalSystemsUseCases(p),
+});
+
+export type FakeAdminExternalSystemsPort = {
+  [K in keyof AdminExternalSystemsPort]: Mock<AdminExternalSystemsPort[K]>;
+};
+
+export function fakeAdminExternalSystemsPort(
+  over: Partial<AdminExternalSystemsPort> = {},
+): FakeAdminExternalSystemsPort {
+  return {
+    list: vi.fn(async () => [
+      aSystem(),
+      aSystem({ id: "ext_3", name: "Jira", slug: "jira", enabled: false }),
+      aSystem({
+        id: "ext_4",
+        name: "OpenAI API",
+        slug: "openai",
+        enabled: false,
+        unmetered: true,
+        builtin: false,
+      }),
+    ]),
+    create: vi.fn(async () => aSystem({ id: "ext_9", builtin: false })),
+    update: vi.fn(async () => aSystem()),
+    delete: vi.fn(async () => undefined),
+    ...over,
+  } as unknown as FakeAdminExternalSystemsPort;
+}
+
+export const adminExternalSystemsServices = (p: AdminExternalSystemsPort) => ({
+  adminExternalSystems: new AdminExternalSystemsUseCases(p),
 });
