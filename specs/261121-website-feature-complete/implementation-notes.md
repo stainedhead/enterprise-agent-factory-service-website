@@ -67,6 +67,7 @@ architectural ones into ADRs (`docs/architectural-decision-record.md`, ADR-005 o
 | CQ-11 | `-restapi` | No reconciler-health endpoint, and `GET /readyz` check names are undocumented (M1-D1) | Open; S1 reads the `reconciler` check, else the overall status |
 | CQ-12 | `-restapi` | `CreateIdentityProvider`/`UpdateIdentityProvider` take only `clientSecretArn`, but the task list and data dictionary expect a write-only secret value (M1-N3) | Open; S10 takes the ARN in a normal field and shows only the ARN; no `SecretInput` |
 | CQ-13 | `-restapi` | The in-use `409` of `DeleteSecret`, `DeleteNamespaceConfigValue` and `DeleteStorageClass` documents no dependents list (`details` has only `reason`), yet WEB-US-27.4, 30.3 and 20.3 expect the agents to be listed | Open; interim: `details.agents` when present, else computed from list data (DV-24) |
+| CQ-14 | `-restapi` | `CreateAgentRequest`/`Agent` have no persona or instructions field although the T3 mockup and WEB-US-26.1 have one; and the create request takes no configuration values (T3 uses one `PutAgentConfigValue` per value) | Open; interim: persona is stored in `description` (DV-28) |
 
 ## 3. Edge cases and solutions (seeded at spec time; extend during implementation)
 
@@ -118,6 +119,9 @@ architectural ones into ADRs (`docs/architectural-decision-record.md`, ADR-005 o
 | DV-24 | `AppError` carries the API `details` as sent (`AppError.details`), because the in-use `409`s (S5, V3, G1) name dependents there when the API sends them (CQ-13). Dependents are otherwise computed client-side from list data (secret `boundTo`, config `usedBy`, agents by storage class). | M2-A1 |
 | DV-25 | The agent list fixture moved from `fixtures/overview.ts` to `fixtures/agents.ts`, which owns the agent store and the template, storage-class, usage-by-agent and log-destination routes; `fixtures/overview.ts` lost only its `ListAgents` route. Fixture team permissions in `core.ts` gained the M2 permissions (`secrets`, `config`, `external-systems`, `models`, `logs`, `usage`). | M2-A8 |
 | DV-26 | `AgentsPort` also reads the team log destinations (`ListLogDestinations`) for the *Logs* tab (WD-29); the T2 table has no *Pod* column (not in the API) and the header search has no agent source (the shell `SearchPort` lists teams only; adding agents is a shell change, left to M6-Q). | M2-A5 |
+| DV-27 | C reads team secrets and namespace configuration values, so the ports, adapters, use cases and fixtures of S and V (`secrets`, `configValues` areas, `fixtures/secrets.ts`, `fixtures/config.ts`) were written before C, and their screens in their own streams afterwards. The runtime `application/ports/config.ts` already exists, so the configuration-values port is `ports/configValues.ts` (service `configValues`). | M2-C3 |
+| DV-28 | T3 sends the *Persona and instructions* text as the agent `description` (the API has no persona field, CQ-14); configuration values are sent with one `PutAgentConfigValue` each after `CreateAgent` (the create request has none), and a value the API then refuses is listed with a link to T7 while the agent stays created. *AWS identity* *Remove cross-account roles first* is a prop of the reusable section (links are added after creation, so T3 passes none). No `fixtures/createAgent.ts` was needed: the agent store in `fixtures/agents.ts` serves T3. | M2-C1 |
+| DV-29 | The *Copy command* link button inside `CliPreview` sat on the dark panel at 3.4:1; `ui.module.css` now gives it the light blue token (found by the first T3 axe run). | M2-C7 |
 
 ## 5. Lessons learned
 

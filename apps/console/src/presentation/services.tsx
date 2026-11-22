@@ -1,6 +1,8 @@
 // The use cases a screen may call, built once in main/wiring.ts (architecture §3.2: one line per area).
 import { createContext, useContext } from "react";
 import type { AgentsUseCases } from "../application/usecases/agents/AgentsUseCases.js";
+import type { CreateAgentUseCases } from "../application/usecases/agents-create/CreateAgentUseCases.js";
+import type { ConfigUseCases } from "../application/usecases/config/ConfigUseCases.js";
 import type { DashboardUseCases } from "../application/usecases/dashboard/DashboardUseCases.js";
 import type { HistoryUseCases } from "../application/usecases/history/HistoryUseCases.js";
 import type {
@@ -8,6 +10,7 @@ import type {
   MembersUseCases,
 } from "../application/usecases/members/MembersUseCases.js";
 import type { OverviewUseCases } from "../application/usecases/overview/OverviewUseCases.js";
+import type { SecretsUseCases } from "../application/usecases/secrets/SecretsUseCases.js";
 import type { ListProviders } from "../application/usecases/session/ListProviders.js";
 import type {
   IdentityProvidersUseCases,
@@ -17,6 +20,9 @@ import type { TeamsUseCases } from "../application/usecases/teams/TeamsUseCases.
 
 export interface AppServices {
   readonly agents: AgentsUseCases;
+  readonly configValues: ConfigUseCases;
+  readonly createAgent: CreateAgentUseCases;
+  readonly secrets: SecretsUseCases;
   readonly history: HistoryUseCases;
   readonly identityProviders: IdentityProvidersUseCases;
   readonly settings: SettingsUseCases;

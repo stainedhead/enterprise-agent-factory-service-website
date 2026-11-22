@@ -40,7 +40,7 @@
 |---|---|---|---|
 | M0 Foundations | 10 (+ exit) | 69 | 69 |
 | M1 Teams & access | 10 (+ exit) | 46 | 46 |
-| M2 Agents & secrets | 7 (+ exit) | 41 | 8 |
+| M2 Agents & secrets | 7 (+ exit) | 41 | 15 |
 | M3 Spend control | 6 (+ exit) | 24 | 0 |
 | M4 Production readiness | 8 (+ exit) | 34 | 0 |
 | M5 Budgeted workloads and swarms | 4 (+ exit) | 19 | 0 |
@@ -377,13 +377,13 @@ Owns: `presentation/screens/t3-create-agent/` (form, `sections/` reused by P4), 
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M2-C1 | Template (enabled only, defaults prefilled), image digest (template's allowed digests, current preselected), persona, model (team's only), resources, storage (size, class, on-delete, snapshots); no replica field; tag-only image → API `ValidationError` on the image field | WEB-US-26.1, WEB-US-22.2 (part), WEB-20 | M2-A1 |
-| [ ] | M2-C2 | Help panel: secrets and configuration arrive as env vars and files, no code change | WEB-US-26.2 | M2-C1 |
-| [ ] | M2-C3 | Secret bindings list only team shared secrets and this agent's own; env name or file path; env name already used by a configuration value blocked client-side and by the API | WEB-US-26.3, WEB-US-26.6 | M2-C1 |
-| [ ] | M2-C4 | *AWS identity*: shared or dedicated; with cross-account links, switching back is disabled "Remove cross-account roles first" | WEB-US-26.4 | M2-C1 |
-| [ ] | M2-C5 | Configuration values: *Use namespace value* only when the namespace has that name; effective value beside each name | WEB-US-26.5 | M2-C1 |
-| [ ] | M2-C6 | Side panel CLI command updating as the form changes | WEB-US-26.7, WEB-6 | M2-C1, M1-L3 |
-| [ ] | M2-C7 | e2e, axe, visual T3 (`08`) | WEB-US-42.1 (part), WEB-US-42.2 (part) | M2-C1..C6 |
+| [x] | M2-C1 | Template (enabled only, defaults prefilled), image digest (template's allowed digests, current preselected), persona, model (team's only), resources, storage (size, class, on-delete, snapshots); no replica field; tag-only image → API `ValidationError` on the image field | WEB-US-26.1, WEB-US-22.2 (part), WEB-20 | M2-A1 |
+| [x] | M2-C2 | Help panel: secrets and configuration arrive as env vars and files, no code change | WEB-US-26.2 | M2-C1 |
+| [x] | M2-C3 | Secret bindings list only team shared secrets and this agent's own; env name or file path; env name already used by a configuration value blocked client-side and by the API | WEB-US-26.3, WEB-US-26.6 | M2-C1 |
+| [x] | M2-C4 | *AWS identity*: shared or dedicated; with cross-account links, switching back is disabled "Remove cross-account roles first" | WEB-US-26.4 | M2-C1 |
+| [x] | M2-C5 | Configuration values: *Use namespace value* only when the namespace has that name; effective value beside each name | WEB-US-26.5 | M2-C1 |
+| [x] | M2-C6 | Side panel CLI command updating as the form changes | WEB-US-26.7, WEB-6 | M2-C1, M1-L3 |
+| [x] | M2-C7 | e2e, axe, visual T3 (`08`) | WEB-US-42.1 (part), WEB-US-42.2 (part) | M2-C1..C6 |
 
 ### M2-S · Secrets (T4, V2)
 

@@ -1,5 +1,6 @@
 import { TEAMS } from "./core.js";
 import type { Fixture, FixtureContext, FixtureResponse } from "./index.js";
+import { bindSecret } from "./secrets.js";
 
 type Json = Record<string, unknown>;
 
@@ -37,7 +38,7 @@ const seedAgents = (): Json[] => [
       snapshotSchedule: "daily",
       snapshotRetain: 7,
     },
-    secretBindings: [],
+    secretBindings: [{ secretId: `sec_${NS}0001`, delivery: "env", target: "GITHUB_APP_KEY" }],
     createdAt: ts,
     updatedAt: ts,
   },
@@ -215,6 +216,8 @@ export const agentsFixtures: readonly Fixture[] = [
         updatedAt: ts,
       };
       list.push(a);
+      for (const sb of (a.secretBindings as { secretId: string }[]) ?? [])
+        bindSecret(params.teamId ?? "", sb.secretId, String(a.id));
       return { status: 201, body: a };
     },
   },

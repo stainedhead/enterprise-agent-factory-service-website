@@ -1,6 +1,8 @@
 import type { AfsClient } from "@afs/sdk";
 import type { ClockPort } from "../application/ports/auth.js";
 import { AgentsUseCases } from "../application/usecases/agents/AgentsUseCases.js";
+import { CreateAgentUseCases } from "../application/usecases/agents-create/CreateAgentUseCases.js";
+import { ConfigUseCases } from "../application/usecases/config/ConfigUseCases.js";
 import { DashboardUseCases } from "../application/usecases/dashboard/DashboardUseCases.js";
 import { HistoryUseCases } from "../application/usecases/history/HistoryUseCases.js";
 import {
@@ -8,6 +10,7 @@ import {
   MembersUseCases,
 } from "../application/usecases/members/MembersUseCases.js";
 import { OverviewUseCases } from "../application/usecases/overview/OverviewUseCases.js";
+import { SecretsUseCases } from "../application/usecases/secrets/SecretsUseCases.js";
 import type { ListProviders } from "../application/usecases/session/ListProviders.js";
 import {
   IdentityProvidersUseCases,
@@ -15,10 +18,12 @@ import {
 } from "../application/usecases/settings/SettingsUseCases.js";
 import { TeamsUseCases } from "../application/usecases/teams/TeamsUseCases.js";
 import { SdkAgents } from "../infrastructure/sdk/agents.js";
+import { SdkConfig } from "../infrastructure/sdk/config.js";
 import { SdkDashboard } from "../infrastructure/sdk/dashboard.js";
 import { SdkAudit, SdkRevisions } from "../infrastructure/sdk/history.js";
 import { SdkApiKeys, SdkMembers } from "../infrastructure/sdk/members.js";
 import { SdkOverview, SdkWorkOrders } from "../infrastructure/sdk/overview.js";
+import { SdkSecrets } from "../infrastructure/sdk/secrets.js";
 import { SdkIdentityProviders, SdkSettings } from "../infrastructure/sdk/settings.js";
 import { SdkTeams } from "../infrastructure/sdk/teams.js";
 import type { AppServices } from "../presentation/services.js";
@@ -56,9 +61,14 @@ export function buildServices(
 ): Partial<AppServices> {
   const teamsPort = new SdkTeams(client);
   const overviewPort = new SdkOverview(client);
+  const agentsUseCases = new AgentsUseCases(new SdkAgents(client));
+  const configValues = new ConfigUseCases(new SdkConfig(client));
   return {
     signInProviders: shared.listProviders,
-    agents: new AgentsUseCases(new SdkAgents(client)),
+    agents: agentsUseCases,
+    secrets: new SecretsUseCases(new SdkSecrets(client)),
+    configValues,
+    createAgent: new CreateAgentUseCases(agentsUseCases, configValues),
     teams: new TeamsUseCases(teamsPort, clock),
     settings: new SettingsUseCases(new SdkSettings(client)),
     identityProviders: new IdentityProvidersUseCases(new SdkIdentityProviders(client)),
