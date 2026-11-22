@@ -26,6 +26,7 @@ export class GlobalStatus {
     announcement: "",
   };
   readonly #listeners = new Set<() => void>();
+  #sessionExpired = false;
 
   constructor(private readonly now: () => number = Date.now) {}
 
@@ -51,6 +52,17 @@ export class GlobalStatus {
       return;
     this.#state = next;
     for (const f of [...this.#listeners]) f();
+  }
+
+  /**
+   * True once an API `401` survived the SDK's refresh (FR-003). Kept outside the snapshot: nothing renders
+   * it; the client stops sending requests while it is set and the page reloads on re-authentication.
+   */
+  get sessionExpired(): boolean {
+    return this.#sessionExpired;
+  }
+  setSessionExpired(v: boolean): void {
+    this.#sessionExpired = v;
   }
 
   setUnavailable(v: boolean): void {

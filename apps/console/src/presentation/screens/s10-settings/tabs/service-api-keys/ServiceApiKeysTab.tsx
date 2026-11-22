@@ -23,6 +23,7 @@ import {
 } from "../../../../components/index.js";
 import { gate } from "../../../../hooks/gate.js";
 import { useSecretMutation } from "../../../../hooks/useSecretMutation.js";
+import { DeniedAlert } from "../../../../query/DeniedAlert.js";
 import { queryKey } from "../../../../query/keys.js";
 import { useService } from "../../../../services.js";
 import { useMe } from "../../../../shell/ShellContext.js";
@@ -216,12 +217,9 @@ function CreateDialog({
         </>
       }
     >
-      {err && Object.keys(err.fields).length === 0 && (
-        <Alert
-          kind="error"
-          title={err.isAccessDenied ? "You do not have access" : "The key was not created"}
-          requestId={err.requestId}
-        >
+      {err?.isAccessDenied && <DeniedAlert error={err} />}
+      {err && !err.isAccessDenied && Object.keys(err.fields).length === 0 && (
+        <Alert kind="error" title="The key was not created" requestId={err.requestId}>
           {err.message}
         </Alert>
       )}

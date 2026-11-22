@@ -15,6 +15,7 @@ import {
   TextInput,
 } from "../../components/index.js";
 import { useSecretMutation } from "../../hooks/useSecretMutation.js";
+import { DeniedAlert } from "../../query/DeniedAlert.js";
 import { useService } from "../../services.js";
 
 export interface NameRef {
@@ -112,6 +113,7 @@ export function CreateSecretDialog({
         </>
       }
     >
+      {err?.isAccessDenied && <DeniedAlert error={err} />}
       {err && !err.isAccessDenied && Object.keys(err.fields).length === 0 && (
         <Alert kind="error" title="The secret was not created" requestId={err.requestId}>
           {err.message}
@@ -220,6 +222,7 @@ export function RotateSecretDialog({
           ? `Rotating restarts these agents so they pick up the new value: ${restarting.join(", ")}.`
           : "No agent is bound to this secret, so none restarts."}
       </Alert>
+      {err?.isAccessDenied && <DeniedAlert error={err} />}
       {err && !err.isAccessDenied && Object.keys(err.fields).length === 0 && (
         <Alert kind="error" title="The secret was not rotated" requestId={err.requestId}>
           {err.message}
