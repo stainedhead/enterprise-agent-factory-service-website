@@ -192,6 +192,10 @@ Scope is the browser console; the API owns authorization, input validation and a
 | V11 business logic | Spend caps, work order duplicates | N/A | enforced by the API; the console shows the refusal |
 | Open | Subresource integrity on the hashed assets | Open | assets are same-origin and hashed; SRI adds little with `script-src 'self'`; revisit with the platform |
 
+## Visual baseline approval
+
+On 2026-11-22 J (web lead, W-3) approved all 33 visual baselines. Every entry in `apps/console/e2e/visual/approvals.json` is now `approved` with `approver` and `date`, superseding the `pending` status in WD-11, WD-12 and DV-61. `approvals.test.ts` requires an approver and date on every approved entry.
+
 ## 5. Lessons learned
 
 Filled in at completion.
