@@ -139,7 +139,7 @@ draft key). **Depends on:** C for B-6. **Merge position:** 4.
 | [x] | B-7 | Red: `SessionFlowStore` and `OidcClient` unit tests: flows carry a creation time; `put` drops flows older than 10 minutes and caps entries at 5; a renewal that times out removes its own flow; blocked `sessionStorage` raises `AuthError` saying browser storage is required for sign-in. Green: implement (`put` guarded with try/catch) | FR-012 AC1..AC3 | none |
 | [x] | B-8 | Red: unit test that `login-required` carries the flow's `returnTo`, and e2e `e2e/specs/auth/login-required.spec.ts` with two providers restoring the original route. Green: `OidcClient.complete`, `CompleteSignIn` and `presentation/auth/screens.tsx` pass `?returnTo=` through `safeReturnTo` | FR-013 AC | B-7 (same `OidcClient.ts`) |
 | [x] | B-9 | Red: component tests for the session-expired dialog: `listProviders.execute()` rejects, `reAuthenticate.execute()` rejects, no provider found. Green: each shows an `Alert` with role `alert` inside the dialog and re-enables *Sign in again* | FR-014 AC | none |
-| [ ] | B-10 | Stream exit: `bun run gate`, Chromium e2e for `auth` and `quality`, notes (including the platform CSP follow-up) and `status.md` updated | Goal 3 | B-1..B-9 |
+| [x] | B-10 | Stream exit: `bun run gate`, Chromium e2e for `auth` and `quality`, notes (including the platform CSP follow-up) and `status.md` updated | Goal 3 | B-1..B-9 |
 
 B-6 can only be built after C has merged into B's branch (`git merge rf/c` or rebase onto the integration
 branch). All other B tasks start immediately.
