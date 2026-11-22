@@ -35,11 +35,13 @@ import { AuthContext, type AuthServices } from "../presentation/auth/AuthContext
 import { ConfigErrorPage } from "../presentation/auth/screens.js";
 import { createQueryClient } from "../presentation/query/createQueryClient.js";
 import { appRoutes } from "../presentation/routes/AppRoutes.js";
+import { ServicesContext } from "../presentation/services.js";
 import {
   AccessDeniedProvider,
   createAccessDeniedBus,
 } from "../presentation/shell/AccessDeniedProvider.js";
 import { ShellContext, type ShellServices } from "../presentation/shell/ShellContext.js";
+import { buildServices } from "./wiring.js";
 import "../presentation/styles/tokens.css";
 import "../presentation/styles/base.css";
 
@@ -94,6 +96,7 @@ async function start(): Promise<void> {
     onContractMismatch: () => contractNotice.report(),
   });
 
+  const services = buildServices(client, clock, { listProviders });
   const sdkMe = new SdkMe(client);
   const mePort: MePort = {
     get: async (signal) => {
@@ -162,9 +165,11 @@ async function start(): Promise<void> {
       <QueryClientProvider client={queryClient}>
         <AuthContext.Provider value={auth}>
           <ShellContext.Provider value={shell}>
-            <AccessDeniedProvider bus={bus}>
-              <RouterProvider router={router} />
-            </AccessDeniedProvider>
+            <ServicesContext.Provider value={services}>
+              <AccessDeniedProvider bus={bus}>
+                <RouterProvider router={router} />
+              </AccessDeniedProvider>
+            </ServicesContext.Provider>
           </ShellContext.Provider>
         </AuthContext.Provider>
       </QueryClientProvider>

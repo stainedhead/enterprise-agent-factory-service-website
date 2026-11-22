@@ -2,4 +2,4 @@
 export interface SearchSourceDef {
   readonly type: "team" | "agent" | "pool" | "work-order";
 }
-export const searchSources: readonly SearchSourceDef[] = [];
+export const searchSources: readonly SearchSourceDef[] = [{ type: "team" }];

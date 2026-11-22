@@ -7,6 +7,7 @@ export { Breadcrumbs, type Crumb } from "./Breadcrumbs.js";
 export { Button } from "./Button.js";
 export { CliPreview } from "./CliPreview.js";
 export { ConfirmDialog } from "./ConfirmDialog.js";
+export { Card, SelectInput, TextInput, Toolbar } from "./Controls.js";
 export { CopyButton } from "./CopyButton.js";
 export { DiffView } from "./DiffView.js";
 export { type FieldError, FormField, fieldMessage } from "./FormField.js";

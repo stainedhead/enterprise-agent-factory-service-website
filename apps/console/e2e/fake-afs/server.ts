@@ -1,4 +1,9 @@
-import { type Fixture, type FixtureResponse, fixtureModules } from "./fixtures/index.js";
+import {
+  type Fixture,
+  type FixtureResponse,
+  fixtureModules,
+  fixtureResets,
+} from "./fixtures/index.js";
 import { Contract, type RouteDef } from "./openapi.js";
 import { principalFromToken, type SeedUser } from "./users.js";
 
@@ -92,6 +97,7 @@ export class FakeAfs {
     this.#versions.clear();
     this.#idem.clear();
     this.clearInjections();
+    for (const r of fixtureResets) r();
     this.contractVersion = this.#opts.contractVersion ?? this.contract.version;
   }
 
@@ -240,13 +246,27 @@ export class FakeAfs {
 
     const headers: Record<string, string> = { ...resp.headers };
     const version = (resp.body as { version?: unknown } | undefined)?.version;
-    if (req.method === "GET" && typeof version === "number") {
-      this.#versions.set(url.pathname, version);
-      headers.etag = `"${version}"`;
-    }
+    if (req.method === "GET" && typeof version === "number") headers.etag = `"${version}"`;
+    this.#trackVersions(req.method, url.pathname, resp.body);
     if (idem?.key)
       this.#idem.set(idem.key, { hash: idem.hash, status: resp.status, body: resp.body });
     return done(route.operationId, principal, resp.status, resp.body, headers);
+  }
+
+  /**
+   * Remembers the current version of every resource a response shows, so a later write is judged against
+   * what the console could have seen: a single resource at its own path (an action suffix `:verb` is
+   * dropped), and each item of a list at `<list path>/<id>`.
+   */
+  #trackVersions(method: string, pathname: string, body: unknown): void {
+    const b = body as { version?: unknown; items?: unknown } | undefined;
+    if (!b || typeof b !== "object") return;
+    if (typeof b.version === "number")
+      this.#versions.set(pathname.replace(/:[a-z-]+$/, ""), b.version);
+    if (method === "GET" && Array.isArray(b.items))
+      for (const it of b.items as { id?: unknown; version?: unknown }[])
+        if (typeof it?.id === "string" && typeof it.version === "number")
+          this.#versions.set(`${pathname}/${it.id}`, it.version);
   }
 
   /** `If-Match` rules: missing on a required route is 428; a stale version is 412. */

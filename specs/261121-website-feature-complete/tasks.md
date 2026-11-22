@@ -39,13 +39,13 @@
 | Milestone | Streams | Tasks | Done |
 |---|---|---|---|
 | M0 Foundations | 10 (+ exit) | 69 | 69 |
-| M1 Teams & access | 10 (+ exit) | 46 | 12 |
+| M1 Teams & access | 10 (+ exit) | 46 | 21 |
 | M2 Agents & secrets | 7 (+ exit) | 41 | 0 |
 | M3 Spend control | 6 (+ exit) | 24 | 0 |
 | M4 Production readiness | 8 (+ exit) | 34 | 0 |
 | M5 Budgeted workloads and swarms | 4 (+ exit) | 19 | 0 |
 | M6 CVE remediation and completion | 6 (+ exit) | 26 | 0 |
-| **Total** | **51** | **259** | **81** |
+| **Total** | **51** | **259** | **90** |
 
 ## External dependencies and contract questions
 
@@ -269,15 +269,15 @@ Owns: area files: `teams`; `presentation/screens/s2-teams/`, `presentation/scree
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M1-T1 | `TeamsPort`, SDK adapter and use cases: list, get, create, update (incl. guardrail fields), delete, suspend, resume, status, models list/put, tags get/put, service-tag list for S3 | WEB-US-13.1 (part) | M1-Q1 |
-| [ ] | M1-T2 | S2 table: slug, kind, state, agent count, spend against budget (spend from `GetServiceReport` grouped by team, one call per page), cost center, expiry (ephemeral only); filters kind and state; `?view=budgets` columns | WEB-US-13.1, WEB-1 (part) | M1-T1 |
-| [ ] | M1-T3 | S2 *Actions*: *Suspend*, *Resume*, *Delete* (type the slug), *Set ceiling* (API `ValidationError` below the budget shown), *Raise ceiling temporarily* (amount, expiry, reason; row shows the override and when it ends) | WEB-US-13.2, WEB-US-13.3, D34 | M1-T2 |
-| [ ] | M1-T4 | S2 states: *Suspended*; after deletion *Deleted* with usage, cost and history links still readable; *Delete* only for service admins; team-admin or viewer opening `/teams` gets the not-found page | WEB-US-13.4, WEB-US-13.5 | M1-T2 |
-| [ ] | M1-T5 | S3 wizard: details, models and network, budget, members, review; *Next* gated per step; review shows everything and the CLI command; `budgetStepVariants.ts` list (P2 adds its line) | WEB-US-14.1, WEB-6 | M1-T1, M1-L3 |
-| [ ] | M1-T6 | S3 step 1 required service tags with allowed values as selects (cannot create without them); server `ValidationError` highlights named fields; sign-in provider select only with more than one provider, default chosen | WEB-US-14.2, WEB-US-14.3 | M1-T5 |
-| [ ] | M1-T7 | After *Create* the team appears in S2 as *Reconciling* and turns *Ready* without a reload | WEB-US-14.4, WEB-US-9.2 (part) | M1-T5, M1-Q3 |
-| [ ] | M1-T8 | Team detail page `/teams/:teamId/admin` (service admins) with `tabs.ts` for S6 and guardrails; summary panel | WEB-1 (part) | M1-T2 |
-| [ ] | M1-T9 | e2e for S2 and S3 (fake API), axe, visual baselines S2 (`02`) and S3 (`03`) | WEB-US-42.1 (part), WEB-US-42.2 (part) | M1-T3..T8 |
+| [x] | M1-T1 | `TeamsPort`, SDK adapter and use cases: list, get, create, update (incl. guardrail fields), delete, suspend, resume, status, models list/put, tags get/put, service-tag list for S3 | WEB-US-13.1 (part) | M1-Q1 |
+| [x] | M1-T2 | S2 table: slug, kind, state, agent count, spend against budget (spend from `GetServiceReport` grouped by team, one call per page), cost center, expiry (ephemeral only); filters kind and state; `?view=budgets` columns | WEB-US-13.1, WEB-1 (part) | M1-T1 |
+| [x] | M1-T3 | S2 *Actions*: *Suspend*, *Resume*, *Delete* (type the slug), *Set ceiling* (API `ValidationError` below the budget shown), *Raise ceiling temporarily* (amount, expiry, reason; row shows the override and when it ends) | WEB-US-13.2, WEB-US-13.3, D34 | M1-T2 |
+| [x] | M1-T4 | S2 states: *Suspended*; after deletion *Deleted* with usage, cost and history links still readable; *Delete* only for service admins; team-admin or viewer opening `/teams` gets the not-found page | WEB-US-13.4, WEB-US-13.5 | M1-T2 |
+| [x] | M1-T5 | S3 wizard: details, models and network, budget, members, review; *Next* gated per step; review shows everything and the CLI command; `budgetStepVariants.ts` list (P2 adds its line) | WEB-US-14.1, WEB-6 | M1-T1, M1-L3 |
+| [x] | M1-T6 | S3 step 1 required service tags with allowed values as selects (cannot create without them); server `ValidationError` highlights named fields; sign-in provider select only with more than one provider, default chosen | WEB-US-14.2, WEB-US-14.3 | M1-T5 |
+| [x] | M1-T7 | After *Create* the team appears in S2 as *Reconciling* and turns *Ready* without a reload | WEB-US-14.4, WEB-US-9.2 (part) | M1-T5, M1-Q3 |
+| [x] | M1-T8 | Team detail page `/teams/:teamId/admin` (service admins) with `tabs.ts` for S6 and guardrails; summary panel | WEB-1 (part) | M1-T2 |
+| [x] | M1-T9 | e2e for S2 and S3 (fake API), axe, visual baselines S2 (`02`) and S3 (`03`) | WEB-US-42.1 (part), WEB-US-42.2 (part) | M1-T3..T8 |
 
 ### M1-O · Team overview (T1, V1)
 

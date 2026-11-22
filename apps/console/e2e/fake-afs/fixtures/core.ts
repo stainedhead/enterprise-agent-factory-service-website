@@ -1,4 +1,15 @@
+import { readFileSync } from "node:fs";
 import type { Fixture } from "./index.js";
+
+// A service admin holds every permission (contract: `servicePermissions` is "all for service admins").
+const ALL_PERMISSIONS: string[] = (
+  JSON.parse(
+    readFileSync(
+      new URL("../../../../../packages/sdk/contract/permissions.json", import.meta.url),
+      "utf8",
+    ),
+  ) as { permissions: { name: string }[] }
+).permissions.map((p) => p.name);
 
 const ts = "2026-11-21T18:00:00Z";
 
@@ -7,7 +18,7 @@ export const TEAMS = [
   { id: "team_01JD2Q3R4S5T6V7W8X9Y0Z0002", slug: "platform", displayName: "Platform" },
 ] as const;
 
-export const team = (t: (typeof TEAMS)[number]) => ({
+export const team = (t: { id: string; slug: string; displayName: string }) => ({
   allowedAwsAccounts: [],
   createdAt: ts,
   displayName: t.displayName,
@@ -88,7 +99,7 @@ export const coreFixtures: readonly Fixture[] = [
               principal: principalBody,
               serviceAdmin: true,
               securityOperator: false,
-              servicePermissions: [],
+              servicePermissions: ALL_PERMISSIONS,
               teams: [],
             },
           };

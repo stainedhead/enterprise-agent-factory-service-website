@@ -61,6 +61,7 @@ architectural ones into ADRs (`docs/architectural-decision-record.md`, ADR-005 o
 | CQ-5 | root (J) | OQ-W1: mockups for S10, S11, T14, T15; T7 in the root IA | Open |
 | CQ-6 | root (J) / `-restapi` | OQ-W8: what the agent *Logs* tab should show | Open; interim WD-29 |
 | CQ-7 | platform, IdP admins | Dev environment, seeded users, IdP SPA registrations, CloudFront and `config.json` per environment | Open; `e2e:dev` only |
+| CQ-8 | `-restapi` | `Team` and the service reports carry no agent count, so the S2 *Agents* column and the S1 agent total cannot be filled from one call | Open; S2 shows "—" (hover says why); S1 counts from the same source once available |
 
 ## 3. Edge cases and solutions (seeded at spec time; extend during implementation)
 
@@ -96,6 +97,13 @@ architectural ones into ADRs (`docs/architectural-decision-record.md`, ADR-005 o
 | DV-9 | Non-secret form drafts are serialised to `sessionStorage` (`afs.drafts`) for the top-level re-authentication redirect and restored then removed at boot; secret values are never drafts and `SecretInput`s are cleared on expiry | M0-A7 |
 | DV-10 | `OidcClient` is validated against an in-process fake IdP (`e2e/fake-afs/idp.ts`, shared with the Bun IdP server); ID-token signatures are not verified in the browser (oauth4webapi does not, TLS to the token endpoint is the trust root) | M0-A4 |
 | DV-6 | SDK tests set `X-Request-Id` limits and Retry-After behaviour with an injected `sleep`; non-JSON error bodies map known statuses (401/403/404/412/428/429/503) to their code and others to `InternalError` | M0-C2 |
+| DV-11 | Use cases of one area are methods of one class (`TeamsUseCases`) instead of one class per file; each method is one use case | M1-T1 |
+| DV-12 | `AppServices` (`presentation/services.tsx`) is built by `buildServices()` in `main/wiring.ts` as a `Partial`: an area no stream has wired is absent and `useService` throws "not wired"; `notImplementedPort` is no longer used for new areas (M6-X1 checks `buildServices` returns every area) | M1-T1 |
+| DV-13 | Small shared helpers added without an owning stream: `components/Controls.tsx` (`TextInput`, `SelectInput`, `Card`, `Toolbar`), `hooks/gate.ts` (`gate(me, permission, teamId)` → "Requires <role>"), `testing/screen.tsx` (`renderScreen`), `testing/teams.ts` (fake teams port) | M1-T2 |
+| DV-14 | The browser-global rule in `architecture.test.ts` ignores a name inside a hyphenated word (`context-window` in the generated CLI table); a red-case test proves a real `window` or `fetch` reference is still caught | M1-L1 |
+| DV-15 | `codegen` writes a second target, `apps/console/src/domain/generated/cliOperations.ts`, from `consoleEmitters` (`emitters.ts`); `codegen:check` covers both. `scratchSizeGiB` becomes `--scratch-size-gib`; only credentials in `SECRET_FIELDS` are CLI secrets (a write-only `ceilingOverrideReason` is an ordinary flag); a secret `value` renders `--secret-value file://<path>` | M1-L1 |
+| DV-16 | The fake AFS server tracks resource versions from every response (single resources and list items) so `If-Match` is judged against what the console saw; fixture modules may register a reset in `fixtureResets`; the seeded service admin now holds every permission in `servicePermissions` (the contract says "all for service admins") | M1-T9 |
+| DV-17 | `/teams/:teamId/admin` and `/teams/new` have no navigation item, so the route guard cannot hide them; their screen entry points (`s2-teams/index.tsx`, `s3-create-team/index.tsx`) render the not-found page for anyone but a service admin | M1-T4 |
 
 ## 5. Lessons learned
 

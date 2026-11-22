@@ -23,7 +23,7 @@ export function FormField({
   children,
 }: {
   label: string;
-  hint?: string;
+  hint?: string | undefined;
   error?: string | undefined;
   children: ReactElement<Record<string, unknown>>;
 }) {
