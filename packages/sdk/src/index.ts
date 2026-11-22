@@ -17,3 +17,11 @@ export type {
 } from "./core/types.js";
 export { metaOf } from "./core/types.js";
 export * from "./generated/index.js";
+export {
+  WaitError,
+  type WaitFailure,
+  type WaitOptions,
+  type WaitStatus,
+  type WaitTarget,
+  waitFor,
+} from "./resources/wait.js";

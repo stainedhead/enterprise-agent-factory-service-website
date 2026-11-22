@@ -39,13 +39,13 @@
 | Milestone | Streams | Tasks | Done |
 |---|---|---|---|
 | M0 Foundations | 10 (+ exit) | 69 | 69 |
-| M1 Teams & access | 10 (+ exit) | 46 | 10 |
+| M1 Teams & access | 10 (+ exit) | 46 | 11 |
 | M2 Agents & secrets | 7 (+ exit) | 41 | 0 |
 | M3 Spend control | 6 (+ exit) | 24 | 0 |
 | M4 Production readiness | 8 (+ exit) | 34 | 0 |
 | M5 Budgeted workloads and swarms | 4 (+ exit) | 19 | 0 |
 | M6 CVE remediation and completion | 6 (+ exit) | 26 | 0 |
-| **Total** | **51** | **259** | **79** |
+| **Total** | **51** | **259** | **80** |
 
 ## External dependencies and contract questions
 
@@ -253,7 +253,7 @@ Owns: `packages/sdk/src/resources/wait.ts` (+ one export line in `src/index.ts`)
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M1-K1 | `waitFor(resource, {until, timeoutMs, signal})`: polls the resource's status getter every 5 s for 2 min then 30 s; resolves when the phase is in `until` and `observedGeneration ≥ generation`; rejects with the status on `Failed`, on `Degraded` unless targeted, on `timeoutMs` (default 10 min) and on abort; size budget kept | WEB-US-4.1, SDK-7, W-1 | — |
+| [x] | M1-K1 | `waitFor(resource, {until, timeoutMs, signal})`: polls the resource's status getter every 5 s for 2 min then 30 s; resolves when the phase is in `until` and `observedGeneration ≥ generation`; rejects with the status on `Failed`, on `Degraded` unless targeted, on `timeoutMs` (default 10 min) and on abort; size budget kept | WEB-US-4.1, SDK-7, W-1 | — |
 
 ### M1-Y · Telemetry
 
