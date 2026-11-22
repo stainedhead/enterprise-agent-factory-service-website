@@ -2,8 +2,8 @@
 
 | | |
 |---|---|
-| **Status** | Feature complete (initial scope, archived spec `261121-website-feature-complete`). **Paperclip collaboration change added 2026-11-22**: SDK-12..16, WEB-23..36, WEB-US-43..61, milestones C1-SDK to C4 (§10.1), reviewed with `review-prd` the same day (§13). Not started; the pinned contract is still v1.1.0 (SDK-16) |
-| **Change** | [Paperclip team collaboration PRD](https://github.com/stainedhead/enterprise-agent-factory-service/blob/main/paperclip-team-collaboration-PRD.md) (§6 requirements COL-*, SEC-7; §7.4 and §7.5 stories), API contract v1.3.0 (§3, §4.4b, §4.4c), mockups T16 and V3 |
+| **Status** | Feature complete (initial scope, archived spec `261121-website-feature-complete`). **Paperclip collaboration change added 2026-11-22**: SDK-12..16, WEB-23..37, WEB-US-43..62, milestones C1-SDK to C4 (§10.1), reviewed with `review-prd` the same day and aligned to API contract v1.3.1 (PC-D20..PC-D31, §13). Not started; the pinned contract is still v1.1.0 (SDK-16) |
+| **Change** | [Paperclip team collaboration PRD](https://github.com/stainedhead/enterprise-agent-factory-service/blob/main/paperclip-team-collaboration-PRD.md) (§6 requirements COL-*, SEC-7; §7.4 and §7.5 stories), API contract v1.3.1 (§3, §4.4b, §4.4c), mockups T16 and V3 |
 | **Author** | J (Enterprise Architecture), drafted with Claude |
 | **Parent** | [Root PRD](https://github.com/stainedhead/enterprise-agent-factory-service/blob/main/enterprise-agent-factory-service-initial-PRD.md) (§4 roles; §5 UX, IA and screens; §6.14 stories US-1..US-26; §9 release plan; §10.1 decisions D23–D57); [Paperclip change PRD](https://github.com/stainedhead/enterprise-agent-factory-service/blob/main/paperclip-team-collaboration-PRD.md) (US-27..US-33, ADR-016) |
 | **Consumes** | [API contract](https://github.com/stainedhead/enterprise-agent-factory-service/blob/main/docs/contracts/api-contract.md) via `-restapi/api/openapi.yaml`, pinned at a release tag (§9) |
@@ -33,7 +33,7 @@ in one Bun workspace:
 ### 1.1 The Paperclip change: problem and goals
 
 **Problem.** The feature-complete console and SDK know nothing of Paperclip, the board, chat and roster that the Agentic Teammates design gives each team. A team-admin cannot create the one collaboration agent, switch its public web UI and REST API, connect the team's agents to it or see who used it;
-viewers and the new *team collaborator* role cannot find it or understand what they may do there; service admins cannot allow or forbid public collaboration per team and service-wide; and `@afs/sdk` has no typed calls for any of it. The API and contract for this exist (API contract v1.3.0); this repository's job is the typed client and the screens.
+viewers and the new *team collaborator* role cannot find it or understand what they may do there; service admins cannot allow or forbid public collaboration per team and service-wide; and `@afs/sdk` has no typed calls for any of it. The API and contract for this exist (API contract v1.3.1); this repository's job is the typed client and the screens.
 
 | ID | Goal | Measure |
 |---|---|---|
@@ -41,7 +41,7 @@ viewers and the new *team collaborator* role cannot find it or understand what t
 | WG2 | Every role sees, in the console, exactly what it may do with collaboration | Permission table tests for all five new permissions across roles; V3 and every collaboration control disabled with the right tooltip; no mutating request from a viewer or collaborator session |
 | WG3 | The public surfaces are never switched on by accident or without knowing why they are off | Confirmation before turning a surface on; every blocked switch names its reason (§5, WEB-US-44) |
 | WG4 | No secret or Paperclip content ever enters the console | Sentinel scan over T16 and T4 finds nothing; no Paperclip key field exists |
-| WG5 | The SDK covers the new contract completely and releases first | Operation coverage test green at v1.3.0; `@afs/sdk` released (minor) before any console story starts |
+| WG5 | The SDK covers the new contract completely and releases first | Operation coverage test green at v1.3.1; `@afs/sdk` released (minor) before any console story starts |
 
 ## 2. Scope and non-goals
 
@@ -81,15 +81,15 @@ SDK-12..SDK-16 are the Paperclip change and are built first (milestone C1-SDK, �
 | SDK-9 | Works in browsers (§7 versions), Bun 1.4 and Node 22; ESM only; `sideEffects: false`, tree-shakeable; core ≤ 25 KB gzip; TSDoc on every export, all exported from `src/index.ts` | IF-3 | P0 | WEB-US-4 |
 | SDK-10 | Wire fidelity: money stays a decimal string (`Money` type, never `number`); enums are open (unknown values pass through); unknown fields are ignored without error; `X-Request-Id` can be sent and is exposed on every response and error; non-JSON responses (CSV, kubeconfig YAML, `204`) are handled; a non-JSON error body still yields an `AfsError`; `X-Afs-Contract-Version` is exposed and compared with the SDK's pinned version (D47) | IF-1, IF-3, BUD-1 | P0 | WEB-US-5 |
 | SDK-11 | Secret values (`secrets.create`, `secrets.putValue`, `secrets.rotate`) and `apiKeys.create().secretKey` are never logged, cached by the SDK, or included in errors, debug hooks or retries' diagnostics | SEC-1 | P0 | WEB-US-6 |
-| SDK-12 | **Collaboration resource** (Paperclip PRD COL-34, API contract §4.4b). Generated from the pinned contract: `collaboration.get(teamId)`, `collaboration.put(resource \| {teamId, version}, body)`, `collaboration.links.list(teamId, {linkState?, connect?})` (async iterator and `.pages()`), `collaboration.connectAgent(teamId, agentId, {paperclipAgentId?})`, `collaboration.disconnectAgent(teamId, agentId)`, `collaboration.rotateKeys(teamId, {names?})` and `admin.collaborationEndpoints.list({teamId?, state?})` (iterator, `.pages()`, `asCsv()`). Types `TeamCollaboration`, `CollaborationLink`, `CollaborationEndpoint` and `RotateCollaborationKeysResult` are exported. `put` follows SDK-4 (`If-Match` from the resource's `version`; given only an id it reads first). `connectAgent`, `disconnectAgent` and `rotateKeys` get a generated `Idempotency-Key`. The resource adds at most 3 KB gzip (SDK size rule) | COL-34, COL-35 | P0 (get, put, connect, disconnect), P1 (links, rotate), P2 (endpoints) | WEB-US-43 |
-| SDK-13 | **Fields added to existing resources.** `Agent.role` (`worker` \| `collaboration`, create-only) and `Agent.collaboration` (`{connect, paperclipAgentId?, linkState, lastSyncedAt?, lastError?}`), `agents.list(teamId, {role?})`, `agents.create()` accepting `role` and `collaboration`; `Team.mayExposeCollaboration` on `teams.create()` and `teams.update()`; `Secret.managedBy` (`user` \| `afs` \| `paperclip`) and `secrets.list(teamId, {managedBy?})`; `AgentTemplate.capabilities` (`paperclip`), `agentTemplates.list({capability?})` and `admin.agentTemplates.put()` accepting `capabilities`; `IdentityProvider.collabClientId` and `collabClientSecretArn` on the admin identity provider methods (never on `ListSignInProviders`); role `team_collaborator` on `Member.role`, `ApiKey.role` and `Role` unions; report kind `collaboration` on `reports.team()` and `reports.service()` with `groupBy` `surface`, `reason`, `person`, typed measures `signIns`, `uniquePeople`, `requests`, `deniedRequests`, `secretDetections` and row fields `principal` and `serviceAdminEntry`. All enums stay open unions (SDK-10) | COL-1, COL-10, COL-34, COL-36, SEC-7, ACC-2 | P0 (P2 for the report) | WEB-US-46 |
+| SDK-12 | **Collaboration resource** (Paperclip PRD COL-34, API contract §4.4b). Generated from the pinned contract: `collaboration.get(teamId)`, `collaboration.put(resource \| {teamId, version}, body)`, `collaboration.links.list(teamId, {linkState?, connect?})` (async iterator and `.pages()`), `collaboration.connectAgent(teamId, agentId, {paperclipAgentId?})`, `collaboration.disconnectAgent(teamId, agentId)`, `collaboration.rotateKeys(teamId, {names?})` and `admin.collaborationEndpoints.list({teamId?, state?})` (iterator, `.pages()`, `asCsv()`). Types `TeamCollaboration`, `CollaborationLink`, `CollaborationEndpoint` and `RotateCollaborationKeysResult` are exported. `put` follows SDK-4 (`If-Match` from the resource's `version`; given only an id it reads first). `connectAgent`, `disconnectAgent` and `rotateKeys` get a generated `Idempotency-Key`. The resource adds at most 3 KB gzip (SDK size rule) | COL-34, COL-35 | P0 (C1: get, put, connect, disconnect, links; C2: endpoints; PC-D28), P1 (rotate) | WEB-US-43 |
+| SDK-13 | **Fields added to existing resources.** `Agent.role` (`worker` \| `collaboration`, create-only) and `Agent.collaboration` (`{connect, paperclipAgentId?, linkState, lastSyncedAt?, lastError?}`), `agents.list(teamId, {role?})`, `agents.create()` accepting `role` and `collaboration`; `Team.mayExposeCollaboration` on `teams.create()` and `teams.update()`; `Secret.managedBy` (`user` \| `afs` \| `paperclip`) and `secrets.list(teamId, {managedBy?})`; `AgentTemplate.capabilities` (`paperclip`), `agentTemplates.list({capability?})` and `admin.agentTemplates.put()` accepting `capabilities`; `SwarmTemplate.spec.collaboration` (`{templateId}`, optional) on the swarm template methods (PC-D29); `IdentityProvider.collabClientId` and `collabClientSecretArn` on the admin identity provider methods (never on `ListSignInProviders`); role `team_collaborator` on `Member.role`, `ApiKey.role` and `Role` unions; report kind `collaboration` on `reports.team()` and `reports.service()` with `groupBy` `surface`, `reason`, `person`, typed measures `signIns`, `uniquePeople`, `requests`, `deniedRequests`, `secretDetections` and row fields `principal` and `serviceAdminEntry`. All enums stay open unions (SDK-10) | COL-1, COL-9, COL-10, COL-34, COL-36, SEC-7, ACC-2 | P0 (P1 for `SwarmTemplate.spec.collaboration`, P2 for the report) | WEB-US-46 |
 | SDK-14 | **Endpoint helper.** `collaboration.endpointUrl(teamId)` (hand-written, `src/resources/collaboration.ts`) calls `GetTeamCollaboration` once and returns `{webUi: string \| null, restApi: string \| null, hostname: string \| null}` where a URL is non-null only when that surface is effective (`effective.webUi` / `effective.restApi`). It never calls the edge, never proxies a Paperclip request and never accepts, stores or logs a Paperclip key | COL-19, COL-34 | P0 | WEB-US-43 |
 | SDK-15 | **Errors and wire fidelity for the new contract.** `AfsError.isSecretDetected` (code `SecretDetected`, status 422; returned only by the edge, so the SDK never sees it from `afs-api`, but the getter completes the per-code set of SDK-5); exported constants for the new `details.reason` values (`collaboration_agent_exists`, `collaboration_agent_missing`, `managed_secret`, `hostname_held`, `team_suspended`, `master_key_not_rotatable`, `reserved_name`, `managed_registration`, and the `ValidationError` field reasons `collab_base_domain_unset`, `collab_public_endpoints_off`, `collaboration_not_allowed_for_team`, `provider_without_collab_client`, `collaboration_agent_not_ready`) so callers do not hard-code strings; unknown reasons still pass through as strings. `TeamCollaboration.hostname`, `webUiUrl` and `restApiUrl` may be `null` and are typed so | IF-3 | P0 | WEB-US-47 |
-| SDK-16 | **Contract resync.** The pin in `packages/sdk/contract/` (`openapi.yaml`, `permissions.json`, `operations.json`, `contract.lock.json`) is resynced with `bun run contract:sync` to the `-restapi` release tag that carries API contract v1.3.0 (today it holds v1.1.0 content). `contract.lock.json` then records `contractVersion` `1.3.0` (or the later tag's), the new tag and its checksums; the `operationId` → method table check (WEB-US-1) covers the seven new operations; `permissions.json` carries the `team_collaborator` role and the five `collaboration:*` permissions. Generated code is regenerated by `codegen`, never hand-edited. This PRD update does not touch the pin | IF-3 | P0 | WEB-US-43 |
+| SDK-16 | **Contract resync.** The pin in `packages/sdk/contract/` (`openapi.yaml`, `permissions.json`, `operations.json`, `contract.lock.json`) is resynced with `bun run contract:sync` to the `-restapi` release tag that carries API contract v1.3.1 (today it holds v1.1.0 content). `contract.lock.json` then records `contractVersion` `1.3.1` (or the later tag's), the new tag and its checksums; the `operationId` → method table check (WEB-US-1) covers the seven new operations; `permissions.json` carries the `team_collaborator` role and the five `collaboration:*` permissions. Generated code is regenerated by `codegen`, never hand-edited. This PRD update does not touch the pin | IF-3 | P0 | WEB-US-43 |
 
 ### 3.2 Console
 
-WEB-23..WEB-36 are the Paperclip change (milestones C1 to C4, §10.1).
+WEB-23..WEB-37 are the Paperclip change (milestones C1 to C4, §10.1).
 
 | Id | Requirement | Product reqs | Pri | AC |
 |---|---|---|---|---|
@@ -125,10 +125,11 @@ WEB-23..WEB-36 are the Paperclip change (milestones C1 to C4, §10.1).
 | WEB-30 | **Permission mirror and the collaborator role.** `domain/permission.ts` gains role `team_collaborator`, the five `collaboration:*` permissions and the guardrail coverage of `mayExposeCollaboration`, exactly as the contract §3 and the pinned `permissions.json` define them; the drift test passes against the new fixture; the header, team switcher and tooltips know the role; no screen offers an action the role lacks, and a collaborator session sends no mutating request from any team screen except where its permissions allow (none in the console) | ACC-2, COL-18, PC-D6 | P0 | WEB-US-55 |
 | WEB-31 | **Members and API keys with the new role.** T6 role pickers (members and API keys) offer *Team collaborator* beside *Team admin* and *Team viewer*; lists show the role; viewers and collaborators see the same read-only controls and no *API keys* tab (D50) | ACC-2, ACC-4 | P0 | WEB-US-56 |
 | WEB-32 | **Team guardrail.** S3 (create team) and the team administration page (S2 → `/teams/:teamId/admin`) carry the checkbox *May publish collaboration endpoints* (`mayExposeCollaboration`, on by default, service admins only); S2 gains an optional column of it; the `hostname_held` conflict is explained on S3 | COL-23, TEAM-9 | P0 | WEB-US-52 |
-| WEB-33 | **S10 *Collaboration* tab** (`/settings/collaboration`): the seven `collab.*` settings with their allowed ranges and the service-level list of every team's endpoint (`ListCollaborationEndpoints`: team, hostname, web UI, REST API, state, last access) with CSV download | COL-23, COL-30, COL-36 | P0 (settings), P2 (list) | WEB-US-57 |
+| WEB-33 | **S10 *Collaboration* tab** (`/settings/collaboration`): the seven `collab.*` settings with their allowed ranges and the service-level list of every team's endpoint (`ListCollaborationEndpoints`: team, hostname, web UI, REST API, state, last access) with CSV download | COL-23, COL-30, COL-36 | P0 (C2: settings and the endpoint list, PC-D28) | WEB-US-57 |
 | WEB-34 | **S10 identity providers and agent templates.** The identity provider form takes the optional collaboration client (`collabClientId` and a Secrets Manager reference `collabClientSecretArn`, never a value); the agent templates tab shows and edits `capabilities` | COL-17, COL-2, PC-OQ-6 | P0 | WEB-US-58 |
 | WEB-35 | **Collaboration report kind** (P2) in T11 and S8: a *Collaboration* report with surface, reason and person grouping, CSV download, not schedulable | COL-36 | P2 | WEB-US-59 |
 | WEB-36 | **Key operations, managed mode and guidance on T16** (P1): *Rotate Paperclip keys*, the registration mode in *Edit endpoints*, the unmanaged-agents alert, the first-admin bootstrap and low-trust guidance panels | COL-7, COL-12, COL-13, COL-29, COL-32 | P1 | WEB-US-50 |
+| WEB-37 | **Swarm template collaboration** (P1, milestone C4): the swarm template form (P5) takes an optional collaboration agent template (`spec.collaboration.templateId`, an agent template with the `paperclip` capability) so the swarm's people can watch it; pools never connect to Paperclip | COL-9 | P1 | WEB-US-62 |
 
 ## 4. Information architecture and routes
 
@@ -653,7 +654,7 @@ client for every operation.
 These stories implement the website share of the root change PRD's §7.4 (`WEB-US-43`) and §7.5 (`WEB-US-44`,
 `WEB-US-45`), split finer where one story would be too large to build and review. **The SDK stories come
 first and are built and released before any console story** (§10, milestone C1-SDK). The contract is the root
-`docs/contracts/api-contract.md` v1.3.0 (§3, §4.4b, §4.4c, §4.6, §4.9, §6, §7); names below are theirs. Mockups T16
+`docs/contracts/api-contract.md` v1.3.1 (§3, §4.4b, §4.4c, §4.6, §4.9, §6, §7); names below are theirs. Mockups T16
 and V3 exist (root `docs/ui/30-ta-collaboration.png`, `31-tv-collaboration.png`); every other changed screen
 has no new mockup and follows its current screen (OQ-WP2). "Proven by" names the test file and test title
 the story adds; none exist yet. Vitest files sit next to their code; Playwright files are under
@@ -664,13 +665,13 @@ the story adds; none exist yet. Vitest files sit next to their code; Playwright 
 | WEB-US-43 SDK for collaboration | WEB-US-43 (resource, helper, resync), WEB-US-46 (fields on existing resources), WEB-US-47 (errors and wire fidelity) |
 | WEB-US-44 Collaboration page | WEB-US-44 (T16 core), WEB-US-48 (connected agents), WEB-US-49 (managed secrets, recent access), WEB-US-50 (keys, managed mode, guidance), WEB-US-51 (V3), WEB-US-53 (T1, V1, T2 and navigation) |
 | WEB-US-45 Create agent and team guardrail | WEB-US-45 (T3), WEB-US-52 (S2, S3), WEB-US-54 (T4, V2), WEB-US-56 (T6), WEB-US-57 (S10 tab), WEB-US-58 (S10 providers and templates) |
-| *(not in the change PRD)* | WEB-US-55 (permission mirror), WEB-US-59 (collaboration report), WEB-US-60 (fake API), WEB-US-61 (baselines and axe) |
+| *(not in the change PRD)* | WEB-US-55 (permission mirror), WEB-US-59 (collaboration report), WEB-US-60 (fake API), WEB-US-61 (baselines and axe), WEB-US-62 (swarm template collaboration, COL-9) |
 
 ### SDK: collaboration
 
 **WEB-US-43 · SDK collaboration resource.** *(refines US-27, US-30, US-31, US-33; SDK-12, SDK-14, SDK-16; milestone C1-SDK)*
 As a pipeline or console author, I want typed calls for the collaboration operations, so that I never hand-write them.
-- Given the contract resynced to v1.3.0 (SDK-16), when `bun run contract:check` runs, then it passes, and the
+- Given the contract resynced to v1.3.1 (SDK-16), when `bun run contract:check` runs, then it passes, and the
   `operationId` → method coverage test (WEB-US-1) maps exactly: `GetTeamCollaboration` → `collaboration.get()`,
   `PutTeamCollaboration` → `collaboration.put()`, `ListCollaborationLinks` → `collaboration.links.list()`,
   `ConnectAgentToCollaboration` → `collaboration.connectAgent()`, `DisconnectAgentFromCollaboration` →
@@ -698,7 +699,7 @@ As a pipeline or console author, I want typed calls for the collaboration operat
   replays the contract's collaboration examples (the `TeamCollaboration`, `CollaborationLink` and
   `CollaborationEndpoint` JSON of §4.4b) through the SDK without a type error.
 - The new resource runs in the Chromium, Bun 1.4 and Node 22 matrix of WEB-US-4.
-- Proven by: `packages/sdk/test/contract-replay.test.ts › collaboration examples`; `packages/sdk/tools/contract-sync.test.ts › pins v1.3.0 with the team_collaborator role`;
+- Proven by: `packages/sdk/test/contract-replay.test.ts › collaboration examples`; `packages/sdk/tools/contract-sync.test.ts › pins v1.3.1 with the team_collaborator role`;
   `packages/sdk/src/generated/operation-coverage.test.ts › every operationId has a method (collaboration)`;
   `packages/sdk/src/resources/collaboration.test.ts › put sends If-Match`, `› connectAgent reuses the idempotency key`,
   `› links.list follows nextToken`, `› endpointUrl returns only effective surfaces`, `› endpointUrl never carries a paperclip key`;
@@ -719,6 +720,7 @@ As a pipeline or console author, I want typed calls for the collaboration operat
 - `admin.identityProviders.create()` and `.update()` accept `collabClientId` and `collabClientSecretArn`;
   `collabClientSecretArn` without `collabClientId` is not blocked by the SDK (the API answers `ValidationError`); the
   types of `signInProviders.list()` have neither field.
+- `SwarmTemplate.spec.collaboration?: {templateId: string}` is typed on `swarmTemplates.get()`, `.create()` and `.update()` (PC-D29); absent when not set; the SDK does not validate that the template has `paperclip` (the API answers `ValidationError`, `field: spec.collaboration.templateId`).
 - `Member.role`, `ApiKey.role` and the exported `TeamRole` accept `"team_collaborator"`; a service-level key type
   does not include it.
 - `reports.team(teamId, "collaboration", {range: "7d", groupBy: ["day", "person"]})` returns typed rows with
@@ -728,7 +730,7 @@ As a pipeline or console author, I want typed calls for the collaboration operat
   decimal strings (WEB-US-5); the collaboration report has no money field.
 - Proven by: `packages/sdk/src/resources/agents.test.ts › role and collaboration`, `teams.test.ts › mayExposeCollaboration`,
   `secrets.test.ts › managedBy filter and open union`, `agentTemplates.test.ts › capabilities`, `identityProviders.test.ts › collab client fields`,
-  `members.test.ts › team_collaborator`, `reports.test.ts › collaboration kind`, `packages/sdk/test/contract-replay.test.ts › existing resources at 1.3.0`.
+  `members.test.ts › team_collaborator`, `reports.test.ts › collaboration kind`, `packages/sdk/test/contract-replay.test.ts › existing resources at 1.3.1`.
 
 **WEB-US-47 · SDK errors and wire fidelity for the new contract.** *(refines US-32; SDK-15, SDK-10, SDK-11)*
 - Given a fake response `422` with `{code: "SecretDetected", details: {patterns: ["aws_access_key"]}}`, then the
@@ -872,7 +874,7 @@ As a team-admin, I want to connect agents to Paperclip and see each link, so tha
 - **Sign-up and registration conditions.** `PaperclipReady=False` with reason `OpenSignUp` shows "Paperclip sign-up is open. Close it in Paperclip's settings."; `RegistrationHealthy=False` shows the condition's message.
 - **Guidance** in *Info*: (a) how access works (an AFS role decides on every request; viewers read, collaborators and team-admins write; people may also be asked to sign in to Paperclip, PC-OQ-1); (b) in `manual` mode, how to register agents (create the agent in
   Paperclip, record its id with *Connect*, store its key as `paperclip-agent-api-key`) and the first-admin bootstrap (COL-32): "The first Paperclip admin invite is written to the collaboration agent's log" with *Open agent logs* linking to the agent's logs tab on T2;
-  in `managed` mode "AFS sends the first admin invite through your team's notification channels"; (c) Paperclip's `low_trust_review` trust preset is recommended for projects that ingest external content such as synced Jira and GitHub items and untrusted pull requests (COL-29); AFS does not set it.
+  in `managed` mode "AFS emails the first admin invite directly to the team-admin who created the collaboration agent" (PC-D27: the invite URL is a credential; the console never shows, stores or requests it, and the event `collaboration.bootstrap_completed` carries no URL); (c) Paperclip's `low_trust_review` trust preset is recommended for projects that ingest external content such as synced Jira and GitHub items and untrusted pull requests (COL-29); AFS does not set it.
 - Proven by: `…/t16-collaboration/RotateKeysDialog.test.tsx › master key is disabled`, `› requires acknowledgement`, `› sends the chosen names`, `› no value shown`;
   `…/EditEndpointsDialog.test.tsx › managed disabled until Ready`; `…/CollaborationPage.test.tsx › unmanaged agents alert`, `› open sign-up alert`, `› info panel guidance by mode`;
   `e2e/specs/collaboration/keys.spec.ts › rotate signs everyone out notice`, `› edit endpoints to managed`.
@@ -882,7 +884,7 @@ As a viewer or collaborator, I want to see how our Paperclip is set up and open 
 - Given a caller without `collaboration:manage` (viewer, collaborator) and with `collaboration:read`, the page is the V3 variant: an information
   banner at the top, "You have read-only access to this page. You can open Paperclip and see how it is set up. Team-admins (<names>) change the endpoints and connections. Your role
   decides what you can do inside Paperclip: viewers read, collaborators also write."; `<names>` are up to 3 emails of user bindings (and group names) with role `team_admin` from `ListMembers`, then "and N more"; when
-  `ListMembers` fails or has no team-admin, the parenthesis is omitted (WP-D14). The banner is a labelled region, not an alert.
+  `ListMembers` fails or has no team-admin, the parenthesis is omitted (WP-D14; `Member` has no display name, PC-D30). The banner is a labelled region, not an alert.
 - Every switch, *Actions* (the whole menu), *Connect*, *Disconnect* and each row's *Connected* switch is visible and disabled with the tooltip "Requires team-admin"; the *Actions* tooltip is shown on focus as well as hover.
   *Open Paperclip* works for anyone with `collaboration:access` (every team role) under the precedence of WEB-US-44.
 - All panels render as for team-admins (status, endpoints, connected agents, managed secrets, recent access) from the same calls; the CLI panel reads "Equivalent CLI for the current settings".
@@ -917,7 +919,7 @@ As a team-admin, I want to create the team's collaboration agent from T3, so tha
   the CLI command includes `--may-expose-collaboration` or `--no-may-expose-collaboration`. Only service admins reach S3 (WEB-US-13).
 - The team administration page (`/teams/:teamId/admin`, S2 detail) shows the same checkbox, editable only with `teams:set-guardrails` (service admins); saving sends `UpdateTeam` with `If-Match` and `{mayExposeCollaboration}`; a `412` follows WEB-11. S2's table has an optional column *May publish collaboration* (hidden by default, in preferences; filterable).
 - Given a service admin turns it off for a team with a live endpoint, the page says "Both public surfaces stop within a minute. The team's choices are kept." and T16 for that team then shows the switches disabled with "Not allowed for this team by the service".
-- Given `CreateTeam` answers `409` with `details.reason = hostname_held`, S3 shows on the slug field "A team with this name had a collaboration endpoint that was deleted recently. Its hostname is held for 30 days. Choose another name." (the contract names the reason but not the operation, OQ-WP1).
+- Given `CreateTeam` answers `409` with `details.reason = hostname_held`, S3 shows on the slug field "A team with this name had a collaboration endpoint that was deleted recently. Its hostname is held for 30 days. Choose another name." (`CreateTeam` returns it for a held slug, PC-D30; the hold lasts 30 days after a team that had a collaboration agent is deleted).
 - Team-admins and viewers never see S2 or S3 (the not-found page, as today).
 - Proven by: `…/s3-create-team/CreateTeamPage.test.tsx › guardrail checkbox default on`, `› cli includes the flag`, `› hostname_held on the slug`; `…/s2-teams/TeamAdminPage.test.tsx › set guardrails only for service admin`, `› 412 reload`;
   `e2e/specs/teams/collaborationGuardrail.spec.ts › turning it off disables the switches on T16`; baselines `03-admin-create-team` re-approved.
@@ -935,7 +937,7 @@ As a team-admin, I want to create the team's collaboration agent from T3, so tha
 - The table has a *Managed by* column: `afs` → badge *Managed by AFS*, `paperclip` → badge *Managed by Paperclip*, `user` → plain "Team". A *Managed by* filter (`user`, `afs`, `paperclip`) sends `?managedBy=`.
 - Given an `afs` or `paperclip` row, *Edit*, *Put value* and *Delete* are disabled with "Managed by AFS" / "Managed by Paperclip"; if a request is forced the `409` with `details.reason = managed_secret` is shown as "This secret is managed by <AFS | Paperclip> and cannot be changed here".
 - *Rotate*: for an `afs` row it is enabled and opens a dialog without a value field ("AFS generates the new value. Agents that use it restart.", WP-D15), sending `RotateSecret` with no value; for `paperclip-secrets-master-key` it is
-  disabled with "Cannot be rotated: Paperclip could no longer decrypt its stored identities" (`master_key_not_rotatable` shown if forced); for a `paperclip` row it is disabled with "Managed by Paperclip". The value column reads "Write-only" for every row; nothing requests a value.
+  disabled with "Cannot be rotated: Paperclip could no longer decrypt its stored identities" (`master_key_not_rotatable` shown if forced); for a `paperclip` row it is disabled with "Managed by Paperclip" (a forced call returns `409 managed_secret`, PC-D30). The value column reads "Write-only" for every row; nothing requests a value.
 - A `paperclip` secret has *Bound to* "Not bindable" and its managed path is shown; the secret-binding pickers (T3 and agent edit) never list `afs` or `paperclip` secrets.
 - *Create secret* refuses, client-side with the API's reason text and again by the API (`ValidationError`, `reason: reserved_name`), the name `paperclip` and any name starting `paperclip-`, except `paperclip-agent-api-key` with scope *Agent* on a worker agent; the dialog's CLI preview and the sentinel rules of WEB-US-11 are unchanged.
 - V2 (viewer, collaborator) shows the same column and filter read-only.
@@ -943,7 +945,7 @@ As a team-admin, I want to create the team's collaboration agent from T3, so tha
   `…/SecretDialogs.test.tsx › reserved names`; `e2e/specs/secrets/managed.spec.ts › afs and paperclip rows`, `› sentinel scan still clean`; baselines `09-team-secrets`, `13-viewer-secrets` re-approved.
 
 **WEB-US-55 · Permission mirror and the team collaborator role.** *(refines US-27, US-29; WEB-30; ACC-2, PC-D6)*
-- `domain/permission.ts` gains `team_collaborator` in `Role` and in the catalog: every grant of `team_viewer` is also granted to `team_collaborator` with the same condition (`viewerKubectl`, `assignedOrOwnRepos`; OQ-WP1); plus
+- `domain/permission.ts` gains `team_collaborator` in `Role` and in the catalog: every grant of `team_viewer` is also granted to `team_collaborator` with the same condition (`viewerKubectl`, `assignedOrOwnRepos`; contract §3 and PC-D30 confirm the conditional grants are inherited); plus
   `collaboration:read` (viewer, collaborator, team-admin, service admin), `collaboration:manage` (team-admin, service admin), `collaboration:access` (viewer, collaborator, team-admin, service admin), `collaboration:contribute`
   and `collaboration:api` (collaborator, team-admin, service admin). `teams:set-guardrails` stays service admin. Security operators and workload principals get none of them.
 - The drift test compares the catalog (every permission and its roles, including `team_collaborator`) with the pinned `permissions.json` and fails on any difference, in both directions (a permission present only on one side fails).
@@ -967,7 +969,7 @@ As a team-admin, I want to create the team's collaboration agent from T3, so tha
   Each is saved with `PutSetting` (`{value}`); out-of-range values are refused client-side with the range and by the API's `ValidationError`.
 - Changing `collab.base_domain` (set, change or unset) or switching `collab.public_endpoints` off opens a confirmation naming the effect ("Every team's Paperclip address changes" / "Every team's public endpoint stops within a minute; teams' choices are kept"); `collab.content_scan = off` confirms "Credentials typed into Paperclip will no longer be blocked or detected".
   Turning `collab.allowed_source_cidrs` into a non-empty list warns "Requests from outside these ranges are blocked by the firewall".
-- The *Settings* (general) tab no longer lists `collab.*` keys (WP-D12). The service-level **endpoint list** (P2, milestone C4) calls `ListCollaborationEndpoints` and shows team (link to T16 via the team switcher semantics for service admins), hostname, web UI and REST API (dot plus word from `effective`), team state, phase, *May publish* and last access
+- The *Settings* (general) tab no longer lists `collab.*` keys (WP-D12). The service-level **endpoint list** (P0, milestone C2 with the tab, PC-D28) calls `ListCollaborationEndpoints` and shows team (link to T16 via the team switcher semantics for service admins), hostname, web UI and REST API (dot plus word from `effective`), team state, phase, *May publish* and last access
   (relative, UTC on hover) with filters `teamId` and `state` (`Ready`, `Degraded`, `Failed`, `Pending`), pagination, preferences and *Download CSV*. Team-admins, viewers and collaborators get the not-found page for the route.
 - A `403` from either call shows the access-denied alert naming `admin:settings`.
 - Proven by: `…/s10-settings/tabs/collaboration/CollaborationTab.test.tsx › seven settings and ranges`, `› confirmations`, `› cidr list parsing`, `› endpoint list and csv`, `› hidden for team roles`;
@@ -989,10 +991,19 @@ As a team-admin, I want to create the team's collaboration agent from T3, so tha
 - The T16 *Recent access* panel's *View all in Reports* link opens this report with `range=7d&groupBy=person`.
 - Proven by: `…/t11-reports/ReportsPage.test.tsx › collaboration kind and groupings`, `› no schedule action`; `…/s8-reports/ReportsPage.test.tsx › collaboration service report`; `e2e/specs/reports/reports.spec.ts › collaboration report and csv`.
 
+**WEB-US-62 · Swarm template with a collaboration agent (P5).** *(refines US-27, US-33; WEB-37; COL-9, PC-D29; priority P1, milestone C4)*
+- The swarm template create and edit form (P5, service admins) has an optional *Collaboration agent* select under the stages, pools and handoffs sections: *None* (default) or one of the enabled agent templates that have the `paperclip` capability (`ListAgentTemplates?capability=paperclip`);
+  the help reads "Teams created from this template get a Paperclip, with the web UI on and the REST API off, so the swarm's people can watch it. Pools never connect to it." A choice is sent as `spec.collaboration: {templateId}`; *None* sends no `collaboration` member.
+- A template with the field shows it on the template list and detail (*Collaboration agent: <template>* or "None"); security operators see it read-only (D37).
+- `ValidationError` with `field: spec.collaboration.templateId` (a template without `paperclip`, or disabled) highlights the select and shows the API message; the equivalent CLI command shows the template flag as `-cli` defines it (OQ-WP7).
+- The console adds nothing else for the resulting team: it appears in S2 and T16 like any team (the collaboration agent is `Pending` then `Ready`, its secrets show *Managed by AFS*); T3 on that team disables *Collaboration (Paperclip)* with "This team already has a collaboration agent".
+- Proven by: `…/p5-swarm-templates/P5.test.tsx › collaboration select lists only paperclip templates`, `› none omits the member`, `› validation error highlights the select`, `› security operator sees it read-only`;
+  `apps/console/src/application/usecases/swarmTemplates/SwarmTemplatesUseCases.test.ts › spec.collaboration round trip`; `e2e/specs/swarmTemplates/swarmTemplates.spec.ts › create with a collaboration agent`; baseline `28-admin-swarm-templates` re-approved.
+
 ### Console: test infrastructure and quality for the change
 
-**WEB-US-60 · Fake AFS API additions for e2e.** *(refines US-27..US-33; the fake API must serve contract v1.3.0)*
-- The fake AFS API (`apps/console/e2e/fake-afs`) serves the pinned v1.3.0 contract: its `Contract` loads the resynced `openapi.yaml`, and the "every operation has a fixture" and "fixtures validate against the OpenAPI" tests (`fake-afs.test.ts`) stay green with the seven new operations.
+**WEB-US-60 · Fake AFS API additions for e2e.** *(refines US-27..US-33; the fake API must serve contract v1.3.1)*
+- The fake AFS API (`apps/console/e2e/fake-afs`) serves the pinned v1.3.1 contract: its `Contract` loads the resynced `openapi.yaml`, and the "every operation has a fixture" and "fixtures validate against the OpenAPI" tests (`fake-afs.test.ts`) stay green with the seven new operations.
 - New fixture module `fixtures/collaboration.ts` (registered in `fixtures/index.ts`, with `resetCollaboration` called by the server reset) implements: `GetTeamCollaboration`, `PutTeamCollaboration` (validates like the contract: `If-Match` optional, `412` on mismatch, `ValidationError` with `details.fields[]` reasons `collab_base_domain_unset`, `collab_public_endpoints_off`, `collaboration_not_allowed_for_team`,
   `provider_without_collab_client`, `collaboration_agent_not_ready`; always accepts switching off; `409 team_suspended`), `ListCollaborationLinks` (`linkState`, `connect` filters and paging), `ConnectAgentToCollaboration` (idempotent, `paperclipAgentId` refused with `managed_registration` in managed mode; state moves `pending` → `linked` after the next two reads or a control call),
   `DisconnectAgentFromCollaboration` (`disabled`), `RotateCollaborationKeys` (`master_key_not_rotatable` for the master key; returns `signsOutEveryone` and `agentRolloutPending`) and `ListCollaborationEndpoints` (CSV capable).
@@ -1003,8 +1014,9 @@ As a team-admin, I want to create the team's collaboration agent from T3, so tha
 - **Control hooks** (a separate channel, `helpers/control.ts` and `server.ts`): `control.collab({baseDomain: string | null, publicEndpoints: boolean, mayExpose: boolean, providerHasCollabClient: boolean, phase: string, registrationMode: "manual" | "managed", teamState: "active" | "suspended"})` changes the state so the blocked-switch, suspended, not-ready and managed cases can be driven; `effective.reasons[]` is computed from them as the contract defines.
   Templates gain `capabilities` (one `paperclip-hub` template with `paperclip`); `ListSecrets` honours `managedBy`; `ListAgents` honours `role`; `GetSettings` includes the seven `collab.*` keys; the identity provider fixtures carry `collabClientId` and `collabClientSecretArn` on one provider; the collaboration report fixture honours `range`, `groupBy` and the service-level call.
   Collaboration state resets with `control.reset()`.
+- Swarm template fixtures accept and return `spec.collaboration` (and `ValidationError` for a template without `paperclip`); `CreateTeam` answers `409 hostname_held` for the slug of a seeded held hostname (control hook `control.holdHostname(slug)`).
 - The fake API holds no Paperclip content and no Paperclip key; a request recorder test shows none is ever sent or returned.
-- Proven by: `e2e/fake-afs/fake-afs.test.ts › collaboration operations`, `› put validation reasons`, `› connect moves pending to linked`, `› rotate refuses the master key`, `› collaborator me`, `› every operation has a fixture at 1.3.0`; `e2e/fake-afs/fixtures/collaboration.test.ts › seed matches the mockup`, `› second team is empty`.
+- Proven by: `e2e/fake-afs/fake-afs.test.ts › collaboration operations`, `› put validation reasons`, `› connect moves pending to linked`, `› rotate refuses the master key`, `› collaborator me`, `› every operation has a fixture at 1.3.1`; `e2e/fake-afs/fixtures/collaboration.test.ts › seed matches the mockup`, `› second team is empty`.
 
 **WEB-US-61 · Visual baselines and accessibility for the change.** *(refines US-27..US-33; WEB-10, WEB-US-42)*
 - **New baselines** (Playwright at 1440 × 900, scale 2, 0.5% pixel threshold, fixtures of WEB-US-60), each approved side by side with its mockup by the web lead, and J signs off T16 and V3 once (§8): `30-ta-collaboration` (team-admin, matches T16), `31-tv-collaboration` (viewer, matches V3), `30a-ta-collaboration-empty` (second team),
@@ -1079,7 +1091,7 @@ replaced in M0.
 | Performance (Paperclip change) | T16 sends its calls in parallel and renders each panel when its call returns; route change < 300 ms with cached data; T16 is a lazy route chunk ≤ 40 KB gzip and the initial route bundle stays ≤ 300 KB gzip; polling on T16 is one `GetTeamCollaboration` and one `ListCollaborationLinks` per interval (never one per row), only while something is `Pending`/`Reconciling`/`pending` |
 | Reliability (Paperclip change) | A failing T16 panel shows its own error and *Retry*; the other panels stay usable; an edge outage or an off surface never affects the console (it makes no call to the edge); a bulk connect continues past a failed agent and reports each result; `429` pauses T16 polling per `Retry-After` |
 | Security and privacy (Paperclip change) | No Paperclip key, boot secret, secret value or Paperclip content in state, query cache, URLs, storage, logs or telemetry (WEB-8 sentinel scan covers T16 and T4); `lastError` and `unmanagedPaperclipAgents` names are rendered as text only; the console never decides access (the API and the edge do; `can()` is UX); telemetry uses the route template `/t/:teamId/collaboration` and never a hostname, team slug or person name; the confirmation before a surface goes public is mandatory |
-| Compatibility (Paperclip change) | A console and SDK at contract v1.3.0 against an older `afs-api` shows no collaboration UI (no `collaboration:*` permission in `GetMe`) and keeps working (WEB-US-53); an unknown `managedBy`, `linkState`, `effective.reasons[]` or `details.reason` value renders as its raw string, never throws (SDK-10); a newer contract version shows the existing reload notice (D47) |
+| Compatibility (Paperclip change) | A console and SDK at contract v1.3.1 against an `afs-api` older than v1.3.0 shows no collaboration UI (no `collaboration:*` permission in `GetMe`) and keeps working (WEB-US-53); an unknown `managedBy`, `linkState`, `effective.reasons[]` or `details.reason` value renders as its raw string, never throws (SDK-10); a newer contract version shows the existing reload notice (D47) |
 | Accessibility (Paperclip change) | Switches are `role="switch"` with name, state and the blocking reason via `aria-describedby`; disabled controls keep their tooltip reachable by keyboard focus; dialogs trap focus and return it; state changes (phase, link state) are announced through the live region; the teal role colour meets 4.5:1 |
 
 ## 8. Testing approach
@@ -1091,7 +1103,7 @@ replaced in M0.
   sentinel secret test (WEB-US-11) and token storage checks (WEB-US-7).
 - **Visual:** Playwright snapshots per screen (WEB-US-42). **Owner: the web lead**, who approves each
   first baseline against the mockup and every re-baseline; J signs off the S-, T-, V- and P-series once.
-- **Paperclip change.** The contract resync is checked by `bun run contract:check`; the fake AFS API serves v1.3.0 and is validated against it (WEB-US-60); T16, V3 and the changed steps have e2e, visual and axe checks (WEB-US-61);
+- **Paperclip change.** The contract resync is checked by `bun run contract:check`; the fake AFS API serves v1.3.1 and is validated against it (WEB-US-60); T16, V3 and the changed steps have e2e, visual and axe checks (WEB-US-61);
   the permission drift test covers the collaborator role (WEB-US-55). No test talks to a real edge or a real Paperclip; the end-to-end check of signing in to a team's Paperclip is the `-restapi` edge's, and this repository adds one `@dev` smoke
   (`e2e/specs/collaboration/dev.spec.ts › open paperclip opens the team hostname in a new tab`) that runs only against a dev environment that has `collab.base_domain` set and asserts the link target and `rel`, nothing in the opened page.
 
@@ -1108,14 +1120,15 @@ replaced in M0.
 | M0 | IdP SPA app registrations in Okta and Entra ID per environment (PKCE, redirect URIs, refresh token rotation, groups claim) | J / IdP admins |
 | M0 | Dev environment with seeded test users per role for e2e | platform |
 | M1–M6 | A contract tag holding each milestone's operations before the console work starts (M1 teams, members, settings, identity providers; M2 agents, secrets, config, external systems, storage classes, agent templates (needs the `-db` `agent_templates` table, D54); M3 budget, usage, reports, notifications; M4 audit, tags, accounts, role links, exports, log delivery; M5 pools, kubeconfig, cost tag status; M6 work orders, swarm templates, `ListTeamDirectory`, service keys) | `-restapi` |
-| C1-SDK | A `-restapi` release tag carrying API contract v1.3.0 (`openapi.yaml` with the seven collaboration operations and the new fields, `operations.json`, and the permission catalog fixture `permissions.json` with `team_collaborator` and the five `collaboration:*` permissions), tagged before this repository's resync (SDK-16). Needs `-db` 000020 only transitively | `-restapi` |
-| C1 | `ListCollaborationLinks` available at C1 although the contract lists it P1 (OQ-WP5); `ListAgents?role=`, `ListSecrets?managedBy=` and `ListAgentTemplates?capability=` filters | `-restapi` |
+| C1-SDK | A `-restapi` release tag carrying API contract v1.3.1 (`openapi.yaml` with the seven collaboration operations and the new fields, `operations.json`, and the permission catalog fixture `permissions.json` with `team_collaborator` and the five `collaboration:*` permissions), tagged before this repository's resync (SDK-16). Needs `-db` 000020 only transitively | `-restapi` |
+| C1 | `ListCollaborationLinks`, `ConnectAgentToCollaboration` and `DisconnectAgentFromCollaboration` (P0, C1 in the contract, PC-D28); `ListAgents?role=`, `ListSecrets?managedBy=` and `ListAgentTemplates?capability=` filters | `-restapi` |
 | C1 | CLI command and flag names for the WEB-6 previews: `collaboration put-collaboration`, `connect-agent`, `disconnect-agent`, `rotate-collaboration-keys`; `agents create-agent --role`, `--collaboration-connect`/`--no-collaboration-connect`; `teams create-team --may-expose-collaboration`; `secrets list-secrets --managed-by` (CLI-US-24; exact boolean-flag spellings OQ-WP7) | `-cli` |
 | C2 | Mockups for the changed screens without one (T3 role step, T1 tile, S10 *Collaboration* tab, T6 picker) or acceptance that they follow existing patterns; refreshed navigation in the existing mockups (OQ-WP2) | root |
 | C2 | Dev environment with a seeded `team_collaborator` user and `collab.base_domain` set, for the `@dev` smoke only | platform |
 | C3 | `managed` registration in `afs-reconciler` (link states `linked`/`failed` set by it; conditions `RegistrationHealthy`, `UnmanagedPaperclipAgents`, `PaperclipReady`) for the real-environment check of WEB-US-48 and WEB-US-50; the console builds against the fake API without it | `-restapi` |
-| C4 | `ListCollaborationEndpoints` and the `collaboration` report kind with service-level `groupBy=team` | `-restapi` |
-| C1–C4 | Contract changes after v1.3.0 (for example a field the review of an operation adds) arrive as a new tag and a repeat of SDK-16 | `-restapi` |
+| C2 | `ListCollaborationEndpoints` (P0, C2, PC-D28) with the S10 tab | `-restapi` |
+| C4 | The `collaboration` report kind with service-level `groupBy=team`; swarm template `spec.collaboration` accepted and instantiated (PC-D29, database contract §7.2.9) | `-restapi` |
+| C1–C4 | Contract changes after v1.3.1 (for example a field the review of an operation adds) arrive as a new tag and a repeat of SDK-16 | `-restapi` |
 
 ## 10. Delivery
 
@@ -1137,13 +1150,13 @@ Milestones match the root §9.
 
 | Milestone | Scope in this repository | Exit criteria |
 |---|---|---|
-| **C1-SDK** Contract and SDK | SDK-12..SDK-16 and WEB-US-43, WEB-US-46, WEB-US-47 (all operations, all P0..P2: they are generated together); WEB-US-55 domain part (`permission.ts`, drift test, tooltip names, header role colour, `ScreenId` T16 and V3, no screen yet); WEB-US-60 fake API and seeded `collaborator` | Resync to the v1.3.0 tag done (`contract:check` green, coverage test covers the seven operations); SDK size and TSDoc checks green; Chromium, Bun and Node matrix green; `@afs/sdk` released as a minor version; permission drift green; fake API tests green |
+| **C1-SDK** Contract and SDK | SDK-12..SDK-16 and WEB-US-43, WEB-US-46, WEB-US-47 (all operations, all P0..P2: they are generated together); WEB-US-55 domain part (`permission.ts`, drift test, tooltip names, header role colour, `ScreenId` T16 and V3, no screen yet); WEB-US-60 fake API and seeded `collaborator` | Resync to the v1.3.1 tag done (`contract:check` green, coverage test covers the seven operations); SDK size and TSDoc checks green; Chromium, Bun and Node matrix green; `@afs/sdk` released as a minor version; permission drift green; fake API tests green |
 | **C1** Collaboration agent | Console: WEB-US-45 (T3), WEB-US-44 (T16 core, including the switches, which the API refuses while `collab.base_domain` is unset), WEB-US-48 (manual registration), WEB-US-49 (managed secrets panel), WEB-US-53, WEB-US-54, WEB-US-56; V3's read-only logic is built with T16 | In the dev fake: a team-admin creates the collaboration agent on T3, lands on T16 and watches it reach `Ready`; connects two agents and sees `pending` become `linked`; secrets show *Managed by*; a collaborator and a viewer see read-only controls; baselines `30`, `30a`, `08a` and the navigation re-baseline approved; axe green on the changed screens |
-| **C2** Public web UI | WEB-US-51 (V3 e2e and baseline `31`), WEB-US-52 (S2, S3 guardrail), WEB-US-57 settings part (the seven `collab.*` settings and confirmations), WEB-US-58 (IdP collaboration client, template capabilities), the `@dev` smoke; baselines `30b`, `10c`, `03`, `10b`, `23-settings-agent-templates` | A service admin sets the base domain and a team's guardrail on S10 and S3; the team-admin's switches follow the effective reasons; *Open Paperclip* opens the team hostname in a new tab in dev; denied and blocked states have tooltips; J signs off T16 and V3 |
+| **C2** Public web UI | WEB-US-51 (V3 e2e and baseline `31`), WEB-US-52 (S2, S3 guardrail), WEB-US-57 (the seven `collab.*` settings with confirmations and the endpoint list, since `ListCollaborationEndpoints` is P0 in C2, PC-D28), WEB-US-58 (IdP collaboration client, template capabilities), the `@dev` smoke; baselines `30b`, `10c`, `03`, `10b`, `23-settings-agent-templates` | A service admin sets the base domain and a team's guardrail on S10 and S3; the team-admin's switches follow the effective reasons; *Open Paperclip* opens the team hostname in a new tab in dev; denied and blocked states have tooltips; J signs off T16 and V3 |
 | **C3** REST API and managed mode | WEB-US-50 (edit endpoints with registration mode, rotate keys, guidance, unmanaged-agents alert); WEB-US-48 managed-mode parts (no id inputs, link states from the reconciler); the REST API switch's confirmation copy reviewed against the live edge | A team-admin rotates Paperclip keys and switches to managed registration in dev; unmanaged agents and open sign-up alerts show; sentinel and CSP checks green |
-| **C4** People and reports | WEB-US-57 endpoint list, WEB-US-59 (collaboration report in T11 and S8); `docs:screenshots` refreshed with T16 and V3; `README.md` and `docs/` counts updated | The service-level endpoint list and collaboration reports work in dev; the security review of the change signs off (M4 exit of the change PRD) |
+| **C4** People and reports | WEB-US-59 (collaboration report in T11 and S8), WEB-US-62 (swarm template collaboration, P1, PC-D29); `docs:screenshots` refreshed with T16 and V3; `README.md` and `docs/` counts updated | The service-level endpoint list and collaboration reports work in dev; the security review of the change signs off (M4 exit of the change PRD) |
 
-COL-9 (swarm templates may include a collaboration agent), COL-33 (member sync) and COL-36's edge writes have no console work beyond what is listed (OQ-WP8).
+COL-33 (member sync) and COL-36's edge writes have no console work beyond what is listed. The console shows no outbox events (the event types of contract §7, including `collaboration.bootstrap_completed`, are delivered to channels by `afs-api` and the reconciler); an event name that a channel row lists renders as its raw string.
 
 ## 11. Definition of done (every change)
 
@@ -1173,15 +1186,20 @@ COL-9 (swarm templates may include a collaboration agent), COL-33 (member sync) 
 | OQ-W6 | Revisit push status (SSE) instead of polling if reconcile lag or rate limits make polling costly | web lead | after M3 |
 | OQ-W7 | Whether the web and CLI share golden CLI-command fixtures for WEB-6 | `-cli` / web lead | M1 |
 | OQ-9 | IdP-to-IAM federation for viewer kubectl (shapes the *Download kubeconfig* instructions) | J | M5 |
-| OQ-WP1 | Which operation returns `409 Conflict` with `details.reason = hostname_held` (API contract §6 lists the reason, §4.4b and §4.1 do not name the operation)? Built to `CreateTeam` | `-restapi` | C2 |
 | OQ-WP2 | Mockups for the T3 role step, T1 tile, S10 *Collaboration* tab and T6 picker do not exist, and the existing mockups (for example 06, 07, 08, 09) predate the *Collaboration* navigation item. Built to the existing patterns; the web lead approves the baselines, J signs off T16 and V3 | root (J) | C1 |
-| OQ-WP3 | Does `team_collaborator` hold the viewer's conditional grants (`teams:get-kubeconfig` when `viewerKubectl`, `work-orders:read` for assigned or own repositories) with the same conditions? Built as yes (contract §3: "every Viewer permission") | `-restapi` | C1-SDK |
-| OQ-WP4 | Does `RotateSecret` on an `afs`-managed secret take a body? Built to none, AFS generates the value (contract §4.6 does not say) | `-restapi` | C1 |
-| OQ-WP5 | `ListCollaborationLinks` is P1 in contract §4.4b but T16's connections are C1 in the change PRD. Built to need it at C1 | `-restapi` | C1 |
-| OQ-WP6 | The V3 banner names team-admins; `Member` carries `email` and `groupName` but no display name. Built to emails | `-restapi` / J | C2 |
 | OQ-WP7 | Exact CLI spellings for the previews: boolean flag pairs (`--web-ui-enabled` / `--no-web-ui-enabled`), `--registration-mode`, `--names`, `--managed-by`, `--may-expose-collaboration` (CLI-US-24 names the commands, the flags follow the `-cli` kebab rules). Shared golden fixtures (OQ-W7) would settle it | `-cli` | C1 |
-| OQ-WP8 | COL-9 lets a swarm template include a collaboration agent; the P5 screen and pools never show a role. Built to no change (pools are workers; the collaboration agent is created through T3 only) | J | C4 |
-| OQ-WP9 | `ListCollaborationEndpoints` is P2 in the contract while the S10 tab is C2 in the change PRD. Built to settings at C2 and the list at C4 | J | C2 |
+
+**Resolved by API contract v1.3.1 and the Paperclip PRD decisions PC-D20..PC-D31** (kept so earlier references stay readable; each is now a requirement, not a question):
+
+| # | Was | Resolution |
+|---|---|---|
+| OQ-WP1 | Which operation returns `hostname_held` | `CreateTeam` (PC-D30), WEB-US-52 |
+| OQ-WP3 | Does the collaborator inherit conditional viewer grants | Yes (contract §3, PC-D30), WEB-US-55 |
+| OQ-WP4 | `RotateSecret` body on `afs` secrets | None; master key `ValidationError`; `paperclip` secret `409 managed_secret` (PC-D30), WEB-US-54 |
+| OQ-WP5 | `ListCollaborationLinks` priority | P0 in C1, with connect and disconnect (PC-D28) |
+| OQ-WP6 | Member display names for V3 | None exist; the console shows email (PC-D30), WP-D14 |
+| OQ-WP8 | Swarm templates with a collaboration agent | `spec.collaboration {templateId}`, P1 in C4 (PC-D29), WEB-US-62 |
+| OQ-WP9 | `ListCollaborationEndpoints` priority | P0 in C2 with the S10 tab (PC-D28), WEB-US-57 |
 
 ### 12.2 Decisions applied here
 
@@ -1214,7 +1232,7 @@ Each was decided during the `review-prd` pass of 2026-11-22 (§13) and can be ch
 | WP-D3 | A surface whose stored choice is on but not effective | The state word follows the edge (*Off*); the card says why; the switch stays enabled so it can be turned off (always accepted by the API); a stored-off blocked switch is disabled with the reason | WEB-US-44 |
 | WP-D4 | Turning a public surface on | Always asks for confirmation; turning off does not. Public exposure is the point of the change's risk model | WEB-US-44, WG3 |
 | WP-D5 | Bulk connect | The selection sends one call per agent, sequentially, with per-agent results and no rollback, an explicit exception to the no-client-side-workflows non-goal because the mockup selects many rows and the API has no bulk operation | WEB-US-48, §2 |
-| WP-D6 | Where the connected-agents table gets its data | `ListCollaborationLinks`, the purpose-built operation with `linkState` filter and paging, not `ListAgents`; OQ-WP5 tracks its priority | WEB-US-48 |
+| WP-D6 | Where the connected-agents table gets its data | `ListCollaborationLinks`, the purpose-built operation with `linkState` filter and paging, not `ListAgents`; it is P0 in C1 (PC-D28) | WEB-US-48 |
 | WP-D7 | Which secrets the T16 panel shows | `afs` and `paperclip` secrets whose `agentId` is the collaboration agent (so a worker's `paperclip-agent-api-key` never appears), from two filtered `ListSecrets` calls | WEB-US-49 |
 | WP-D8 | Recent access | One report call grouped by day and person; the console aggregates per person; person names are shown on the page (they are AFS data) and kept out of telemetry | WEB-US-49, §7 |
 | WP-D9 | Header colour for *Team collaborator* | Teal, distinct from orange, blue and grey, contrast ≥ 4.5:1, checked by axe | §4.2, WEB-US-55 |
@@ -1222,16 +1240,20 @@ Each was decided during the `review-prd` pass of 2026-11-22 (§13) and can be ch
 | WP-D11 | Shape of `endpointUrl` | `collaboration.endpointUrl(teamId)` returns `{webUi, restApi, hostname}`, each `null` unless effective; one `GET`; no Paperclip credential handling | SDK-14 |
 | WP-D12 | Where `collab.*` settings are edited | Only on the new S10 *Collaboration* tab; the General tab hides them so there is one place and the confirmations always apply | WEB-US-57 |
 | WP-D13 | How T3 learns the team has a collaboration agent | `ListAgents?role=collaboration&maxResults=1`, which also gives the worker's connect default; a racing `409` shows the same text | WEB-US-45 |
-| WP-D14 | Naming team-admins on V3 | Emails of user bindings (and group names), at most three, from `ListMembers`; omitted if unavailable | WEB-US-51, OQ-WP6 |
-| WP-D15 | Rotating an `afs` secret from T4 | No value field; AFS generates it; the master key is disabled with the reason | WEB-US-54, OQ-WP4 |
+| WP-D14 | Naming team-admins on V3 | Emails of user bindings (and group names), at most three, from `ListMembers`; omitted if unavailable; no display name exists (PC-D30) | WEB-US-51 |
+| WP-D15 | Rotating an `afs` secret from T4 | No value field; AFS generates it; the master key is disabled with the reason (PC-D30) | WEB-US-54 |
 | WP-D16 | Team id in the CLI panel | Shown shortened as in the mockup; *Copy* copies the whole command | WEB-US-44 |
 | WP-D17 | Opening Paperclip | A new tab with `rel="noopener noreferrer"`; never embedded; no call from the console to the edge, so the CSP is unchanged | §6.2, WEB-US-44 |
 | WP-D18 | Collaboration client secret on the IdP form | Takes a Secrets Manager ARN only, validated by prefix client-side and by the API; never a value | WEB-US-58 |
 | WP-D19 | Collaboration report | A report kind in T11 and S8 on demand only, no schedule action (PC-D13) | WEB-US-59 |
 | WP-D20 | Test principal | A seeded fake user `collaborator`; the fake API computes `effective.reasons[]` from control hooks so every blocked case is testable | WEB-US-60 |
-| WP-D21 | When the S10 endpoint list ships | Settings in C2, the endpoint list in C4 with its P2 operation | §10.1, OQ-WP9 |
+| WP-D21 | When the S10 endpoint list ships | In C2 with the tab, because `ListCollaborationEndpoints` is P0 in C2 (PC-D28; supersedes the earlier C4 plan) | §10.1 |
+| WP-D22 | Swarm template collaboration | One optional template select in the P5 form (`spec.collaboration.templateId`, templates with `paperclip` only); the rest follows the API (web UI on, REST API off, pools never connect); P1 in C4 (PC-D29) | WEB-US-62 |
+| WP-D23 | The first-admin invite | The console never sees or shows it: it is emailed by the reconciler to the creating team-admin; the console explains where it goes (PC-D26, PC-D27) | WEB-US-50 |
 
 ## 13. Review record (Paperclip change)
+
+**Aligned to API contract v1.3.1 (PC-D20..PC-D31), 2026-11-22.** Seven open questions closed by the corrections (OQ-WP1, 3, 4, 5, 6, 8, 9, now a resolved table in §12.1); priorities moved (links, connect and disconnect are C1; the endpoint list is C2); `hostname_held`, the inherited conditional viewer grants, `RotateSecret` without a body, swarm template `spec.collaboration` (new WEB-37 and WEB-US-62, P1, C4), the invite never reaching the console (WP-D23) and the pin target v1.3.1 are reflected in the requirements, stories, §9, §10.1 and §12.3. The edge changes of v1.3.1 (apex callback, server-side sessions, no SNI check, `afs.team_id` log routing, `bootstrap_completed`, `record_collab_*`) concern `-db` and `-restapi` only; the console makes no call to the edge and shows no events, so they add no requirement here. Remaining open: OQ-WP2 (mockups), OQ-WP7 (CLI flag spellings). Dimension table unchanged: all Pass.
 
 `review-prd` pass of 2026-11-22 (dev-flow `commands/review-prd.md`, run by hand; the author acted as the user for step 5 and decided the open details, logged as WP-D1..WP-D21 in §12.3). Scope of the review: the additions for the Paperclip change (§1.1, SDK-12..16, WEB-23..36, §4 additions, WEB-US-43..61, §6 to §12 additions). Verdict after fixes: **Ready for spec**.
 
@@ -1242,8 +1264,8 @@ Each was decided during the `review-prd` pass of 2026-11-22 (§13) and can be ch
 | Functional completeness | ✅ Pass | SDK-12..16 and WEB-23..36 cover every row of the change PRD §5 "changes to existing screens", §6.8 items for this repository and the stories WEB-US-43..45, split into WEB-US-43..61; each requirement lists its stories |
 | NFR coverage | ✅ Pass | Performance, reliability, security and privacy, compatibility with an older API, accessibility, bundle budget, observability (route templates only) |
 | Acceptance criteria | ✅ Pass | Given/When/Then with exact names, texts, error codes, reasons, timings and "Proven by" test names per story |
-| Dependency identification | ✅ Pass | `-restapi` v1.3.0 tag and permission fixture, `-cli` flag names, root mockups, platform dev environment, reconciler managed mode, per milestone |
-| Open questions | ✅ Pass | OQ-WP1..9, each with owner, milestone and the default built to; 21 decisions recorded |
+| Dependency identification | ✅ Pass | `-restapi` v1.3.1 tag and permission fixture, `-cli` flag names, root mockups, platform dev environment, reconciler managed mode, per milestone |
+| Open questions | ✅ Pass | OQ-WP2 and OQ-WP7 open, seven resolved by v1.3.1, each with owner, milestone and the default built to; 23 decisions recorded |
 
 First scoring found these, all fixed in this pass:
 
