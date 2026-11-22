@@ -17,7 +17,7 @@
 | 3  | Implement Product               | 🔄 In Progress (only M6-U1 open: waits for the `-restapi` merge and tag, CQ-1) | 2026-11-21T23:20Z | — | M0 69/69; M1 46/46; M2 41/41 (+R1 done); M3 24/24; M4 34/34; M5 19/19; M6 25/26 |
 | 4  | Documentation and User Docs     | ✅ Complete | 2026-11-22T09:47:40Z | 2026-11-22T09:50:51Z | 3 |
 | 5  | Code and Design Review          | ✅ Complete (P0 0, P1 6, P2 15) | 2026-11-22T09:51:33Z | 2026-11-22T10:01:43Z | 10 |
-| 6  | Prepare Review PRD              | ✅ Complete (ready for spec; 5 fix streams A–E, merge A→E→C→B→D) | 2026-11-22T10:01:43Z | 2026-11-22T10:02:15Z | 2 |
+| 6  | Prepare Review PRD              | ✅ Complete (ready for spec; 5 fix streams A–E, merge A→E→C→B→D) | 2026-11-22T10:01:43Z | 2026-11-22T10:02:15Z | 1 |
 | 7  | Archive Original Spec           | ⬜ Pending | — | — | — |
 | 8  | Spec Review Fixes               | ⬜ Pending | — | — | — |
 | 9  | Implement Review Fixes          | ⬜ Pending | — | — | — |
