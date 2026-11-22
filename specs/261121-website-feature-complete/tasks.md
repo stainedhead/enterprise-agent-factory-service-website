@@ -41,11 +41,11 @@
 | M0 Foundations | 10 (+ exit) | 69 | 69 |
 | M1 Teams & access | 10 (+ exit) | 46 | 46 |
 | M2 Agents & secrets | 7 (+ exit) | 41 | 41 |
-| M3 Spend control | 6 (+ exit) | 24 | 0 |
+| M3 Spend control | 6 (+ exit) | 24 | 3 |
 | M4 Production readiness | 8 (+ exit) | 34 | 0 |
 | M5 Budgeted workloads and swarms | 4 (+ exit) | 19 | 0 |
 | M6 CVE remediation and completion | 6 (+ exit) | 26 | 0 |
-| **Total** | **51** | **259** | **115** |
+| **Total** | **51** | **259** | **160** |
 
 ## External dependencies and contract questions
 
@@ -465,7 +465,7 @@ Owns: `packages/sdk/src/resources/reports.ts` (+ one export line in `src/index.t
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M3-K1 | `reports.team(teamId, kind, query)`, `reports.agent(...)`, `reports.service(kind, query)`: typed `rows`, `totals`, `notes` (`range`, `groupBy` incl. `tag:<key>`, filters); `.asCsv()` returns the body byte for byte (multi-page via M0-C11); size budget kept | WEB-US-4.2, SDK-8 | — |
+| [x] | M3-K1 | `reports.team(teamId, kind, query)`, `reports.agent(...)`, `reports.service(kind, query)`: typed `rows`, `totals`, `notes` (`range`, `groupBy` incl. `tag:<key>`, filters); `.asCsv()` returns the body byte for byte (multi-page via M0-C11); size budget kept | WEB-US-4.2, SDK-8 | — |
 
 ### M3-C · Charts and report controls
 
@@ -473,8 +473,8 @@ Owns: `presentation/components/charts/`, `presentation/components/report-control
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M3-C1 | SVG bar, line and stacked bar charts with an accessible table alternative and keyboard focus per series; axe-clean | WEB-9, WEB-US-42.1 (part) | — |
-| [ ] | M3-C2 | Range picker (24 h, 7, 30, 90 days, month to date, custom), filters and group by (incl. tag keys) producing the contract's report query | WEB-US-37.1 (part), WEB-9 | — |
+| [x] | M3-C1 | SVG bar, line and stacked bar charts with an accessible table alternative and keyboard focus per series; axe-clean | WEB-9, WEB-US-42.1 (part) | — |
+| [x] | M3-C2 | Range picker (24 h, 7, 30, 90 days, month to date, custom), filters and group by (incl. tag keys) producing the contract's report query | WEB-US-37.1 (part), WEB-9 | — |
 
 ### M3-B · Budget and usage (T5)
 

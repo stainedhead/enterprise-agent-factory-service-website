@@ -18,6 +18,15 @@ export type {
 export { metaOf } from "./core/types.js";
 export * from "./generated/index.js";
 export {
+  createReports,
+  type ReportGroup,
+  type ReportKind,
+  type ReportQueryInput,
+  type ReportResult,
+  type ReportRow,
+  type TypedReportCall,
+} from "./resources/reports.js";
+export {
   WaitError,
   type WaitFailure,
   type WaitOptions,

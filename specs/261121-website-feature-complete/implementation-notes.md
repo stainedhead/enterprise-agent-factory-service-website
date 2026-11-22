@@ -69,6 +69,7 @@ architectural ones into ADRs (`docs/architectural-decision-record.md`, ADR-005 o
 | CQ-13 | `-restapi` | The in-use `409` of `DeleteSecret`, `DeleteNamespaceConfigValue` and `DeleteStorageClass` documents no dependents list (`details` has only `reason`), yet WEB-US-27.4, 30.3 and 20.3 expect the agents to be listed | Open; interim: `details.agents` when present, else computed from list data (DV-24) |
 | CQ-14 | `-restapi` | `CreateAgentRequest`/`Agent` have no persona or instructions field although the T3 mockup and WEB-US-26.1 have one; and the create request takes no configuration values (T3 uses one `PutAgentConfigValue` per value) | Open; interim: persona is stored in `description` (DV-28) |
 | CQ-15 | `-restapi` | -restapi: StorageClass has no default flag (WEB-US-20.3 mark default), no service-level revisions read for templates (WEB-US-22.1 revisions per template), and the in-use 409 for classes and templates carries no agent list | Console shows the API message and any details.agents if sent; no Mark default; no template revisions view. Raise with -restapi |
+| CQ-16 | `-restapi` | Report rows are `Record<string, unknown>` in the OpenAPI and the pinned example still says `costUsd`; the live measures are `estimatedUsd` (gateway) and `billedUsd` (CUR). `tag.<key>=<value>` report filters (contract §4.9) are not declared parameters, so the SDK cannot send them | Open; the console reads `estimatedUsd` then `costUsd` then `billedUsd` and offers team, agent, model, system and pool filters only |
 
 ## 3. Edge cases and solutions (seeded at spec time; extend during implementation)
 
@@ -128,6 +129,7 @@ architectural ones into ADRs (`docs/architectural-decision-record.md`, ADR-005 o
 | DV-32 | Declare system is shown disabled (reason given) rather than hidden when the team may not declare; the e2e fake team 1 has mayAddExternalSystems true. T10 refreshes on invalidation after a switch, not on a timer (the list has no in-flight phases). | M2-E2 |
 | DV-33 | S7: 'Unmetered' is read-only in the contract (not in CatalogSystemRequest); built-in rows can be edited and switched but not deleted. Teams-may-declare list reads all teams via listRows (spend call tolerated) and uses UpdateTeam. | M2-F4 |
 | DV-34 | M2-X1 re-pin check on 2026-11-22: restapi feat/restapi-feature-complete (46aeee4) api/openapi.yaml is byte-identical to the pinned snapshot (contract.lock.json commit 747a484), so no re-pin. CQ-8..CQ-11 and CQ-13..CQ-15 stay open (no upstream change). | M2-X1 |
+| DV-35 | The typed report wrapper is `createReports(client)` (not `reports(...)`, the generated namespace keeps that name); `groupBy` takes a string or list and is sent comma-separated; rows are `Record<string, unknown>` because the OpenAPI types them so. Charts plot `Number` of a money string for position only; all money arithmetic stays scaled bigint (WD-22). Chart colours are CSS custom properties on the chart element with a dark variant under `prefers-color-scheme` (the console has no dark theme yet), contrast-tested at 3:1 on both surfaces. | M3-K1, |
 
 ## 5. Lessons learned
 
