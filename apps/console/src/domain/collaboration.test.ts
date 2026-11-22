@@ -14,6 +14,7 @@ import {
   openPaperclipState,
   reasonText,
   reservedSecretName,
+  safeWebUrl,
   shortId,
   surfaceSwitch,
   surfaceView,
@@ -209,5 +210,18 @@ describe("collab settings (WEB-US-57)", () => {
     expect(collabFieldText("collab.max_body_mb", 10)).toBe("10");
     expect(isCollabSetting("collab.x")).toBe(true);
     expect(COLLAB_SETTING_KEYS.length).toBe(7);
+  });
+});
+
+describe("safeWebUrl", () => {
+  it("allows http and https and refuses every other scheme or a malformed value", () => {
+    expect(safeWebUrl("https://acme.collab.example/")).toBe("https://acme.collab.example/");
+    expect(safeWebUrl("http://localhost:3100")).toBe("http://localhost:3100");
+    expect(safeWebUrl("javascript:alert(1)")).toBeNull();
+    expect(safeWebUrl("data:text/html,x")).toBeNull();
+    expect(safeWebUrl("not a url")).toBeNull();
+    expect(safeWebUrl(null)).toBeNull();
+    expect(safeWebUrl(undefined)).toBeNull();
+    expect(safeWebUrl("")).toBeNull();
   });
 });

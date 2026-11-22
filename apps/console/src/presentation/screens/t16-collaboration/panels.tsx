@@ -11,6 +11,7 @@ import {
   openPaperclipState,
   reasonText,
   type Surface,
+  safeWebUrl,
   shortId,
   surfaceSwitch,
   surfaceView,
@@ -184,7 +185,10 @@ export function EndpointsPanel({
   return (
     <section aria-label="Endpoints">
       <h2>Endpoints</h2>
-      <LinkButton href={record.webUiUrl} {...(open.reason ? { disabledReason: open.reason } : {})}>
+      <LinkButton
+        href={safeWebUrl(record.webUiUrl)}
+        {...(open.reason ? { disabledReason: open.reason } : {})}
+      >
         Open Paperclip
       </LinkButton>
       <SurfaceRow

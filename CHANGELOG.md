@@ -6,7 +6,7 @@ All notable changes to `@afs/sdk` and `@afs/console` (versioned together). Forma
 
 ## [1.0.1] - 2026-11-22
 
-Paperclip team collaboration (spec `specs/261122-paperclip-collaboration`). SDK tag: `sdk-v1.0.1`.
+Paperclip team collaboration (spec `specs/archive/261122-paperclip-collaboration`). SDK tag: `sdk-v1.0.1`.
 
 ### Added (SDK)
 

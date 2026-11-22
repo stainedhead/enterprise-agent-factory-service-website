@@ -253,3 +253,14 @@ export const badCidrs = (text: string): string[] =>
   cidrLinesToList(text)
     .split(", ")
     .filter((l) => l !== "" && !CIDR.test(l));
+
+/** A URL the console may link to: `https:` or `http:` only, else `null` (never `javascript:` or `data:`). */
+export function safeWebUrl(url: string | null | undefined): string | null {
+  if (!url) return null;
+  try {
+    const p = new URL(url).protocol;
+    return p === "https:" || p === "http:" ? url : null;
+  } catch {
+    return null;
+  }
+}
