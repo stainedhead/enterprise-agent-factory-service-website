@@ -208,7 +208,7 @@ owns the "Coordinator" section. Do not edit another stream's section.
   fonts and differed from the GitHub runner by 2 to 3% of pixels (tolerance stays 0.5%). The `e2e` job now runs in
   `mcr.microsoft.com/playwright:v1.63.0-noble`, and a head commit containing `[regen-baselines]` makes it run the
   chromium `visual:` specs with `--update-snapshots` and commit only the snapshot PNGs back (GITHUB_TOKEN,
-  `contents: write`; bot pushes do not trigger workflows, so no loop). Done once (bot commit `1734171`). Baselines
+  `contents: write`; bot pushes do not trigger workflows, so no loop). Run twice (bot commits `1734171` and `03ff26b`; the second dropped the `visual:` grep so snapshots inside other tests are covered). Baselines
   remain `pending` in `e2e/visual/approvals.json` until the owner approves them against the mockups.
 
 ## Deferred findings
