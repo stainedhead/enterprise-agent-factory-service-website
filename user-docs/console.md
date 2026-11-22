@@ -208,6 +208,10 @@ after it was created. Select a pool, then use *Actions*: *Scale* (0 to 200 worke
 and scratch space (1 to 500 GiB); the name must be unused by any agent or pool of the team and cannot change later.
 Viewers see the page with every control disabled ("Requires team-admin").
 
+## Guardrails and kubeconfig
+
+Service admins can change a team's isolation tier and turn viewer kubectl on or off from the team's *Guardrails* tab; other roles see the controls disabled with a tooltip naming the role. Each change shows the equivalent `afs` command before you confirm. When viewer kubectl is on, team members with access see a *Kubernetes access* card on the team overview with a *Download kubeconfig* button.
+
 ## Troubleshooting
 
 - *Page not found* for a page you expect: you may not hold the role it needs, or the team is not yours.

@@ -45,6 +45,8 @@ export interface FixtureResponse {
   headers?: Record<string, string>;
   /** The body served instead of JSON when the request's `Accept` includes `text/csv` (CSV operations). */
   csv?: string;
+  /** A raw text body (for example `application/yaml`), served as is and not validated against the contract. */
+  text?: string;
 }
 
 /** A canned answer for one operation. The body is validated against the pinned OpenAPI. */

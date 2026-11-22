@@ -43,9 +43,9 @@
 | M2 Agents & secrets | 7 (+ exit) | 41 | 41 |
 | M3 Spend control | 6 (+ exit) | 24 | 24 |
 | M4 Production readiness | 8 (+ exit) | 34 | 34 |
-| M5 Budgeted workloads and swarms | 4 (+ exit) | 19 | 12 |
+| M5 Budgeted workloads and swarms | 4 (+ exit) | 19 | 16 |
 | M6 CVE remediation and completion | 6 (+ exit) | 26 | 0 |
-| **Total** | **51** | **259** | **227** |
+| **Total** | **51** | **259** | **231** |
 
 ## External dependencies and contract questions
 
@@ -671,10 +671,10 @@ Owns: `presentation/screens/team-admin/tabs/guardrails/` (+ line in `tabs.ts`), 
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M5-G1 | Service admins set isolation tier (*shared*/*dedicated*) and the viewer kubectl switch; both confirm and show the CLI command | WEB-US-23.1, WEB-14, WEB-15 | — |
-| [ ] | M5-G2 | Team-admins and viewers: both disabled "Requires service admin"; a forced `UpdateTeam` `403` shown as access-denied | WEB-US-23.2 | M5-G1 |
-| [ ] | M5-G3 | With kubectl on, T1 and V1 show *Download kubeconfig* (YAML from `GetTeamKubeconfig`, saved as a file) and `afs teams get-kubeconfig --team-id …`; off → neither shown | WEB-US-23.3, WEB-15, WD-28 | — |
-| [ ] | M5-G4 | e2e for guardrails and kubeconfig | WEB-US-42.1 (part) | M5-G1..G3 |
+| [x] | M5-G1 | Service admins set isolation tier (*shared*/*dedicated*) and the viewer kubectl switch; both confirm and show the CLI command | WEB-US-23.1, WEB-14, WEB-15 | — |
+| [x] | M5-G2 | Team-admins and viewers: both disabled "Requires service admin"; a forced `UpdateTeam` `403` shown as access-denied | WEB-US-23.2 | M5-G1 |
+| [x] | M5-G3 | With kubectl on, T1 and V1 show *Download kubeconfig* (YAML from `GetTeamKubeconfig`, saved as a file) and `afs teams get-kubeconfig --team-id …`; off → neither shown | WEB-US-23.3, WEB-15, WD-28 | — |
+| [x] | M5-G4 | e2e for guardrails and kubeconfig | WEB-US-42.1 (part) | M5-G1..G3 |
 
 ### M5-T · Cost tag status (S9)
 

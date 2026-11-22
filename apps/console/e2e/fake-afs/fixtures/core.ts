@@ -40,7 +40,7 @@ export const team = (t: { id: string; slug: string; displayName: string }) => ({
 });
 
 /** Conditional grants the API adds to a team-admin's `permissions[]` (`mayManageAwsAccounts`, M4-W). */
-export const teamGrants = { awsAccounts: false };
+export const teamGrants = { awsAccounts: false, kubectl: false };
 
 const teamPerms = {
   team_admin: [
@@ -175,9 +175,11 @@ export const coreFixtures: readonly Fixture[] = [
                   teamId: TEAMS[0].id,
                   slug: TEAMS[0].slug,
                   role: "team_admin",
-                  permissions: teamGrants.awsAccounts
-                    ? [...teamPerms.team_admin, "teams:set-aws-accounts"]
-                    : teamPerms.team_admin,
+                  permissions: [
+                    ...teamPerms.team_admin,
+                    ...(teamGrants.awsAccounts ? ["teams:set-aws-accounts"] : []),
+                    ...(teamGrants.kubectl ? ["teams:get-kubeconfig"] : []),
+                  ],
                 },
               ],
             },
@@ -195,7 +197,10 @@ export const coreFixtures: readonly Fixture[] = [
                   teamId: TEAMS[0].id,
                   slug: TEAMS[0].slug,
                   role: "team_viewer",
-                  permissions: teamPerms.team_viewer,
+                  permissions: [
+                    ...teamPerms.team_viewer,
+                    ...(teamGrants.kubectl ? ["teams:get-kubeconfig"] : []),
+                  ],
                 },
               ],
             },

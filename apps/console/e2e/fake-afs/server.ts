@@ -235,7 +235,8 @@ export class FakeAfs {
             config: { idpIssuer: this.#opts.idpIssuer },
           })
         : fixture.response;
-    const problems = this.contract.validateResponse(route, resp.status, resp.body);
+    const problems =
+      resp.text !== undefined ? [] : this.contract.validateResponse(route, resp.status, resp.body);
     if (problems.length > 0)
       return done(
         route.operationId,
@@ -249,6 +250,13 @@ export class FakeAfs {
       return new Response(resp.csv, {
         status: resp.status,
         headers: { "content-type": "text/csv", ...base },
+      });
+    }
+    if (resp.text !== undefined) {
+      record(route.operationId, principal, resp.status);
+      return new Response(resp.text, {
+        status: resp.status,
+        headers: { "content-type": "text/plain", ...resp.headers, ...base },
       });
     }
     const headers: Record<string, string> = { ...resp.headers };

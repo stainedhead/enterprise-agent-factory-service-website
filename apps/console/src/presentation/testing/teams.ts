@@ -59,6 +59,7 @@ export function fakeTeamsPort(over: Partial<TeamsPort> = {}): FakeTeamsPort {
       { id: "m1", displayName: "Model One", provider: "p", enabled: true },
     ]),
     serviceTags: vi.fn(async () => []),
+    kubeconfig: vi.fn(async () => "apiVersion: v1\nkind: Config\n"),
     spendByTeam: vi.fn(async () => ({ team_1: { costUsd: "250.00" } })),
     ...over,
   };

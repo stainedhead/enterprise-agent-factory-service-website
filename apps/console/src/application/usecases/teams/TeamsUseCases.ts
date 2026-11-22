@@ -87,6 +87,9 @@ export class TeamsUseCases {
   catalogModels(signal?: AbortSignal) {
     return this.port.catalogModels(signal);
   }
+  kubeconfig(teamId: string) {
+    return this.port.kubeconfig(teamId);
+  }
   serviceTags(signal?: AbortSignal) {
     return this.port.serviceTags(signal);
   }

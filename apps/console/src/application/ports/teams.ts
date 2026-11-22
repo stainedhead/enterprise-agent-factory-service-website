@@ -171,6 +171,8 @@ export interface TeamsPort {
   catalogModels(signal?: AbortSignal): Promise<readonly ModelRecord[]>;
   /** Service tags with their allowed values (`ListServiceTags`). */
   serviceTags(signal?: AbortSignal): Promise<readonly ServiceTagRecord[]>;
+  /** `GetTeamKubeconfig`: the read-only kubeconfig YAML for the team's namespace (needs `teams:get-kubeconfig`). */
+  kubeconfig(teamId: string): Promise<string>;
   /** Month-to-date spend per team id: one call per page, never one per row. */
   spendByTeam(signal?: AbortSignal): Promise<Readonly<Record<string, TeamSpend>>>;
 }

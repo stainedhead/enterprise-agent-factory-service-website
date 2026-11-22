@@ -212,3 +212,25 @@ describe("SdkTeams (M1-T1)", () => {
     expect(e).toMatchObject({ kind: "access-denied", requiredPermission: "teams:read" });
   });
 });
+
+describe("SdkTeams kubeconfig (M5-G3)", () => {
+  it("returns the YAML text and maps a 403 to access denied", async () => {
+    const yaml = "apiVersion: v1\nkind: Config\n";
+    const ok = fakeApi(
+      on(
+        "GET",
+        "/v1/teams/t1/kubeconfig",
+        () => new Response(yaml, { headers: { "content-type": "application/yaml" } }),
+      ),
+    );
+    expect(await new SdkTeams(ok.client).kubeconfig("t1")).toBe(yaml);
+    const denied = fakeApi(
+      on("GET", "/v1/teams/t1/kubeconfig", () =>
+        json({ code: "AccessDenied", message: "Requires teams:get-kubeconfig" }, 403),
+      ),
+    );
+    await expect(new SdkTeams(denied.client).kubeconfig("t1")).rejects.toMatchObject({
+      kind: "access-denied",
+    });
+  });
+});

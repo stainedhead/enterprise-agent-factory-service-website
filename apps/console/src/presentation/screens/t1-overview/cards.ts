@@ -2,7 +2,9 @@
 // Each card renders itself inside a WidgetBoundary; `visibleWhen` says which callers see it.
 import { createElement, type ReactNode } from "react";
 import { can, type Me } from "../../../domain/me.js";
+import { GuardrailsTab } from "../team-admin/tabs/guardrails/GuardrailsTab.js";
 import { EphemeralCard } from "./ephemeral/EphemeralCard.js";
+import { KubeconfigCard } from "./kubeconfig/KubeconfigCard.js";
 
 export interface CardDef {
   readonly id: string;
@@ -16,5 +18,15 @@ export const cards: readonly CardDef[] = [
     id: "ephemeral-team",
     visibleWhen: (me, teamId) => can(me, "teams:read", teamId),
     render: ({ teamId }) => createElement(EphemeralCard, { teamId }),
+  },
+  {
+    id: "kubeconfig",
+    visibleWhen: (me, teamId) => can(me, "teams:read", teamId),
+    render: ({ teamId }) => createElement(KubeconfigCard, { teamId }),
+  },
+  {
+    id: "guardrails",
+    visibleWhen: (me, teamId) => can(me, "teams:read", teamId),
+    render: ({ teamId }) => createElement(GuardrailsTab, { teamId }),
   },
 ];

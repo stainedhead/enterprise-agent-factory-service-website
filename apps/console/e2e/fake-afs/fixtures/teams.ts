@@ -23,6 +23,7 @@ let seq = 0;
 
 function seed(): void {
   teamGrants.awsAccounts = false;
+  teamGrants.kubectl = false;
   teams = new Map();
   seq = 0;
   TEAMS.forEach((t, i) => {
@@ -121,7 +122,9 @@ export const teamsFixtures: readonly Fixture[] = [
       const patch = { ...(body as Json) };
       const needs =
         principal?.id !== "svc-admin"
-          ? patch.mayManageAwsAccounts !== undefined
+          ? patch.mayManageAwsAccounts !== undefined ||
+            patch.isolationTier !== undefined ||
+            patch.viewerKubectl !== undefined
             ? "teams:set-guardrails"
             : patch.allowedAwsAccounts !== undefined && !teamGrants.awsAccounts
               ? "teams:set-aws-accounts"
@@ -160,9 +163,34 @@ export const teamsFixtures: readonly Fixture[] = [
           },
         };
       e.body = next;
-      if (params.teamId === TEAMS[0].id)
+      if (params.teamId === TEAMS[0].id) {
         teamGrants.awsAccounts = next.mayManageAwsAccounts === true;
+        teamGrants.kubectl = next.viewerKubectl === true;
+      }
       return { status: 200, body: next };
+    },
+  },
+  {
+    method: "GET",
+    path: "/v1/teams/{teamId}/kubeconfig",
+    response: ({ params }) => {
+      const e = teams.get(params.teamId ?? "");
+      if (!e) return notFound(params.teamId ?? "");
+      if (e.body.viewerKubectl !== true)
+        return {
+          status: 403,
+          body: {
+            code: "AccessDenied",
+            message: "Viewer kubectl is off for this team",
+            requestId: "req_fake_403",
+            details: { requiredPermission: "teams:get-kubeconfig" },
+          },
+        };
+      return {
+        status: 200,
+        text: `apiVersion: v1\nkind: Config\ncurrent-context: afs-${e.body.slug}\n`,
+        headers: { "content-type": "application/yaml" },
+      };
     },
   },
   {

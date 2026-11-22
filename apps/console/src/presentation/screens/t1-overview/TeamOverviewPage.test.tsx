@@ -169,7 +169,7 @@ describe("T1 team overview (M1-O1..O3)", () => {
           screen.getByRole("button", { name: "Create agent" }).getAttribute("aria-describedby"),
       ).toBeTruthy(),
     );
-    expect(screen.getByText(/suspended/i)).toBeTruthy();
+    expect(screen.getAllByText(/suspended/i).length).toBeGreaterThan(0);
     await userEvent.click(screen.getByRole("button", { name: /Actions/ }));
     expect(screen.getByRole("menuitem", { name: "Resume" })).toBeTruthy();
   });

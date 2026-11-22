@@ -174,6 +174,9 @@ export class SdkTeams implements TeamsPort {
       return out;
     });
   }
+  kubeconfig(teamId: string): Promise<string> {
+    return wrap(() => teams(this.client).getKubeconfig(teamId));
+  }
   serviceTags(signal?: AbortSignal): Promise<readonly ServiceTagRecord[]> {
     return wrap(async () => {
       const out: ServiceTagRecord[] = [];
