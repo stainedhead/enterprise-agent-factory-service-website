@@ -97,7 +97,7 @@ API older than v1.3.0 (no `collaboration:*` permission): no item, tile or route.
 |---|---|---|---|
 | OQ-WP2 | Mockups for T3 role step, T1 tile, S10 tab, T6 picker; existing mockups predate the nav item | root (J) | Existing patterns; web lead approves baselines |
 | OQ-WP7 | Exact CLI flag spellings for previews | `-cli` | `--web-ui-enabled`/`--no-web-ui-enabled`, `--registration-mode`, `--names`, `--managed-by`, `--may-expose-collaboration` |
-| OQ-IMP1 | Re-pin to the restapi merge commit | coordinator | Pin 99bfcfc now |
+| OQ-IMP1 | Re-pin to the restapi merge commit | coordinator | Pin 3588074 now (re-pinned from 99bfcfc for the collaboration report kind) |
 
 ## Parked (needs a real cluster, AWS account or edge)
 

@@ -44,11 +44,11 @@ components:
       schema:
         $ref: '#/components/schemas/Timestamp'
     GroupBy:
-      description: 'Comma-separated: team, agent, model, system, day, hour, tag:<key>, and pool in ephemeral teams. Filters tag.<key>=<value> are also accepted'
+      description: 'Comma-separated: team, agent, model, system, day, hour, tag:<key>, and pool in ephemeral teams. The collaboration report takes team (service report), day, surface, reason and person. Filters tag.<key>=<value> are also accepted'
       in: query
       name: groupBy
       schema:
-        pattern: ^(team|agent|model|system|day|hour|pool|tag:[A-Za-z0-9_.:/=+@-]+)(,(team|agent|model|system|day|hour|pool|tag:[A-Za-z0-9_.:/=+@-]+))*$
+        pattern: ^(team|agent|model|system|day|hour|pool|surface|reason|person|tag:[A-Za-z0-9_.:/=+@-]+)(,(team|agent|model|system|day|hour|pool|surface|reason|person|tag:[A-Za-z0-9_.:/=+@-]+))*$
         type: string
     IdempotencyKey:
       description: Scoped to the caller; kept for api.idempotency_key_ttl_seconds. A repeat replays the stored response
@@ -3439,6 +3439,7 @@ components:
             - costs
             - activity
             - traffic
+            - collaboration
           type: string
         nextToken:
           type: string
@@ -3451,7 +3452,7 @@ components:
         rows:
           items:
             additionalProperties: true
-            description: groupBy columns, then measures. usage rows carry calls, inputTokens, outputTokens and costUsd; costs rows carry estimatedUsd (the gateway's metering) and billedUsd (the AWS Cost and Usage Report, once reconciled); activity rows carry workingSeconds, idleSeconds, offSeconds, impairedSeconds, modelCalls and utilizationPct; traffic rows carry connections, deniedConnections, requests, errors, bytesOut and bytesIn, never a cost. A call is a gateway request whose outcome is ok or error.
+            description: 'groupBy columns, then measures. usage rows carry calls, inputTokens, outputTokens and costUsd; costs rows carry estimatedUsd (the gateway''s metering) and billedUsd (the AWS Cost and Usage Report, once reconciled); activity rows carry workingSeconds, idleSeconds, offSeconds, impairedSeconds, modelCalls and utilizationPct; traffic rows carry connections, deniedConnections, requests, errors, bytesOut and bytesIn, never a cost. A call is a gateway request whose outcome is ok or error. collaboration rows carry signIns, uniquePeople, requests, deniedRequests and secretDetections (usage only, never content); a row grouped by person carries principal {id, type: user|api_key}, and a row has serviceAdminEntry true when it includes access held only as a service admin.'
             type: object
           type: array
         totals:
@@ -9769,6 +9770,7 @@ paths:
               - costs
               - activity
               - traffic
+              - collaboration
             type: string
         - $ref: '#/components/parameters/From'
         - $ref: '#/components/parameters/To'
@@ -17364,6 +17366,7 @@ paths:
               - costs
               - activity
               - traffic
+              - collaboration
             type: string
         - $ref: '#/components/parameters/From'
         - $ref: '#/components/parameters/To'

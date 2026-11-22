@@ -17,6 +17,8 @@ export interface TableColumn<T> {
   /** Text matched by the filter; defaults to the sort value. */
   text?: (item: T) => string;
   alwaysVisible?: boolean;
+  /** Hidden until the person turns it on in preferences. */
+  defaultHidden?: boolean;
 }
 
 export interface PropertyFilter<T> {
@@ -61,8 +63,10 @@ export function Table<T>(p: TableProps<T>) {
   const [props, setProps] = useState<Record<string, string>>({});
   const [sort, setSort] = useState<{ id: string; dir: "asc" | "desc" } | undefined>();
   const [prefsOpen, setPrefsOpen] = useState(false);
-  const [hidden, setHidden] = useState<string[]>(() =>
-    p.preferences ? (readTablePreferences(p.preferences, p.id).hiddenColumns ?? []) : [],
+  const [hidden, setHidden] = useState<string[]>(
+    () =>
+      (p.preferences ? readTablePreferences(p.preferences, p.id).hiddenColumns : undefined) ??
+      p.columns.filter((c) => c.defaultHidden).map((c) => c.id),
   );
   const filterId = useId();
   const cols = p.columns.filter((c) => c.alwaysVisible || !hidden.includes(c.id));

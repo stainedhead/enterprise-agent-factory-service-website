@@ -142,3 +142,23 @@ describe("KubeconfigCard (M5-G3)", () => {
     expect(screen.queryByRole("button", { name: "Download kubeconfig" })).toBeNull();
   });
 });
+
+describe("Collaboration guardrail (WEB-US-52)", () => {
+  it("set guardrails only for service admin", async () => {
+    const teams = open(serviceAdminWith(ALL_PERMS), aTeam({ mayExposeCollaboration: true }));
+    await userEvent.click(
+      await screen.findByRole("button", { name: "Stop collaboration endpoints" }),
+    );
+    const d = await screen.findByRole("dialog");
+    expect(d.textContent).toContain("Both public surfaces stop within a minute");
+    expect(d.textContent).toContain("--may-expose-collaboration");
+    await userEvent.click(within(d).getByRole("button", { name: "Apply" }));
+    await waitFor(() => expect(teams.update).toHaveBeenCalled());
+    expect(teams.update.mock.calls[0]?.[1]).toEqual({ mayExposeCollaboration: false });
+  });
+  it("a team admin sees it disabled with the role needed", async () => {
+    open(REAL_TEAM_ADMIN);
+    const b = await screen.findByRole("button", { name: "Stop collaboration endpoints" });
+    expect(b.getAttribute("aria-disabled")).toBe("true");
+  });
+});

@@ -1305,7 +1305,7 @@ export interface Quotas {
 
 export interface Report {
   groupBy: string[];
-  kind: "usage" | "costs" | "activity" | "traffic" | (string & {});
+  kind: "usage" | "costs" | "activity" | "traffic" | "collaboration" | (string & {});
   nextToken?: string;
   notes: string[];
   range: ReportRange;

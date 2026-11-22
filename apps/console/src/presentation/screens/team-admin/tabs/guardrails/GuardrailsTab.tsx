@@ -17,11 +17,13 @@ import { useService } from "../../../../services.js";
 
 type Change =
   | { field: "isolationTier"; value: "shared" | "dedicated" }
-  | { field: "viewerKubectl"; value: boolean };
+  | { field: "viewerKubectl"; value: boolean }
+  | { field: "mayExposeCollaboration"; value: boolean };
 
 const WORDS: Record<Change["field"], string> = {
   isolationTier: "isolation tier",
   viewerKubectl: "viewer kubectl",
+  mayExposeCollaboration: "collaboration publishing",
 };
 
 /**
@@ -44,7 +46,11 @@ export function GuardrailsTab({ teamId }: { teamId: string }) {
     mutationFn: (c: Change) =>
       teams.update(
         { id: teamId, version: team.data?.version ?? 0 },
-        c.field === "isolationTier" ? { isolationTier: c.value } : { viewerKubectl: c.value },
+        c.field === "isolationTier"
+          ? { isolationTier: c.value }
+          : c.field === "viewerKubectl"
+            ? { viewerKubectl: c.value }
+            : { mayExposeCollaboration: c.value },
       ),
     onSettled: () => {
       setPending(undefined);
@@ -102,6 +108,23 @@ export function GuardrailsTab({ teamId }: { teamId: string }) {
           {t.viewerKubectl ? "Turn off viewer kubectl" : "Turn on viewer kubectl"}
         </Button>
       </p>
+      <p>
+        May publish collaboration endpoints is{" "}
+        <strong>{t.mayExposeCollaboration === false ? "off" : "on"}</strong>.{" "}
+        <Button
+          disabledReason={reason}
+          onClick={() =>
+            setPending({
+              field: "mayExposeCollaboration",
+              value: t.mayExposeCollaboration === false,
+            })
+          }
+        >
+          {t.mayExposeCollaboration === false
+            ? "Allow collaboration endpoints"
+            : "Stop collaboration endpoints"}
+        </Button>
+      </p>
       {reason && <p>{reason}: guardrails are set by service admins.</p>}
       {pending && (
         <ConfirmDialog
@@ -113,15 +136,18 @@ export function GuardrailsTab({ teamId }: { teamId: string }) {
           <p>
             {pending.field === "isolationTier"
               ? `Set the isolation tier to ${pending.value}. The reconciler moves the team's workloads accordingly.`
-              : pending.value
-                ? "Viewers of this team can download a read-only kubeconfig."
-                : "Viewers can no longer download a kubeconfig."}
+              : pending.field === "mayExposeCollaboration"
+                ? pending.value
+                  ? "The team may switch on public access to its Paperclip."
+                  : "Both public surfaces stop within a minute. The team's choices are kept."
+                : pending.value
+                  ? "Viewers of this team can download a read-only kubeconfig."
+                  : "Viewers can no longer download a kubeconfig."}
           </p>
           <CliPreview
             command={buildCli("UpdateTeam", {
               teamId,
-              [pending.field === "isolationTier" ? "isolationTier" : "viewerKubectl"]:
-                pending.value,
+              [pending.field]: pending.value,
             })}
           />
         </ConfirmDialog>

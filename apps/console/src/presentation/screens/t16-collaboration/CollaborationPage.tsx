@@ -6,15 +6,25 @@ import type { CollaborationRecord } from "../../../application/ports/collaborati
 import { isAgentMissing } from "../../../application/usecases/collaboration/CollaborationUseCases.js";
 import { reasonText, type Surface } from "../../../domain/collaboration.js";
 import { can } from "../../../domain/me.js";
-import { Alert, Breadcrumbs, Button, Card, PageHeader } from "../../components/index.js";
+import {
+  ActionsMenu,
+  Alert,
+  Breadcrumbs,
+  Button,
+  Card,
+  PageHeader,
+} from "../../components/index.js";
 import { useTeamWriteGate } from "../../hooks/useTeamWriteGate.js";
 import { ConflictAlert } from "../../query/ConflictAlert.js";
 import { usePolledQuery } from "../../query/usePolledQuery.js";
 import { useService } from "../../services.js";
 import { useMe } from "../../shell/ShellContext.js";
 import { ConnectedAgentsPanel } from "./ConnectedAgentsPanel.js";
+import { EditEndpointsDialog, RotateKeysDialog } from "./dialogs.js";
+import { ConditionAlerts, GuidancePanel } from "./guidance.js";
 import { collabKey } from "./keys.js";
 import { EndpointsPanel, ManagedSecretsPanel, RecentAccessPanel, StatusPanel } from "./panels.js";
+import { ViewerBanner } from "./ViewerBanner.js";
 
 /**
  * T16 and V3 (WEB-US-44..50): the team's Paperclip collaboration. Team-admins change the switches and the
@@ -36,6 +46,7 @@ export default function CollaborationPage({ viewer = false }: { viewer?: boolean
   });
   const [stale, setStale] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [dialog, setDialog] = useState<"edit" | "rotate" | undefined>();
   const put = useMutation({
     mutationFn: (v: { surface: Surface; on: boolean }) => {
       const cur = q.data as CollaborationRecord;
@@ -76,7 +87,37 @@ export default function CollaborationPage({ viewer = false }: { viewer?: boolean
         description="Paperclip, where your team's people and agents work together."
         infoHref="/docs/collaboration"
         {...(viewer ? { badge: "Read-only" } : {})}
+        actions={
+          <ActionsMenu
+            actions={[
+              {
+                id: "edit",
+                label: "Edit endpoints",
+                onSelect: () => setDialog("edit"),
+                ...(manageReason ? { disabledReason: manageReason } : {}),
+              },
+              {
+                id: "rotate",
+                label: "Rotate Paperclip keys",
+                onSelect: () => setDialog("rotate"),
+                ...(manageReason ? { disabledReason: manageReason } : {}),
+              },
+              {
+                id: "delete",
+                label: "Delete collaboration agent",
+                onSelect: () => navigate(`/t/${teamId}/agents/${q.data?.agentId ?? ""}`),
+                ...((manageReason ?? write.reasonFor("agents:write", { allowWhenSuspended: true }))
+                  ? {
+                      disabledReason: (manageReason ??
+                        write.reasonFor("agents:write", { allowWhenSuspended: true })) as string,
+                    }
+                  : {}),
+              },
+            ]}
+          />
+        }
       />
+      {viewer && <ViewerBanner teamId={teamId} />}
       {q.isPending && <p role="status">Loading collaboration…</p>}
       {missing && (
         <Card>
@@ -125,6 +166,7 @@ export default function CollaborationPage({ viewer = false }: { viewer?: boolean
       )}
       {q.data && (
         <>
+          <ConditionAlerts record={q.data} />
           <Card>
             <StatusPanel teamId={teamId} record={q.data} />
           </Card>
@@ -148,6 +190,19 @@ export default function CollaborationPage({ viewer = false }: { viewer?: boolean
           <Card>
             <RecentAccessPanel teamId={teamId} />
           </Card>
+          <Card>
+            <GuidancePanel teamId={teamId} record={q.data} />
+          </Card>
+          {dialog === "edit" && (
+            <EditEndpointsDialog
+              teamId={teamId}
+              record={q.data}
+              onClose={() => setDialog(undefined)}
+            />
+          )}
+          {dialog === "rotate" && (
+            <RotateKeysDialog teamId={teamId} onClose={() => setDialog(undefined)} />
+          )}
         </>
       )}
     </div>

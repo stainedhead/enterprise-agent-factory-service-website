@@ -101,11 +101,6 @@ export function StatusPanel({ teamId, record }: { teamId: string; record: Collab
           }),
         ]}
       />
-      {record.unmanagedPaperclipAgents.length > 0 && (
-        <Alert kind="warning" title="Agents created inside Paperclip are not managed by AFS">
-          {record.unmanagedPaperclipAgents.join(", ")}
-        </Alert>
-      )}
     </section>
   );
 }

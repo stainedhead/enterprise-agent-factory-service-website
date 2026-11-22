@@ -27,6 +27,8 @@ export interface TeamDraft {
   adminType: "user" | "group";
   adminEmail: string;
   adminGroup: string;
+  /** The guardrail *May publish collaboration endpoints*; on unless set to `false` (WEB-US-52). */
+  mayExposeCollaboration?: boolean;
   /** Lifetime, expiry and teardown of an ephemeral team (M5-E); used only when `kind` is `ephemeral`. */
   ephemeral: EphemeralDraft;
 }
@@ -136,6 +138,7 @@ export function toCreateInput(d: TeamDraft): CreateTeamInput {
     ...(d.ownerEmail !== "" && { ownerEmail: d.ownerEmail }),
     ...(d.identityProviderId !== "" && { identityProviderId: d.identityProviderId }),
     models: d.models,
+    mayExposeCollaboration: d.mayExposeCollaboration !== false,
     tags: Object.entries(d.tags)
       .filter(([, v]) => v !== "")
       .map(([key, value]) => ({ key, value })),
