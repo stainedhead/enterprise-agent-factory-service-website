@@ -50,7 +50,7 @@ jobs:
         run: bun run --filter '@afs/sdk' test:bun
       - name: SDK in Chromium
         run: |
-          bunx playwright install --with-deps chromium
+          bunx playwright@1.63.0 install --with-deps chromium
           bun run --filter '@afs/sdk' test:browser
 
   e2e:
@@ -67,7 +67,7 @@ jobs:
           node-version-file: .nvmrc
           package-manager-cache: false
       - run: bun install --frozen-lockfile
-      - run: bunx playwright install --with-deps chromium firefox webkit
+      - run: bunx playwright@1.63.0 install --with-deps chromium firefox webkit
       - name: Playwright (chromium full; firefox and webkit smoke)
         run: bun run --filter '@afs/console' e2e
       - uses: actions/upload-artifact@v4
