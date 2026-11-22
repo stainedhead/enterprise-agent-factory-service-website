@@ -43,13 +43,18 @@ Replace the placeholders from the environment's `config.json`:
 
 | Header | Value |
 |---|---|
-| `Content-Security-Policy` | `default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self' <apiUrl> <issuers> <telemetryUrl>; frame-src <issuers>; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'` |
+| `Content-Security-Policy` | `default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self' <apiUrl> <issuers> <telemetryUrl>; frame-src 'self' <issuers>; frame-ancestors 'self'; object-src 'none'; base-uri 'self'; form-action 'self'` |
 | `Strict-Transport-Security` | `max-age=63072000; includeSubDomains; preload` |
 | `Referrer-Policy` | `no-referrer` |
 | `X-Content-Type-Options` | `nosniff` |
 
 If you change the API origin or add an identity provider, update `connect-src` and `frame-src` with it, or
 sign-in and API calls are blocked by the browser.
+
+The console frames its own sign-in callback to renew a session silently, so `frame-src` includes `'self'` and
+`frame-ancestors` is `'self'` (not `'none'`). The CDN must not add `X-Frame-Options: DENY` or override
+`frame-ancestors` with `'none'`; either one blocks the frame and sessions then end at token expiry for
+identity providers that issue no refresh tokens. If you need the header, use `X-Frame-Options: SAMEORIGIN`.
 
 ## Deploy: caching and routing
 

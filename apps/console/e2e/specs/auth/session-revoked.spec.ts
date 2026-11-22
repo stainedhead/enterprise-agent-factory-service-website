@@ -5,14 +5,6 @@ import { expect, test } from "../../helpers/test.js";
 
 const T1 = TEAMS[0].id;
 
-/**
- * SEAM (stream B, B-6): this spec needs stream C's merge: the fault hook `e2e/fake-afs/faults.ts` (armed
- * through `/__inject`) and the `onUnauthenticated` option of `createQueryClient`, which `main.tsx` wires to
- * `session.expire()` (see the SEAM comment there). The integrator sets this to `true` in the same change as
- * that wiring. Until then the specs are skipped, never silently green.
- */
-const STREAM_C_MERGED = false;
-
 /** Fails the next `times` calls of `operationId` with 401 (stream C's fault hook). */
 const armUnauthenticated = async (operationId: string, times: number) => {
   const r = await fetch(`${ENDPOINTS.api}/__inject`, {
@@ -27,11 +19,6 @@ const count = async (operationId: string) =>
 
 // FR-003: an API 401 that survives the SDK's one refresh expires the session, whichever call it was.
 test.describe("a revoked session (FR-003)", () => {
-  test.skip(
-    !STREAM_C_MERGED,
-    "needs stream C (faults.ts and onUnauthenticated); see the SEAM note",
-  );
-
   test("two 401s from ListAgents show the session-expired dialog on the same route, and the query stops asking", async ({
     page,
     signInAs,

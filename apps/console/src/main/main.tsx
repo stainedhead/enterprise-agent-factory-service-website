@@ -81,14 +81,11 @@ async function start(): Promise<void> {
 
   // One channel for sign-out and shared activity (FR-005): a message never reaches the tab that sent it.
   const channel = new BroadcastSessionChannel();
-  // SEAM (stream B, B-6; FR-003): after stream C has merged, replace the line below with
-  //   const queryClient = createQueryClient((e) => bus.emit(e), undefined, {
-  //     onUnauthenticated: () => session.expire(),
-  //   });
-  // (`session` is created just below; the callback runs later, so the forward reference is safe) and set
-  // STREAM_C_MERGED = true in e2e/specs/auth/session-revoked.spec.ts. C's `createQueryClient` already has
-  // the third `options` parameter; this base does not, so the call cannot be written here yet.
-  const queryClient = createQueryClient((e) => bus.emit(e));
+  // An unauthenticated answer to any query or mutation expires the session (FR-003); `session` is created
+  // just below, and the callback runs later, so the forward reference is safe.
+  const queryClient = createQueryClient((e) => bus.emit(e), undefined, {
+    onUnauthenticated: () => session.expire(),
+  });
   let getMe: GetMe;
   const session = new Session({
     oidc,

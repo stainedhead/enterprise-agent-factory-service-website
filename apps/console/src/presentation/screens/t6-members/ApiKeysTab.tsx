@@ -22,6 +22,7 @@ import {
   Table,
   TextInput,
 } from "../../components/index.js";
+import { useDraft } from "../../hooks/useDraft.js";
 import { useSecretMutation } from "../../hooks/useSecretMutation.js";
 import { useTeamWriteGate } from "../../hooks/useTeamWriteGate.js";
 import { DeniedAlert } from "../../query/DeniedAlert.js";
@@ -179,6 +180,12 @@ export function ApiKeysTab({ teamId }: { teamId: string }) {
   );
 }
 
+interface KeyDraft {
+  name: string;
+  role: string;
+  days: string;
+}
+
 function CreateKeyDialog({
   teamId,
   onClose,
@@ -189,9 +196,18 @@ function CreateKeyDialog({
   onCreated: (r: { key: ApiKeyRecord; secretKey: string | undefined }) => void;
 }) {
   const apiKeys = useService("apiKeys");
-  const [name, setName] = useState("");
-  const [role, setRole] = useState("team_viewer");
-  const [days, setDays] = useState(String(API_KEY_DEFAULT_DAYS));
+  // Non-secret fields survive a session expiry (FR-004); the key itself never enters state or a draft.
+  const draft = useDraft<KeyDraft>(`t6-create-api-key:${teamId}`, {
+    name: "",
+    role: "team_viewer",
+    days: String(API_KEY_DEFAULT_DAYS),
+  });
+  const { name, role, days } = draft.value;
+  const set = (patch: Partial<KeyDraft>) => draft.setValue((d) => ({ ...d, ...patch }));
+  const close = () => {
+    draft.discard();
+    onClose();
+  };
   // the secret never enters React state: the mutation hands it straight to `onCreated`
   const create = useSecretMutation((d: { name: string; role: string; days: string }) =>
     apiKeys.create(teamId, d),
@@ -209,16 +225,19 @@ function CreateKeyDialog({
   return (
     <Modal
       title="Create API key"
-      onClose={onClose}
+      onClose={close}
       actions={
         <>
-          <Button onClick={onClose}>Cancel</Button>
+          <Button onClick={close}>Cancel</Button>
           <Button
             variant="primary"
             disabled={create.pending}
             onClick={async () => {
               const r = await create.run({ name, role, days });
-              if (r) onCreated(r);
+              if (r) {
+                draft.discard();
+                onCreated(r);
+              }
             }}
           >
             Create key
@@ -233,17 +252,21 @@ function CreateKeyDialog({
         </Alert>
       )}
       <FormField label="Name" error={err?.fields.name}>
-        <TextInput value={name} onChange={(e) => setName(e.target.value)} />
+        <TextInput value={name} onChange={(e) => set({ name: e.target.value })} />
       </FormField>
       <FormField label="Role" error={err?.fields.role}>
-        <SelectInput value={role} options={ROLES} onChange={(e) => setRole(e.target.value)} />
+        <SelectInput value={role} options={ROLES} onChange={(e) => set({ role: e.target.value })} />
       </FormField>
       <FormField
         label="Expires in (days)"
         hint={`Up to ${API_KEY_MAX_DAYS} days; ${API_KEY_DEFAULT_DAYS} by default`}
         error={err?.fields.expiresAt}
       >
-        <TextInput inputMode="numeric" value={days} onChange={(e) => setDays(e.target.value)} />
+        <TextInput
+          inputMode="numeric"
+          value={days}
+          onChange={(e) => set({ days: e.target.value })}
+        />
       </FormField>
       <CliPreview command={cli} />
     </Modal>

@@ -23,23 +23,25 @@ lines, so merges stay hunk-disjoint.
 | 2 | Research and data modeling | Complete | research.md, data-dictionary.md |
 | 3 | Architecture and planning | Complete | architecture.md, plan.md |
 | 4 | Task breakdown | Complete | tasks.md: 5 streams, 42 tasks plus U-1 |
-| 5 | Implementation (step 9) | Not Started | |
+| 5 | Implementation (step 9) | Complete | 42 of 43; only U-1 open (external) |
 | 6 | Completion and archival | Not Started | Step 10 archives this spec inside the original archive |
 
 ## Streams
 
 | Stream | Findings | Tasks done | Merged | Notes |
 |---|---|---|---|---|
-| A: SDK | FR-007..FR-011 | 6/6 | no | Gate green on wf/a |
-| E: Quality and edges | FR-016..FR-020 | 9/9 | no | Branch `wf/e`; gate green |
-| C: Error routing | FR-002, FR-003 (query layer), FR-015 | 7/7 | no | Gate green; `onUnauthenticated` and `faults.ts` ready for B |
-| B: Session, auth, hosting | FR-001, FR-003 (wiring), FR-005, FR-006, FR-012..FR-014, FR-004 (sign-out) | 9/10 | no | B-6 is not ticked: spec and SEAM are written, verified red and green in a scratch merge with C; waits for C's merge |
-| D: Drafts | FR-004, FR-021, FR-018 (`IdentitySection.tsx`) | 7/10 | no | D-6 waits for C; D-9 half done (unused import removed, `biome.json` override waits for E); D-10 open |
+| A: SDK | FR-007..FR-011 | 6/6 | yes | Merged first |
+| E: Quality and edges | FR-016..FR-020 | 9/9 | yes | |
+| C: Error routing | FR-002, FR-003 (query layer), FR-015 | 7/7 | yes | |
+| B: Session, auth, hosting | FR-001, FR-003 (wiring), FR-005, FR-006, FR-012..FR-014, FR-004 (sign-out) | 10/10 | yes | B-6 wired and un-skipped by the integrator |
+| D: Drafts | FR-004, FR-021, FR-018 (`IdentitySection.tsx`) | 10/10 | yes | D-6, D-9, D-10 done by the integrator |
 | U-1 (stream-independent) | M6-U1 contract re-pin | 0/1 | n/a | Open: blocked on the `-restapi` merge and tag (CQ-1) |
 
 ## Merge log
 
 (coordinator: one line per merge with the commit and the gate result)
+
+- Merged A, E, C, B, D in order (`--no-ff`). After the last merge plus B-6, D-6, D-9 and docs: `bun run gate` green, `bunx biome check .` 0 warnings, full Chromium e2e 259 passed (`quality/csp.spec.ts` included).
 
 ## Stream A log
 

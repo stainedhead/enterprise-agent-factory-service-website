@@ -17,6 +17,12 @@ owns the "Coordinator" section. Do not edit another stream's section.
 - Interim decisions for the PRD's open questions (PRD section 9): FR-001 apply `'self'` and record in ADR-014;
   FR-005 input events only, shared across tabs; FR-004 minimum dialog set only.
 - ADR numbers are pre-assigned: B writes ADR-014 (FR-001), D writes ADR-015 (FR-021).
+- **Integration (step 9).** Merged `--no-ff` in order A, E, C, B, D. Conflicts were only the summary rows in
+  `tasks.md` and `status.md` (kept the row with progress) and the ADR file (ADR-014 then ADR-015). B-6 done:
+  `main.tsx` passes `onUnauthenticated: () => session.expire()`; the skip flag in `session-revoked.spec.ts` is
+  removed (not flipped), so the spec always runs. D-6 done on the merged tree. D-9 done: E's `IdentitySection.tsx`
+  override deleted, `bunx biome check .` 0 warnings. `user-docs/configuration.md` shows B's CSP and says the CDN
+  must not send `X-Frame-Options: DENY` (use `SAMEORIGIN`).
 
 ## Stream A (SDK)
 
@@ -143,6 +149,11 @@ owns the "Coordinator" section. Do not edit another stream's section.
 - **RM-D1 D-7 scope.** T3 has no secret input, so the e2e proves the non-secret round trip, no token in any
   storage write, the carrier key removed after restore and after sign-out. The typed-secret half (dialogs) goes
   with D-6.
+- **RD-6 Dialogs (integrator).** Create secret (`t4-create-secret:<teamId>`: scope, name, description, system,
+  rotation) and Create API key (`t6-create-api-key:<teamId>`: name, role, days) use `useDraft`; the secret value
+  stays in `SecretInput`, the new key is never in state. Discard on success and on Cancel or close; a refused
+  create keeps the draft. Covered by `SecretDialogs.drafts.test.tsx` and `ApiKeysTab.drafts.test.tsx` (a sentinel
+  value never appears in the store). Rotate secret has no non-secret field, so it is not drafted.
 
 ## Stream E (quality and edges)
 

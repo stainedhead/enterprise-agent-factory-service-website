@@ -4,7 +4,7 @@
 |---|---|
 | **Feature** | website-feature-complete-auto-review |
 | **Date** | 2026-11-22 |
-| **Status** | Planning complete; implementation not started |
+| **Status** | Streams A-E merged and complete (42 of 43); U-1 open, waits for the `-restapi` merge |
 
 ## Progress summary
 
@@ -12,11 +12,11 @@
 |---|---|---|
 | A | 6 | 6 |
 | E | 9 | 9 |
-| C | 0 | 7 |
-| B | 0 | 10 |
-| D | 0 | 10 |
+| C | 7 | 7 |
+| B | 10 | 10 |
+| D | 10 | 10 |
 | U-1 | 0 | 1 |
-| **All** | **0** | **43** |
+| **All** | **42** | **43** |
 
 ## How to use this file
 
@@ -135,7 +135,7 @@ draft key). **Depends on:** C for B-6. **Merge position:** 4.
 | [x] | B-3 | Red: e2e `e2e/specs/auth/silent-renew.spec.ts` serves the build through the deploy headers with `setRefreshTokens(false)` (control exposed through `serve.ts`), lets the token reach `exp - 60 s`, expects renewal through the frame with no session-expired dialog and no CSP violation. Green: fix whatever the test exposes in B's files. Write ADR-014 (departure from archived spec FR-037, reason WD-30, platform Terraform note) and update the ASVS V3.7 row to name the test | FR-001 AC2, AC3 | B-2 |
 | [x] | B-4 | Red: new `IdleMonitor.test.ts` and `Session.test.ts` with a fake clock: input in tab A keeps tab B from signing out; no input anywhere signs out both; at most one `activity` message every 30 s; the channel accepts only `signout` and `activity`; `activity` carries no data. Green: throttled `activity` message on the session channel resetting every tab's monitor; wire in `main.tsx` | FR-005 AC1..AC3 | none |
 | [x] | B-5 | Red: `Session.test.ts` / `DraftStore` test that sign-out clears the `afs.drafts` sessionStorage key as well as memory. Green: add `DraftStore.clear()` (memory and key) and call it from `Session.signOut`. D owns the hook and the discard on submit and cancel | FR-004 AC3 (sign-out part) | none |
-| [ ] | B-6 | Red: e2e `e2e/specs/auth/session-revoked.spec.ts`: using C's `faults.ts`, `ListAgents` answers `401` twice, the IdP renews, the session-expired dialog appears on the same route, secret inputs are empty, and no further `ListAgents` request is sent while the dialog is open. Green: in `main.tsx` pass `onUnauthenticated: () => session.expire()` to `createQueryClient` | FR-003 AC1..AC3 | C-5, C-4 (C merged) |
+| [x] | B-6 | Red: e2e `e2e/specs/auth/session-revoked.spec.ts`: using C's `faults.ts`, `ListAgents` answers `401` twice, the IdP renews, the session-expired dialog appears on the same route, secret inputs are empty, and no further `ListAgents` request is sent while the dialog is open. Green: in `main.tsx` pass `onUnauthenticated: () => session.expire()` to `createQueryClient` | FR-003 AC1..AC3 | C-5, C-4 (C merged) |
 | [x] | B-7 | Red: `SessionFlowStore` and `OidcClient` unit tests: flows carry a creation time; `put` drops flows older than 10 minutes and caps entries at 5; a renewal that times out removes its own flow; blocked `sessionStorage` raises `AuthError` saying browser storage is required for sign-in. Green: implement (`put` guarded with try/catch) | FR-012 AC1..AC3 | none |
 | [x] | B-8 | Red: unit test that `login-required` carries the flow's `returnTo`, and e2e `e2e/specs/auth/login-required.spec.ts` with two providers restoring the original route. Green: `OidcClient.complete`, `CompleteSignIn` and `presentation/auth/screens.tsx` pass `?returnTo=` through `safeReturnTo` | FR-013 AC | B-7 (same `OidcClient.ts`) |
 | [x] | B-9 | Red: component tests for the session-expired dialog: `listProviders.execute()` rejects, `reAuthenticate.execute()` rejects, no provider found. Green: each shows an `Alert` with role `alert` inside the dialog and re-enables *Sign in again* | FR-014 AC | none |
@@ -162,11 +162,11 @@ in `src/presentation/screens/t6-members/ApiKeysTab.tsx`. Exception: D-9 deletes 
 | [x] | D-3 | Same for S3 *Create team* (`CreateTeamPage.tsx`) | FR-004 AC1, AC3 | D-1 |
 | [x] | D-4 | Same for P3 *Create work order* and *Create pool* (`CreateWorkOrderPage.tsx`, `CreatePoolPage.tsx`) | FR-004 AC1, AC3 | D-1 |
 | [x] | D-5 | Red then green: discard on submit success and cancel is covered by a shared test helper for D-2..D-4 and D-6; no draft key remains in `sessionStorage` after cancel or success | FR-004 AC3 | D-2, D-3, D-4 |
-| [ ] | D-6 | After C has merged: adopt `useDraft` for the non-secret fields of the *Create secret* and *Create API key* dialogs with component tests (non-secret restored, secret empty, `SecretInput` never drafted) | FR-004 AC1 | D-1, C merged |
+| [x] | D-6 | After C has merged: adopt `useDraft` for the non-secret fields of the *Create secret* and *Create API key* dialogs with component tests (non-secret restored, secret empty, `SecretInput` never drafted) | FR-004 AC1 | D-1, C merged |
 | [x] | D-7 | Red: e2e `e2e/specs/auth/drafts.spec.ts`: fill T3 with non-secret values and a secret value, force expiry, sign in again through the fake IdP, land on T3 with non-secret values restored and the secret empty; a storage scan shows no secret value in `sessionStorage` at any point; sign-out removes `afs.drafts`. Green: fix what it exposes in D's files | FR-004 AC2, AC3 | D-2, D-6, B merged (B-5) |
 | [x] | D-8 | Red: component or e2e test for T3 partial failure (one config value refused, agent created, refused value listed with the T7 link); add only if it does not exist. Green: fix if it fails. Write ADR-015: the exception to the spec's no-multi-mutation non-goal, the partial-failure behavior, removal trigger (CQ-14 resolved upstream). Rebase onto B's merge first | FR-021 AC | none |
-| [ ] | D-9 | Remove the unused import in `t3-create-agent/sections/IdentitySection.tsx` and delete the scoped `biome.json` override that E-4 added; `bunx biome check .` shows 0 warnings | FR-018 AC | E merged |
-| [ ] | D-10 | Stream exit: `bun run gate`, Chromium e2e for `auth`, `createAgent`, `secrets`, `members`, `teams`, `workOrders`, `pools`; notes and `status.md` updated | Goal 3 | D-1..D-9 |
+| [x] | D-9 | Remove the unused import in `t3-create-agent/sections/IdentitySection.tsx` and delete the scoped `biome.json` override that E-4 added; `bunx biome check .` shows 0 warnings | FR-018 AC | E merged |
+| [x] | D-10 | Stream exit: `bun run gate`, Chromium e2e for `auth`, `createAgent`, `secrets`, `members`, `teams`, `workOrders`, `pools`; notes and `status.md` updated | Goal 3 | D-1..D-9 |
 
 ## Stream-independent task
 

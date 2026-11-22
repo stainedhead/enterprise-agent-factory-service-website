@@ -42,16 +42,6 @@
   },
   "overrides": [
     {
-      "includes": ["**/t3-create-agent/sections/IdentitySection.tsx"],
-      "linter": {
-        "rules": {
-          "correctness": {
-            "noUnusedImports": "off"
-          }
-        }
-      }
-    },
-    {
       "includes": ["**/presentation/shell/HeaderSearch.tsx"],
       "linter": {
         "rules": {

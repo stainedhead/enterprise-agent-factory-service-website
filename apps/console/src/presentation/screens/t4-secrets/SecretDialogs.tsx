@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { isAppError } from "../../../application/errors.js";
 import type { SecretRecord } from "../../../application/ports/secrets.js";
 import { managedPath } from "../../../application/usecases/secrets/SecretsUseCases.js";
@@ -14,9 +14,26 @@ import {
   SelectInput,
   TextInput,
 } from "../../components/index.js";
+import { useDraft } from "../../hooks/useDraft.js";
 import { useSecretMutation } from "../../hooks/useSecretMutation.js";
 import { DeniedAlert } from "../../query/DeniedAlert.js";
 import { useService } from "../../services.js";
+
+/** The non-secret fields of the create dialog, kept as a draft (FR-004). */
+interface SecretDraft {
+  scope: string;
+  name: string;
+  description: string;
+  system: string;
+  rotation: string;
+}
+const emptySecretDraft = (): SecretDraft => ({
+  scope: "team",
+  name: "",
+  description: "",
+  system: "",
+  rotation: "",
+});
 
 export interface NameRef {
   readonly id: string;
@@ -50,11 +67,15 @@ export function CreateSecretDialog({
 }) {
   const secrets = useService("secrets");
   const value = useRef<SecretInputHandle>(null);
-  const [scope, setScope] = useState("team");
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [system, setSystem] = useState("");
-  const [rotation, setRotation] = useState("");
+  // Non-secret fields survive a session expiry (FR-004); the value stays in `SecretInput` and is never drafted.
+  const draft = useDraft<SecretDraft>(`t4-create-secret:${teamId}`, emptySecretDraft());
+  const { scope, name, description, system, rotation } = draft.value;
+  const set = (patch: Partial<SecretDraft>) => draft.setValue((d) => ({ ...d, ...patch }));
+  const close = () => {
+    value.current?.clear();
+    draft.discard();
+    onClose();
+  };
   const create = useSecretMutation((v: { value: string }) =>
     secrets.create(
       teamId,
@@ -86,26 +107,19 @@ export function CreateSecretDialog({
   return (
     <Modal
       title="Create secret"
-      onClose={() => {
-        value.current?.clear();
-        onClose();
-      }}
+      onClose={close}
       actions={
         <>
-          <Button
-            onClick={() => {
-              value.current?.clear();
-              onClose();
-            }}
-          >
-            Cancel
-          </Button>
+          <Button onClick={close}>Cancel</Button>
           <Button
             variant="primary"
             disabled={create.pending}
             onClick={async () => {
               const r = await create.run({ value: value.current?.read() ?? "" });
-              if (r) onCreated();
+              if (r) {
+                draft.discard();
+                onCreated();
+              }
             }}
           >
             Create secret
@@ -130,21 +144,21 @@ export function CreateSecretDialog({
             { value: "team", label: "Team shared" },
             ...agents.map((a) => ({ value: `agent:${a.id}`, label: `Agent: ${a.name}` })),
           ]}
-          onChange={(e) => setScope(e.target.value)}
+          onChange={(e) => set({ scope: e.target.value })}
         />
       </FormField>
       <FormField label="Name" error={err?.fields.name}>
-        <TextInput value={name} onChange={(e) => setName(e.target.value)} />
+        <TextInput value={name} onChange={(e) => set({ name: e.target.value })} />
       </FormField>
       <FormField label="Description" error={err?.fields.description}>
-        <TextInput value={description} onChange={(e) => setDescription(e.target.value)} />
+        <TextInput value={description} onChange={(e) => set({ description: e.target.value })} />
       </FormField>
       <FormField label="External system" hint="Optional" error={err?.fields.externalSystemId}>
         <SelectInput
           value={system}
           placeholder="None"
           options={systems.map((s) => ({ value: s.id, label: s.name }))}
-          onChange={(e) => setSystem(e.target.value)}
+          onChange={(e) => set({ system: e.target.value })}
         />
       </FormField>
       <FormField
@@ -158,7 +172,7 @@ export function CreateSecretDialog({
         <SelectInput
           value={rotation}
           options={ROTATION}
-          onChange={(e) => setRotation(e.target.value)}
+          onChange={(e) => set({ rotation: e.target.value })}
         />
       </FormField>
       <div>

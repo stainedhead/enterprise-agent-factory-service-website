@@ -21,7 +21,7 @@
 | 6  | Prepare Review PRD              | ✅ Complete (ready for spec; 5 fix streams A–E, merge A→E→C→B→D) | 2026-11-22T10:01:43Z | 2026-11-22T10:02:15Z | 1 |
 | 7  | Archive Original Spec           | ✅ Complete (`git mv` to `specs/archive/`; dashboard moved with it; M6-U1 stays open, carried as U-1 in the review spec) | 2026-11-22T10:02:25Z | 2026-11-22T10:06:32Z | 1 |
 | 8  | Spec Review Fixes               | ✅ Complete (`specs/261122-website-feature-complete-auto-review/`: 8 phase files, 5 streams, 42 tasks plus U-1) | 2026-11-22T10:06:32Z | 2026-11-22T10:06:32Z | 1 |
-| 9  | Implement Review Fixes          | ⬜ Pending | — | — | — |
+| 9  | Implement Review Fixes          | ✅ Complete (42/43; U-1 open; gate green, 259 Chromium e2e passed) | 2026-11-22T10:10:00Z | 2026-11-22T10:42:00Z | 32 |
 | 10 | Archive Fixes Spec              | ⬜ Pending | — | — | — |
 | 11 | Final Quality Pass              | ⬜ Pending | — | — | — |
 | 12 | Process Analysis Report         | ⬜ Pending | — | — | — |
