@@ -42,10 +42,10 @@
 | M1 Teams & access | 10 (+ exit) | 46 | 46 |
 | M2 Agents & secrets | 7 (+ exit) | 41 | 41 |
 | M3 Spend control | 6 (+ exit) | 24 | 24 |
-| M4 Production readiness | 8 (+ exit) | 34 | 24 |
+| M4 Production readiness | 8 (+ exit) | 34 | 27 |
 | M5 Budgeted workloads and swarms | 4 (+ exit) | 19 | 0 |
 | M6 CVE remediation and completion | 6 (+ exit) | 26 | 0 |
-| **Total** | **51** | **259** | **205** |
+| **Total** | **51** | **259** | **208** |
 
 ## External dependencies and contract questions
 
@@ -602,9 +602,9 @@ Owns: area files: `admin-exports`; `presentation/screens/s11-export-import/`.
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M4-E1 | *Create export* (`202`, polled progress); past exports with size, checksum and, when complete, the download link valid 7 days then shown expired (D49); note that bundles hold no secret values | WEB-US-21.1, WEB-17 | — |
-| [ ] | M4-E2 | *Import*: bundle and account map; *Dry run* default showing the plan per resource; bundle over 100 MB refused client-side; *Apply* enabled only after a dry run of the same inputs (input hash) and asks to confirm | WEB-US-21.2, WEB-17 | M4-E1 |
-| [ ] | M4-E3 | e2e, axe, visual (S2 pattern) | WEB-US-42.1 (part), WEB-US-42.2 (part) | M4-E1, M4-E2 |
+| [x] | M4-E1 | *Create export* (`202`, polled progress); past exports with size, checksum and, when complete, the download link valid 7 days then shown expired (D49); note that bundles hold no secret values | WEB-US-21.1, WEB-17 | — |
+| [x] | M4-E2 | *Import*: bundle and account map; *Dry run* default showing the plan per resource; bundle over 100 MB refused client-side; *Apply* enabled only after a dry run of the same inputs (input hash) and asks to confirm | WEB-US-21.2, WEB-17 | M4-E1 |
+| [x] | M4-E3 | e2e, axe, visual (S2 pattern) | WEB-US-42.1 (part), WEB-US-42.2 (part) | M4-E1, M4-E2 |
 
 ### M4-S · Report scheduling and revision restore
 

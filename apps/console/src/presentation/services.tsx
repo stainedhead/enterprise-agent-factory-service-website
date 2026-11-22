@@ -5,6 +5,7 @@ import type {
   AdminAgentTemplatesUseCases,
   AdminStorageClassesUseCases,
 } from "../application/usecases/adminCatalogs/AdminCatalogsUseCases.js";
+import type { AdminExportsUseCases } from "../application/usecases/adminExports/AdminExportsUseCases.js";
 import type {
   AdminModelsUseCases,
   AdminPricingUseCases,
@@ -54,6 +55,7 @@ export interface AppServices {
   readonly tags: TagsUseCases;
   readonly adminOrgAccounts: AdminOrgAccountsUseCases;
   readonly adminAudit: AdminAuditUseCases;
+  readonly adminExports: AdminExportsUseCases;
   readonly logDestinations: LogDestinationsUseCases;
   readonly notifications: NotificationsUseCases;
   readonly secrets: SecretsUseCases;

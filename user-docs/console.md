@@ -165,6 +165,13 @@ The team's log destinations (CloudWatch, S3, OTLP, Splunk HEC, Datadog) with sta
 when failing) and the last delivery time. Team-admins add, edit, enable, disable and delete destinations; the
 credential is chosen from the team's secrets, never typed. Viewers see the list with changes disabled.
 
+## Export and import (`/export-import`, service admins)
+
+*Create export* bundles every team or the teams you tick; the export is prepared in the background and its row gains a
+download link, valid for 7 days and then shown as *Expired*. Bundles hold no secret values. *Import* takes a bundle file
+(up to 100 MB) and an optional account map (`<source account id>=<target account id>`, one per line). *Dry run* shows
+what would change for each team; *Apply* is enabled only for the same inputs you just dry-ran, and asks to confirm.
+
 ## Troubleshooting
 
 - *Page not found* for a page you expect: you may not hold the role it needs, or the team is not yours.
