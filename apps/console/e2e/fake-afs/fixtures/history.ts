@@ -26,52 +26,107 @@ const events: Json[] = Array.from({ length: 27 }, (_, i) => {
 
 const KEYS = ["actorId", "action", "outcome", "resourceKind", "resourceId"] as const;
 
-const revisions: Json[] = [
+const seedRevisions = (): Json[] =>
   [
-    "team",
-    TEAMS[0].id,
-    4,
-    "UPDATE",
-    "usr_team-admin",
-    "2026-11-21T16:00:00Z",
-    { displayName: "Payments", costCenter: "CC-100", maxBudgetUsd: "6000.00" },
-  ],
-  [
-    "team",
-    TEAMS[0].id,
-    3,
-    "UPDATE",
-    "usr_svc-admin",
-    "2026-11-20T12:00:00Z",
-    { displayName: "Payments", costCenter: "CC-100", maxBudgetUsd: "5000.00" },
-  ],
-  [
-    "team",
-    TEAMS[0].id,
-    2,
-    "UPDATE",
-    "usr_svc-admin",
-    "2026-11-19T09:00:00Z",
-    { displayName: "Payments Team", maxBudgetUsd: "5000.00" },
-  ],
-  [
-    "agent",
-    "agt_001",
-    1,
-    "INSERT",
-    "usr_team-admin",
-    "2026-11-18T09:00:00Z",
-    { name: "reviewer", modelId: "anthropic.claude-sonnet-4-5" },
-  ],
-].map(([resourceKind, resourceId, revision, operation, changedBy, changedAt, snapshot]) => ({
-  resourceKind,
-  resourceId,
-  revision,
-  operation,
-  changedBy,
-  changedAt,
-  snapshot,
-}));
+    [
+      "team",
+      TEAMS[0].id,
+      4,
+      "UPDATE",
+      "usr_team-admin",
+      "2026-11-21T16:00:00Z",
+      { displayName: "Payments", costCenter: "CC-100", maxBudgetUsd: "6000.00" },
+    ],
+    [
+      "team",
+      TEAMS[0].id,
+      3,
+      "UPDATE",
+      "usr_svc-admin",
+      "2026-11-20T12:00:00Z",
+      { displayName: "Payments", costCenter: "CC-100", maxBudgetUsd: "5000.00" },
+    ],
+    [
+      "team",
+      TEAMS[0].id,
+      2,
+      "UPDATE",
+      "usr_svc-admin",
+      "2026-11-19T09:00:00Z",
+      { displayName: "Payments Team", maxBudgetUsd: "5000.00" },
+    ],
+    [
+      "agent",
+      "agt_001",
+      1,
+      "INSERT",
+      "usr_team-admin",
+      "2026-11-18T09:00:00Z",
+      { name: "reviewer", modelId: "anthropic.claude-sonnet-4-5" },
+    ],
+  ].map(([resourceKind, resourceId, revision, operation, changedBy, changedAt, snapshot]) => ({
+    resourceKind,
+    resourceId,
+    revision,
+    operation,
+    changedBy,
+    changedAt,
+    snapshot,
+  }));
+
+let revisions: Json[] = seedRevisions();
+export const resetHistory = (): void => {
+  revisions = seedRevisions();
+};
+
+const latestOf = (r: Json): Json | undefined =>
+  revisions.find((x) => x.resourceKind === r.resourceKind && x.resourceId === r.resourceId);
+
+/** `RestoreRevision`: the fields that differ from the resource's latest revision; applying records a new revision. */
+const restore = (rev: string | undefined, dryRun: boolean) => {
+  const target = revisions.find((x) => String(x.revision) === rev);
+  if (!target) return notFound("Revision");
+  const latest = latestOf(target) as Json;
+  const was = (latest.snapshot ?? {}) as Json;
+  const to = (target.snapshot ?? {}) as Json;
+  const fields = [...new Set([...Object.keys(was), ...Object.keys(to)])]
+    .filter((k) => JSON.stringify(was[k]) !== JSON.stringify(to[k]))
+    .map((field) => ({ field, from: was[field] ?? null, to: to[field] ?? null }));
+  const changes =
+    fields.length === 0
+      ? []
+      : [
+          {
+            action: "update",
+            resourceKind: target.resourceKind,
+            resourceId: target.resourceId,
+            fields,
+          },
+        ];
+  const skipped =
+    target.resourceKind === "team" && changes.length > 0
+      ? [
+          {
+            action: "skip",
+            resourceKind: "secret-binding",
+            resourceId: "sec_01JD2Q3R4S5T6V7W8X9Y0Z0009",
+            reason: "The secret no longer exists",
+          },
+        ]
+      : [];
+  if (!dryRun && changes.length > 0)
+    revisions = [
+      {
+        ...target,
+        revision: Math.max(...revisions.map((x) => Number(x.revision))) + 1,
+        operation: "UPDATE",
+        changedBy: "usr_team-admin",
+        changedAt: "2026-11-22T08:00:00Z",
+      },
+      ...revisions,
+    ];
+  return { status: 200, body: { revision: Number(target.revision), dryRun, changes, skipped } };
+};
 
 const notFound = (what: string) => ({
   status: 404,
@@ -117,5 +172,13 @@ export const historyFixtures: readonly Fixture[] = [
       const r = revisions.find((x) => String(x.revision) === params.rev);
       return r ? { status: 200, body: r } : notFound("Revision");
     },
+  },
+  {
+    method: "POST",
+    path: "/v1/teams/{teamId}/revisions/{rev}:restore",
+    response: ({ params, body }) =>
+      params.teamId === TEAMS[0].id
+        ? restore(params.rev, (body as { dryRun?: boolean } | undefined)?.dryRun === true)
+        : notFound("Team"),
   },
 ];

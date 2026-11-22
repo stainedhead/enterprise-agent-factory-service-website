@@ -85,6 +85,15 @@ export class HistoryUseCases {
     return this.revisions.list(teamId, filter, page);
   }
 
+  /** *Restore* step one: the plan for restoring a revision, nothing applied. */
+  restorePlan(teamId: string, revision: number) {
+    return this.revisions.restore(teamId, revision, true);
+  }
+  /** *Restore* step two, after the plan was read and confirmed. */
+  restoreApply(teamId: string, revision: number) {
+    return this.revisions.restore(teamId, revision, false);
+  }
+
   /** Reads both revisions (the list may omit snapshots) and orders them by revision number. */
   async diff(teamId: string, a: number, b: number, signal?: AbortSignal): Promise<RevisionDiff> {
     if (a === b) throw invalid("revision", "Choose two different revisions");

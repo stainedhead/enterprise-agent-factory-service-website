@@ -70,4 +70,30 @@ describe("SdkRevisions (M1-H2)", () => {
     expect(calls[0]?.query.get("resourceKind")).toBe("team");
     expect((await sdk.get("team_1", 3)).snapshot).toEqual({ displayName: "Alpha" });
   });
+
+  it("restores with dryRun in the body and maps changes and skipped bindings", async () => {
+    const { client, calls } = fakeApi(
+      on("POST", "/v1/teams/team_1/revisions/3:restore", () =>
+        json({
+          revision: 3,
+          dryRun: true,
+          changes: [
+            {
+              action: "update",
+              resourceKind: "team",
+              resourceId: "team_1",
+              fields: [{ field: "displayName", from: "B", to: "A" }],
+            },
+          ],
+          skipped: [
+            { action: "skip", resourceKind: "secret-binding", resourceId: "sec_9", reason: "gone" },
+          ],
+        }),
+      ),
+    );
+    const plan = await new SdkRevisions(client).restore("team_1", 3, true);
+    expect(calls[0]?.body).toEqual({ dryRun: true });
+    expect(plan.changes[0]?.fields).toEqual([{ field: "displayName", from: "B", to: "A" }]);
+    expect(plan.skipped[0]).toMatchObject({ reason: "gone", fields: [] });
+  });
 });

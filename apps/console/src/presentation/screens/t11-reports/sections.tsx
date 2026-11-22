@@ -2,6 +2,7 @@
 import type { ComponentType } from "react";
 import type { Permission } from "../../../domain/permission.js";
 import { type ReportSectionConfig, ReportSectionView } from "./ReportSection.js";
+import { SchedulesTab } from "./schedules/SchedulesTab.js";
 
 export interface ReportsSection {
   /** The `?tab=` value. */
@@ -87,5 +88,11 @@ export const sections: readonly ReportsSection[] = [
         }
       />
     ),
+  },
+  {
+    id: "schedules",
+    label: "Schedules",
+    permission: "reports:read",
+    Component: SchedulesTab,
   },
 ];

@@ -4,12 +4,23 @@ import type {
   AuditFilter,
   AuditPage,
   AuditPort,
+  RestoreChangeRecord,
+  RestorePlan,
   RevisionFilter,
   RevisionRecord,
   RevisionsPage,
   RevisionsPort,
 } from "../../application/ports/history.js";
 import { toAppError } from "./errors.js";
+
+type WireChange = Awaited<ReturnType<ReturnType<typeof revisions>["restore"]>>["changes"][number];
+const toChange = (c: WireChange): RestoreChangeRecord => ({
+  action: c.action,
+  resourceKind: c.resourceKind,
+  resourceId: c.resourceId,
+  reason: c.reason ?? undefined,
+  fields: (c.fields ?? []).map((f) => ({ field: f.field, from: f.from, to: f.to })),
+});
 
 const sig = (signal?: AbortSignal) => (signal ? { signal } : {});
 const wrap = async <T>(f: () => Promise<T>): Promise<T> => {
@@ -82,5 +93,16 @@ export class SdkRevisions implements RevisionsPort {
       async () =>
         (await revisions(this.client).get(teamId, String(revision), sig(signal))) as RevisionRecord,
     );
+  }
+  restore(teamId: string, revision: number, dryRun: boolean): Promise<RestorePlan> {
+    return wrap(async () => {
+      const r = await revisions(this.client).restore(teamId, String(revision), { dryRun });
+      return {
+        revision: r.revision,
+        dryRun: r.dryRun,
+        changes: r.changes.map(toChange),
+        skipped: (r.skipped ?? []).map(toChange),
+      };
+    });
   }
 }

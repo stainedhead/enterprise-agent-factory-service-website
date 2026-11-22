@@ -56,6 +56,28 @@ export const fakeRevisionsPort = (over: Partial<RevisionsPort> = {}): FakeRevisi
       ],
     })),
     get: vi.fn(async (_t: string, n: number) => aRevision(n)),
+    restore: vi.fn(async (_t: string, n: number, dryRun: boolean) => ({
+      revision: n,
+      dryRun,
+      changes: [
+        {
+          action: "update",
+          resourceKind: "team",
+          resourceId: "team_1",
+          reason: undefined,
+          fields: [{ field: "displayName", from: "Alpha 3", to: "Alpha 1" }],
+        },
+      ],
+      skipped: [
+        {
+          action: "skip",
+          resourceKind: "secret-binding",
+          resourceId: "sec_9",
+          reason: "The secret no longer exists",
+          fields: [],
+        },
+      ],
+    })),
     ...over,
   }) as unknown as FakeRevisionsPort;
 

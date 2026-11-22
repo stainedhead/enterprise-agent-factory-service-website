@@ -1,12 +1,19 @@
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import type { ReportKind } from "../../../application/ports/reports.js";
 import { can } from "../../../domain/me.js";
-import type { FilterKey } from "../../components/report-controls/index.js";
+import {
+  controlsFromParams,
+  type FilterKey,
+  type ReportControlsValue,
+  toReportQuery,
+} from "../../components/report-controls/index.js";
 import { gate } from "../../hooks/gate.js";
 import { queryKey } from "../../query/keys.js";
 import { useOptionalService } from "../../services.js";
 import { useMe } from "../../shell/ShellContext.js";
 import { ReportPanel } from "./ReportPanel.js";
+import { ScheduleReportButton } from "./schedules/ScheduleReportButton.js";
 
 export interface ReportSectionConfig {
   readonly title: string;
@@ -34,6 +41,13 @@ export function useTagKeys(teamId: string): string[] {
 export function ReportSectionView({ teamId, cfg }: { teamId: string; cfg: ReportSectionConfig }) {
   const me = useMe();
   const tagKeys = useTagKeys(teamId);
+  const [controls, setControls] = useState<ReportControlsValue>(() =>
+    controlsFromParams(new URLSearchParams("range=mtd"), {
+      range: "mtd",
+      groupBy: cfg.defaultGroupBy,
+      filters: {},
+    }),
+  );
   return (
     <ReportPanel
       scope={{ level: "team", teamId }}
@@ -45,6 +59,15 @@ export function ReportSectionView({ teamId, cfg }: { teamId: string; cfg: Report
       tagKeys={cfg.kind === "traffic" || cfg.kind === "activity" ? [] : tagKeys}
       csvDisabledReason={gate(me, "reports:read", teamId)}
       linkTeamId={teamId}
+      onControls={setControls}
+      actions={
+        <ScheduleReportButton
+          teamId={teamId}
+          kind={cfg.kind}
+          title={cfg.title}
+          query={toReportQuery(controls)}
+        />
+      }
     />
   );
 }

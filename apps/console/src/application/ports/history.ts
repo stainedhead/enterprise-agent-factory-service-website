@@ -59,6 +59,22 @@ export interface RevisionFilter {
   readonly resourceId?: string | undefined;
 }
 
+export interface RestoreChangeRecord {
+  readonly action: string;
+  readonly resourceKind: string;
+  readonly resourceId: string;
+  readonly reason: string | undefined;
+  readonly fields: readonly { field: string; from: unknown; to: unknown }[];
+}
+
+/** What restoring a revision does (`RestoreResult`): the changes, and the bindings or references that no longer resolve. */
+export interface RestorePlan {
+  readonly revision: number;
+  readonly dryRun: boolean;
+  readonly changes: readonly RestoreChangeRecord[];
+  readonly skipped: readonly RestoreChangeRecord[];
+}
+
 export interface RevisionsPort {
   list(
     teamId: string,
@@ -66,4 +82,6 @@ export interface RevisionsPort {
     page: { maxResults: number; nextToken?: string | undefined; signal?: AbortSignal | undefined },
   ): Promise<RevisionsPage>;
   get(teamId: string, revision: number, signal?: AbortSignal): Promise<RevisionRecord>;
+  /** `RestoreRevision`: with `dryRun` the plan only, nothing is applied. */
+  restore(teamId: string, revision: number, dryRun: boolean): Promise<RestorePlan>;
 }

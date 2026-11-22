@@ -42,10 +42,10 @@
 | M1 Teams & access | 10 (+ exit) | 46 | 46 |
 | M2 Agents & secrets | 7 (+ exit) | 41 | 41 |
 | M3 Spend control | 6 (+ exit) | 24 | 24 |
-| M4 Production readiness | 8 (+ exit) | 34 | 27 |
+| M4 Production readiness | 8 (+ exit) | 34 | 31 |
 | M5 Budgeted workloads and swarms | 4 (+ exit) | 19 | 0 |
 | M6 CVE remediation and completion | 6 (+ exit) | 26 | 0 |
-| **Total** | **51** | **259** | **208** |
+| **Total** | **51** | **259** | **212** |
 
 ## External dependencies and contract questions
 
@@ -612,10 +612,10 @@ Owns: area files: `reportSchedules`; `presentation/screens/t11-reports/schedules
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M4-S1 | *Schedule report*: the team's own channels only, cadence daily/weekly/monthly; a `ValidationError` for a service-level channel shown on the channel field; schedules list next run, last run, last status with error | WEB-US-37.6, D23 | — |
-| [ ] | M4-S2 | Viewers: *Schedule report* disabled "Requires team-admin" | WEB-US-37.7, D23 | M4-S1 |
-| [ ] | M4-S3 | *Restore*: `RestoreRevision` with `dryRun` shows the plan (`RestoreResult`, CD-4, incl. skipped); *Apply* asks to confirm; viewers can view and diff but *Restore* is disabled | WEB-US-35.3, WEB-22 | — |
-| [ ] | M4-S4 | e2e for scheduling and restore | WEB-US-42.1 (part) | M4-S1..S3 |
+| [x] | M4-S1 | *Schedule report*: the team's own channels only, cadence daily/weekly/monthly; a `ValidationError` for a service-level channel shown on the channel field; schedules list next run, last run, last status with error | WEB-US-37.6, D23 | — |
+| [x] | M4-S2 | Viewers: *Schedule report* disabled "Requires team-admin" | WEB-US-37.7, D23 | M4-S1 |
+| [x] | M4-S3 | *Restore*: `RestoreRevision` with `dryRun` shows the plan (`RestoreResult`, CD-4, incl. skipped); *Apply* asks to confirm; viewers can view and diff but *Restore* is disabled | WEB-US-35.3, WEB-22 | — |
+| [x] | M4-S4 | e2e for scheduling and restore | WEB-US-42.1 (part) | M4-S1..S3 |
 
 ### M4-N · Service notification channels (S10)
 

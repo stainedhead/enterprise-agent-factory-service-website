@@ -5,6 +5,7 @@ import type { RevisionRecord } from "../../../../../application/ports/history.js
 import { formatLocal, utcTitle } from "../../../../../domain/time.js";
 import {
   Alert,
+  Button,
   Card,
   DiffView,
   FormField,
@@ -12,12 +13,18 @@ import {
   TextInput,
 } from "../../../../components/index.js";
 import { useServerPages } from "../../../../components/useServerPages.js";
+import { gate } from "../../../../hooks/gate.js";
 import { queryKey } from "../../../../query/keys.js";
 import { useService } from "../../../../services.js";
+import { useMe } from "../../../../shell/ShellContext.js";
+import { RestoreDialog } from "./restore/RestoreDialog.js";
 
 /** *Config revisions*: revisions per resource with author and time; two selected show a diff (WEB-US-35.2). */
 export function RevisionsTab({ teamId }: { teamId: string }) {
   const history = useService("history");
+  const me = useMe();
+  const restoreReason = gate(me, "revisions:restore", teamId);
+  const [restoring, setRestoring] = useState<number>();
   const [kind, setKind] = useState("");
   const [resource, setResource] = useState("");
   const [selected, setSelected] = useState<string[]>([]);
@@ -63,7 +70,17 @@ export function RevisionsTab({ teamId }: { teamId: string }) {
             <TextInput value={resource} onChange={(e) => setResource(e.target.value)} />
           </FormField>
         </div>
-        <p>Select two revisions of the same resource to compare them.</p>
+        <p>
+          Select two revisions of the same resource to compare them, or one to restore it.{" "}
+          <Button
+            aria-label="Restore the selected revision"
+            disabledReason={restoreReason}
+            disabled={selected.length !== 1}
+            onClick={() => setRestoring(a)}
+          >
+            Restore
+          </Button>
+        </p>
         <Table
           id="team-revisions"
           caption="Config revisions"
@@ -127,6 +144,18 @@ export function RevisionsTab({ teamId }: { teamId: string }) {
           }}
         />
       </Card>
+      {restoring !== undefined && (
+        <RestoreDialog
+          teamId={teamId}
+          revision={restoring}
+          onClose={() => setRestoring(undefined)}
+          onApplied={() => {
+            setRestoring(undefined);
+            setSelected([]);
+            reload();
+          }}
+        />
+      )}
       {selected.length === 2 && (
         <Card title="Changes between the two revisions">
           {diff.isError ? (

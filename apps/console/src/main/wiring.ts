@@ -28,6 +28,7 @@ import {
 } from "../application/usecases/members/MembersUseCases.js";
 import { NotificationsUseCases } from "../application/usecases/notifications/NotificationsUseCases.js";
 import { OverviewUseCases } from "../application/usecases/overview/OverviewUseCases.js";
+import { ReportSchedulesUseCases } from "../application/usecases/reportSchedules/ReportSchedulesUseCases.js";
 import { ReportsUseCases } from "../application/usecases/reports/ReportsUseCases.js";
 import { SecretsUseCases } from "../application/usecases/secrets/SecretsUseCases.js";
 import type { ListProviders } from "../application/usecases/session/ListProviders.js";
@@ -60,6 +61,7 @@ import { SdkLogDestinations } from "../infrastructure/sdk/logDestinations.js";
 import { SdkApiKeys, SdkMembers } from "../infrastructure/sdk/members.js";
 import { SdkNotifications } from "../infrastructure/sdk/notifications.js";
 import { SdkOverview, SdkWorkOrders } from "../infrastructure/sdk/overview.js";
+import { SdkReportSchedules } from "../infrastructure/sdk/reportSchedules.js";
 import { SdkReports } from "../infrastructure/sdk/reports.js";
 import { SdkSecrets } from "../infrastructure/sdk/secrets.js";
 import { SdkIdentityProviders, SdkSettings } from "../infrastructure/sdk/settings.js";
@@ -124,6 +126,7 @@ export function buildServices(
     adminOrgAccounts: new AdminOrgAccountsUseCases(new SdkAdminOrgAccounts(client)),
     adminAudit: new AdminAuditUseCases(new SdkAdminAudit(client)),
     adminExports: new AdminExportsUseCases(new SdkAdminExports(client)),
+    reportSchedules: new ReportSchedulesUseCases(new SdkReportSchedules(client)),
     logDestinations: new LogDestinationsUseCases(new SdkLogDestinations(client)),
     notifications: new NotificationsUseCases(new SdkNotifications(client), {
       setTimeout: (fn, ms) => globalThis.setTimeout(fn, ms),

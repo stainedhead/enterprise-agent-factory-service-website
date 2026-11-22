@@ -161,26 +161,4 @@ export const notificationsFixtures: readonly Fixture[] = [
       return { status: 200, body: { testId: "test_0", delivered: true } };
     },
   },
-  {
-    method: "GET",
-    path: "/v1/teams/{teamId}/report-schedules",
-    response: {
-      status: 200,
-      body: {
-        items: [
-          {
-            id: `rs_${NS}0001`,
-            name: "Weekly spend",
-            channelId: CHANNEL_IDS[0],
-            cadence: "weekly",
-            enabled: true,
-            format: "csv",
-            report: "costs",
-            query: {},
-            version: 1,
-          },
-        ],
-      },
-    },
-  },
 ];

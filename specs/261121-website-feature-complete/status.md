@@ -36,7 +36,7 @@
 | M1 Teams & access | In Progress | 46 / 46 |
 | M2 Agents & secrets | Complete | 41 / 41 |
 | M3 Spend control | Complete | 24 / 24 |
-| M4 Production readiness | In Progress | 27 / 34 |
+| M4 Production readiness | In Progress | 31 / 34 |
 | M5 Budgeted workloads and swarms | Not Started | 0 / 19 |
 | M6 CVE remediation and completion | Not Started | 0 / 26 |
 
@@ -47,6 +47,7 @@ none blocks M0.
 
 ## Recent activity
 
+- 2026-11-22: M4 M4-S1, M4-S2, M4-S3, M4-S4 done (31/34).
 - 2026-11-22: M4 M4-E1, M4-E2, M4-E3 done (27/34).
 - 2026-11-22: M4 M4-L1, M4-L2, M4-L3 done (24/34).
 - 2026-11-22: M4 M4-I1, M4-I2, M4-I3, M4-I4, M4-I5, M4-I6, M4-I7 done (21/34).

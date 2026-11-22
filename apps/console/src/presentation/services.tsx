@@ -28,6 +28,7 @@ import type {
 } from "../application/usecases/members/MembersUseCases.js";
 import type { NotificationsUseCases } from "../application/usecases/notifications/NotificationsUseCases.js";
 import type { OverviewUseCases } from "../application/usecases/overview/OverviewUseCases.js";
+import type { ReportSchedulesUseCases } from "../application/usecases/reportSchedules/ReportSchedulesUseCases.js";
 import type { ReportsUseCases } from "../application/usecases/reports/ReportsUseCases.js";
 import type { SecretsUseCases } from "../application/usecases/secrets/SecretsUseCases.js";
 import type { ListProviders } from "../application/usecases/session/ListProviders.js";
@@ -56,6 +57,7 @@ export interface AppServices {
   readonly adminOrgAccounts: AdminOrgAccountsUseCases;
   readonly adminAudit: AdminAuditUseCases;
   readonly adminExports: AdminExportsUseCases;
+  readonly reportSchedules: ReportSchedulesUseCases;
   readonly logDestinations: LogDestinationsUseCases;
   readonly notifications: NotificationsUseCases;
   readonly secrets: SecretsUseCases;

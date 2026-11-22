@@ -172,6 +172,16 @@ download link, valid for 7 days and then shown as *Expired*. Bundles hold no sec
 (up to 100 MB) and an optional account map (`<source account id>=<target account id>`, one per line). *Dry run* shows
 what would change for each team; *Apply* is enabled only for the same inputs you just dry-ran, and asks to confirm.
 
+## Report schedules and restore
+
+On each team report tab, *Schedule report* (team-admins) sends the report as you have configured it as CSV on a daily,
+weekly or monthly cadence to one of the team's notification channels. The *Schedules* tab lists each schedule with its next
+run, last run and last status (a failed run shows its error) and lets you pause, resume or delete it.
+
+On the history *Config revisions* tab, select one revision and choose *Restore* (team-admins): the plan lists what would
+change and which bindings no longer resolve and are skipped. *Apply restore* asks to confirm; the restore becomes a new
+revision. Viewers can view and compare revisions but cannot restore.
+
 ## Troubleshooting
 
 - *Page not found* for a page you expect: you may not hold the role it needs, or the team is not yours.
