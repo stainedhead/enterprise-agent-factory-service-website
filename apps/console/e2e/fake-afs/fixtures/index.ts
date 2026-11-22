@@ -14,6 +14,7 @@ import { dashboardFixtures } from "./dashboard.js";
 import { externalSystemsFixtures, resetExternalSystems } from "./externalSystems.js";
 import { historyFixtures } from "./history.js";
 import { identityFixtures, resetIdentity } from "./identity.js";
+import { logDestinationsFixtures, resetLogDestinations } from "./logDestinations.js";
 import { membersFixtures, resetMembers } from "./members.js";
 import { notificationsFixtures, resetNotifications } from "./notifications.js";
 import { overviewFixtures, resetOverview } from "./overview.js";
@@ -69,6 +70,7 @@ export const fixtureModules: readonly (readonly Fixture[])[] = [
   adminOrgAccountsFixtures,
   adminServiceTagsFixtures,
   identityFixtures,
+  logDestinationsFixtures,
 ];
 
 /** Stateful fixture modules register a reset here; the server calls them on `/__reset`. */
@@ -87,4 +89,5 @@ export const fixtureResets: readonly (() => void)[] = [
   resetAdminModels,
   resetIdentity,
   resetAdminServiceTags,
+  resetLogDestinations,
 ];

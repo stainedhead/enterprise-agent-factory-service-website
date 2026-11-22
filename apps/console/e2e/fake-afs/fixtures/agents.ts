@@ -346,25 +346,4 @@ export const agentsFixtures: readonly Fixture[] = [
       };
     },
   },
-  {
-    method: "GET",
-    path: "/v1/teams/{teamId}/log-destinations",
-    response: {
-      status: 200,
-      body: {
-        items: [
-          {
-            id: `log_${NS}0001`,
-            name: "central-cloudwatch",
-            kind: "cloudwatch",
-            enabled: true,
-            config: { logGroup: "/afs/payments" },
-            generation: 1,
-            status: ok(),
-            version: 1,
-          },
-        ],
-      },
-    },
-  },
 ];

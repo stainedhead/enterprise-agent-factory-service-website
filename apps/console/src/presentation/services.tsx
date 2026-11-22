@@ -20,6 +20,7 @@ import type { AdminExternalSystemsUseCases } from "../application/usecases/exter
 import type { ExternalSystemsUseCases } from "../application/usecases/externalSystems/ExternalSystemsUseCases.js";
 import type { HistoryUseCases } from "../application/usecases/history/HistoryUseCases.js";
 import type { IdentityUseCases } from "../application/usecases/identity/IdentityUseCases.js";
+import type { LogDestinationsUseCases } from "../application/usecases/logDestinations/LogDestinationsUseCases.js";
 import type {
   ApiKeysUseCases,
   MembersUseCases,
@@ -53,6 +54,7 @@ export interface AppServices {
   readonly tags: TagsUseCases;
   readonly adminOrgAccounts: AdminOrgAccountsUseCases;
   readonly adminAudit: AdminAuditUseCases;
+  readonly logDestinations: LogDestinationsUseCases;
   readonly notifications: NotificationsUseCases;
   readonly secrets: SecretsUseCases;
   readonly history: HistoryUseCases;

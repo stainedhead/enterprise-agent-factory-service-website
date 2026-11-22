@@ -159,6 +159,12 @@ fails with the reason (*Failed*). *Identities* lists the agent's external identi
 lists every agent's identity and links and holds the *AWS account access* section. Viewers read everything; changes are
 disabled with the role required.
 
+## Log delivery (`/t/<team>/delivery/logs`)
+
+The team's log destinations (CloudWatch, S3, OTLP, Splunk HEC, Datadog) with state, delivery status (and the reason
+when failing) and the last delivery time. Team-admins add, edit, enable, disable and delete destinations; the
+credential is chosen from the team's secrets, never typed. Viewers see the list with changes disabled.
+
 ## Troubleshooting
 
 - *Page not found* for a page you expect: you may not hold the role it needs, or the team is not yours.

@@ -1,6 +1,7 @@
 // Shared list: one entry per T14 tab, added by the owning stream (*Notifications* here; *Log delivery* by M4-L).
 import type { ComponentType } from "react";
 import type { Permission } from "../../../domain/permission.js";
+import { LogsTab } from "./tabs/logs/LogsTab.js";
 import { NotificationsTab } from "./tabs/notifications/NotificationsTab.js";
 
 export interface TabDef {
@@ -19,4 +20,5 @@ export const tabs: readonly TabDef[] = [
     permission: "notifications:read",
     Component: NotificationsTab,
   },
+  { id: "logs", label: "Log delivery", permission: "logs:read", Component: LogsTab },
 ];

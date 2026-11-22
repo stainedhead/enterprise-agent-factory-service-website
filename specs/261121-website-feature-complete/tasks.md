@@ -42,10 +42,10 @@
 | M1 Teams & access | 10 (+ exit) | 46 | 46 |
 | M2 Agents & secrets | 7 (+ exit) | 41 | 41 |
 | M3 Spend control | 6 (+ exit) | 24 | 24 |
-| M4 Production readiness | 8 (+ exit) | 34 | 21 |
+| M4 Production readiness | 8 (+ exit) | 34 | 24 |
 | M5 Budgeted workloads and swarms | 4 (+ exit) | 19 | 0 |
 | M6 CVE remediation and completion | 6 (+ exit) | 26 | 0 |
-| **Total** | **51** | **259** | **202** |
+| **Total** | **51** | **259** | **205** |
 
 ## External dependencies and contract questions
 
@@ -592,9 +592,9 @@ Owns: area files: `logDestinations`; `presentation/screens/t14-delivery/tabs/log
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M4-L1 | Destinations (CloudWatch, S3, OTLP, Splunk HEC, Datadog) with status and last delivery; add, edit, delete; credentials chosen as secret references, never typed | WEB-US-34.1, WEB-21 | — |
-| [ ] | M4-L2 | Viewers: controls disabled "Requires team-admin"; `CreateLogDestination` `403` shown if forced | WEB-US-34.5 (part) | M4-L1 |
-| [ ] | M4-L3 | e2e, axe, visual (S2 pattern) | WEB-US-42.1 (part), WEB-US-42.2 (part) | M4-L1, M4-L2 |
+| [x] | M4-L1 | Destinations (CloudWatch, S3, OTLP, Splunk HEC, Datadog) with status and last delivery; add, edit, delete; credentials chosen as secret references, never typed | WEB-US-34.1, WEB-21 | — |
+| [x] | M4-L2 | Viewers: controls disabled "Requires team-admin"; `CreateLogDestination` `403` shown if forced | WEB-US-34.5 (part) | M4-L1 |
+| [x] | M4-L3 | e2e, axe, visual (S2 pattern) | WEB-US-42.1 (part), WEB-US-42.2 (part) | M4-L1, M4-L2 |
 
 ### M4-E · Export and import (S11)
 

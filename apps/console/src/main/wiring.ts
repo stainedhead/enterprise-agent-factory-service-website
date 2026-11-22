@@ -20,6 +20,7 @@ import { AdminExternalSystemsUseCases } from "../application/usecases/externalSy
 import { ExternalSystemsUseCases } from "../application/usecases/externalSystems/ExternalSystemsUseCases.js";
 import { HistoryUseCases } from "../application/usecases/history/HistoryUseCases.js";
 import { IdentityUseCases } from "../application/usecases/identity/IdentityUseCases.js";
+import { LogDestinationsUseCases } from "../application/usecases/logDestinations/LogDestinationsUseCases.js";
 import {
   ApiKeysUseCases,
   MembersUseCases,
@@ -53,6 +54,7 @@ import {
 } from "../infrastructure/sdk/externalSystems.js";
 import { SdkAudit, SdkRevisions } from "../infrastructure/sdk/history.js";
 import { SdkIdentity } from "../infrastructure/sdk/identity.js";
+import { SdkLogDestinations } from "../infrastructure/sdk/logDestinations.js";
 import { SdkApiKeys, SdkMembers } from "../infrastructure/sdk/members.js";
 import { SdkNotifications } from "../infrastructure/sdk/notifications.js";
 import { SdkOverview, SdkWorkOrders } from "../infrastructure/sdk/overview.js";
@@ -119,6 +121,7 @@ export function buildServices(
     tags: new TagsUseCases(new SdkTags(client)),
     adminOrgAccounts: new AdminOrgAccountsUseCases(new SdkAdminOrgAccounts(client)),
     adminAudit: new AdminAuditUseCases(new SdkAdminAudit(client)),
+    logDestinations: new LogDestinationsUseCases(new SdkLogDestinations(client)),
     notifications: new NotificationsUseCases(new SdkNotifications(client), {
       setTimeout: (fn, ms) => globalThis.setTimeout(fn, ms),
     }),
