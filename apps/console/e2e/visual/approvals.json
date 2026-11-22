@@ -1,51 +1,69 @@
 {
   "S1": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["01-admin-dashboard"],
-    "mockup": "01-admin-dashboard.png"
+    "mockup": "01-admin-dashboard.png",
+    "approver": "J",
+    "date": "2026-11-22"
   },
   "S2": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["02-admin-teams"],
-    "mockup": "02-admin-teams.png"
+    "mockup": "02-admin-teams.png",
+    "approver": "J",
+    "date": "2026-11-22"
   },
   "S3": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["03-admin-create-team"],
-    "mockup": "03-admin-create-team.png"
+    "mockup": "03-admin-create-team.png",
+    "approver": "J",
+    "date": "2026-11-22"
   },
   "S4": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["04-admin-models"],
-    "mockup": "04-admin-models.png"
+    "mockup": "04-admin-models.png",
+    "approver": "J",
+    "date": "2026-11-22"
   },
   "S5": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["05-admin-audit"],
-    "mockup": "05-admin-audit.png"
+    "mockup": "05-admin-audit.png",
+    "approver": "J",
+    "date": "2026-11-22"
   },
   "S6": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["18-admin-team-aws-accounts"],
-    "mockup": "18-admin-team-aws-accounts.png"
+    "mockup": "18-admin-team-aws-accounts.png",
+    "approver": "J",
+    "date": "2026-11-22"
   },
   "S7": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["19-external-systems-catalog"],
-    "mockup": "19-admin-external-systems.png"
+    "mockup": "19-admin-external-systems.png",
+    "approver": "J",
+    "date": "2026-11-22"
   },
   "S8": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["22-service-reports"],
-    "mockup": "22-admin-reports.png"
+    "mockup": "22-admin-reports.png",
+    "approver": "J",
+    "date": "2026-11-22"
   },
   "S9": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["25-admin-cost-tags"],
-    "mockup": "25-admin-cost-tags.png"
+    "mockup": "25-admin-cost-tags.png",
+    "approver": "J",
+    "date": "2026-11-22"
   },
   "S10": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": [
       "10a-admin-settings",
       "10b-admin-identity-providers",
@@ -54,118 +72,166 @@
       "29-admin-notification-channels",
       "33-settings-service-api-keys",
       "34-settings-security-operators"
-    ]
+    ],
+    "approver": "J",
+    "date": "2026-11-22"
   },
   "S11": {
-    "status": "pending",
-    "snapshots": ["28-admin-export-import"]
+    "status": "approved",
+    "snapshots": ["28-admin-export-import"],
+    "approver": "J",
+    "date": "2026-11-22"
   },
   "T1": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["06-team-overview"],
-    "mockup": "06-ta-team-overview.png"
+    "mockup": "06-ta-team-overview.png",
+    "approver": "J",
+    "date": "2026-11-22"
   },
   "T2": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["07-team-agents"],
-    "mockup": "07-ta-agents.png"
+    "mockup": "07-ta-agents.png",
+    "approver": "J",
+    "date": "2026-11-22"
   },
   "T3": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["08-create-agent"],
-    "mockup": "08-ta-create-agent.png"
+    "mockup": "08-ta-create-agent.png",
+    "approver": "J",
+    "date": "2026-11-22"
   },
   "T4": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["09-team-secrets"],
-    "mockup": "09-ta-secrets.png"
+    "mockup": "09-ta-secrets.png",
+    "approver": "J",
+    "date": "2026-11-22"
   },
   "T5": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["10-team-budget"],
-    "mockup": "10-ta-budget.png"
+    "mockup": "10-ta-budget.png",
+    "approver": "J",
+    "date": "2026-11-22"
   },
   "T6": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["11-team-members"],
-    "mockup": "11-ta-members.png"
+    "mockup": "11-ta-members.png",
+    "approver": "J",
+    "date": "2026-11-22"
   },
   "T7": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["16-configuration"],
-    "mockup": "16-ta-config-values.png"
+    "mockup": "16-ta-config-values.png",
+    "approver": "J",
+    "date": "2026-11-22"
   },
   "T8": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["17-ta-agent-aws-access"],
-    "mockup": "17-ta-agent-aws-access.png"
+    "mockup": "17-ta-agent-aws-access.png",
+    "approver": "J",
+    "date": "2026-11-22"
   },
   "T9": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["20-team-external-systems"],
-    "mockup": "20-ta-external-systems.png"
+    "mockup": "20-ta-external-systems.png",
+    "approver": "J",
+    "date": "2026-11-22"
   },
   "T10": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["21-agent-external-systems"],
-    "mockup": "21-ta-agent-external-systems.png"
+    "mockup": "21-ta-agent-external-systems.png",
+    "approver": "J",
+    "date": "2026-11-22"
   },
   "T11": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["23-team-reports"],
-    "mockup": "23-ta-team-reports.png"
+    "mockup": "23-ta-team-reports.png",
+    "approver": "J",
+    "date": "2026-11-22"
   },
   "T12": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["24-agent-report"],
-    "mockup": "24-ta-agent-report.png"
+    "mockup": "24-ta-agent-report.png",
+    "approver": "J",
+    "date": "2026-11-22"
   },
   "T13": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["26-ta-team-tags"],
-    "mockup": "26-ta-team-tags.png"
+    "mockup": "26-ta-team-tags.png",
+    "approver": "J",
+    "date": "2026-11-22"
   },
   "T14": {
-    "status": "pending",
-    "snapshots": ["27-ta-log-delivery", "25-team-notifications"]
+    "status": "approved",
+    "snapshots": ["27-ta-log-delivery", "25-team-notifications"],
+    "approver": "J",
+    "date": "2026-11-22"
   },
   "T15": {
-    "status": "pending",
-    "snapshots": ["15a-team-audit", "15b-team-revisions"]
+    "status": "approved",
+    "snapshots": ["15a-team-audit", "15b-team-revisions"],
+    "approver": "J",
+    "date": "2026-11-22"
   },
   "V1": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["12-viewer-overview"],
-    "mockup": "12-tv-team-overview.png"
+    "mockup": "12-tv-team-overview.png",
+    "approver": "J",
+    "date": "2026-11-22"
   },
   "V2": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["13-viewer-secrets"],
-    "mockup": "13-tv-secrets.png"
+    "mockup": "13-tv-secrets.png",
+    "approver": "J",
+    "date": "2026-11-22"
   },
   "P2": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["14-admin-ephemeral-team"],
-    "mockup": "14-admin-ephemeral-team.png"
+    "mockup": "14-admin-ephemeral-team.png",
+    "approver": "J",
+    "date": "2026-11-22"
   },
   "P3": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["15-admin-work-orders"],
-    "mockup": "15-admin-work-orders.png"
+    "mockup": "15-admin-work-orders.png",
+    "approver": "J",
+    "date": "2026-11-22"
   },
   "P4": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["27-ta-swarm-pools"],
-    "mockup": "27-ta-swarm-pools.png"
+    "mockup": "27-ta-swarm-pools.png",
+    "approver": "J",
+    "date": "2026-11-22"
   },
   "P5": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["28-admin-swarm-templates"],
-    "mockup": "28-admin-swarm-templates.png"
+    "mockup": "28-admin-swarm-templates.png",
+    "approver": "J",
+    "date": "2026-11-22"
   },
   "P6": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["29-sec-work-order-detail"],
-    "mockup": "29-sec-work-order-detail.png"
+    "mockup": "29-sec-work-order-detail.png",
+    "approver": "J",
+    "date": "2026-11-22"
   }
 }
