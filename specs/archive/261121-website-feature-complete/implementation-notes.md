@@ -188,7 +188,7 @@ Scope is the browser console; the API owns authorization, input validation and a
 | V14.2 dependencies | No known high or critical production vulnerability | Met | `bun run audit` in CI; zero runtime dependencies in `@afs/sdk` |
 | V14.5 | No source maps or debug hook in the production artefact | Met | build-output test (`__AFS_E2E__` absent) |
 | V1 architecture | Dependency rule between layers | Met | `architecture.test.ts` |
-| V3.7 | Silent renew without storing credentials | Met | WD-30 (refresh token in memory, or `prompt=none` in a frame allowed by `frame-src`) |
+| V3.7 | Silent renew without storing credentials | Met | WD-30 (refresh token in memory, or `prompt=none` in a frame allowed by `frame-src 'self' <issuers>` and `frame-ancestors 'self'`, ADR-014); proven by `e2e/specs/auth/silent-renew.spec.ts` (refresh tokens off, deploy headers) |
 | V11 business logic | Spend caps, work order duplicates | N/A | enforced by the API; the console shows the refusal |
 | Open | Subresource integrity on the hashed assets | Open | assets are same-origin and hashed; SRI adds little with `script-src 'self'`; revisit with the platform |
 

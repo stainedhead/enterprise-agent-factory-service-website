@@ -44,6 +44,29 @@ const isHttpUrl = (v: unknown): v is string => {
   }
 };
 
+const LOOPBACK = new Set(["localhost", "127.0.0.1", "[::1]"]);
+
+/** Options for {@link parseConfig}. */
+export interface ParseConfigOptions {
+  /**
+   * Accept `http:` for loopback hosts only (`localhost`, `127.0.0.1`, `[::1]`). The `vite dev` server
+   * and the e2e build set it; the production build never does (FR-006).
+   */
+  readonly allowLoopbackHttp?: boolean;
+}
+
+/** `https:` always; `http:` only for a loopback host when `allowLoopbackHttp` is set. */
+const isSecureUrl = (v: unknown, allowLoopbackHttp: boolean): v is string => {
+  if (typeof v !== "string") return false;
+  try {
+    const u = new URL(v);
+    if (u.protocol === "https:") return true;
+    return allowLoopbackHttp && u.protocol === "http:" && LOOPBACK.has(u.hostname);
+  } catch {
+    return false;
+  }
+};
+
 function parseProvider(raw: unknown, i: number, errors: string[]): ProviderInfo | undefined {
   const p = raw as Record<string, unknown> | null;
   if (!p || typeof p !== "object") {
@@ -67,17 +90,18 @@ function parseProvider(raw: unknown, i: number, errors: string[]): ProviderInfo 
 }
 
 /** Validates `/config.json`; unknown keys are ignored. Throws {@link ConfigError} listing every problem. */
-export function parseConfig(raw: unknown): RuntimeConfig {
+export function parseConfig(raw: unknown, opts: ParseConfigOptions = {}): RuntimeConfig {
   const errors: string[] = [];
+  const secure = (v: unknown) => isSecureUrl(v, opts.allowLoopbackHttp ?? false);
   const c = raw as Record<string, unknown> | null;
   if (!c || typeof c !== "object" || Array.isArray(c))
     throw new ConfigError(["config.json must be a JSON object"]);
-  if (!isHttpUrl(c.apiUrl)) errors.push("apiUrl must be an http(s) URL");
+  if (!secure(c.apiUrl)) errors.push("apiUrl must be an https URL");
   if (typeof c.environmentName !== "string" || c.environmentName === "")
     errors.push("environmentName is required");
-  if (!isHttpUrl(c.redirectUri)) errors.push("redirectUri must be an http(s) URL");
-  if (c.telemetryUrl !== undefined && !isHttpUrl(c.telemetryUrl))
-    errors.push("telemetryUrl must be an http(s) URL");
+  if (!secure(c.redirectUri)) errors.push("redirectUri must be an https URL");
+  if (c.telemetryUrl !== undefined && !secure(c.telemetryUrl))
+    errors.push("telemetryUrl must be an https URL");
   let idle = DEFAULT_IDLE_MINUTES;
   if (c.idleTimeoutMinutes !== undefined) {
     const n = c.idleTimeoutMinutes;

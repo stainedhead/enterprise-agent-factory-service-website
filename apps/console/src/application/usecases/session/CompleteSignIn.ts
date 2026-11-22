@@ -5,7 +5,8 @@ import type { Session } from "./Session.js";
 
 export type SignInOutcome =
   | { kind: "signed-in"; returnTo: string }
-  | { kind: "login-required" }
+  /** The provider needs the user; `returnTo` is the route the flow was started for. */
+  | { kind: "login-required"; returnTo: string }
   | { kind: "error"; error: AuthError };
 
 /** Starts sign-in: redirects to the provider's authorize endpoint. */
@@ -46,7 +47,7 @@ export class CompleteSignIn {
     } catch (e) {
       if (e instanceof AuthError) {
         return e.reason === "interaction_required"
-          ? { kind: "login-required" }
+          ? { kind: "login-required", returnTo: e.returnTo ?? "/" }
           : { kind: "error", error: e };
       }
       return { kind: "error", error: new AuthError("exchange", "Sign-in could not be completed") };

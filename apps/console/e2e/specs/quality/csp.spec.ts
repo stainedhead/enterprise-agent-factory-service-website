@@ -13,11 +13,12 @@ test.describe("M6-Q6 content security policy", () => {
     await proxy.stop();
   });
 
-  test("the deploy policy is strict: no inline script, no unsafe-eval, no framing", () => {
+  test("the deploy policy is strict: no inline script, no unsafe-eval, framing by 'self' only", () => {
     const csp = deployHeaders()["Content-Security-Policy"] as string;
     expect(csp).toContain("script-src 'self'");
     expect(csp).not.toMatch(/unsafe-(inline|eval)/);
-    expect(csp).toContain("frame-ancestors 'none'");
+    expect(csp).toContain("frame-ancestors 'self'");
+    expect(csp).toContain(`frame-src 'self' ${ENDPOINTS.idp}`);
     expect(csp).toContain("object-src 'none'");
     expect(deployHeaders()["X-Content-Type-Options"]).toBe("nosniff");
   });

@@ -154,7 +154,7 @@ test.describe("sign-in", () => {
     await context.route("**/config.json", (r) => r.fulfill({ json: { apiUrl: "nope" } }));
     await page.goto("/");
     await expect(page.getByRole("heading", { name: "Configuration error" })).toBeVisible();
-    await expect(page.getByText(/apiUrl must be an http\(s\) URL/)).toBeVisible();
+    await expect(page.getByText(/apiUrl must be an https URL/)).toBeVisible();
     await expectAxeClean(page);
   });
 });

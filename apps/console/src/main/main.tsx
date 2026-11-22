@@ -54,13 +54,15 @@ if (!rootEl) throw new Error("#root element missing");
 const root = createRoot(rootEl);
 
 async function start(): Promise<void> {
-  const config = await new HttpConfig().load();
+  // Loopback http is allowed only for `vite dev` and the e2e build; production requires https (FR-006).
+  const allowLoopbackHttp = __AFS_E2E__ || import.meta.env.DEV;
+  const config = await new HttpConfig("/config.json", undefined, { allowLoopbackHttp }).load();
   startTelemetry({ port: new BeaconTelemetry(config.telemetryUrl), build: __AFS_BUILD__ });
   const clock = systemClock;
   const redirect = new BrowserRedirect();
   const prefs = new LocalPreferences();
-  const drafts = new DraftStore();
   const draftStorage = new SessionDraftStorage();
+  const drafts = new DraftStore(draftStorage);
   const bus = createAccessDeniedBus();
   const contractNotice = new ContractNotice();
 
@@ -77,21 +79,28 @@ async function start(): Promise<void> {
     known = r.providers;
   });
 
+  // One channel for sign-out and shared activity (FR-005): a message never reaches the tab that sent it.
+  const channel = new BroadcastSessionChannel();
+  // SEAM (stream B, B-6; FR-003): after stream C has merged, replace the line below with
+  //   const queryClient = createQueryClient((e) => bus.emit(e), undefined, {
+  //     onUnauthenticated: () => session.expire(),
+  //   });
+  // (`session` is created just below; the callback runs later, so the forward reference is safe) and set
+  // STREAM_C_MERGED = true in e2e/specs/auth/session-revoked.spec.ts. C's `createQueryClient` already has
+  // the third `options` parameter; this base does not, so the call cannot be written here yet.
   const queryClient = createQueryClient((e) => bus.emit(e));
   let getMe: GetMe;
   const session = new Session({
     oidc,
     clock,
-    channel: new BroadcastSessionChannel(),
+    channel,
     redirectUri: config.redirectUri,
     providerById,
+    drafts,
     clearCaches: () => {
       queryClient.clear();
       getMe?.clear();
     },
-  });
-  session.onChange((s) => {
-    if (s === "signed-out") drafts.clear();
   });
 
   const client = new AfsClient({
@@ -136,8 +145,14 @@ async function start(): Promise<void> {
     signOut,
   };
 
-  // Idle sign-out (WEB-US-7.9): input resets the timer; it runs only while signed in.
-  const idle = new IdleMonitor(clock, config.idleTimeoutMinutes, () => void signOut.execute());
+  // Idle sign-out (WEB-US-7.9): input in any tab resets the timer (a throttled `activity` message on the
+  // session channel, FR-005); it runs only while signed in.
+  const idle = new IdleMonitor(
+    clock,
+    config.idleTimeoutMinutes,
+    () => void signOut.execute(),
+    channel,
+  );
   const touch = () => idle.touch();
   for (const ev of ["pointerdown", "keydown", "wheel", "touchstart"])
     window.addEventListener(ev, touch, { passive: true });

@@ -1,6 +1,7 @@
 import {
   ConfigError,
   type ConfigPort,
+  type ParseConfigOptions,
   parseConfig,
   type RuntimeConfig,
 } from "../../application/ports/config.js";
@@ -10,6 +11,7 @@ export class HttpConfig implements ConfigPort {
   constructor(
     private readonly url = "/config.json",
     private readonly fetcher: typeof fetch = (...a) => fetch(...a),
+    private readonly parseOptions: ParseConfigOptions = {},
   ) {}
 
   async load(): Promise<RuntimeConfig> {
@@ -26,6 +28,6 @@ export class HttpConfig implements ConfigPort {
     } catch {
       throw new ConfigError(["config.json is not valid JSON"]);
     }
-    return parseConfig(body);
+    return parseConfig(body, this.parseOptions);
   }
 }

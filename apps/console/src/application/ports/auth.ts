@@ -20,15 +20,19 @@ export type AuthRefusal =
   | "denied"
   | "interaction_required"
   | "exchange"
-  | "no_flow";
+  | "no_flow"
+  | "storage";
 
 /** Sign-in failed or was refused; the console shows an error page, never a half-signed-in state. */
 export class AuthError extends Error {
   readonly reason: AuthRefusal;
-  constructor(reason: AuthRefusal, message: string) {
+  /** For `interaction_required`: the route the flow was started for, so sign-in can return to it. */
+  readonly returnTo: string | undefined;
+  constructor(reason: AuthRefusal, message: string, returnTo?: string) {
     super(message);
     this.name = "AuthError";
     this.reason = reason;
+    this.returnTo = returnTo;
   }
 }
 
@@ -67,10 +71,16 @@ export interface RedirectPort {
   replaceUrl(path: string): void;
 }
 
-/** Cross-tab session messages (`BroadcastChannel("afs-session")`). */
+/**
+ * The only messages the session channel carries, and they carry no data: `signout` ends the session in
+ * every tab; `activity` says "there was input in some tab" so every tab's idle monitor resets (FR-005).
+ */
+export type SessionMessage = "signout" | "activity";
+
+/** Cross-tab session messages (`BroadcastChannel("afs-session")`). Unknown messages are never delivered. */
 export interface SessionChannelPort {
-  post(message: "signout"): void;
-  subscribe(handler: (message: string) => void): () => void;
+  post(message: SessionMessage): void;
+  subscribe(handler: (message: SessionMessage) => void): () => void;
 }
 
 export interface ClockPort {
@@ -83,4 +93,6 @@ export interface ClockPort {
 export interface DraftPersistPort {
   write(snapshot: Record<string, Record<string, string>>): void;
   take(): Record<string, Record<string, string>>;
+  /** Removes the persisted copy (sign-out): nothing typed survives it. */
+  clear(): void;
 }

@@ -1,9 +1,9 @@
-import { act, render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router";
 import { describe, expect, it, vi } from "vitest";
 import { expectNoA11yViolations } from "../../../test/axe.js";
-import { AuthError } from "../../application/ports/auth.js";
+import { AuthError, type SessionMessage } from "../../application/ports/auth.js";
 import type { ProviderInfo } from "../../application/ports/config.js";
 import { DraftStore } from "../../application/usecases/session/DraftStore.js";
 import { Session } from "../../application/usecases/session/Session.js";
@@ -39,7 +39,7 @@ function services(
   const prefs = new Map<string, string>(over.remembered ? [["afs.provider", over.remembered]] : []);
   const begin = vi.fn(async () => {});
   const reauth = vi.fn(async () => {});
-  const handlers: ((m: string) => void)[] = [];
+  const handlers: ((m: SessionMessage) => void)[] = [];
   const session = new Session({
     oidc: {} as never,
     clock: { now: () => 0, setTimeout: () => 0, clearTimeout: () => {} },
@@ -157,6 +157,15 @@ describe("SignInPage", () => {
     mount(bad.svc, "/sign-in");
     expect(await screen.findByText("Could not start sign-in")).toBeTruthy();
   });
+  it("tells the user that browser storage is required when it is blocked (FR-012)", async () => {
+    const blocked = services({ providers: [p("a")] });
+    blocked.begin.mockRejectedValueOnce(
+      new AuthError("storage", "Browser storage is required for sign-in."),
+    );
+    mount(blocked.svc, "/sign-in");
+    expect(await screen.findByText(/Browser storage is required for sign-in/)).toBeTruthy();
+    expect(screen.queryByText(/could not be reached/)).toBeNull();
+  });
 });
 
 describe("CallbackPage", () => {
@@ -165,8 +174,34 @@ describe("CallbackPage", () => {
     await waitFor(() => expect(screen.getAllByTestId("where")[0]?.textContent).toBe("/t/team_1"));
   });
   it("goes to the sign-in page when the IdP needs the user", async () => {
-    mount(services({ complete: async () => ({ kind: "login-required" }) }).svc, "/auth/callback");
+    mount(
+      services({ complete: async () => ({ kind: "login-required", returnTo: "/" }) }).svc,
+      "/auth/callback",
+    );
     expect(await screen.findByText("Sign in to Agent Factory")).toBeTruthy();
+  });
+  it("keeps the saved route through login-required: the picker gets ?returnTo= (FR-013)", async () => {
+    const { svc, begin } = services({
+      complete: async () => ({ kind: "login-required", returnTo: "/t/team_1/agents?tab=x" }),
+    });
+    mount(svc, "/auth/callback?error=login_required&state=s");
+    await waitFor(() =>
+      expect(screen.getAllByTestId("where").map((e) => e.textContent)).toContain(
+        "/sign-in?returnTo=%2Ft%2Fteam_1%2Fagents%3Ftab%3Dx",
+      ),
+    );
+    await userEvent.click(await screen.findByRole("button", { name: "Continue" }));
+    expect(begin).toHaveBeenCalledWith(p("a", true), "/t/team_1/agents?tab=x", undefined);
+  });
+  it("never forwards an unsafe return route", async () => {
+    mount(
+      services({
+        complete: async () => ({ kind: "login-required", returnTo: "https://evil.test" }),
+      }).svc,
+      "/auth/callback",
+    );
+    await screen.findByText("Sign in to Agent Factory");
+    expect(screen.getAllByTestId("where").map((e) => e.textContent)).toContain("/sign-in");
   });
   it("shows an error page, never a half signed-in state, on a refused callback", async () => {
     const { container } = mount(
@@ -232,6 +267,60 @@ describe("session expiry and sign-out", () => {
     expect((screen.getByLabelText("Value") as HTMLInputElement).value).toBe("");
     await userEvent.click(screen.getByRole("button", { name: "Sign in again" }));
     expect(reauth).toHaveBeenCalledWith(p("b"), "/t/team_1/agents");
+  });
+  describe("error path of the dialog (FR-014)", () => {
+    const openExpired = async (over: Parameters<typeof services>[0] = {}) => {
+      const s = services({ remembered: "b", ...over });
+      s.svc.session.establish({ accessToken: "t", expiresAt: 1e12, providerId: "x" });
+      render(
+        <AuthContext.Provider value={s.svc}>
+          <MemoryRouter>
+            <SessionExpiredDialog />
+          </MemoryRouter>
+        </AuthContext.Provider>,
+      );
+      act(() => s.svc.session.expire());
+      const dialog = await screen.findByRole("dialog", { name: "Your session has expired" });
+      return { ...s, dialog };
+    };
+    const expectAlertInDialog = async (dialog: HTMLElement) => {
+      const alert = await within(dialog).findByRole("alert");
+      expect(alert.textContent).toMatch(/sign|provider|again/i);
+      const button = within(dialog).getByRole("button", { name: "Sign in again" });
+      await waitFor(() => expect((button as HTMLButtonElement).disabled).toBe(false));
+    };
+    it("shows an alert and re-enables the button when listing the providers fails", async () => {
+      const s = await openExpired();
+      (s.svc.listProviders as unknown as { execute: unknown }).execute = async () => {
+        throw new Error("discovery failed");
+      };
+      await userEvent.click(within(s.dialog).getByRole("button", { name: "Sign in again" }));
+      await expectAlertInDialog(s.dialog);
+      expect(s.reauth).not.toHaveBeenCalled();
+    });
+    it("shows an alert and re-enables the button when re-authentication fails", async () => {
+      const s = await openExpired();
+      s.reauth.mockRejectedValueOnce(new Error("idp down"));
+      await userEvent.click(within(s.dialog).getByRole("button", { name: "Sign in again" }));
+      await expectAlertInDialog(s.dialog);
+      // and a second try works
+      await userEvent.click(within(s.dialog).getByRole("button", { name: "Sign in again" }));
+      await waitFor(() => expect(s.reauth).toHaveBeenCalledTimes(2));
+    });
+    it("shows an alert and re-enables the button when no provider is found", async () => {
+      const s = await openExpired({ providers: [] });
+      await userEvent.click(within(s.dialog).getByRole("button", { name: "Sign in again" }));
+      await expectAlertInDialog(s.dialog);
+      expect(s.reauth).not.toHaveBeenCalled();
+    });
+    it("clears the alert when the user tries again", async () => {
+      const s = await openExpired();
+      s.reauth.mockRejectedValueOnce(new Error("idp down"));
+      await userEvent.click(within(s.dialog).getByRole("button", { name: "Sign in again" }));
+      await within(s.dialog).findByRole("alert");
+      await userEvent.click(within(s.dialog).getByRole("button", { name: "Sign in again" }));
+      await waitFor(() => expect(within(s.dialog).queryByRole("alert")).toBeNull());
+    });
   });
   it("sign-out in another tab lands on /signed-out", async () => {
     const { svc, handlers } = services();

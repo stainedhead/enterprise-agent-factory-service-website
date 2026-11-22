@@ -17,6 +17,8 @@ export interface SessionDeps {
   readonly providerById: (id: string) => ProviderInfo | undefined;
   /** Clears cached server state on sign-out (not on expiry, which must keep the page). */
   readonly clearCaches?: () => void;
+  /** Non-secret drafts: cleared, with their persisted copy, on sign-out (here or in another tab), never on expiry. */
+  readonly drafts?: { clear(): void };
 }
 
 /** Renew this long before the access token expires. */
@@ -158,7 +160,10 @@ export class Session {
     this.#cancel();
     this.#tokens = undefined;
     // Expiry keeps cached data and the page as they are so work in progress survives re-authentication.
-    if (state === "signed-out") this.deps.clearCaches?.();
+    if (state === "signed-out") {
+      this.deps.clearCaches?.();
+      this.deps.drafts?.clear();
+    }
     this.#set(state);
   }
 
