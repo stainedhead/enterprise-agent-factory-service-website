@@ -44,6 +44,16 @@ describe("S11 exports (M4-E1)", () => {
     expect(await screen.findByText("Expired")).toBeTruthy();
     expect(screen.queryByRole("link", { name: /Download export/ })).toBeNull();
   });
+  it("shows a dash, not Expired and not a link, when the adapter dropped an unsafe download URL (FR-020)", async () => {
+    open(
+      SERVICE_ADMIN,
+      fakeAdminExportsPort({ list: async () => [anExport({ downloadUrl: undefined })] }),
+    );
+    await screen.findByText("abc123");
+    expect(screen.queryByText("Expired")).toBeNull();
+    expect(screen.queryByRole("link", { name: /Download export/ })).toBeNull();
+    expect((await screen.findByText("abc123")).closest("tr")?.textContent).toMatch(/—$/);
+  });
   it("creates an export and shows it preparing", async () => {
     const port = open(
       SERVICE_ADMIN,

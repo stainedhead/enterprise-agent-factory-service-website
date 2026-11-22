@@ -9,6 +9,7 @@ import type {
   WorkOrdersPort,
 } from "../../application/ports/workOrders.js";
 import { toAppError } from "./errors.js";
+import { httpsUrlOrUndefined } from "./safeUrl.js";
 
 const sig = (signal?: AbortSignal) => (signal ? { signal } : {});
 const wrap = async <T>(f: () => Promise<T>): Promise<T> => {
@@ -47,7 +48,7 @@ const repoRecord = (r: WireRepo): WorkOrderRepoRecord => ({
   owningTeamId: r.owningTeamId,
   owningContact: r.owningContact,
   ownerSource: r.ownerSource,
-  prUrl: r.prUrl,
+  prUrl: httpsUrlOrUndefined(r.prUrl),
   prNumber: r.prNumber,
   detail: r.detail,
   notifications: (r.notifications ?? []).map((n) => ({

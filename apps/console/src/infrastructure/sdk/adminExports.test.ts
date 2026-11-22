@@ -34,6 +34,21 @@ describe("SdkAdminExports (M4-E)", () => {
     expect((await port.get("exp_1")).downloadUrl).toBe("https://dl.example.test/x");
   });
 
+  it.each([
+    ["javascript:alert(1)", undefined],
+    ["data:text/html,x", undefined],
+    ["http://dl.example.test/x", undefined],
+    ["https://dl.example.test/x", "https://dl.example.test/x"],
+  ])("keeps only https: for downloadUrl %j (FR-020)", async (downloadUrl, expected) => {
+    const { client } = fakeApi(
+      on("GET", "/v1/exports/exp_1", () => json({ ...wire, downloadUrl })),
+      on("GET", "/v1/exports", () => json({ items: [{ ...wire, downloadUrl }] })),
+    );
+    const port = new SdkAdminExports(client);
+    expect((await port.get("exp_1")).downloadUrl).toBe(expected);
+    expect((await port.list())[0]?.downloadUrl).toBe(expected);
+  });
+
   it("imports with dryRun in the query and the account map in the body", async () => {
     const { client, calls } = fakeApi(
       on("POST", "/v1/imports", () =>

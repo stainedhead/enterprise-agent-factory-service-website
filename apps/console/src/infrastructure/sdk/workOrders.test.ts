@@ -36,6 +36,21 @@ const repo = {
   version: 4,
 };
 
+describe("SdkWorkOrders prUrl (FR-020)", () => {
+  it.each([
+    ["javascript:alert(1)", undefined],
+    ["data:text/html,x", undefined],
+    ["http://github.com/acme/api/pull/7", undefined],
+    ["https://github.com/acme/api/pull/7", "https://github.com/acme/api/pull/7"],
+  ])("keeps only https: for %j", async (prUrl, expected) => {
+    const { client } = fakeApi(
+      on("GET", "/v1/work-orders/wo_1", () => json({ ...wire, repos: [{ ...repo, prUrl }] })),
+    );
+    const got = await new SdkWorkOrders(client).get("wo_1");
+    expect(got.repos[0]?.prUrl).toBe(expected);
+  });
+});
+
 describe("SdkWorkOrders (M6-W1)", () => {
   it("lists with the filters and stops at the limit", async () => {
     const { client, calls } = fakeApi(

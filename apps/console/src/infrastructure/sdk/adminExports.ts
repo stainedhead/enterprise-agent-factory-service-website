@@ -6,6 +6,7 @@ import type {
   ImportReportRecord,
 } from "../../application/ports/adminExports.js";
 import { toAppError } from "./errors.js";
+import { httpsUrlOrUndefined } from "./safeUrl.js";
 
 const sig = (signal?: AbortSignal) => (signal ? { signal } : {});
 const wrap = async <T>(f: () => Promise<T>): Promise<T> => {
@@ -26,7 +27,7 @@ const toRecord = (e: Wire): ExportRecord => ({
   finishedAt: e.finishedAt ?? undefined,
   sizeBytes: e.sizeBytes ?? undefined,
   sha256: e.sha256 ?? undefined,
-  downloadUrl: e.downloadUrl ?? undefined,
+  downloadUrl: httpsUrlOrUndefined(e.downloadUrl),
   downloadExpiresAt: e.downloadExpiresAt ?? undefined,
   error: e.error ?? undefined,
 });
