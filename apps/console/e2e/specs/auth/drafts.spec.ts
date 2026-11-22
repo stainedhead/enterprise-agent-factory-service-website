@@ -7,8 +7,8 @@ const route = `/t/${T}/agents/new`;
 /**
  * Records every `Storage.setItem` call made by the console, across the re-authentication redirect.
  * The page navigates to the IdP right after the carrier write, and a call through an exposed binding can be lost
- * to that navigation, so each write is also kept synchronously in `window.name` (it survives same-site
- * navigations) and merged in by `all()`.
+ * to that navigation, so each write is also kept synchronously in `sessionStorage` under a recorder key (it survives the round trip to the
+ * IdP in the same tab; `window.name` does not, Chromium clears it on a cross-site navigation) and merged in by `all()`.
  */
 async function recordStorageWrites(
   page: import("@playwright/test").Page,
@@ -22,9 +22,11 @@ async function recordStorageWrites(
     const set = Storage.prototype.setItem;
     Storage.prototype.setItem = function (k: string, v: string) {
       try {
-        const kept: string[] = window.name.startsWith("[") ? JSON.parse(window.name) : [];
-        kept.push(`${k}=${String(v)}`);
-        window.name = JSON.stringify(kept);
+        if (k !== "__recorded") {
+          const kept: string[] = JSON.parse(sessionStorage.getItem("__recorded") ?? "[]");
+          kept.push(`${k}=${String(v)}`);
+          set.call(sessionStorage, "__recorded", JSON.stringify(kept));
+        }
       } catch {
         // recording only; the binding below still sees the write
       }
@@ -32,19 +34,10 @@ async function recordStorageWrites(
       return set.call(this, k, v);
     };
   });
-  // Chromium also reports every sessionStorage write through the DevTools protocol, which a navigation cannot lose.
-  const cdp: string[] = [];
-  if (page.context().browser()?.browserType().name() === "chromium") {
-    const session = await page.context().newCDPSession(page);
-    await session.send("DOMStorage.enable");
-    const onWrite = (e: { key: string; newValue?: string }) => cdp.push(`${e.key}=${e.newValue}`);
-    session.on("DOMStorage.domStorageItemAdded", onWrite);
-    session.on("DOMStorage.domStorageItemUpdated", onWrite);
-  }
   return {
     all: async () => {
-      const kept = await page.evaluate(() => (window.name.startsWith("[") ? window.name : "[]"));
-      return [...bound, ...cdp, ...(JSON.parse(kept) as string[])];
+      const kept = await page.evaluate(() => sessionStorage.getItem("__recorded") ?? "[]");
+      return [...bound, ...(JSON.parse(kept) as string[])];
     },
   };
 }
