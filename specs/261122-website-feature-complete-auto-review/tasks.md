@@ -157,14 +157,14 @@ in `src/presentation/screens/t6-members/ApiKeysTab.tsx`. Exception: D-9 deletes 
 
 | Done | ID | Task | AC | Depends |
 |---|---|---|---|---|
-| [ ] | D-1 | Red: `useDraft.test.tsx`: `useDraft(formId, initial)` reads and writes `AuthServices.drafts` for non-secret fields; passing a `SecretInput`-backed field is rejected by type (`@ts-expect-error` test) or by a runtime test. Green: implement the hook | FR-004 AC1 | none |
-| [ ] | D-2 | Red: `CreateAgentPage.test.tsx` draft restored after remount, discarded on submit success and on cancel. Green: adopt `useDraft` in T3 *Create agent* (non-secret fields only) | FR-004 AC1, AC3 | D-1 |
-| [ ] | D-3 | Same for S3 *Create team* (`CreateTeamPage.tsx`) | FR-004 AC1, AC3 | D-1 |
-| [ ] | D-4 | Same for P3 *Create work order* and *Create pool* (`CreateWorkOrderPage.tsx`, `CreatePoolPage.tsx`) | FR-004 AC1, AC3 | D-1 |
-| [ ] | D-5 | Red then green: discard on submit success and cancel is covered by a shared test helper for D-2..D-4 and D-6; no draft key remains in `sessionStorage` after cancel or success | FR-004 AC3 | D-2, D-3, D-4 |
+| [x] | D-1 | Red: `useDraft.test.tsx`: `useDraft(formId, initial)` reads and writes `AuthServices.drafts` for non-secret fields; passing a `SecretInput`-backed field is rejected by type (`@ts-expect-error` test) or by a runtime test. Green: implement the hook | FR-004 AC1 | none |
+| [x] | D-2 | Red: `CreateAgentPage.test.tsx` draft restored after remount, discarded on submit success and on cancel. Green: adopt `useDraft` in T3 *Create agent* (non-secret fields only) | FR-004 AC1, AC3 | D-1 |
+| [x] | D-3 | Same for S3 *Create team* (`CreateTeamPage.tsx`) | FR-004 AC1, AC3 | D-1 |
+| [x] | D-4 | Same for P3 *Create work order* and *Create pool* (`CreateWorkOrderPage.tsx`, `CreatePoolPage.tsx`) | FR-004 AC1, AC3 | D-1 |
+| [x] | D-5 | Red then green: discard on submit success and cancel is covered by a shared test helper for D-2..D-4 and D-6; no draft key remains in `sessionStorage` after cancel or success | FR-004 AC3 | D-2, D-3, D-4 |
 | [ ] | D-6 | After C has merged: adopt `useDraft` for the non-secret fields of the *Create secret* and *Create API key* dialogs with component tests (non-secret restored, secret empty, `SecretInput` never drafted) | FR-004 AC1 | D-1, C merged |
-| [ ] | D-7 | Red: e2e `e2e/specs/auth/drafts.spec.ts`: fill T3 with non-secret values and a secret value, force expiry, sign in again through the fake IdP, land on T3 with non-secret values restored and the secret empty; a storage scan shows no secret value in `sessionStorage` at any point; sign-out removes `afs.drafts`. Green: fix what it exposes in D's files | FR-004 AC2, AC3 | D-2, D-6, B merged (B-5) |
-| [ ] | D-8 | Red: component or e2e test for T3 partial failure (one config value refused, agent created, refused value listed with the T7 link); add only if it does not exist. Green: fix if it fails. Write ADR-015: the exception to the spec's no-multi-mutation non-goal, the partial-failure behavior, removal trigger (CQ-14 resolved upstream). Rebase onto B's merge first | FR-021 AC | none |
+| [x] | D-7 | Red: e2e `e2e/specs/auth/drafts.spec.ts`: fill T3 with non-secret values and a secret value, force expiry, sign in again through the fake IdP, land on T3 with non-secret values restored and the secret empty; a storage scan shows no secret value in `sessionStorage` at any point; sign-out removes `afs.drafts`. Green: fix what it exposes in D's files | FR-004 AC2, AC3 | D-2, D-6, B merged (B-5) |
+| [x] | D-8 | Red: component or e2e test for T3 partial failure (one config value refused, agent created, refused value listed with the T7 link); add only if it does not exist. Green: fix if it fails. Write ADR-015: the exception to the spec's no-multi-mutation non-goal, the partial-failure behavior, removal trigger (CQ-14 resolved upstream). Rebase onto B's merge first | FR-021 AC | none |
 | [ ] | D-9 | Remove the unused import in `t3-create-agent/sections/IdentitySection.tsx` and delete the scoped `biome.json` override that E-4 added; `bunx biome check .` shows 0 warnings | FR-018 AC | E merged |
 | [ ] | D-10 | Stream exit: `bun run gate`, Chromium e2e for `auth`, `createAgent`, `secrets`, `members`, `teams`, `workOrders`, `pools`; notes and `status.md` updated | Goal 3 | D-1..D-9 |
 

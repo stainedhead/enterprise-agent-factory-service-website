@@ -14,10 +14,9 @@ export function withDrafts(ui: ReactElement, drafts: DraftStore): ReactElement {
 export const draftIds = (drafts: DraftStore): string[] => Object.keys(drafts.snapshot());
 
 /**
- * The shared FR-004 AC3 check for every draft-adopting form: no draft remains in the store, and the
- * `sessionStorage` carrier key does not exist.
+ * The shared FR-004 AC3 check for every draft-adopting form: no draft remains in the session store. The
+ * `sessionStorage` carrier is written only by re-authentication; `e2e/specs/auth/drafts.spec.ts` checks it.
  */
 export function expectNoDraftLeft(drafts: DraftStore): void {
   expect(draftIds(drafts)).toEqual([]);
-  expect(globalThis.sessionStorage.getItem("afs.drafts")).toBeNull();
 }

@@ -34,7 +34,7 @@ lines, so merges stay hunk-disjoint.
 | E: Quality and edges | FR-016..FR-020 | 0/9 | no | |
 | C: Error routing | FR-002, FR-003 (query layer), FR-015 | 0/7 | no | |
 | B: Session, auth, hosting | FR-001, FR-003 (wiring), FR-005, FR-006, FR-012..FR-014, FR-004 (sign-out) | 0/10 | no | |
-| D: Drafts | FR-004, FR-021, FR-018 (`IdentitySection.tsx`) | 0/10 | no | |
+| D: Drafts | FR-004, FR-021, FR-018 (`IdentitySection.tsx`) | 7/10 | no | D-6 waits for C; D-9 half done (unused import removed, `biome.json` override waits for E); D-10 open |
 | U-1 (stream-independent) | M6-U1 contract re-pin | 0/1 | n/a | Open: blocked on the `-restapi` merge and tag (CQ-1) |
 
 ## Merge log
@@ -48,6 +48,11 @@ lines, so merges stay hunk-disjoint.
 ## Stream C log
 
 ## Stream D log
+
+- 2026-11-22: D-1..D-5 done (`useDraft`, T3, S3, P3 create, P4 create; shared discard helper). D-7 done (e2e
+  `auth/drafts.spec.ts`, red first on the old T3). D-8 done (partial-failure component test, ADR-015).
+- Open: D-6 (needs C's dialogs), D-9 (the `biome.json` override exists only after E merges; the unused import
+  in `IdentitySection.tsx` is already removed), D-10 (stream exit).
 
 ## Stream E log
 

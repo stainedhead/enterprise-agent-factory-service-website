@@ -223,6 +223,30 @@ describe("T3 help, bindings, identity, config (M2-C2..C5)", () => {
     );
   });
 
+  it("partial failure: a refused configuration value is listed with the T7 link and the agent stays created (FR-021)", async () => {
+    const config = fakeConfigPort({
+      putAgent: vi.fn(async () => {
+        throw new AppError({ kind: "validation", message: "value refused by policy" });
+      }),
+    });
+    const { agents } = open({ config });
+    await ready();
+    await userEvent.type(screen.getByLabelText("Name"), "security-patcher");
+    await userEvent.click(screen.getByRole("button", { name: "Add value" }));
+    await userEvent.type(screen.getByLabelText("Name of value 1"), "MAX_OPEN_PRS");
+    await userEvent.type(screen.getByLabelText("Value of MAX_OPEN_PRS"), "3");
+    await userEvent.click(screen.getByRole("button", { name: "Create agent" }));
+    await waitFor(() => expect(agents.create).toHaveBeenCalledOnce());
+    const alert = await screen.findByText(/The agent was created, but some configuration values/);
+    expect(alert).toBeTruthy();
+    expect(screen.getByText(/MAX_OPEN_PRS: value refused by policy/)).toBeTruthy();
+    const link = screen.getByRole("link", { name: "Open configuration values" });
+    expect(link.getAttribute("href")).toBe("/t/team_1/config");
+    // no second create, and the page did not navigate away
+    expect(agents.create).toHaveBeenCalledTimes(1);
+    expect(screen.queryByText("elsewhere")).toBeNull();
+  });
+
   it("with cross-account links, going back to the shared role is disabled and says why", () => {
     const set = vi.fn();
     render(
