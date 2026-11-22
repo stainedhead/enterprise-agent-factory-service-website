@@ -336,10 +336,17 @@ export function CreateAgentPage() {
             <Card title="Paperclip">
               <Switch
                 label="Connect to Paperclip"
+                showLabel
                 checked={effective.connect ?? false}
                 disabledReason={hasCollab ? undefined : "This team has no collaboration agent"}
+                describedBy="paperclip-connect-note"
                 onChange={(on) => set({ connect: on })}
               />
+              <p id="paperclip-connect-note">
+                {hasCollab
+                  ? "The agent joins the team's Paperclip board and can read and update its issues."
+                  : "This team has no collaboration agent. Create one with the Collaboration (Paperclip) role first."}
+              </p>
             </Card>
           )}
           <HelpPanel />

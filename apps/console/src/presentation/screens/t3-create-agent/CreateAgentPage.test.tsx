@@ -439,6 +439,7 @@ describe("T3 role step (WEB-US-45)", () => {
     await ready();
     const sw = await screen.findByRole("switch", { name: "Connect to Paperclip" });
     await waitFor(() => expect((sw as HTMLInputElement).checked).toBe(true));
+    expect(screen.getByText(/joins the team's Paperclip board/)).toBeTruthy();
     expect(screen.getAllByText(/--collaboration-connect/).length).toBeGreaterThan(0);
     await userEvent.type(screen.getByLabelText("Name"), "worker-one");
     await userEvent.click(screen.getByRole("button", { name: "Create agent" }));
@@ -454,6 +455,11 @@ describe("T3 role step (WEB-US-45)", () => {
     const sw = await screen.findByRole("switch", { name: "Connect to Paperclip" });
     expect(sw.getAttribute("aria-disabled")).toBe("true");
     expect((sw as HTMLInputElement).checked).toBe(false);
+    // the label and the reason are visible text, not only a tooltip
+    expect(screen.getByText("Connect to Paperclip", { selector: "label" })).toBeTruthy();
+    expect(
+      screen.getByText(/Create one with the Collaboration \(Paperclip\) role first/),
+    ).toBeTruthy();
     await userEvent.type(screen.getByLabelText("Name"), "worker-two");
     await userEvent.click(screen.getByRole("button", { name: "Create agent" }));
     await waitFor(() => expect(agents.create).toHaveBeenCalled());

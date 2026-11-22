@@ -13,6 +13,7 @@ export function Switch({
   disabledReason,
   busy,
   describedBy,
+  showLabel,
 }: {
   label: string;
   checked: boolean;
@@ -21,6 +22,8 @@ export function Switch({
   busy?: boolean;
   /** An id of text that also describes the switch (for example the card's note). */
   describedBy?: string | undefined;
+  /** Shows the label as visible text next to the switch (when no heading or field label names it). */
+  showLabel?: boolean;
 }) {
   const id = useId();
   const blocked = disabledReason !== undefined || busy === true;
@@ -43,6 +46,7 @@ export function Switch({
           />
         )}
       </Tooltip>
+      {showLabel && <label htmlFor={id}>{label}</label>}
     </span>
   );
 }
