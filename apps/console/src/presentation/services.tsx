@@ -6,6 +6,7 @@ import type {
 } from "../application/usecases/adminCatalogs/AdminCatalogsUseCases.js";
 import type { AgentsUseCases } from "../application/usecases/agents/AgentsUseCases.js";
 import type { CreateAgentUseCases } from "../application/usecases/agents-create/CreateAgentUseCases.js";
+import type { BudgetsUseCases } from "../application/usecases/budgets/BudgetsUseCases.js";
 import type { ConfigUseCases } from "../application/usecases/config/ConfigUseCases.js";
 import type { DashboardUseCases } from "../application/usecases/dashboard/DashboardUseCases.js";
 import type { AdminExternalSystemsUseCases } from "../application/usecases/externalSystems/AdminExternalSystemsUseCases.js";
@@ -32,6 +33,7 @@ export interface AppServices {
   readonly adminExternalSystems: AdminExternalSystemsUseCases;
   readonly adminStorageClasses: AdminStorageClassesUseCases;
   readonly adminAgentTemplates: AdminAgentTemplatesUseCases;
+  readonly budgets: BudgetsUseCases;
   readonly secrets: SecretsUseCases;
   readonly history: HistoryUseCases;
   readonly identityProviders: IdentityProvidersUseCases;

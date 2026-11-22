@@ -63,6 +63,17 @@ const teamPerms = {
     "config:write",
     "external-systems:read",
     "external-systems:write",
+    "budgets:write",
+    "reports:read",
+    "reports:schedule",
+    "tags:read",
+    "tags:write",
+    "notifications:read",
+    "notifications:write",
+    "identities:read",
+    "identities:write",
+    "logs:write",
+    "revisions:restore",
   ],
   team_viewer: [
     "teams:read",
@@ -77,6 +88,10 @@ const teamPerms = {
     "secrets:read-metadata",
     "config:read",
     "external-systems:read",
+    "reports:read",
+    "tags:read",
+    "notifications:read",
+    "identities:read",
   ],
 };
 

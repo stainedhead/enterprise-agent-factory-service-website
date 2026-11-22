@@ -41,11 +41,11 @@
 | M0 Foundations | 10 (+ exit) | 69 | 69 |
 | M1 Teams & access | 10 (+ exit) | 46 | 46 |
 | M2 Agents & secrets | 7 (+ exit) | 41 | 41 |
-| M3 Spend control | 6 (+ exit) | 24 | 3 |
+| M3 Spend control | 6 (+ exit) | 24 | 8 |
 | M4 Production readiness | 8 (+ exit) | 34 | 0 |
 | M5 Budgeted workloads and swarms | 4 (+ exit) | 19 | 0 |
 | M6 CVE remediation and completion | 6 (+ exit) | 26 | 0 |
-| **Total** | **51** | **259** | **160** |
+| **Total** | **51** | **259** | **165** |
 
 ## External dependencies and contract questions
 
@@ -482,11 +482,11 @@ Owns: area files: `budgets`; `presentation/screens/t5-budget/`.
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M3-B1 | Month-to-date spend, month-end forecast with projected cap date, action at exhaustion, latest reconciliation, daily spend split into Bedrock tokens and EKS compute, spend by agent | WEB-US-28.1 | M3-C1 |
-| [ ] | M3-B2 | *Edit budget*: amount, thresholds, and (service admins, persistent teams only) action at exhaustion; an amount above the ceiling refused client-side naming the ceiling, and the API's `ValidationError` shown | WEB-US-28.2, D33 | M3-B1 |
-| [ ] | M3-B3 | Team-admin: ceiling, override, quotas and *notify* not offered; the API's `403` shown if forced | WEB-US-28.3 | M3-B2 |
-| [ ] | M3-B4 | Link to T14 *Notifications* where threshold alerts are delivered | WEB-US-28.4 | M3-B1 |
-| [ ] | M3-B5 | e2e, axe, visual T5 (`10`) | WEB-US-42.1 (part), WEB-US-42.2 (part) | M3-B1..B4 |
+| [x] | M3-B1 | Month-to-date spend, month-end forecast with projected cap date, action at exhaustion, latest reconciliation, daily spend split into Bedrock tokens and EKS compute, spend by agent | WEB-US-28.1 | M3-C1 |
+| [x] | M3-B2 | *Edit budget*: amount, thresholds, and (service admins, persistent teams only) action at exhaustion; an amount above the ceiling refused client-side naming the ceiling, and the API's `ValidationError` shown | WEB-US-28.2, D33 | M3-B1 |
+| [x] | M3-B3 | Team-admin: ceiling, override, quotas and *notify* not offered; the API's `403` shown if forced | WEB-US-28.3 | M3-B2 |
+| [x] | M3-B4 | Link to T14 *Notifications* where threshold alerts are delivered | WEB-US-28.4 | M3-B1 |
+| [x] | M3-B5 | e2e, axe, visual T5 (`10`) | WEB-US-42.1 (part), WEB-US-42.2 (part) | M3-B1..B4 |
 
 ### M3-P · Models and pricing (S4)
 

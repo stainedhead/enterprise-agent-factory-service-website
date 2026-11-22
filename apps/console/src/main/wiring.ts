@@ -6,6 +6,7 @@ import {
 } from "../application/usecases/adminCatalogs/AdminCatalogsUseCases.js";
 import { AgentsUseCases } from "../application/usecases/agents/AgentsUseCases.js";
 import { CreateAgentUseCases } from "../application/usecases/agents-create/CreateAgentUseCases.js";
+import { BudgetsUseCases } from "../application/usecases/budgets/BudgetsUseCases.js";
 import { ConfigUseCases } from "../application/usecases/config/ConfigUseCases.js";
 import { DashboardUseCases } from "../application/usecases/dashboard/DashboardUseCases.js";
 import { AdminExternalSystemsUseCases } from "../application/usecases/externalSystems/AdminExternalSystemsUseCases.js";
@@ -29,6 +30,7 @@ import {
 } from "../infrastructure/sdk/adminCatalogs.js";
 
 import { SdkAgents } from "../infrastructure/sdk/agents.js";
+import { SdkBudgets } from "../infrastructure/sdk/budgets.js";
 import { SdkConfig } from "../infrastructure/sdk/config.js";
 import { SdkDashboard } from "../infrastructure/sdk/dashboard.js";
 import {
@@ -89,6 +91,7 @@ export function buildServices(
     adminAgentTemplates: new AdminAgentTemplatesUseCases(new SdkAdminAgentTemplates(client)),
     createAgent: new CreateAgentUseCases(agentsUseCases, configValues),
     teams: new TeamsUseCases(teamsPort, clock),
+    budgets: new BudgetsUseCases(new SdkBudgets(client), clock),
     settings: new SettingsUseCases(new SdkSettings(client)),
     identityProviders: new IdentityProvidersUseCases(new SdkIdentityProviders(client)),
     history: new HistoryUseCases(new SdkAudit(client), new SdkRevisions(client)),
