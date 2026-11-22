@@ -11,7 +11,7 @@
     "build": "bun run --filter '@afs/sdk' build && bun run --filter '@afs/console' build",
     "typecheck": "bun run --filter '*' typecheck",
     "test": "bun run --filter '*' test",
-    "lint": "biome check .",
+    "lint": "biome check --error-on-warnings .",
     "format": "biome check --write .",
     "audit": "bun audit --prod --audit-level=high",
     "gate": "bun install --frozen-lockfile && bun run contract:check && bun run codegen:check && bun run lint && bun run typecheck && bun run test:cover && bun run build && bun run size && bun run tsdoc",

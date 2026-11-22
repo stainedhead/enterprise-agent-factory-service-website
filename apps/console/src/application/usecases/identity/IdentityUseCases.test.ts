@@ -8,7 +8,12 @@ import {
   trustPolicyText,
 } from "./IdentityUseCases.js";
 
-const clock = { setTimeout: (fn: () => void) => (fn(), 0) };
+const clock = {
+  setTimeout: (fn: () => void) => {
+    fn();
+    return 0;
+  },
+};
 const dedicated = { id: "agt_1", iamIdentity: "dedicated" };
 const draft: LinkDraft = {
   accountId: "111122223333",

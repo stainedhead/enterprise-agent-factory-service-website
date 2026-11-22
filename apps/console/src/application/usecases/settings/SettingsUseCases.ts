@@ -6,7 +6,6 @@ import type {
   IdentityProvidersPort,
   SettingRecord,
   SettingsPort,
-  UpdateIdentityProviderInput,
 } from "../../ports/settings.js";
 
 const invalid = (field: string, message: string) =>

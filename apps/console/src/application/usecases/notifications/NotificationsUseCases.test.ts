@@ -36,7 +36,12 @@ const port = (over: Partial<NotificationsPort> = {}) =>
     ...over,
   }) as unknown as NotificationsPort & Record<string, ReturnType<typeof vi.fn>>;
 
-const clock = { setTimeout: (fn: () => void) => (fn(), 0) };
+const clock = {
+  setTimeout: (fn: () => void) => {
+    fn();
+    return 0;
+  },
+};
 
 describe("NotificationsUseCases", () => {
   it("parses events, dropping blanks and duplicates", () => {

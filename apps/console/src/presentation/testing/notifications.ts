@@ -38,7 +38,12 @@ export function fakeNotificationsPort(
   } as unknown as FakeNotificationsPort;
 }
 
-const clock = { setTimeout: (fn: () => void) => (fn(), 0) };
+const clock = {
+  setTimeout: (fn: () => void) => {
+    fn();
+    return 0;
+  },
+};
 export const notificationsServices = (p: NotificationsPort) => ({
   notifications: new NotificationsUseCases(p, clock),
 });

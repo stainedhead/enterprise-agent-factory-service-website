@@ -31,7 +31,7 @@ export function EphemeralCard({ teamId }: { teamId: string }) {
     enabled: can(me, "budgets:read", teamId),
   });
   const team = t.data;
-  if (!team || team.kind !== "ephemeral") return null;
+  if (team?.kind !== "ephemeral") return null;
   const st = ephemeralStatus(team, now);
   const rule = RULE[team.teardownRule as keyof typeof RULE] ?? team.teardownRule ?? "—";
   return (
