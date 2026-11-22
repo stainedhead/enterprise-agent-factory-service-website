@@ -5,7 +5,7 @@
 | **Source** | Step 5 (code and design review) of `implm-frm-prd` on branch `feat/website-feature-complete` at `cdc14f7` |
 | **Spec reviewed against** | `specs/261121-website-feature-complete/` (spec.md, tasks.md, implementation-notes.md WD-1..WD-n, DV-1..DV-62, CQ-1..CQ-26) and `AGENTS.md` |
 | **Reviewed** | 2026-11-22 by the step 5 review agent (J authorized running without questions) |
-| **Status** | Draft from step 5; step 6 (`review-prd`) pending |
+| **Status** | Reviewed by step 6 (`review-prd`), section 9. Ready for `create-spec` (step 8) |
 | **Scope** | `packages/sdk` (`@afs/sdk`) and `apps/console` (`@afs/console`). No other repository changes |
 
 ## 1. Executive summary
@@ -463,3 +463,54 @@ After each merge: `bun run gate`, then the Chromium e2e subset for the merged st
 | Firefox and WebKit e2e projects | Run in CI only; not run in this environment | CI |
 | Visual baseline approvals | 33 entries in `apps/console/e2e/visual/approvals.json` are `pending` until J compares them side by side with the mockups (W-3) | J |
 | CQ-2..CQ-26 interim behaviors | Contract gaps recorded in implementation notes §2. The console's interim handling was reviewed and is not counted as a finding (except FR-021, which needs an ADR) | `-restapi` / root (J) |
+
+## 9. Step 6 review (`review-prd`, 2026-11-22)
+
+**Verdict: ready for spec.** All dimensions pass. The gaps found in the first draft were fixed in place
+and are listed below.
+
+| Dimension | Status | Note |
+|---|---|---|
+| Problem clarity | ✅ Pass | Section 2 names the failing conditions and the affected users (pipelines on `@afs/sdk`, console roles) |
+| Scope definition | ✅ Pass | Goals and non-goals in section 3. Deferred items listed apart from findings in section 8 |
+| Functional completeness | ✅ Pass | 21 atomic FRs, one per finding, each with file:line evidence. Every goal is covered |
+| NFR coverage | ✅ Pass | Section 4 covers security, reliability, performance, observability, accessibility and quality (added during this review) |
+| Acceptance criteria | ✅ Pass | Each FR names the test that must fail first and the observable outcome. Vague criteria in the draft ("handle errors properly") were replaced with role, request id and request-count assertions |
+| Dependency identification | ✅ Pass | Section 5: `-restapi` catalog, platform Terraform for the CSP change, spec authority for FR-037 (added during this review) |
+| Open questions | ✅ Pass | See below |
+
+**Priority check (P0 = true blockers, not preferences).** No finding meets the P0 bar. None exposes a
+secret value or token, none bypasses the API's authorization, and none blocks a core flow without a
+workaround.
+
+- FR-001 has a workaround: IdPs that issue refresh tokens are unaffected, and the others re-authenticate.
+- FR-002 does not grant access: the API refuses. It hides the refusal.
+- FR-006 needs an operator misconfiguration.
+
+The P1s stay P1 because each one is a confirmed defect against a P0 requirement (WEB-2, WEB-3, WEB-8,
+WEB-US-7), or a security hardening (FR-006). The review rules say security is never downgraded. Two
+draft priorities changed:
+
+- FR-011 (`waitFor` stale `Failed`): P1 → P2, because contract §1 makes the API return `Pending` on
+  every mutation.
+- FR-020 (link schemes): stays P2, because React 19 and the CSP already block `javascript:` URLs.
+
+**Process guidance check.** Section 7 has TDD for each fix, a code and design review for each fix,
+worker agent teammates, git worktrees, disjoint **Owns** per stream, and an explicit merge order with
+the A, E, C, B, D dependencies stated.
+
+**Open questions (to resolve while writing the fixes spec, not blocking):**
+
+1. FR-001: does the platform accept `frame-ancestors 'self'` in place of `'none'`? If not, the fallback
+   is a top-level `prompt=none` redirect that depends on FR-004 drafts. J or the platform owner decides.
+   The interim is to apply `'self'` and record it in an ADR.
+2. FR-005: should idle activity also count requests the user started, such as a download, or only
+   input events? The interim is input events only, shared across tabs.
+3. FR-004: which dialogs (as opposed to pages) must keep drafts? The minimum set is in the acceptance
+   criteria. Others are optional.
+
+**Strengths.** The evidence points to exact lines and checks that can be reproduced. The deferred items
+are kept apart from the findings. The stream ownership follows the existing layer boundaries, so the
+fixes cannot re-introduce dependency-rule violations without failing `architecture.test.ts`.
+
+**Next step:** `/create-spec website-feature-complete-review-PRD.md` (step 8 of `implm-frm-prd`).
