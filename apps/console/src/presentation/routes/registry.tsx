@@ -1,27 +1,19 @@
-// Shared list (architecture.md §3.2): one line per screen. A stream replaces its own line with a lazy
-// import of its screen; every other line stays a NotBuiltYet placeholder.
+// Shared list (architecture.md §3.2): one line per screen, each a lazy import of its page. Screens that are
+// tabs or variants of another page (S6, T10, P2, V1, V2) name the page that hosts them. M6-X1: no placeholder remains.
 import { type ComponentType, lazy } from "react";
 import type { ScreenId } from "../../domain/screens.js";
-import { SCREEN_IDS } from "../../domain/screens.js";
-import { NotBuiltYet } from "./NotBuiltYet.js";
 
 export type ScreenComponent = ComponentType;
 
-const placeholder =
-  (id: string): ScreenComponent =>
-  () => <NotBuiltYet screen={id} />;
-
 export const registry: Record<Exclude<ScreenId, "AUTH" | "NOT_FOUND">, ScreenComponent> = {
-  ...(Object.fromEntries(SCREEN_IDS.map((id) => [id, placeholder(id)])) as Record<
-    (typeof SCREEN_IDS)[number],
-    ScreenComponent
-  >),
-  // one line per built screen
   // P2 (create an ephemeral team) is the budget-step variant of S3, so it shares S3's page
   P2: lazy(() => import("../screens/s3-create-team/index.js")),
   P3: lazy(() => import("../screens/p3-work-orders/index.js")),
   P5: lazy(() => import("../screens/p5-swarm-templates/index.js")),
   P6: lazy(() => import("../screens/p6-work-order/index.js")),
+  // S6 (team AWS accounts) is a tab of the service-admin team page, T10 (agent external systems) a tab of the agent panel
+  S6: lazy(() => import("../screens/s2-teams/index.js")),
+  T10: lazy(() => import("../screens/t2-agents/index.js")),
   P4: lazy(() => import("../screens/p4-pools/index.js")),
   S1: lazy(() => import("../screens/s1-dashboard/index.js")),
   S11: lazy(() => import("../screens/s11-export-import/index.js")),

@@ -85,28 +85,6 @@ import { SdkTeams } from "../infrastructure/sdk/teams.js";
 import { SdkWorkOrders } from "../infrastructure/sdk/workOrders.js";
 import type { AppServices } from "../presentation/services.js";
 
-// Shared list (architecture.md §3.2): one line per port. Unbuilt areas get notImplementedPort, which
-// throws Unavailable on first use; M6-X1 fails while any remains.
-export class NotImplementedError extends Error {
-  readonly area: string;
-  constructor(area: string) {
-    super(`Port "${area}" is not implemented yet`);
-    this.name = "NotImplementedError";
-    this.area = area;
-  }
-}
-
-export function notImplementedPort<T extends object>(area: string): T {
-  return new Proxy({} as T, {
-    get(_t, prop) {
-      if (prop === "then") return undefined;
-      return () => {
-        throw new NotImplementedError(area);
-      };
-    },
-  });
-}
-
 /**
  * The use cases of every wired area (architecture §3.2: one line per area). An area that no stream has
  * wired yet is absent; `useService` then fails loudly, and M6-X1 checks that none is missing.

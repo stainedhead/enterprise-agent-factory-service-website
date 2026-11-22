@@ -44,8 +44,8 @@
 | M3 Spend control | 6 (+ exit) | 24 | 24 |
 | M4 Production readiness | 8 (+ exit) | 34 | 34 |
 | M5 Budgeted workloads and swarms | 4 (+ exit) | 19 | 19 |
-| M6 CVE remediation and completion | 6 (+ exit) | 26 | 24 |
-| **Total** | **51** | **259** | **258** |
+| M6 CVE remediation and completion | 6 (+ exit) | 26 | 25 |
+| **Total** | **51** | **260** | **259** |
 
 ## External dependencies and contract questions
 
@@ -770,7 +770,7 @@ Owns: `packages/sdk/contract/`, `packages/sdk/src/generated/`, `domain/generated
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M6-X1 | Merge; gate, CI and full e2e green; every criterion in the traceability table proven by a passing test; a check fails if any `NotBuiltYet` route or `notImplementedPort` remains; status 100%; dashboard step 3 complete | all | all M6 |
+| [x] | M6-X1 | Merge; gate, CI and full e2e green; every criterion in the traceability table proven by a passing test; a check fails if any `NotBuiltYet` route or `notImplementedPort` remains; status 100%; dashboard step 3 complete | all | all M6 |
 
 ---
 

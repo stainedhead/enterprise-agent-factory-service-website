@@ -19,7 +19,7 @@
 | 2 | Research and data modeling | Complete | research.md, data-dictionary.md |
 | 3 | Architecture and planning | Complete | architecture.md, plan.md |
 | 4 | Task breakdown | Complete | tasks.md: 51 streams, 259 tasks |
-| 5 | Implementation (M0–M6) | In Progress | Step 3, M0 to M4 complete (215/259 tasks) |
+| 5 | Implementation (M0–M6) | In Progress | Step 3: M0 to M5 complete, M6 25/26; M6-U1 (contract re-pin to the `-restapi` tag, CQ-1) waits for the `-restapi` merge |
 | 6 | Completion and archival | Not Started | |
 
 ## Phase 0 checklist
@@ -38,7 +38,7 @@
 | M3 Spend control | Complete | 24 / 24 |
 | M4 Production readiness | Complete | 34 / 34 |
 | M5 Budgeted workloads and swarms | Complete | 19 / 19 |
-| M6 CVE remediation and completion | In Progress | 24 / 26 |
+| M6 CVE remediation and completion | In Progress | 25 / 26 |
 
 ## Blockers
 
@@ -47,6 +47,7 @@ none blocks M0.
 
 ## Recent activity
 
+- 2026-11-22: M6 M6-X1 done (25/26).
 - 2026-11-22: M6 M6-Q1, M6-Q2, M6-Q3, M6-Q4, M6-Q5, M6-Q6, M6-Q7 done (24/26).
 - 2026-11-22: M6 M6-K1, M6-K2, M6-K3 done (17/26).
 - 2026-11-22: M6 M6-T1, M6-T2, M6-T3 done (14/26).

@@ -17,8 +17,11 @@ agent panel, create agent, secrets, configuration values, external systems (team
 storage classes and agent templates, team budget and usage, the model catalog and pricing, reports (team, agent and
 service, with cost reconciliation, and scheduling a report to a channel), team and service notification channels, the
 service audit log, team AWS accounts and agent AWS access (cross-account roles with trust policies, external
-identities), cost allocation tags and team tags, log delivery, export and import, and restoring a config revision. See
-[user-docs/console.md](user-docs/console.md). The remaining screens arrive milestone by milestone.
+identities), cost allocation tags and team tags (with tag status), log delivery, export and import, restoring a config revision,
+ephemeral teams with pools and stages and guardrails, work orders and swarm templates (service admins and the security
+operator role), and service API keys and security operators. All 33 screens are built; the quality sweep (axe on every
+screen, keyboard flows, secret sentinel, CSP, performance) runs in the Playwright suite. The contract is pinned to a
+`-restapi` branch commit until its release tag exists. See [user-docs/console.md](user-docs/console.md).
 
 ## Toolchain
 

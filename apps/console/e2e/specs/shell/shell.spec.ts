@@ -65,6 +65,10 @@ test.describe("shell per seeded user", () => {
     await signInAs("svc-admin");
     await control.reset(); // the console keeps its session; the recorder starts empty
     const box = page.getByRole("combobox", { name: "Search" });
+    // the dashboard behind the search is still loading its own panels: only calls made from here on count
+    await expect(page.getByRole("heading", { level: 1 }).first()).toBeVisible();
+    await page.waitForTimeout(1500);
+    const since = Date.now();
     await page.keyboard.press("/");
     await expect(box).toBeFocused();
     await box.fill("p");
@@ -73,16 +77,17 @@ test.describe("shell per seeded user", () => {
     await expect(
       page.getByRole("group", { name: "Teams" }).getByRole("option", { name: "Platform" }),
     ).toBeVisible();
+    // read the recorder before navigating: the team page the search opens makes its own reads
+    const calls = await requestsWhere((r) => r.at >= since);
     await box.press("Enter");
     await expect(page).toHaveURL(new RegExp(`/t/${TEAMS[1].id}$`));
-    const calls = await requestsWhere(() => true);
     const ops = new Set(calls.map((c) => c.operationId));
-    expect([...ops].every((o) => ["ListTeams", "ListWorkOrders", "GetMe"].includes(o ?? ""))).toBe(
-      true,
-    );
+    expect(
+      [...ops].filter((o) => !["ListTeams", "ListWorkOrders", "GetMe"].includes(o ?? "")),
+    ).toEqual([]);
     expect(calls.filter((c) => c.operationId === "ListTeams").length).toBe(1);
     expect(calls.filter((c) => c.operationId === "ListWorkOrders").length).toBe(1);
-    expect(await mutatingCount()).toBe(0);
+    expect((await requestsWhere((r) => r.at >= since && r.mutating)).length).toBe(0);
   });
 
   test("GetMe 503 at boot is a full-page error with Retry", async ({ page }) => {
