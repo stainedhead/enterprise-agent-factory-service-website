@@ -1,5 +1,6 @@
 import type { AfsClient } from "@afs/sdk";
 import type { ClockPort } from "../application/ports/auth.js";
+import { AgentsUseCases } from "../application/usecases/agents/AgentsUseCases.js";
 import { DashboardUseCases } from "../application/usecases/dashboard/DashboardUseCases.js";
 import { HistoryUseCases } from "../application/usecases/history/HistoryUseCases.js";
 import {
@@ -13,6 +14,7 @@ import {
   SettingsUseCases,
 } from "../application/usecases/settings/SettingsUseCases.js";
 import { TeamsUseCases } from "../application/usecases/teams/TeamsUseCases.js";
+import { SdkAgents } from "../infrastructure/sdk/agents.js";
 import { SdkDashboard } from "../infrastructure/sdk/dashboard.js";
 import { SdkAudit, SdkRevisions } from "../infrastructure/sdk/history.js";
 import { SdkApiKeys, SdkMembers } from "../infrastructure/sdk/members.js";
@@ -56,6 +58,7 @@ export function buildServices(
   const overviewPort = new SdkOverview(client);
   return {
     signInProviders: shared.listProviders,
+    agents: new AgentsUseCases(new SdkAgents(client)),
     teams: new TeamsUseCases(teamsPort, clock),
     settings: new SettingsUseCases(new SdkSettings(client)),
     identityProviders: new IdentityProvidersUseCases(new SdkIdentityProviders(client)),

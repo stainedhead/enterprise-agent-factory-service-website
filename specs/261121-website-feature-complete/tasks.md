@@ -40,7 +40,7 @@
 |---|---|---|---|
 | M0 Foundations | 10 (+ exit) | 69 | 69 |
 | M1 Teams & access | 10 (+ exit) | 46 | 46 |
-| M2 Agents & secrets | 7 (+ exit) | 41 | 0 |
+| M2 Agents & secrets | 7 (+ exit) | 41 | 8 |
 | M3 Spend control | 6 (+ exit) | 24 | 0 |
 | M4 Production readiness | 8 (+ exit) | 34 | 0 |
 | M5 Budgeted workloads and swarms | 4 (+ exit) | 19 | 0 |
@@ -362,14 +362,14 @@ Owns: area files: `agents`; `presentation/screens/t2-agents/` (table, detail pan
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M2-A1 | `AgentsPort` (list, get, create, update, delete, pause, resume, restart, status, snapshots list/create, templates list, storage classes list), adapter, use cases; merged first for M2-C | WEB-US-25.1 (part) | — |
-| [ ] | M2-A2 | Table: name, status (§4.2), model, template, bound secrets, month-to-date cost; no replica column and no *Scale* | WEB-US-25.1 | M2-A1 |
-| [ ] | M2-A3 | Detail panel: *Restart*, *Pause*/*Resume* (confirm), *Edit*, *Take snapshot*; polled status incl. *Budget blocked* | WEB-US-25.2, WEB-US-9.6 (part) | M2-A2 |
-| [ ] | M2-A4 | *Expand volume*: only a larger size; smaller refused client-side and the API's error shown | WEB-US-25.3 | M2-A3 |
-| [ ] | M2-A5 | Panel tabs list; *Logs* tab (log destinations and CLI, WD-29) and *Revisions* tab (`ListRevisions` filtered to the agent) | WEB-US-25.4 (part), CQ-6 | M2-A3 |
-| [ ] | M2-A6 | Viewer: same panel, every action disabled "Requires team-admin" | WEB-US-25.5 | M2-A3 |
-| [ ] | M2-A7 | `TemplateRetired=True` shown as *Template retired*; *Edit* asks for a new template or digest | WEB-US-22.3 (part) | M2-A3 |
-| [ ] | M2-A8 | e2e, axe, visual T2 (`07`) | WEB-US-42.1 (part), WEB-US-42.2 (part) | M2-A2..A7 |
+| [x] | M2-A1 | `AgentsPort` (list, get, create, update, delete, pause, resume, restart, status, snapshots list/create, templates list, storage classes list), adapter, use cases; merged first for M2-C | WEB-US-25.1 (part) | — |
+| [x] | M2-A2 | Table: name, status (§4.2), model, template, bound secrets, month-to-date cost; no replica column and no *Scale* | WEB-US-25.1 | M2-A1 |
+| [x] | M2-A3 | Detail panel: *Restart*, *Pause*/*Resume* (confirm), *Edit*, *Take snapshot*; polled status incl. *Budget blocked* | WEB-US-25.2, WEB-US-9.6 (part) | M2-A2 |
+| [x] | M2-A4 | *Expand volume*: only a larger size; smaller refused client-side and the API's error shown | WEB-US-25.3 | M2-A3 |
+| [x] | M2-A5 | Panel tabs list; *Logs* tab (log destinations and CLI, WD-29) and *Revisions* tab (`ListRevisions` filtered to the agent) | WEB-US-25.4 (part), CQ-6 | M2-A3 |
+| [x] | M2-A6 | Viewer: same panel, every action disabled "Requires team-admin" | WEB-US-25.5 | M2-A3 |
+| [x] | M2-A7 | `TemplateRetired=True` shown as *Template retired*; *Edit* asks for a new template or digest | WEB-US-22.3 (part) | M2-A3 |
+| [x] | M2-A8 | e2e, axe, visual T2 (`07`) | WEB-US-42.1 (part), WEB-US-42.2 (part) | M2-A2..A7 |
 
 ### M2-C · Create agent (T3)
 

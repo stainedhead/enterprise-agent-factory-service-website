@@ -5,33 +5,6 @@ type Json = Record<string, unknown>;
 
 const ts = "2026-11-21T18:00:00Z";
 const ok = (phase = "Ready") => ({ conditions: [], observedGeneration: 1, phase, updatedAt: ts });
-const digest = `registry.example.test/agents/coder@sha256:${"4f".repeat(32)}`;
-
-const agent = (id: string, name: string, extra: Json = {}): Json => ({
-  id,
-  name,
-  template: "coder",
-  image: digest,
-  modelId: "anthropic.claude-sonnet-4-5",
-  iamIdentity: "dedicated",
-  paused: false,
-  version: 1,
-  generation: 1,
-  status: ok(),
-  createdAt: ts,
-  updatedAt: ts,
-  ...extra,
-});
-
-const AGENTS: Json[] = [
-  agent("agt_01JD2Q3R4S5T6V7W8X9Y0Z0001", "reviewer", {
-    iamIdentity: "team_shared",
-    iamRoleArn: "arn:aws:iam::000000000000:role/afs-payments-shared",
-  }),
-  agent("agt_01JD2Q3R4S5T6V7W8X9Y0Z0002", "triage"),
-  agent("agt_01JD2Q3R4S5T6V7W8X9Y0Z0003", "nightly", { paused: true }),
-];
-
 const MODELS: Json[] = [
   ["anthropic.claude-sonnet-4-5", "Claude Sonnet 4.5"],
   ["anthropic.claude-haiku-4-5", "Claude Haiku 4.5"],
@@ -71,11 +44,6 @@ export const overviewFixtures: readonly Fixture[] = [
         version: 1,
       },
     }),
-  },
-  {
-    method: "GET",
-    path: "/v1/teams/{teamId}/agents",
-    response: ({ params }) => only(params.teamId) ?? { status: 200, body: { items: AGENTS } },
   },
   {
     method: "GET",

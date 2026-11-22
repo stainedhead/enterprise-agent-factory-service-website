@@ -21,6 +21,8 @@ export interface AppErrorInit {
   /** `details.fields`: field name to message, for form validation. */
   readonly fields?: Readonly<Record<string, string>> | undefined;
   readonly retryAfterSeconds?: number | undefined;
+  /** The API's `details` as sent, for a screen that reads a dependents list (CQ-13). */
+  readonly details?: Readonly<Record<string, unknown>> | undefined;
 }
 
 /** The error the UI deals in; the SDK's `AfsError` is mapped to it at the infrastructure edge. */
@@ -31,6 +33,7 @@ export class AppError extends Error {
   readonly reason: string | undefined;
   readonly fields: Readonly<Record<string, string>>;
   readonly retryAfterSeconds: number | undefined;
+  readonly details: Readonly<Record<string, unknown>>;
 
   constructor(init: AppErrorInit) {
     super(init.message);
@@ -41,6 +44,7 @@ export class AppError extends Error {
     this.reason = init.reason;
     this.fields = init.fields ?? {};
     this.retryAfterSeconds = init.retryAfterSeconds;
+    this.details = init.details ?? {};
   }
 
   get isAccessDenied(): boolean {

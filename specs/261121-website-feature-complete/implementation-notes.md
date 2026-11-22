@@ -66,6 +66,7 @@ architectural ones into ADRs (`docs/architectural-decision-record.md`, ADR-005 o
 | CQ-10 | `-restapi` | No aggregate of agent counts or agent health per team (M1-D1) | Open; S1 reads `ListAgents` for the first 50 active teams, five at a time, and says how many were not read |
 | CQ-11 | `-restapi` | No reconciler-health endpoint, and `GET /readyz` check names are undocumented (M1-D1) | Open; S1 reads the `reconciler` check, else the overall status |
 | CQ-12 | `-restapi` | `CreateIdentityProvider`/`UpdateIdentityProvider` take only `clientSecretArn`, but the task list and data dictionary expect a write-only secret value (M1-N3) | Open; S10 takes the ARN in a normal field and shows only the ARN; no `SecretInput` |
+| CQ-13 | `-restapi` | The in-use `409` of `DeleteSecret`, `DeleteNamespaceConfigValue` and `DeleteStorageClass` documents no dependents list (`details` has only `reason`), yet WEB-US-27.4, 30.3 and 20.3 expect the agents to be listed | Open; interim: `details.agents` when present, else computed from list data (DV-24) |
 
 ## 3. Edge cases and solutions (seeded at spec time; extend during implementation)
 
@@ -114,6 +115,9 @@ architectural ones into ADRs (`docs/architectural-decision-record.md`, ADR-005 o
 | DV-21 | S1 sums each live team's `maxBudgetUsd` as "the sum of budgets" (as S2 does) and takes month-to-date spend from the usage report grouped by team, rather than reading each team's `GetBudget` (N calls). *Reverted drift* is a `DriftCorrected=True` condition changed within 24 h on the team or one of its agents. | M1-D1, M1-D2 |
 | DV-22 | S10 section ids follow the navigation (`general` for *Settings*, `identity-providers`); the section is read from the path because the navigation items are literal routes (`/settings/general`) with no `:section` parameter. *Delete* for identity providers is not offered: *Disable* is the removal path the PRD names. | M1-N1, M1-N3 |
 | DV-23 | The audit CSV e2e intercepts the `text/csv` request in the spec (`context.route`, no real API) because the fake AFS server answers JSON only; the unit and SDK tests cover the CSV path. Revision diffs read both revisions with `GetRevision` (the list omits the snapshot) and show snapshots as key-sorted JSON through `DiffView`. | M1-H1, M1-H2 |
+| DV-24 | `AppError` carries the API `details` as sent (`AppError.details`), because the in-use `409`s (S5, V3, G1) name dependents there when the API sends them (CQ-13). Dependents are otherwise computed client-side from list data (secret `boundTo`, config `usedBy`, agents by storage class). | M2-A1 |
+| DV-25 | The agent list fixture moved from `fixtures/overview.ts` to `fixtures/agents.ts`, which owns the agent store and the template, storage-class, usage-by-agent and log-destination routes; `fixtures/overview.ts` lost only its `ListAgents` route. Fixture team permissions in `core.ts` gained the M2 permissions (`secrets`, `config`, `external-systems`, `models`, `logs`, `usage`). | M2-A8 |
+| DV-26 | `AgentsPort` also reads the team log destinations (`ListLogDestinations`) for the *Logs* tab (WD-29); the T2 table has no *Pod* column (not in the API) and the header search has no agent source (the shell `SearchPort` lists teams only; adding agents is a shell change, left to M6-Q). | M2-A5 |
 
 ## 5. Lessons learned
 

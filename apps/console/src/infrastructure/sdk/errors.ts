@@ -44,6 +44,7 @@ export function toAppError(e: unknown): AppError {
       reason: str(e.details.reason),
       fields: fieldsOf(e.details.fields),
       retryAfterSeconds: e.retryAfterSeconds,
+      details: e.details,
     });
   }
   // the session could not supply a token: the same as the API saying 401 after a refresh
