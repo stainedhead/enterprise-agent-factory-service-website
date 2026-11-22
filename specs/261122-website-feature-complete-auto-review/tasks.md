@@ -11,7 +11,7 @@
 | Stream | Done | Total |
 |---|---|---|
 | A | 0 | 6 |
-| E | 0 | 9 |
+| E | 9 | 9 |
 | C | 0 | 7 |
 | B | 0 | 10 |
 | D | 0 | 10 |
@@ -85,15 +85,15 @@ exact paths of the FR-018 test and testing files with `bunx biome check .` at th
 
 | Done | ID | Task | AC | Depends |
 |---|---|---|---|---|
-| [ ] | E-1 | Red: `architecture.test.ts` red-case fixtures for `import("x")` and `export ... from "x"` from `presentation` into `infrastructure/` and `@afs/sdk` (must be flagged). Green: extend `importsOf` | FR-016 AC1 | none |
-| [ ] | E-2 | Red: stop skipping `*.test.ts(x)` and run; Green: add an explicit allow-list (for example `presentation` tests importing `application/errors.js`), every entry with a reason comment. Pre-existing violations in files this stream does not own go in the allow-list with a reason and a line in the Stream E notes; they are not edited | FR-016 AC2 | E-1 |
-| [ ] | E-3 | Red: a test that fails when an excluded `application/ports/**` file has a runtime export. Green: narrow the `vitest.config.ts` exclusion to an explicit type-only list; `bun run test:cover` stays at 90% or more on `domain` and `application` | FR-017 AC | none |
-| [ ] | E-4 | Clear the 11 Biome warnings in E's files (unused imports in `ConfigUseCases.ts` and `SettingsUseCases.ts`, `useOptionalChain` in `EphemeralCard.tsx`, and the unused variables, imports and `noCommaOperator` in the listed tests, testing files, fixture and spec). Add `--error-on-warnings` to the root `lint` script (or raise the rules to error in `biome.json`). Add one scoped `biome.json` override for `IdentitySection.tsx` with a comment "remove in D-9", so the gate stays green until D merges | FR-018 AC | E-1, E-3 (so edited files keep coverage) |
-| [ ] | E-5 | Red: component test with a failing port for `ReportSection.tsx` tag keys (inline `Alert` with request id and Retry, separate from the empty state). Green: implement; Retry re-runs the query | FR-019 AC | none |
-| [ ] | E-6 | Same for `SpendSection.tsx` tag keys | FR-019 AC | none |
-| [ ] | E-7 | Same for `t1-overview/ephemeral/EphemeralCard.tsx` budget burn | FR-019 AC | E-4 (same file, `useOptionalChain` fix) |
-| [ ] | E-8 | Red: adapter tests for `workOrders.ts` (`prUrl`) and `adminExports.ts` (`downloadUrl`) with `javascript:`, `data:`, `http:`, `https:`. Green: keep only `https:` (else `undefined`, rendered "—" in `p6-work-order` and `s11-export-import`) | FR-020 AC | none |
-| [ ] | E-9 | Stream exit: `bun run gate`, `bunx biome check .` reports 0 warnings, `architecture.test.ts` red cases green, Chromium e2e for `shell` and the touched screens, notes and `status.md` updated | Goal 3, FR-018 AC | E-1..E-8 |
+| [x] | E-1 | Red: `architecture.test.ts` red-case fixtures for `import("x")` and `export ... from "x"` from `presentation` into `infrastructure/` and `@afs/sdk` (must be flagged). Green: extend `importsOf` | FR-016 AC1 | none |
+| [x] | E-2 | Red: stop skipping `*.test.ts(x)` and run; Green: add an explicit allow-list (for example `presentation` tests importing `application/errors.js`), every entry with a reason comment. Pre-existing violations in files this stream does not own go in the allow-list with a reason and a line in the Stream E notes; they are not edited | FR-016 AC2 | E-1 |
+| [x] | E-3 | Red: a test that fails when an excluded `application/ports/**` file has a runtime export. Green: narrow the `vitest.config.ts` exclusion to an explicit type-only list; `bun run test:cover` stays at 90% or more on `domain` and `application` | FR-017 AC | none |
+| [x] | E-4 | Clear the 11 Biome warnings in E's files (unused imports in `ConfigUseCases.ts` and `SettingsUseCases.ts`, `useOptionalChain` in `EphemeralCard.tsx`, and the unused variables, imports and `noCommaOperator` in the listed tests, testing files, fixture and spec). Add `--error-on-warnings` to the root `lint` script (or raise the rules to error in `biome.json`). Add one scoped `biome.json` override for `IdentitySection.tsx` with a comment "remove in D-9", so the gate stays green until D merges | FR-018 AC | E-1, E-3 (so edited files keep coverage) |
+| [x] | E-5 | Red: component test with a failing port for `ReportSection.tsx` tag keys (inline `Alert` with request id and Retry, separate from the empty state). Green: implement; Retry re-runs the query | FR-019 AC | none |
+| [x] | E-6 | Same for `SpendSection.tsx` tag keys | FR-019 AC | none |
+| [x] | E-7 | Same for `t1-overview/ephemeral/EphemeralCard.tsx` budget burn | FR-019 AC | E-4 (same file, `useOptionalChain` fix) |
+| [x] | E-8 | Red: adapter tests for `workOrders.ts` (`prUrl`) and `adminExports.ts` (`downloadUrl`) with `javascript:`, `data:`, `http:`, `https:`. Green: keep only `https:` (else `undefined`, rendered "—" in `p6-work-order` and `s11-export-import`) | FR-020 AC | none |
+| [x] | E-9 | Stream exit: `bun run gate`, `bunx biome check .` reports 0 warnings, `architecture.test.ts` red cases green, Chromium e2e for `shell` and the touched screens, notes and `status.md` updated | Goal 3, FR-018 AC | E-1..E-8 |
 
 ## Stream C: Error routing
 
