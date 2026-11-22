@@ -2,6 +2,7 @@
 import type { SeedUser } from "../users.js";
 import { adminAuditFixtures } from "./admin-audit.js";
 import { adminCatalogsFixtures, resetAdminCatalogs } from "./admin-catalogs.js";
+import { adminCostTagStatusFixtures } from "./admin-costTagStatus.js";
 import { adminExportsFixtures, resetAdminExports } from "./admin-exports.js";
 import { adminExternalSystemsFixtures } from "./admin-externalSystems.js";
 import { adminModelsFixtures, resetAdminModels } from "./admin-models.js";
@@ -78,6 +79,7 @@ export const fixtureModules: readonly (readonly Fixture[])[] = [
   adminAuditFixtures,
   adminOrgAccountsFixtures,
   adminServiceTagsFixtures,
+  adminCostTagStatusFixtures,
   identityFixtures,
   logDestinationsFixtures,
   adminExportsFixtures,

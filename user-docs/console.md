@@ -212,6 +212,10 @@ Viewers see the page with every control disabled ("Requires team-admin").
 
 Service admins can change a team's isolation tier and turn viewer kubectl on or off from the team's *Guardrails* tab; other roles see the controls disabled with a tooltip naming the role. Each change shows the equivalent `afs` command before you confirm. When viewer kubectl is on, team members with access see a *Kubernetes access* card on the team overview with a *Download kubeconfig* button.
 
+## Tag status (cost allocation tags)
+
+Service admins see a *Tag status* card on the cost allocation tags page: for each tag key, whether it has appeared in the Cost and Usage Report, when it was first and last seen, and whether AWS Billing has it active. An active key not seen for 3 days or more is flagged with a warning; check that the key is activated in AWS Billing.
+
 ## Troubleshooting
 
 - *Page not found* for a page you expect: you may not hold the role it needs, or the team is not yours.

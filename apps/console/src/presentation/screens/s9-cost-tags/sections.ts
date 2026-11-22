@@ -2,6 +2,7 @@
 import type { ComponentType } from "react";
 import { ServiceTagsSection } from "./ServiceTagsSection.js";
 import { SpendSection } from "./SpendSection.js";
+import { TagStatusSection } from "./status/TagStatusSection.js";
 
 export interface CostTagSection {
   readonly id: string;
@@ -11,4 +12,5 @@ export interface CostTagSection {
 export const sections: readonly CostTagSection[] = [
   { id: "tags", Component: ServiceTagsSection },
   { id: "spend", Component: SpendSection },
+  { id: "status", Component: TagStatusSection },
 ];

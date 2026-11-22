@@ -13,9 +13,15 @@ test.describe("S9 cost allocation tags", () => {
   }) => {
     await signInAs("svc-admin", "/cost-tags");
     await expect(page.getByRole("heading", { name: "Cost allocation tags" })).toBeVisible();
-    await expect(page.getByRole("cell", { name: "afs-team-id" })).toBeVisible();
+    await expect(
+      page.getByRole("table", { name: "System tags" }).getByRole("cell", { name: "afs-team-id" }),
+    ).toBeVisible();
     await expect(page.getByRole("button", { name: "Edit afs-team-id" })).toHaveCount(0);
-    await expect(page.getByRole("cell", { name: "environment", exact: true })).toBeVisible();
+    await expect(
+      page
+        .getByRole("table", { name: "Service tags" })
+        .getByRole("cell", { name: "environment", exact: true }),
+    ).toBeVisible();
     const missing = page.getByRole("list", { name: "Teams missing a required value" });
     await expect(missing.getByRole("link", { name: "Payments" })).toHaveAttribute(
       "href",
@@ -72,8 +78,28 @@ test.describe("S9 cost allocation tags", () => {
     expect((await requestsWhere((r) => r.operationId === "ListServiceTags")).length).toBe(0);
   });
 
+  test("tag status shows each key and flags an active key not seen in the report", async ({
+    page,
+    signInAs,
+  }) => {
+    await signInAs("svc-admin", "/cost-tags");
+    const table = page.getByRole("table", { name: "Tag status" });
+    await expect(table.getByRole("row")).toHaveCount(5);
+    await expect(table.getByRole("row", { name: /environment/ })).toContainText(
+      "Not seen in report",
+    );
+    await expect(table.getByRole("row", { name: /cost-center/ })).toContainText("Not active");
+    await expect(table.getByRole("row", { name: /afs-team-id/ })).toContainText("Healthy");
+    await expect(page.getByRole("alert").filter({ hasText: "not seen for 3 days" })).toContainText(
+      "environment",
+    );
+    expect(await mutatingCount()).toBe(0);
+    await expectAxeClean(page);
+  });
+
   test("visual: S9 cost allocation tags", async ({ page, signInAs }) => {
     await signInAs("svc-admin", "/cost-tags");
+    await expect(page.getByRole("table", { name: "Tag status" }).getByRole("row")).toHaveCount(5);
     await expect(page.getByRole("list", { name: "Teams missing a required value" })).toBeVisible();
     await expectVisual(page, "25-admin-cost-tags", { mask: ["time"] });
   });

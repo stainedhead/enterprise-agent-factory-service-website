@@ -43,9 +43,9 @@
 | M2 Agents & secrets | 7 (+ exit) | 41 | 41 |
 | M3 Spend control | 6 (+ exit) | 24 | 24 |
 | M4 Production readiness | 8 (+ exit) | 34 | 34 |
-| M5 Budgeted workloads and swarms | 4 (+ exit) | 19 | 16 |
+| M5 Budgeted workloads and swarms | 4 (+ exit) | 19 | 18 |
 | M6 CVE remediation and completion | 6 (+ exit) | 26 | 0 |
-| **Total** | **51** | **259** | **231** |
+| **Total** | **51** | **259** | **233** |
 
 ## External dependencies and contract questions
 
@@ -682,8 +682,8 @@ Owns: area files: `admin-costTagStatus`; `presentation/screens/s9-cost-tags/stat
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M5-T1 | Per key: seen in CUR, first and last seen, AWS activation; a key not seen 3 days after activation is flagged | WEB-US-19.3, WEB-19 | — |
-| [ ] | M5-T2 | e2e and visual refresh of S9 (`25`) | WEB-US-42.2 (part) | M5-T1 |
+| [x] | M5-T1 | Per key: seen in CUR, first and last seen, AWS activation; a key not seen 3 days after activation is flagged | WEB-US-19.3, WEB-19 | — |
+| [x] | M5-T2 | e2e and visual refresh of S9 (`25`) | WEB-US-42.2 (part) | M5-T1 |
 
 ### M5-X · Exit
 

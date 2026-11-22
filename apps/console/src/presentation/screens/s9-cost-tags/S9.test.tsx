@@ -11,8 +11,15 @@ import {
   fakeSettingsPort,
   settingsServices,
 } from "../../testing/settings.js";
-import { fakeServiceTagsPort, fakeTagsPort, tagsServices } from "../../testing/tags.js";
-import { serviceAdminWith } from "../../testing/teams.js";
+import {
+  aCostTagStatus,
+  costTagStatusServices,
+  fakeCostTagStatusPort,
+  fakeServiceTagsPort,
+  fakeTagsPort,
+  tagsServices,
+} from "../../testing/tags.js";
+import { ALL_PERMS, serviceAdminWith } from "../../testing/teams.js";
 import S9 from "./index.js";
 
 const ACK = aSetting({
@@ -32,6 +39,7 @@ function open(
     tags?: ReturnType<typeof fakeServiceTagsPort>;
     settings?: ReturnType<typeof fakeSettingsPort>;
     reports?: ReturnType<typeof fakeReportsPort>;
+    status?: ReturnType<typeof fakeCostTagStatusPort>;
   } = {},
 ) {
   const tags = o.tags ?? fakeServiceTagsPort();
@@ -41,6 +49,7 @@ function open(
     me: o.me ?? SERVICE_ADMIN,
     services: {
       ...tagsServices(tags, fakeTagsPort()),
+      ...costTagStatusServices(o.status ?? fakeCostTagStatusPort()),
       ...settingsServices(settings, fakeIdpPort()),
       ...reportsServices(reports),
     },
@@ -160,5 +169,46 @@ describe("S9 activation banner and access (M4-G3)", () => {
       within(await screen.findByRole("dialog")).getByRole("button", { name: "Remove" }),
     );
     expect(await screen.findByText("You do not have access")).toBeTruthy();
+  });
+});
+
+describe("S9 tag status (M5-T1)", () => {
+  it("shows each key with its seen, first, last and AWS activation, and flags an unseen active key", async () => {
+    const status = fakeCostTagStatusPort({
+      list: async () => [
+        aCostTagStatus(),
+        aCostTagStatus({
+          key: "environment",
+          seenInCur: false,
+          lastSeenAt: "2026-11-10T00:00:00Z",
+        }),
+        aCostTagStatus({ key: "cost-center", seenInCur: false, awsStatus: "inactive" }),
+      ],
+    });
+    open({ status });
+    const table = await screen.findByRole("table", { name: "Tag status" });
+    await waitFor(() => expect(within(table).getAllByRole("row")).toHaveLength(4));
+    expect(within(table).getByText("Healthy")).toBeTruthy();
+    expect(within(table).getByText("Not seen in report")).toBeTruthy();
+    expect(within(table).getByText("Not active")).toBeTruthy();
+    const alert = await screen.findByText(/not seen for 3 days or more/i);
+    expect(alert.textContent).toContain("environment");
+    expect(alert.textContent).not.toContain("cost-center");
+  });
+  it("does not ask for tag status without the permission", async () => {
+    const status = fakeCostTagStatusPort();
+    open({ me: serviceAdminWith(ALL_PERMS.filter((p) => p !== "admin:cost-tag-status")), status });
+    await screen.findByRole("table", { name: "System tags" });
+    expect(status.list).not.toHaveBeenCalled();
+    expect(screen.queryByText("Tag status")).toBeNull();
+  });
+  it("reports a refused read", async () => {
+    const status = fakeCostTagStatusPort({
+      list: async () => {
+        throw new AppError({ kind: "access-denied", message: "Nope" });
+      },
+    });
+    open({ status });
+    expect(await screen.findByText(/Nope/)).toBeTruthy();
   });
 });

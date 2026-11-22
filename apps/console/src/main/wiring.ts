@@ -5,6 +5,7 @@ import {
   AdminAgentTemplatesUseCases,
   AdminStorageClassesUseCases,
 } from "../application/usecases/adminCatalogs/AdminCatalogsUseCases.js";
+import { AdminCostTagStatusUseCases } from "../application/usecases/adminCostTagStatus/AdminCostTagStatusUseCases.js";
 import { AdminExportsUseCases } from "../application/usecases/adminExports/AdminExportsUseCases.js";
 import {
   AdminModelsUseCases,
@@ -45,6 +46,7 @@ import {
   SdkAdminAgentTemplates,
   SdkAdminStorageClasses,
 } from "../infrastructure/sdk/adminCatalogs.js";
+import { SdkAdminCostTagStatus } from "../infrastructure/sdk/adminCostTagStatus.js";
 import { SdkAdminExports } from "../infrastructure/sdk/adminExports.js";
 import { SdkAdminModels, SdkAdminPricing } from "../infrastructure/sdk/adminModels.js";
 import { SdkAdminNotificationChannels } from "../infrastructure/sdk/adminNotificationChannels.js";
@@ -125,6 +127,7 @@ export function buildServices(
     identity: new IdentityUseCases(new SdkIdentity(client), {
       setTimeout: (fn, ms) => globalThis.setTimeout(fn, ms),
     }),
+    adminCostTagStatus: new AdminCostTagStatusUseCases(new SdkAdminCostTagStatus(client)),
     adminServiceTags: new AdminServiceTagsUseCases(new SdkAdminServiceTags(client)),
     tags: new TagsUseCases(new SdkTags(client)),
     adminOrgAccounts: new AdminOrgAccountsUseCases(new SdkAdminOrgAccounts(client)),

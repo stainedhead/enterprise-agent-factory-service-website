@@ -1,9 +1,14 @@
 import { type Mock, vi } from "vitest";
 import type {
+  AdminCostTagStatusPort,
+  CostTagStatusItem,
+} from "../../application/ports/adminCostTagStatus.js";
+import type {
   AdminServiceTagsPort,
   ServiceTagItem,
 } from "../../application/ports/adminServiceTags.js";
 import type { TagsPort, TeamTagsView } from "../../application/ports/tags.js";
+import { AdminCostTagStatusUseCases } from "../../application/usecases/adminCostTagStatus/AdminCostTagStatusUseCases.js";
 import { AdminServiceTagsUseCases } from "../../application/usecases/adminServiceTags/AdminServiceTagsUseCases.js";
 import { TagsUseCases } from "../../application/usecases/tags/TagsUseCases.js";
 
@@ -66,4 +71,30 @@ export function fakeTagsPort(over: Partial<TagsPort> = {}): FakeTagsPort {
 export const tagsServices = (s: AdminServiceTagsPort, t: TagsPort) => ({
   adminServiceTags: new AdminServiceTagsUseCases(s),
   tags: new TagsUseCases(t),
+});
+
+export const aCostTagStatus = (over: Partial<CostTagStatusItem> = {}): CostTagStatusItem => ({
+  key: "afs-team-id",
+  seenInCur: true,
+  firstSeenAt: "2026-10-02T00:00:00Z",
+  lastSeenAt: "2026-11-20T00:00:00Z",
+  awsStatus: "active",
+  checkedAt: "2026-11-21T18:00:00Z",
+  ...over,
+});
+
+export type FakeCostTagStatusPort = {
+  [K in keyof AdminCostTagStatusPort]: Mock<AdminCostTagStatusPort[K]>;
+};
+export function fakeCostTagStatusPort(
+  over: Partial<AdminCostTagStatusPort> = {},
+): FakeCostTagStatusPort {
+  return {
+    list: vi.fn(async () => [aCostTagStatus()]),
+    ...over,
+  } as unknown as FakeCostTagStatusPort;
+}
+
+export const costTagStatusServices = (s: AdminCostTagStatusPort) => ({
+  adminCostTagStatus: new AdminCostTagStatusUseCases(s),
 });
