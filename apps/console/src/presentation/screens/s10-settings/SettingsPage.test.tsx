@@ -288,7 +288,7 @@ describe("S10 identity provider collaboration client (WEB-US-58)", () => {
     await fill(dialog);
     await userEvent.type(within(dialog).getByLabelText("Collaboration client id"), "collab-1");
     await userEvent.type(
-      within(dialog).getByLabelText("Collaboration client secret reference"),
+      within(dialog).getByLabelText("Collaboration client secret ARN"),
       "arn:aws:secretsmanager:eu-west-1:000000000000:secret:collab",
     );
     expect(within(dialog).getByText(/--collab-client-id collab-1/)).toBeTruthy();
@@ -308,7 +308,7 @@ describe("S10 identity provider collaboration client (WEB-US-58)", () => {
     const dialog = screen.getByRole("dialog");
     await fill(dialog);
     await userEvent.type(
-      within(dialog).getByLabelText("Collaboration client secret reference"),
+      within(dialog).getByLabelText("Collaboration client secret ARN"),
       "arn:aws:secretsmanager:eu-west-1:000000000000:secret:collab",
     );
     await userEvent.click(within(dialog).getByRole("button", { name: "Add" }));
@@ -322,7 +322,7 @@ describe("S10 identity provider collaboration client (WEB-US-58)", () => {
     await fill(dialog);
     await userEvent.type(within(dialog).getByLabelText("Collaboration client id"), "collab-1");
     await userEvent.type(
-      within(dialog).getByLabelText("Collaboration client secret reference"),
+      within(dialog).getByLabelText("Collaboration client secret ARN"),
       "hunter2",
     );
     await userEvent.click(within(dialog).getByRole("button", { name: "Add" }));

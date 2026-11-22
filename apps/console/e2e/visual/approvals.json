@@ -236,12 +236,12 @@
   },
   "T16": {
     "status": "pending",
-    "snapshots": ["35-team-collaboration"],
-    "mockup": "30-team-collaboration.png"
+    "snapshots": ["30-team-collaboration"],
+    "mockup": "30-ta-collaboration.png"
   },
   "V3": {
     "status": "pending",
-    "snapshots": ["36-viewer-collaboration"],
-    "mockup": "31-viewer-collaboration.png"
+    "snapshots": ["30a-viewer-collaboration"],
+    "mockup": "31-tv-collaboration.png"
   }
 }

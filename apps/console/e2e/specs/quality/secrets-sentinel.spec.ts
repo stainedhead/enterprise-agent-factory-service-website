@@ -72,7 +72,8 @@ test("M6-Q4: no secret path leaves a value in any cache, storage, URL, history, 
   await page.getByRole("button", { name: "Add provider" }).click();
   d = page.getByRole("dialog");
   await expect(d.locator('input[type="password"]')).toHaveCount(0);
-  await expect(d.getByLabel("Client secret ARN")).toBeVisible();
+  await expect(d.getByLabel("Client secret ARN", { exact: true })).toBeVisible();
+  await expect(d.getByLabel("Collaboration client secret ARN")).toBeVisible();
   await expect(d.getByLabel(/client secret(?! ARN)/i)).toHaveCount(0);
   await page.keyboard.press("Escape");
 

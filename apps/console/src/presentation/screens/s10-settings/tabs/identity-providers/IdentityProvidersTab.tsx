@@ -380,7 +380,7 @@ function ProviderDialog({
           />
         </FormField>
         <FormField
-          label="Collaboration client secret reference"
+          label="Collaboration client secret ARN"
           hint="A Secrets Manager ARN, never a value. Used by the collaboration endpoint. One redirect URI per environment: https://<collab base domain>/oauth2/callback."
           error={f.collabClientSecretArn}
         >
