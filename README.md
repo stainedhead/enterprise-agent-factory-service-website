@@ -9,8 +9,11 @@ TypeScript for the Enterprise Agent Factory Service, as a Bun workspace:
 Part of [enterprise-agent-factory-service](https://github.com/stainedhead/enterprise-agent-factory-service);
 the console screens by role are in its initial PRD.
 
-**Status:** scaffolded. The SDK has its base client and error mapping; the console wires one use case
-(API health) through every layer, with a test that enforces the dependency rule.
+**Status:** feature work in progress (`feat/website-feature-complete`). `@afs/sdk` 0.2.0 is generated from the
+pinned API contract and adds `waitFor`. The console has sign-in, the shell and these screens: service
+dashboard, teams and create team, team overview (viewer version included), members and API keys, service
+settings and identity providers, and team history (activity, audit and config revisions). See
+[user-docs/console.md](user-docs/console.md). The remaining screens arrive milestone by milestone.
 
 ## Toolchain
 
@@ -19,7 +22,6 @@ Bun 1.4 (runtime and package manager; Node.js 22+ as fallback), TypeScript 7.0, 
 ```bash
 bun install
 bun run gate                           # lint, typecheck, test, build
-cp apps/console/.env.example apps/console/.env.local
 bun run --filter @afs/console dev      # http://localhost:5173
 ```
 

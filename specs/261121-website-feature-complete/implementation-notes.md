@@ -62,10 +62,10 @@ architectural ones into ADRs (`docs/architectural-decision-record.md`, ADR-005 o
 | CQ-6 | root (J) / `-restapi` | OQ-W8: what the agent *Logs* tab should show | Open; interim WD-29 |
 | CQ-7 | platform, IdP admins | Dev environment, seeded users, IdP SPA registrations, CloudFront and `config.json` per environment | Open; `e2e:dev` only |
 | CQ-8 | `-restapi` | `Team` and the service reports carry no agent count, so the S2 *Agents* column and the S1 agent total cannot be filled from one call | Open; S2 shows "—" (hover says why); S1 counts from the same source once available |
-| CQ-9 | `Team` has no cluster name or IAM role ARN. T1 shows the cluster as "—" and takes the ARN from a `team_shared` agent's `iamRoleArn` (shown once such an agent exists). Needs a team-level field in the API. | M1-O1 |
-| CQ-10 | No aggregate of agent counts or agent health per team: S1 reads `ListAgents` for the first 50 active teams, five at a time, and says how many teams were not read. Needs an agent count and a degraded count in a service report. | M1-D1 |
-| CQ-11 | No reconciler-health endpoint: S1 reads the `reconciler` check of `GET /readyz` (else the overall status). Needs a documented check name. | M1-D1 |
-| CQ-12 | `CreateIdentityProvider` and `UpdateIdentityProvider` take only `clientSecretArn`; no client secret value field exists ("the value never reaches AFS"), although the task list and the data dictionary expect a write-only value. S10 therefore takes the ARN in a normal field (an ARN is not a secret) and shows only the ARN; no `SecretInput` is used there. | M1-N3 |
+| CQ-9 | `-restapi` | `Team` has no cluster name or IAM role ARN (M1-O1) | Open; T1 shows the cluster as "—" and takes the role ARN from a `team_shared` agent's `iamRoleArn` |
+| CQ-10 | `-restapi` | No aggregate of agent counts or agent health per team (M1-D1) | Open; S1 reads `ListAgents` for the first 50 active teams, five at a time, and says how many were not read |
+| CQ-11 | `-restapi` | No reconciler-health endpoint, and `GET /readyz` check names are undocumented (M1-D1) | Open; S1 reads the `reconciler` check, else the overall status |
+| CQ-12 | `-restapi` | `CreateIdentityProvider`/`UpdateIdentityProvider` take only `clientSecretArn`, but the task list and data dictionary expect a write-only secret value (M1-N3) | Open; S10 takes the ARN in a normal field and shows only the ARN; no `SecretInput` |
 
 ## 3. Edge cases and solutions (seeded at spec time; extend during implementation)
 

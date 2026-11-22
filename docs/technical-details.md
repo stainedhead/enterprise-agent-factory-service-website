@@ -41,3 +41,13 @@ No chart library, no CSS-in-JS, no ESLint or Prettier, no npm or pnpm lockfile.
 - `bun run --filter '@afs/sdk' contract:update -- --ref <tag|commit>`: the only way to move the snapshot.
 - `bun run test:cover`: Vitest with v8 coverage; the console fails below 90% on `domain` and `application`.
 - An unmocked `fetch` throws in every test (`test/setup.ts`).
+
+## M1 (teams and access)
+
+- `@afs/sdk` is 0.2.0 (adds `waitFor`; the public surface is otherwise unchanged). The contract snapshot
+  was checked at the M1 exit against `-restapi` `feat/restapi-feature-complete` at `71d2837`: the sha256 of
+  `openapi.yaml`, `permissions.json` and `operations.json` equal the lock, so no re-pin was needed.
+- Console areas wired in `main/wiring.ts`: teams, overview, dashboard, members, API keys, settings, identity
+  providers and history. An area that is not wired makes `useService` throw, and M6-X1 checks none remains.
+- Fixtures of the fake AFS API live in `apps/console/e2e/fake-afs/fixtures/<area>.ts`; stateful ones register
+  a reset in `fixtures/index.ts`. Every fixture is validated against the pinned OpenAPI.

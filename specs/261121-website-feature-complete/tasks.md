@@ -39,13 +39,13 @@
 | Milestone | Streams | Tasks | Done |
 |---|---|---|---|
 | M0 Foundations | 10 (+ exit) | 69 | 69 |
-| M1 Teams & access | 10 (+ exit) | 46 | 45 |
+| M1 Teams & access | 10 (+ exit) | 46 | 46 |
 | M2 Agents & secrets | 7 (+ exit) | 41 | 0 |
 | M3 Spend control | 6 (+ exit) | 24 | 0 |
 | M4 Production readiness | 8 (+ exit) | 34 | 0 |
 | M5 Budgeted workloads and swarms | 4 (+ exit) | 19 | 0 |
 | M6 CVE remediation and completion | 6 (+ exit) | 26 | 0 |
-| **Total** | **51** | **259** | **114** |
+| **Total** | **51** | **259** | **115** |
 
 ## External dependencies and contract questions
 
@@ -58,6 +58,11 @@
 | CQ-5 | root (J) | OQ-W1 mockups for S10, S11, T14, T15; T7 in root IA | S2 table pattern; T7 in nav (WD-13) | M6-Q2 approvals |
 | CQ-6 | root (J) / `-restapi` | OQ-W8: agent *Logs* tab has no log-read operation | Tab shows log destinations + CLI (WD-29) | M2-A5 |
 | CQ-7 | platform, IdP admins | Dev environment, seeded users, IdP SPA registrations, CloudFront | Fake API and fake IdP in gated e2e | `e2e:dev` (not gated) |
+| CQ-8 | `-restapi` | `Team` and the service reports carry no agent count (S2 *Agents* column, S1 total) | S2 shows "—"; S1 counts from `ListAgents` (CQ-10) | M2 exit |
+| CQ-9 | `-restapi` | `Team` has no cluster name or IAM role ARN (T1) | "—"; ARN from a `team_shared` agent | M2 exit |
+| CQ-10 | `-restapi` | No per-team agent count or health aggregate (S1) | `ListAgents` for the first 50 active teams | M2 exit |
+| CQ-11 | `-restapi` | No reconciler-health endpoint; `/readyz` check names undocumented (S1) | `reconciler` check, else overall status | M2 exit |
+| CQ-12 | `-restapi` | Identity provider client secret is an ARN only; the task list expects a write-only value (S10) | ARN field, no `SecretInput` | M2 exit |
 
 ---
 
@@ -342,7 +347,7 @@ Owns: area files: `audit`, `revisions`; `presentation/screens/t15-history/` (pag
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M1-X1 | Merge; gate and e2e green; viewer session e2e over T1/V1/T6/T15 sends no mutating request; re-pin check (plan.md §5); `@afs/sdk` `0.2.0` (`waitFor`); status, dashboard | WEB-US-36.1 (part) | all M1 |
+| [x] | M1-X1 | Merge; gate and e2e green; viewer session e2e over T1/V1/T6/T15 sends no mutating request; re-pin check (plan.md §5); `@afs/sdk` `0.2.0` (`waitFor`); status, dashboard | WEB-US-36.1 (part) | all M1 |
 
 ---
 
