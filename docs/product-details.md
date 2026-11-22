@@ -47,7 +47,7 @@ Unit coverage is at least 90% on `domain` and `application`.
 
 ## Open items
 
-- The contract is pinned to `-restapi` commit `3588074` (contract 1.3.1, collaboration; re-pin to the merge commit when it lands). Re-pin to a release tag once `-restapi`
+- The contract is pinned to `-restapi` commit `763e939` (contract 1.3.1, collaboration; the merge of PR #7). Re-pin to a release tag once `-restapi`
   tags one (CQ-1); `@afs/sdk` 1.0.0 follows that tag.
 - Contract questions CQ-13, CQ-14 and CQ-24 (in-use `409` dependents, agent persona field, tag activation time)
   are tracked in the spec; the console works around them as recorded there.

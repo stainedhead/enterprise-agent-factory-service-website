@@ -70,7 +70,7 @@ No chart library, no CSS-in-JS, no ESLint or Prettier, no npm or pnpm lockfile.
 `codegen` writes `packages/sdk/src/generated/` and `apps/console/src/domain/generated/cliOperations.ts` (the
 `afs` command shown on create forms); `codegen:check` covers both. The snapshot moved with the `-restapi`
 branch at M2, M3, M4 and M5 (DV-34, DV-40, DV-49, DV-56); M6-U1 pinned it to `-restapi` `main` at
-`d887609` (ADR-013), then moved to `3588074` (contract 1.3.1) for Paperclip collaboration. Moving to a release tag waits for `-restapi` to tag.
+`d887609` (ADR-013), then moved to `763e939` (contract 1.3.1) for Paperclip collaboration. Moving to a release tag waits for `-restapi` to tag.
 
 ### Console runtime configuration
 

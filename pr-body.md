@@ -3,7 +3,7 @@
 Adds the collaboration feature to `@afs/sdk` and the console (WEB-US-43..62, SDK-12..16). Spec: `specs/archive/261122-paperclip-collaboration/`.
 
 ### SDK (`sdk-v1.0.1`)
-- Contract pinned to `-restapi` commit `3588074` (contract 1.3.1, 189 operations; re-pin to the merge commit when PR #7 lands).
+- Contract pinned to `-restapi` commit `763e939` (contract 1.3.1, 189 operations; the merge of PR #7).
 - `collaboration` resource, `createCollaboration(...).endpointUrl`, `AfsError.isSecretDetected`, reason constants, `collaboration` report kind.
 - Merging this PR with `packages/sdk/package.json` at 1.0.1 triggers the release; tag `sdk-v1.0.1`.
 

@@ -55,7 +55,7 @@ input field while the form is submitted.
 
 ## Status
 
-Feature complete (1.0.1, Paperclip team collaboration included). The API contract is pinned to `-restapi` commit `3588074` (contract 1.3.1, collaboration; re-pin to the merge commit when it lands);
+Feature complete (1.0.1, Paperclip team collaboration included). The API contract is pinned to `-restapi` commit `763e939` (contract 1.3.1, collaboration; the merge of PR #7);
 moving the pin to a tag is a `contract:update --ref <tag>` and a regenerate.
 
 ## What is here

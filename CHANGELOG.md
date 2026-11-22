@@ -21,8 +21,8 @@ Paperclip team collaboration (spec `specs/archive/261122-paperclip-collaboration
 
 ### Changed (SDK)
 
-- The contract pin moves from v1.1.0 to v1.3.1 (`-restapi` commit `3588074`; re-pin to the merge commit when
-  PR #7 lands). 189 operations (was 182).
+- The contract pin moves from v1.1.0 to v1.3.1 (`-restapi` main at `763e939`, the merge of PR #7, which also adds the
+  `collab.*` keys to the `PutSetting` key enum). 189 operations (was 182).
 
 ### Added (console)
 
