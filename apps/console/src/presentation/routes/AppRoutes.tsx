@@ -10,6 +10,7 @@ import {
   SignedOutWatcher,
   SignInPage,
 } from "../auth/screens.js";
+import { useTeamKind } from "../hooks/useTeamKind.js";
 import {
   AccessDeniedAlert,
   ContractBanner,
@@ -76,6 +77,7 @@ function ScreenRoute({ def }: { def: RouteDef }) {
   const me = useMe();
   const { pathname } = useLocation();
   const teamId = teamIdOf(pathname);
+  const { kind, loading } = useTeamKind(teamId);
   if (pathname === "/" && !me.serviceAdmin) {
     const first = me.teams[0];
     if (first) return <Navigate to={`/t/${first.teamId}`} replace />;
@@ -84,8 +86,8 @@ function ScreenRoute({ def }: { def: RouteDef }) {
   }
   // A team the caller is not bound to is "not found", never "forbidden" (WD-14).
   if (teamId && !me.serviceAdmin && !teamOf(me, teamId)) return <NotFoundPage team />;
-  if (def.item && !def.item.visibleWhen(me, teamId ? { teamId } : undefined))
-    return <NotFoundPage />;
+  if (def.item && !def.item.visibleWhen(me, teamId ? { teamId, ...(kind && { kind }) } : undefined))
+    return loading ? <p role="status">Loading…</p> : <NotFoundPage />;
   const screen = def.item ? screenFor(def.item, me, teamId) : def.screen;
   const Screen = registry[screen as keyof typeof registry];
   return Screen ? <Screen /> : <NotFoundPage />;

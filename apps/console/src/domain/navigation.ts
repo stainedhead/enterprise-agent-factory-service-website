@@ -298,8 +298,7 @@ export const EXTRA_ROUTES: readonly { route: string; screen: ScreenId }[] = [
   { route: "/t/:teamId/agents/new", screen: "T3" },
   { route: "/t/:teamId/agents/:agentId", screen: "T2" },
   { route: "/t/:teamId/reports/agents/:agentId", screen: "T12" },
-  { route: "/t/:teamId/pools/new", screen: "P2" },
-  { route: "/t/:teamId/teams/new-ephemeral", screen: "P2" },
+  { route: "/t/:teamId/pools/new", screen: "P4" },
 ];
 
 /** Routes outside the navigation (PRD §4.1). */

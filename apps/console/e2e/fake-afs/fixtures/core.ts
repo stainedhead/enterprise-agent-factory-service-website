@@ -77,6 +77,8 @@ const teamPerms = {
     "identities:write",
     "logs:write",
     "revisions:restore",
+    "pools:read",
+    "pools:write",
   ],
   team_viewer: [
     "teams:read",
@@ -95,6 +97,7 @@ const teamPerms = {
     "tags:read",
     "notifications:read",
     "identities:read",
+    "pools:read",
   ],
 };
 

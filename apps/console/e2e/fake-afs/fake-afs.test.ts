@@ -100,7 +100,11 @@ describe("FakeAfs", () => {
     expect(pre.headers.get("access-control-allow-headers")).toContain("If-Match");
     expect((await call(api, "GET", "/v1/nope", { headers: bearer("viewer") })).status).toBe(404);
     expect(
-      (await call(api, "GET", "/v1/teams/team_1/pools", { headers: bearer("viewer") })).status,
+      (
+        await call(api, "PUT", "/v1/teams/team_1/pools/pool_1/external-systems/ext_1", {
+          headers: bearer("viewer"),
+        })
+      ).status,
     ).toBe(501);
   });
   it("rejects a fixture that violates the pinned OpenAPI when the server is built", () => {

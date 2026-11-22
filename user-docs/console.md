@@ -196,6 +196,18 @@ calls stop at the cap), an expiry date (at most the service's `teams.ephemeral_m
 the budget is spread evenly) and the day the cap would be reached. An ephemeral team's overview has an *Ephemeral team*
 card with the time to expiry and the spend against the cap, and after teardown when and why it happened.
 
+## Pools and stages (ephemeral teams)
+
+Ephemeral teams have a *Pools & stages* page (persistent teams do not). Stages run in position order (1 to 50); each stage
+card lists its pools with template, model, desired workers, workers by what they report (reporting, working, idle,
+impaired), the pools each hands work to, storage (scratch space and an optional shared EFS volume), the shared named
+role with its linked accounts, and month-to-date spend. *Template retired* marks a pool whose template was disabled
+after it was created. Select a pool, then use *Actions*: *Scale* (0 to 200 workers, with the CLI command), *Edit handoffs*,
+*Link shared role* (one role name linked in each account the team's filter allows), *Pause*, *Resume* and *Delete*.
+*Create pool* takes the agent sections (template, image, model, configuration, secrets) plus workers, stage, handoffs
+and scratch space (1 to 500 GiB); the name must be unused by any agent or pool of the team and cannot change later.
+Viewers see the page with every control disabled ("Requires team-admin").
+
 ## Troubleshooting
 
 - *Page not found* for a page you expect: you may not hold the role it needs, or the team is not yours.

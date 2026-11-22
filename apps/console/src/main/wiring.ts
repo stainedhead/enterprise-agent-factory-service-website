@@ -29,6 +29,7 @@ import {
 } from "../application/usecases/members/MembersUseCases.js";
 import { NotificationsUseCases } from "../application/usecases/notifications/NotificationsUseCases.js";
 import { OverviewUseCases } from "../application/usecases/overview/OverviewUseCases.js";
+import { PoolsUseCases } from "../application/usecases/pools/PoolsUseCases.js";
 import { ReportSchedulesUseCases } from "../application/usecases/reportSchedules/ReportSchedulesUseCases.js";
 import { ReportsUseCases } from "../application/usecases/reports/ReportsUseCases.js";
 import { SecretsUseCases } from "../application/usecases/secrets/SecretsUseCases.js";
@@ -63,6 +64,7 @@ import { SdkLogDestinations } from "../infrastructure/sdk/logDestinations.js";
 import { SdkApiKeys, SdkMembers } from "../infrastructure/sdk/members.js";
 import { SdkNotifications } from "../infrastructure/sdk/notifications.js";
 import { SdkOverview, SdkWorkOrders } from "../infrastructure/sdk/overview.js";
+import { SdkPools } from "../infrastructure/sdk/pools.js";
 import { SdkReportSchedules } from "../infrastructure/sdk/reportSchedules.js";
 import { SdkReports } from "../infrastructure/sdk/reports.js";
 import { SdkSecrets } from "../infrastructure/sdk/secrets.js";
@@ -137,6 +139,7 @@ export function buildServices(
       setTimeout: (fn, ms) => globalThis.setTimeout(fn, ms),
     }),
     reports: new ReportsUseCases(new SdkReports(client), clock),
+    pools: new PoolsUseCases(new SdkPools(client), new SdkAgents(client), new SdkReports(client)),
     budgets: new BudgetsUseCases(new SdkBudgets(client), clock),
     settings: new SettingsUseCases(new SdkSettings(client)),
     identityProviders: new IdentityProvidersUseCases(new SdkIdentityProviders(client)),

@@ -29,6 +29,7 @@ import type {
 } from "../application/usecases/members/MembersUseCases.js";
 import type { NotificationsUseCases } from "../application/usecases/notifications/NotificationsUseCases.js";
 import type { OverviewUseCases } from "../application/usecases/overview/OverviewUseCases.js";
+import type { PoolsUseCases } from "../application/usecases/pools/PoolsUseCases.js";
 import type { ReportSchedulesUseCases } from "../application/usecases/reportSchedules/ReportSchedulesUseCases.js";
 import type { ReportsUseCases } from "../application/usecases/reports/ReportsUseCases.js";
 import type { SecretsUseCases } from "../application/usecases/secrets/SecretsUseCases.js";
@@ -58,6 +59,7 @@ export interface AppServices {
   readonly adminOrgAccounts: AdminOrgAccountsUseCases;
   readonly adminAudit: AdminAuditUseCases;
   readonly adminExports: AdminExportsUseCases;
+  readonly pools: PoolsUseCases;
   readonly reportSchedules: ReportSchedulesUseCases;
   readonly adminNotificationChannels: AdminNotificationChannelsUseCases;
   readonly logDestinations: LogDestinationsUseCases;

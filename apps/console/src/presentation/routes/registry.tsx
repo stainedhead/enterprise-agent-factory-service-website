@@ -17,6 +17,9 @@ export const registry: Record<Exclude<ScreenId, "AUTH" | "NOT_FOUND">, ScreenCom
     ScreenComponent
   >),
   // one line per built screen
+  // P2 (create an ephemeral team) is the budget-step variant of S3, so it shares S3's page
+  P2: lazy(() => import("../screens/s3-create-team/index.js")),
+  P4: lazy(() => import("../screens/p4-pools/index.js")),
   S1: lazy(() => import("../screens/s1-dashboard/index.js")),
   S11: lazy(() => import("../screens/s11-export-import/index.js")),
   S9: lazy(() => import("../screens/s9-cost-tags/index.js")),

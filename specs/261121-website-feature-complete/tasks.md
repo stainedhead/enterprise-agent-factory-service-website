@@ -43,9 +43,9 @@
 | M2 Agents & secrets | 7 (+ exit) | 41 | 41 |
 | M3 Spend control | 6 (+ exit) | 24 | 24 |
 | M4 Production readiness | 8 (+ exit) | 34 | 34 |
-| M5 Budgeted workloads and swarms | 4 (+ exit) | 19 | 4 |
+| M5 Budgeted workloads and swarms | 4 (+ exit) | 19 | 12 |
 | M6 CVE remediation and completion | 6 (+ exit) | 26 | 0 |
-| **Total** | **51** | **259** | **219** |
+| **Total** | **51** | **259** | **227** |
 
 ## External dependencies and contract questions
 
@@ -656,14 +656,14 @@ Owns: area files: `pools`; `presentation/screens/p4-pools/`; search source line 
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M5-P1 | `PoolsPort` (26 operations), adapter, use cases | WEB-12 | — |
-| [ ] | M5-P2 | Stages in order; pools with template, model, desired and reporting workers (working, idle, impaired), handoffs, storage, shared role and linked accounts, spend; polled | WEB-US-39.1, WEB-12 | M5-P1 |
-| [ ] | M5-P3 | *Create pool*: T3 sections (template enabled only with allowed digests, image, model, secrets, configuration) plus workers 0–200, stage, handoffs, scratch 1–500 GiB, optional shared EFS | WEB-US-39.2, WEB-US-22.2 (part), WEB-20 | M5-P1 |
-| [ ] | M5-P4 | Pool name checked against the team's agent and pool names; not editable after create | WEB-US-39.3 | M5-P3 |
-| [ ] | M5-P5 | *Shared named role*: one role name linked in one or more accounts inside the team's filter only | WEB-US-39.4 | M5-P2 |
-| [ ] | M5-P6 | *Scale* 0–200 with CLI command; *Pause*, *Resume*, *Delete* with confirmation | WEB-US-39.5, WEB-6 | M5-P2 |
-| [ ] | M5-P7 | Viewers: every control disabled "Requires team-admin"; nav item absent for persistent teams; *Template retired* shown on pools | WEB-US-39.6, WEB-US-22.3 (part) | M5-P2 |
-| [ ] | M5-P8 | e2e, axe, visual P4 (`27`) | WEB-US-42.1 (part), WEB-US-42.2 (part) | M5-P2..P7 |
+| [x] | M5-P1 | `PoolsPort` (26 operations), adapter, use cases | WEB-12 | — |
+| [x] | M5-P2 | Stages in order; pools with template, model, desired and reporting workers (working, idle, impaired), handoffs, storage, shared role and linked accounts, spend; polled | WEB-US-39.1, WEB-12 | M5-P1 |
+| [x] | M5-P3 | *Create pool*: T3 sections (template enabled only with allowed digests, image, model, secrets, configuration) plus workers 0–200, stage, handoffs, scratch 1–500 GiB, optional shared EFS | WEB-US-39.2, WEB-US-22.2 (part), WEB-20 | M5-P1 |
+| [x] | M5-P4 | Pool name checked against the team's agent and pool names; not editable after create | WEB-US-39.3 | M5-P3 |
+| [x] | M5-P5 | *Shared named role*: one role name linked in one or more accounts inside the team's filter only | WEB-US-39.4 | M5-P2 |
+| [x] | M5-P6 | *Scale* 0–200 with CLI command; *Pause*, *Resume*, *Delete* with confirmation | WEB-US-39.5, WEB-6 | M5-P2 |
+| [x] | M5-P7 | Viewers: every control disabled "Requires team-admin"; nav item absent for persistent teams; *Template retired* shown on pools | WEB-US-39.6, WEB-US-22.3 (part) | M5-P2 |
+| [x] | M5-P8 | e2e, axe, visual P4 (`27`) | WEB-US-42.1 (part), WEB-US-42.2 (part) | M5-P2..P7 |
 
 ### M5-G · Guardrails: isolation tier and viewer kubectl
 

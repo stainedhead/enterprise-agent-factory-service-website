@@ -3,6 +3,7 @@ import { Link, NavLink, useNavigate } from "react-router";
 import { type ActiveRole, activeRole, type Me } from "../../domain/me.js";
 import { type NavGroup, routeFor, visibleItems } from "../../domain/navigation.js";
 import { ActionsMenu, Alert, Banner } from "../components/index.js";
+import { useTeamKind } from "../hooks/useTeamKind.js";
 import { HeaderSearch } from "./HeaderSearch.js";
 import { useAccessDenied, useShell } from "./ShellContext.js";
 import s from "./shell.module.css";
@@ -71,7 +72,8 @@ export function TeamSwitcher({ me, teamId }: { me: Me; teamId?: string | undefin
 
 /** Side navigation filtered by each item's `visibleWhen` for the caller and current team. */
 export function SideNav({ me, teamId }: { me: Me; teamId?: string | undefined }) {
-  const team = teamId ? { teamId } : undefined;
+  const { kind } = useTeamKind(teamId);
+  const team = teamId ? { teamId, ...(kind && { kind }) } : undefined;
   const items = visibleItems(me, team);
   const groups = [...new Set(items.map((i) => i.group))] as NavGroup[];
   return (

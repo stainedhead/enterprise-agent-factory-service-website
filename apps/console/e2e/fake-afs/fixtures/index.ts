@@ -23,6 +23,7 @@ import { logDestinationsFixtures, resetLogDestinations } from "./logDestinations
 import { membersFixtures, resetMembers } from "./members.js";
 import { notificationsFixtures, resetNotifications } from "./notifications.js";
 import { overviewFixtures, resetOverview } from "./overview.js";
+import { poolsFixtures, resetPools } from "./pools.js";
 import { reportSchedulesFixtures, resetReportSchedules } from "./reportSchedules.js";
 import { reportsFixtures } from "./reports.js";
 import { resetSecrets, secretsFixtures } from "./secrets.js";
@@ -80,6 +81,7 @@ export const fixtureModules: readonly (readonly Fixture[])[] = [
   adminExportsFixtures,
   reportSchedulesFixtures,
   adminNotificationChannelsFixtures,
+  poolsFixtures,
 ];
 
 /** Stateful fixture modules register a reset here; the server calls them on `/__reset`. */
@@ -103,4 +105,5 @@ export const fixtureResets: readonly (() => void)[] = [
   resetHistory,
   resetReportSchedules,
   resetAdminNotificationChannels,
+  resetPools,
 ];
