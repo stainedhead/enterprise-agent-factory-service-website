@@ -158,7 +158,12 @@ export const coreFixtures: readonly Fixture[] = [
               principal: principalBody,
               serviceAdmin: false,
               securityOperator: true,
-              servicePermissions: ["audit:read"],
+              servicePermissions: [
+                "teams:read-directory",
+                "work-orders:read",
+                "work-orders:write",
+                "swarm-templates:read",
+              ],
               teams: [],
             },
           };

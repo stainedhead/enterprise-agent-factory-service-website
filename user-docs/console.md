@@ -216,6 +216,10 @@ Service admins can change a team's isolation tier and turn viewer kubectl on or 
 
 Service admins see a *Tag status* card on the cost allocation tags page: for each tag key, whether it has appeared in the Cost and Usage Report, when it was first and last seen, and whether AWS Billing has it active. An active key not seen for 3 days or more is flagged with a warning; check that the key is activated in AWS Billing.
 
+## Security operators
+
+A security operator signs in to a reduced console: the header shows *Security operator*, the navigation has only *Work orders* and *Swarm templates*, and you land on *Work orders*. Team pages and service-admin pages are not found for this role.
+
 ## Troubleshooting
 
 - *Page not found* for a page you expect: you may not hold the role it needs, or the team is not yours.

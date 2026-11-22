@@ -44,8 +44,8 @@
 | M3 Spend control | 6 (+ exit) | 24 | 24 |
 | M4 Production readiness | 8 (+ exit) | 34 | 34 |
 | M5 Budgeted workloads and swarms | 4 (+ exit) | 19 | 19 |
-| M6 CVE remediation and completion | 6 (+ exit) | 26 | 0 |
-| **Total** | **51** | **259** | **234** |
+| M6 CVE remediation and completion | 6 (+ exit) | 26 | 2 |
+| **Total** | **51** | **259** | **236** |
 
 ## External dependencies and contract questions
 
@@ -705,8 +705,8 @@ Owns: `domain/navigation.ts` (security operator entries), `presentation/shell/` 
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M6-O1 | Security operator: header *Security operator*, navigation only *Work orders* and *Swarm templates* (read-only), landing on `/work-orders`; team-scoped routes not-found; per-team work orders through `ListWorkOrders?teamId=` | WEB-US-40.1 (part), WEB-US-8.5 (part), WEB-US-41.2 (part), WEB-3 | — |
-| [ ] | M6-O2 | e2e as `sec-op`, including that no team-scoped request is sent | WEB-US-8.5 (part) | M6-O1 |
+| [x] | M6-O1 | Security operator: header *Security operator*, navigation only *Work orders* and *Swarm templates* (read-only), landing on `/work-orders`; team-scoped routes not-found; per-team work orders through `ListWorkOrders?teamId=` | WEB-US-40.1 (part), WEB-US-8.5 (part), WEB-US-41.2 (part), WEB-3 | — |
+| [x] | M6-O2 | e2e as `sec-op`, including that no team-scoped request is sent | WEB-US-8.5 (part) | M6-O1 |
 
 ### M6-W · Work orders (P3, P6)
 
