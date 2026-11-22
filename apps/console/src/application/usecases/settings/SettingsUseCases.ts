@@ -94,6 +94,9 @@ export interface IdentityProviderDraft {
   readonly cliClientId: string;
   readonly groupsClaim: string;
   readonly clientSecretArn: string;
+  /** Optional collaboration sign-in client (WEB-US-58). */
+  readonly collabClientId?: string;
+  readonly collabClientSecretArn?: string;
   readonly isDefault: boolean;
 }
 
@@ -124,6 +127,10 @@ export class IdentityProvidersUseCases {
       {
         ...rest,
         clientSecretArn: d.clientSecretArn.trim() === "" ? null : d.clientSecretArn.trim(),
+        collabClientId: d.collabClientId?.trim() ? d.collabClientId.trim() : null,
+        collabClientSecretArn: d.collabClientSecretArn?.trim()
+          ? d.collabClientSecretArn.trim()
+          : null,
       },
     );
   }
@@ -151,6 +158,15 @@ function check(d: IdentityProviderDraft, creating: boolean): AppError | undefine
   if (!d.cliClientId.trim()) return invalid("cliClientId", "Enter the CLI client id");
   if (d.clientSecretArn.trim() && !/^arn:aws[a-z-]*:secretsmanager:/.test(d.clientSecretArn.trim()))
     return invalid("clientSecretArn", "Enter a Secrets Manager ARN (arn:aws:secretsmanager:…)");
+  const collabId = d.collabClientId?.trim() ?? "";
+  const collabArn = d.collabClientSecretArn?.trim() ?? "";
+  if (collabArn && !collabId)
+    return invalid("collabClientId", "Enter the collaboration client id for this reference");
+  if (collabArn && !/^arn:aws[a-z-]*:secretsmanager:/.test(collabArn))
+    return invalid(
+      "collabClientSecretArn",
+      "Enter a Secrets Manager ARN (arn:aws:secretsmanager:…)",
+    );
   return undefined;
 }
 
@@ -163,6 +179,10 @@ function toInput(d: IdentityProviderDraft): CreateIdentityProviderInput {
     cliClientId: d.cliClientId.trim(),
     ...(d.groupsClaim.trim() && { groupsClaim: d.groupsClaim.trim() }),
     ...(d.clientSecretArn.trim() && { clientSecretArn: d.clientSecretArn.trim() }),
+    ...(d.collabClientId?.trim() && { collabClientId: d.collabClientId.trim() }),
+    ...(d.collabClientSecretArn?.trim() && {
+      collabClientSecretArn: d.collabClientSecretArn.trim(),
+    }),
     ...(d.isDefault && { isDefault: true }),
   };
 }

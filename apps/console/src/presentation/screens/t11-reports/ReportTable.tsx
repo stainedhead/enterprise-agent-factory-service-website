@@ -30,6 +30,22 @@ const HEADERS: Record<string, string> = {
   connections: "Connections",
   bytes: "Bytes",
   denied: "Denied",
+  signIns: "Sign-ins",
+  uniquePeople: "People",
+  requests: "Requests",
+  deniedRequests: "Denied requests",
+  secretDetections: "Secret detections",
+  surface: "Surface",
+  reason: "Reason",
+  person: "Person",
+  serviceAdminEntry: "Service admin entry",
+};
+
+const SURFACE: Record<string, string> = {
+  ui: "Paperclip UI",
+  api: "Paperclip API",
+  mcp: "MCP",
+  cli: "CLI",
 };
 /** A column header: the known name, else the key split into words. */
 export const headerOf = (k: string): string =>
@@ -46,6 +62,16 @@ const STATE: Record<string, { word: string; dot: "green" | "grey" | "amber" | "r
   budget_blocked: { word: "Budget blocked", dot: "amber" },
 };
 
+/** A person group: a principal `{id, type}` or a plain label; an API key is named as one. */
+function personText(v: unknown): string {
+  if (v && typeof v === "object") {
+    const o = v as { id?: unknown; type?: unknown; label?: unknown };
+    const name = String(o.label ?? o.id ?? "");
+    return o.type === "api_key" ? `${name} (API key)` : name;
+  }
+  return String(v);
+}
+
 function cell(key: string, row: ReportRowRecord, teamId: string | undefined): React.ReactNode {
   const v = row[key];
   if (v === undefined || v === null || v === "") return "—";
@@ -55,6 +81,14 @@ function cell(key: string, row: ReportRowRecord, teamId: string | undefined): Re
   }
   if (key === "agent" && teamId)
     return <Link to={`/t/${teamId}/reports/agents/${String(v)}`}>{String(v)}</Link>;
+  if (key === "serviceAdminEntry")
+    return v === true ? <Badge tone="purple">Service admin entry</Badge> : "—";
+  if (key === "surface") return SURFACE[String(v)] ?? String(v);
+  if (key === "reason")
+    return String(v)
+      .replace(/_/g, " ")
+      .replace(/^./, (c) => c.toUpperCase());
+  if (key === "person" || key === "principal") return personText(v);
   if (key === "unmetered") return v === true ? <Badge tone="purple">Unmetered</Badge> : "—";
   if (key.startsWith("utilization")) {
     const p = utilizationPct(row);

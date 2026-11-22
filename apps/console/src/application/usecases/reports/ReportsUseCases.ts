@@ -47,7 +47,13 @@ function check(q: ReportQuery): AppError | undefined {
 }
 
 /** What each report scope may be asked for; traffic and activity are never costed. */
-export const SERVICE_KINDS: readonly ReportKind[] = ["usage", "costs", "activity", "traffic"];
+export const SERVICE_KINDS: readonly ReportKind[] = [
+  "usage",
+  "costs",
+  "activity",
+  "traffic",
+  "collaboration",
+];
 
 /** Reports for S8, T11 and T12 (M3-R) and the CSV download that returns the API's body unchanged. */
 export class ReportsUseCases {

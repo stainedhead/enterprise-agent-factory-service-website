@@ -90,6 +90,25 @@ export const sections: readonly ReportsSection[] = [
     ),
   },
   {
+    id: "collaboration",
+    label: "Collaboration",
+    permission: "reports:read",
+    Component: ({ teamId }) => (
+      <ReportSectionView
+        teamId={teamId}
+        cfg={
+          {
+            title: "Collaboration access",
+            kind: "collaboration",
+            groupBy: ["day", "surface", "reason", "person"],
+            defaultGroupBy: ["day"],
+            filters: [],
+          } satisfies ReportSectionConfig
+        }
+      />
+    ),
+  },
+  {
     id: "schedules",
     label: "Schedules",
     permission: "reports:read",

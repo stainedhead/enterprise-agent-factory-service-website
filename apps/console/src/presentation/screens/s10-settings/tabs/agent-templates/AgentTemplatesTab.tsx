@@ -95,6 +95,15 @@ export function AgentTemplatesTab() {
             cell: (t) => t.allowedDigests.length,
           },
           {
+            id: "capabilities",
+            header: "Capabilities",
+            text: (t) => (t.capabilities ?? []).join(" "),
+            cell: (t) =>
+              (t.capabilities ?? []).length > 0
+                ? (t.capabilities ?? []).map((c) => <Badge key={c}>{c}</Badge>)
+                : "—",
+          },
+          {
             id: "state",
             header: "State",
             text: (t) => (t.enabled ? "Enabled" : "Disabled"),
@@ -175,6 +184,9 @@ function TemplateDialog({
   const [memory, setMemory] = useState(existing?.defaultResources?.memory ?? "");
   const [digests, setDigests] = useState((existing?.allowedDigests ?? []).join("\n"));
   const [current, setCurrent] = useState(existing?.currentDigest ?? "");
+  const [paperclip, setPaperclip] = useState(
+    existing?.capabilities?.includes("paperclip") ?? false,
+  );
   const allowed = digests
     .split(/[\s,]+/)
     .map((d) => d.trim())
@@ -189,6 +201,10 @@ function TemplateDialog({
           allowedDigests: allowed,
           currentDigest: current || allowed[0] || "",
           enabled: existing?.enabled ?? true,
+          capabilities: [
+            ...(existing?.capabilities ?? []).filter((c) => c !== "paperclip"),
+            ...(paperclip ? ["paperclip"] : []),
+          ],
           ...((cpu || memory) && {
             defaultResources: { ...(cpu && { cpu }), ...(memory && { memory }) },
           }),
@@ -229,6 +245,21 @@ function TemplateDialog({
       <FormField label="Harness" error={err?.fields.harness}>
         <TextInput value={harness} onChange={(e) => setHarness(e.target.value)} />
       </FormField>
+      <fieldset>
+        <legend>Capabilities</legend>
+        <label>
+          <input
+            type="checkbox"
+            checked={paperclip}
+            onChange={(e) => setPaperclip(e.target.checked)}
+          />{" "}
+          paperclip
+        </label>
+        <p>
+          Only templates with the paperclip capability can be used for a collaboration agent, and
+          they cannot be used for workers.
+        </p>
+      </fieldset>
       <FormField label="Default CPU" hint="Optional, for example 2">
         <TextInput value={cpu} onChange={(e) => setCpu(e.target.value)} />
       </FormField>

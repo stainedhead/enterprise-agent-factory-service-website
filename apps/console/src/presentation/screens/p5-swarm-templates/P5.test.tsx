@@ -3,6 +3,12 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { AppError } from "../../../application/errors.js";
 import type { Me } from "../../../domain/me.js";
+import {
+  adminCatalogsServices,
+  fakeStoragePort,
+  fakeTemplatesPort,
+} from "../../testing/adminCatalogs.js";
+import { aTemplate } from "../../testing/agents.js";
 import { SEC_OP, SERVICE_ADMIN, TEAM_ADMIN } from "../../testing/harness.js";
 import { renderScreen } from "../../testing/screen.js";
 import {
@@ -14,11 +20,22 @@ import {
 } from "../../testing/workOrders.js";
 import P5 from "./index.js";
 
-function open(o: { me?: Me; port?: ReturnType<typeof fakeSwarmTemplatesPort> } = {}) {
+function open(
+  o: { me?: Me; port?: ReturnType<typeof fakeSwarmTemplatesPort>; catalog?: boolean } = {},
+) {
   const port = o.port ?? fakeSwarmTemplatesPort();
+  const catalog = fakeTemplatesPort();
+  catalog.list.mockResolvedValue([
+    aTemplate({ name: "paperclip-agent", id: "tpl_pc", capabilities: ["paperclip"] }),
+    aTemplate({ name: "plain", id: "tpl_plain" }),
+    aTemplate({ name: "off", id: "tpl_off", enabled: false, capabilities: ["paperclip"] }),
+  ]);
   renderScreen(<P5 />, {
     me: o.me ?? SERVICE_ADMIN,
-    services: workOrdersServices(fakeWorkOrdersPort(), fakeTeamDirectoryPort(), port),
+    services: {
+      ...workOrdersServices(fakeWorkOrdersPort(), fakeTeamDirectoryPort(), port),
+      ...adminCatalogsServices(fakeStoragePort(), catalog),
+    },
     path: "/swarm-templates",
     route: "/swarm-templates",
   });
@@ -71,6 +88,29 @@ describe("P5 swarm templates (M6-T1)", () => {
       enabled: false,
     });
     expect(await screen.findByText(/Template created/)).toBeTruthy();
+  });
+  it("offers paperclip agent templates as the collaboration agent and sends the choice", async () => {
+    const port = open();
+    await userEvent.click(await screen.findByRole("button", { name: "Create template" }));
+    const d = await screen.findByRole("dialog");
+    const pick = within(d).getByLabelText("Collaboration agent") as HTMLSelectElement;
+    await waitFor(() =>
+      expect(within(pick).getByRole("option", { name: "paperclip-agent" })).toBeTruthy(),
+    );
+    expect(within(pick).queryByRole("option", { name: "plain" })).toBeNull();
+    expect(within(pick).queryByRole("option", { name: "off" })).toBeNull();
+    await userEvent.selectOptions(pick, "tpl_pc");
+    await userEvent.type(within(d).getByLabelText("Name"), "cve-fix");
+    await userEvent.type(within(d).getByLabelText("Spend cap (USD)"), "250");
+    const spec = within(d).getByLabelText("Spec");
+    await userEvent.clear(spec);
+    await userEvent.click(spec);
+    await userEvent.paste(
+      '{"stages":[{"name":"a","position":1}],"pools":[{"name":"p","workers":2}]}',
+    );
+    await userEvent.click(within(d).getByRole("button", { name: "Create template" }));
+    await waitFor(() => expect(port.create).toHaveBeenCalledOnce());
+    expect(port.create.mock.calls[0]?.[0].spec.collaboration).toEqual({ templateId: "tpl_pc" });
   });
   it("edits only what changed, with the version", async () => {
     const port = open();

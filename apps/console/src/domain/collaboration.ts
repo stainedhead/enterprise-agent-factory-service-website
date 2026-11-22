@@ -203,3 +203,53 @@ export function managedRefusalText(
   if (reason === "master_key_not_rotatable") return MASTER_KEY_TEXT;
   return undefined;
 }
+
+/** The seven service settings of the Collaboration tab, in the order shown (WEB-US-57). */
+export const COLLAB_SETTING_KEYS = [
+  "collab.base_domain",
+  "collab.public_endpoints",
+  "collab.allowed_source_cidrs",
+  "collab.session_ttl_minutes",
+  "collab.content_scan",
+  "collab.max_body_mb",
+  "collab.denied_spike_threshold",
+] as const;
+
+export const isCollabSetting = (key: string): boolean => key.startsWith("collab.");
+
+/**
+ * The confirmation a change of a `collab.*` setting needs, or `undefined` when none. `current` and `next` are
+ * the field texts (the base domain empty means unset, the CIDR text is one range per line).
+ */
+export function collabConfirmation(key: string, current: string, next: string): string | undefined {
+  if (current === next) return undefined;
+  if (key === "collab.base_domain") return "Every team's Paperclip address changes.";
+  if (key === "collab.public_endpoints" && next === "false")
+    return "Every team's public endpoint stops within a minute. Teams' choices are kept.";
+  if (key === "collab.content_scan" && next === "off")
+    return "Credentials typed into Paperclip will no longer be blocked or detected.";
+  if (key === "collab.allowed_source_cidrs" && next.trim() !== "")
+    return "Requests from outside these ranges are blocked by the firewall.";
+  return undefined;
+}
+
+/** The text of a setting for its field: CIDRs one per line, everything else as `settingText` does. */
+export function collabFieldText(key: string, value: unknown): string {
+  if (Array.isArray(value)) return value.join(key === "collab.allowed_source_cidrs" ? "\n" : ", ");
+  return value === null || value === undefined ? "" : String(value);
+}
+
+/** CIDR lines to the comma list the settings use case parses; blank lines are dropped. */
+export const cidrLinesToList = (text: string): string =>
+  text
+    .split(/[\n,]/)
+    .map((l) => l.trim())
+    .filter(Boolean)
+    .join(", ");
+
+const CIDR = /^([0-9]{1,3}(\.[0-9]{1,3}){3}|[0-9a-fA-F:]+:[0-9a-fA-F:]*)\/[0-9]{1,3}$/;
+/** The CIDRs that are not IPv4 or IPv6 ranges (empty when every line is one). */
+export const badCidrs = (text: string): string[] =>
+  cidrLinesToList(text)
+    .split(", ")
+    .filter((l) => l !== "" && !CIDR.test(l));

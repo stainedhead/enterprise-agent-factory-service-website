@@ -52,6 +52,15 @@ const TABS: Tab[] = [
     defaultGroupBy: ["system"],
     filters: ["teamId", "systemId"],
   },
+  {
+    id: "collaboration",
+    label: "Collaboration",
+    kind: "collaboration",
+    title: "Collaboration access",
+    groupBy: ["team", "day", "surface", "reason", "person"],
+    defaultGroupBy: ["team"],
+    filters: [],
+  },
 ];
 
 /** S8 (WEB-US-38): service-wide cost, usage, activity and traffic reports, and the cost reconciliation. */

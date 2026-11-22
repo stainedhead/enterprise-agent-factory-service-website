@@ -3,6 +3,7 @@
 import type { ComponentType } from "react";
 import type { Permission } from "../../../domain/permission.js";
 import { AgentTemplatesTab } from "./tabs/agent-templates/AgentTemplatesTab.js";
+import { CollaborationTab } from "./tabs/collaboration/CollaborationTab.js";
 import { IdentityProvidersTab } from "./tabs/identity-providers/IdentityProvidersTab.js";
 import { NotificationChannelsTab } from "./tabs/notification-channels/NotificationChannelsTab.js";
 import { SecurityOperatorsTab } from "./tabs/security-operators/SecurityOperatorsTab.js";
@@ -38,6 +39,12 @@ export const sections: readonly SettingsSection[] = [
     label: "Agent templates",
     permission: "admin:agent-templates",
     Component: AgentTemplatesTab,
+  },
+  {
+    id: "collaboration",
+    label: "Collaboration",
+    permission: "admin:settings",
+    Component: CollaborationTab,
   },
   {
     id: "notification-channels",

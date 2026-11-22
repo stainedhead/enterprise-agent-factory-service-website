@@ -68,6 +68,7 @@ export class AdminAgentTemplatesUseCases {
       currentDigest: t.currentDigest,
       description: t.description,
       defaultResources: t.defaultResources,
+      capabilities: t.capabilities,
       enabled,
     });
   }

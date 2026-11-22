@@ -269,3 +269,72 @@ describe("S10 Identity providers (M1-N3)", () => {
     expect(screen.queryByRole("tab", { name: "Identity providers" })).toBeNull();
   });
 });
+
+describe("S10 identity provider collaboration client (WEB-US-58)", () => {
+  const tab = { path: "/settings/identity-providers" };
+  const fill = async (dialog: HTMLElement) => {
+    await userEvent.type(within(dialog).getByLabelText("Name"), "Entra");
+    await userEvent.type(
+      within(dialog).getByLabelText("Issuer URL"),
+      "https://login.microsoftonline.com/x/v2.0",
+    );
+    await userEvent.type(within(dialog).getByLabelText("Console client id"), "c1");
+    await userEvent.type(within(dialog).getByLabelText("CLI client id"), "c2");
+  };
+  it("collaboration client fields, sent with the create", async () => {
+    const { idps } = open(tab);
+    await userEvent.click(await screen.findByRole("button", { name: "Add provider" }));
+    const dialog = screen.getByRole("dialog");
+    await fill(dialog);
+    await userEvent.type(within(dialog).getByLabelText("Collaboration client id"), "collab-1");
+    await userEvent.type(
+      within(dialog).getByLabelText("Collaboration client secret reference"),
+      "arn:aws:secretsmanager:eu-west-1:000000000000:secret:collab",
+    );
+    expect(within(dialog).getByText(/--collab-client-id collab-1/)).toBeTruthy();
+    await userEvent.click(within(dialog).getByRole("button", { name: "Add" }));
+    await waitFor(() =>
+      expect(idps.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          collabClientId: "collab-1",
+          collabClientSecretArn: "arn:aws:secretsmanager:eu-west-1:000000000000:secret:collab",
+        }),
+      ),
+    );
+  });
+  it("reference needs client id", async () => {
+    const { idps } = open(tab);
+    await userEvent.click(await screen.findByRole("button", { name: "Add provider" }));
+    const dialog = screen.getByRole("dialog");
+    await fill(dialog);
+    await userEvent.type(
+      within(dialog).getByLabelText("Collaboration client secret reference"),
+      "arn:aws:secretsmanager:eu-west-1:000000000000:secret:collab",
+    );
+    await userEvent.click(within(dialog).getByRole("button", { name: "Add" }));
+    expect(await within(dialog).findByText(/Enter the collaboration client id/)).toBeTruthy();
+    expect(idps.create).not.toHaveBeenCalled();
+  });
+  it("refuses a reference that is not an ARN", async () => {
+    const { idps } = open(tab);
+    await userEvent.click(await screen.findByRole("button", { name: "Add provider" }));
+    const dialog = screen.getByRole("dialog");
+    await fill(dialog);
+    await userEvent.type(within(dialog).getByLabelText("Collaboration client id"), "collab-1");
+    await userEvent.type(
+      within(dialog).getByLabelText("Collaboration client secret reference"),
+      "hunter2",
+    );
+    await userEvent.click(within(dialog).getByRole("button", { name: "Add" }));
+    expect(
+      (await within(dialog).findAllByText(/Enter a Secrets Manager ARN/)).length,
+    ).toBeGreaterThan(0);
+    expect(idps.create).not.toHaveBeenCalled();
+  });
+  it("the list has a Collaboration column", async () => {
+    open(tab);
+    await screen.findByText("Corporate SSO");
+    expect(screen.getByRole("columnheader", { name: "Collaboration" })).toBeTruthy();
+    expect(screen.getAllByText("Not configured").length).toBeGreaterThan(0);
+  });
+});

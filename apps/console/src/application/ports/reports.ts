@@ -1,7 +1,7 @@
 // The reports area port (M3-R): team, agent and service reports with their CSV, and the cost
 // reconciliations of S8. Rows are as the API sends them (CQ-16: the OpenAPI does not type the measures).
 
-export type ReportKind = "usage" | "costs" | "activity" | "traffic";
+export type ReportKind = "usage" | "costs" | "activity" | "traffic" | "collaboration";
 
 export type ReportScope =
   | { readonly level: "team"; readonly teamId: string }

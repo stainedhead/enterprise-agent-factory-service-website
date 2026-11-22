@@ -180,3 +180,72 @@ describe("T11 permissions (M3-R5)", () => {
     expect(await screen.findByText("$15.75")).toBeTruthy();
   });
 });
+
+describe("T11 collaboration report (WEB-US-59)", () => {
+  const collab = () =>
+    aReport({
+      kind: "collaboration",
+      groupBy: ["person"],
+      rows: [
+        {
+          person: { id: "usr_1", type: "user", label: "Ada Admin" },
+          signIns: 4,
+          uniquePeople: 1,
+          requests: 20,
+          deniedRequests: 2,
+          secretDetections: 0,
+          serviceAdminEntry: true,
+        },
+        {
+          person: { id: "key_1", type: "api_key" },
+          signIns: 0,
+          uniquePeople: 1,
+          requests: 5,
+          deniedRequests: 0,
+          secretDetections: 1,
+        },
+      ],
+      totals: { signIns: 4, requests: 25 },
+    });
+
+  it("opens from the Recent access link with the range and grouping it names", async () => {
+    const port = fakeReportsPort();
+    port.run.mockResolvedValue(collab());
+    open(TEAM_ADMIN, port, "/t/team_1/reports?tab=collaboration&range=7d&groupBy=person");
+    expect(await screen.findByText("Ada Admin")).toBeTruthy();
+    expect(screen.getByText("key_1 (API key)")).toBeTruthy();
+    expect(screen.getByText("Service admin entry", { selector: "span,div" })).toBeTruthy();
+    expect(port.run).toHaveBeenCalledWith(
+      { level: "team", teamId: "team_1" },
+      "collaboration",
+      expect.objectContaining({ range: "7d", groupBy: ["person"] }),
+      expect.anything(),
+    );
+  });
+  it("offers day, surface, reason and person groupings and no schedule action", async () => {
+    open(
+      TEAM_ADMIN,
+      fakeReportsPort({ run: async () => collab() }),
+      "/t/team_1/reports?tab=collaboration",
+    );
+    await screen.findByRole("button", { name: "Download CSV" });
+    const group = screen.getByRole("combobox", { name: /group by/i });
+    const labels = within(group)
+      .getAllByRole("option")
+      .map((o) => o.textContent);
+    expect(labels).toEqual(expect.arrayContaining(["Day", "Surface", "Reason", "Person"]));
+    expect(screen.queryByRole("button", { name: /schedule report/i })).toBeNull();
+  });
+  it("ignores a grouping the report does not offer", async () => {
+    const port = fakeReportsPort();
+    port.run.mockResolvedValue(collab());
+    open(TEAM_ADMIN, port, "/t/team_1/reports?tab=collaboration&groupBy=bogus");
+    await screen.findByRole("button", { name: "Download CSV" });
+    expect(port.run).toHaveBeenCalledWith(
+      expect.anything(),
+      "collaboration",
+      expect.objectContaining({ groupBy: ["day"] }),
+      expect.anything(),
+    );
+  });
+});

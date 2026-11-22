@@ -23,6 +23,9 @@ const GROUP_LABEL: Record<string, string> = {
   pool: "Pool",
   day: "Day",
   hour: "Hour",
+  surface: "Surface",
+  reason: "Reason",
+  person: "Person",
 };
 
 export interface ReportControlsProps {

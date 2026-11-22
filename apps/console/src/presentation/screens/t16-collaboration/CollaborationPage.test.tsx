@@ -295,6 +295,13 @@ describe("Managed secrets and recent access panels", () => {
     expect(within(t).getByText("ci (API key)")).toBeTruthy();
     expect(screen.getByText(/5 sign-ins, 2 people, 1 denied requests/)).toBeTruthy();
   });
+  it("links to the collaboration report for the last 7 days by person", async () => {
+    open();
+    const link = await screen.findByRole("link", { name: "View all in Reports" });
+    expect(link.getAttribute("href")).toBe(
+      "/t/team_1/reports?tab=collaboration&range=7d&groupBy=person",
+    );
+  });
 });
 
 describe("V3 banner (WEB-US-51)", () => {

@@ -49,7 +49,7 @@ Decisions local to this repository. Cross-repo decisions live in the root reposi
   fields), the operation table and one factory per resource, plus the `createAfs` facade. Signature: positional
   path params, then body, then options; `If-Match` operations accept a `Versioned` and derive a reader for the
   rest. `PUT` sends `If-Match` when a version is held; a schema without `version` sends `"1"` (interim).
-- Consequences: the method table cannot drift; 182 methods are not hand-maintained.
+- Consequences: the method table cannot drift; 189 methods are not hand-maintained.
 
 ## ADR-007 Libraries (WD-9)
 
@@ -155,3 +155,16 @@ Decisions local to this repository. Cross-repo decisions live in the root reposi
   `CreateAgentRequest`); T3 then sends one request and this exception is deleted.
 - Consequences: one create can leave an agent without some values. That is visible, recoverable and audited
   per call by the API.
+
+## ADR-016 Paperclip-managed secrets are shown, never edited, and no value reaches the console (WP-D7, WEB-US-48)
+
+- Status: Accepted (approved by the product owner)
+- Context: the collaboration agent holds secrets that AFS or Paperclip manage (`managedBy` is `afs` or
+  `paperclip`). A person editing one by hand would break the registration the agents depend on.
+- Decision: T16 and T4/V2 list managed secrets by name, owner, state and last change only, with a *Managed by*
+  column and a refusal text instead of an edit action. Only *Rotate keys* (T16) changes them, through
+  `rotateKeys`, and AFS-managed rotation is the one secret write; the reserved names cannot be created in T4.
+  A `SecretDetected` refusal from the API is shown as the API's answer and the typed text is not kept (ADR-012,
+  secrets rule). No secret value is stored in state, URLs, logs or drafts.
+- Consequences: managed secrets are visible and auditable but not editable in the console; the API remains the
+  authority and refuses an edit the UI did not predict.

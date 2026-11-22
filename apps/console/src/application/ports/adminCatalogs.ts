@@ -21,6 +21,8 @@ export interface AgentTemplateInput {
   readonly description?: string | undefined;
   readonly enabled?: boolean | undefined;
   readonly defaultResources?: ResourcesRecord | undefined;
+  /** `paperclip` marks a template usable for a collaboration agent only (WEB-US-58). */
+  readonly capabilities?: readonly string[] | undefined;
 }
 
 export interface AdminStorageClassesPort {

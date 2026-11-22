@@ -20,6 +20,8 @@ export interface SwarmTemplateSpec {
   readonly handoffs?: readonly Readonly<Record<string, unknown>>[] | undefined;
   readonly secrets?: readonly Readonly<Record<string, unknown>>[] | undefined;
   readonly configValues?: readonly Readonly<Record<string, unknown>>[] | undefined;
+  /** The optional collaboration agent of the remediation team (an enabled template with capability paperclip). */
+  readonly collaboration?: { readonly templateId: string } | undefined;
 }
 
 export interface SwarmTemplatesReadPort {

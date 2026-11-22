@@ -17,7 +17,6 @@ import {
 } from "../../../domain/collaboration.js";
 import { putCollaborationCli } from "../../../domain/collaborationCli.js";
 import {
-  Alert,
   Badge,
   CliPreview,
   ConfirmDialog,
@@ -289,7 +288,11 @@ export function RecentAccessPanel({ teamId }: { teamId: string }) {
       <h2>Recent access</h2>
       {q.data && (
         <p>
-          {q.data.signIns} sign-ins, {q.data.people} people, {q.data.denied} denied requests.
+          {q.data.signIns} sign-ins, {q.data.people} people, {q.data.denied} denied requests in the
+          last 7 days.{" "}
+          <Link to={`/t/${teamId}/reports?tab=collaboration&range=7d&groupBy=person`}>
+            View all in Reports
+          </Link>
         </p>
       )}
       <Table

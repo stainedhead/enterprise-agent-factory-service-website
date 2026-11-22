@@ -18,7 +18,7 @@ the `@afs/sdk` accelerator SDK and the web management console**, as a Bun worksp
 
 ## The console
 
-33 screens, each role-aware: the header shows the active role and team, actions a role cannot take are
+35 screens, each role-aware: the header shows the active role and team, actions a role cannot take are
 disabled with a tooltip naming the role required, and create forms show the equivalent `afs` command. These
 are real screenshots of the built console, captured by the Playwright suite against its fake API.
 
@@ -55,18 +55,18 @@ input field while the form is submitted.
 
 ## Status
 
-Feature complete. The API contract is pinned to `-restapi` `main` at `d887609` (no release tag yet);
+Feature complete (1.0.1, Paperclip team collaboration included). The API contract is pinned to `-restapi` commit `3588074` (contract 1.3.1, collaboration; re-pin to the merge commit when it lands);
 moving the pin to a tag is a `contract:update --ref <tag>` and a regenerate.
 
 ## What is here
 
 - **`@afs/sdk`** 1.0.1, published to GitHub Packages as **`@stainedhead/afs-sdk`**. Generated from the pinned
-  contract: 182 operations in 41 resource modules, async-iterator pagination, `If-Match` and `Idempotency-Key`
+  contract: 189 operations in 43 resource modules, async-iterator pagination, `If-Match` and `Idempotency-Key`
   handling, retries, `AfsError`, `waitFor` and typed reports (`createReports`). Zero runtime dependencies.
-- **The console**: 33 screens for service admins, team admins, team viewers and the security operator, covering
+- **The console**: 35 screens for service admins, team admins, team viewers and the security operator, covering
   teams, members and API keys, agents, secrets and configuration, external systems, budgets and usage, models and
   pricing, reports, notifications and log delivery, audit and history, cost allocation tags, AWS access,
-  export and import, ephemeral teams with pools, work orders and swarm templates. Accessibility (axe on every
+  Paperclip team collaboration (endpoints, managed secrets, access reports), export and import, ephemeral teams with pools, work orders and swarm templates. Accessibility (axe on every
   screen), keyboard flows, a secret sentinel, CSP and performance run in the Playwright suite.
 - **Deploy artifacts** in `apps/console/deploy/`: runtime `config.json` schema, security headers and cache behaviors.
 

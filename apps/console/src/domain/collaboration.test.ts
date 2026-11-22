@@ -1,8 +1,14 @@
 import { describe, expect, it } from "vitest";
 import {
   aggregatePeople,
+  badCidrs,
+  COLLAB_SETTING_KEYS,
+  cidrLinesToList,
+  collabConfirmation,
+  collabFieldText,
   conditionView,
   isCollaborationManaged,
+  isCollabSetting,
   linkStateView,
   managedByLabel,
   openPaperclipState,
@@ -171,5 +177,37 @@ describe("shortId", () => {
   it("shortens to 12 characters and an ellipsis", () => {
     expect(shortId("team_01JD2Q3R4S5T")).toBe("team_01JD2Q3…");
     expect(shortId("short")).toBe("short");
+  });
+});
+
+describe("collab settings (WEB-US-57)", () => {
+  it("confirmations", () => {
+    expect(collabConfirmation("collab.base_domain", "a.example", "b.example")).toMatch(
+      /address changes/,
+    );
+    expect(collabConfirmation("collab.public_endpoints", "true", "false")).toMatch(
+      /stops within a minute/,
+    );
+    expect(collabConfirmation("collab.public_endpoints", "false", "true")).toBeUndefined();
+    expect(collabConfirmation("collab.content_scan", "block", "off")).toMatch(
+      /no longer be blocked/,
+    );
+    expect(collabConfirmation("collab.content_scan", "block", "warn")).toBeUndefined();
+    expect(collabConfirmation("collab.allowed_source_cidrs", "", "10.0.0.0/8")).toMatch(/firewall/);
+    expect(collabConfirmation("collab.allowed_source_cidrs", "10.0.0.0/8", "")).toBeUndefined();
+    expect(collabConfirmation("collab.max_body_mb", "1", "2")).toBeUndefined();
+    expect(collabConfirmation("collab.base_domain", "x", "x")).toBeUndefined();
+  });
+  it("cidr list parsing", () => {
+    expect(cidrLinesToList("10.0.0.0/8\n\n 2001:db8::/32 ")).toBe("10.0.0.0/8, 2001:db8::/32");
+    expect(badCidrs("10.0.0.0/8\nnope\n2001:db8::/32")).toEqual(["nope"]);
+    expect(badCidrs("")).toEqual([]);
+  });
+  it("field text", () => {
+    expect(collabFieldText("collab.allowed_source_cidrs", ["a", "b"])).toBe("a\nb");
+    expect(collabFieldText("collab.base_domain", null)).toBe("");
+    expect(collabFieldText("collab.max_body_mb", 10)).toBe("10");
+    expect(isCollabSetting("collab.x")).toBe(true);
+    expect(COLLAB_SETTING_KEYS.length).toBe(7);
   });
 });

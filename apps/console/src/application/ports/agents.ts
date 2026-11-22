@@ -102,6 +102,8 @@ export interface SnapshotRecord {
 }
 
 export interface AgentTemplateRecord {
+  /** `tpl_…`; what a swarm template names as its collaboration agent. */
+  readonly id?: string | undefined;
   readonly name: string;
   readonly description?: string | undefined;
   readonly harness: string;

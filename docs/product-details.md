@@ -19,7 +19,7 @@ Installation and examples: [user-docs/sdk.md](../user-docs/sdk.md), [user-docs/s
 
 ## Console
 
-33 screens grouped as follows. Role names are the API's: service admin, team admin, team viewer, security operator.
+35 screens grouped as follows. Role names are the API's: service admin, team admin, team viewer, security operator.
 
 | Area | Screens |
 |---|---|
@@ -27,6 +27,7 @@ Installation and examples: [user-docs/sdk.md](../user-docs/sdk.md), [user-docs/s
 | People and access | Members and API keys; identity providers; service API keys; security operators |
 | Agents | Agents and the agent panel; create agent; agent AWS access and external identities; storage classes and agent templates |
 | Secrets and config | Secrets; configuration values; external systems (team, agent, service catalog) |
+| Collaboration | Team collaboration page and its read-only variant (status, public web UI and REST API switches, connected agents, Paperclip-managed secrets, recent access); collaboration tab of service settings; collaboration report |
 | Spend | Team budget and usage; model catalog and pricing; reports (team, agent, service) with cost reconciliation and scheduling; cost allocation tags and tag status; team tags |
 | Operations | Team and service audit log; team history (activity, audit, config revisions) and restore; notification channels (team and service); log delivery; export and import; team AWS accounts |
 | Workloads | Ephemeral teams with pools, stages and guardrails; work orders; swarm templates |
@@ -46,7 +47,7 @@ Unit coverage is at least 90% on `domain` and `application`.
 
 ## Open items
 
-- The contract is pinned to `-restapi` `main` at `d887609` (M6-U1 done). Re-pin to a release tag once `-restapi`
+- The contract is pinned to `-restapi` commit `3588074` (contract 1.3.1, collaboration; re-pin to the merge commit when it lands). Re-pin to a release tag once `-restapi`
   tags one (CQ-1); `@afs/sdk` 1.0.0 follows that tag.
 - Contract questions CQ-13, CQ-14 and CQ-24 (in-use `409` dependents, agent persona field, tag activation time)
   are tracked in the spec; the console works around them as recorded there.

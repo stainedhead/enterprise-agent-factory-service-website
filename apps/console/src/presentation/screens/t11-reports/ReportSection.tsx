@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import { useSearchParams } from "react-router";
 import { isAppError } from "../../../application/errors.js";
 import type { ReportKind } from "../../../application/ports/reports.js";
 import { can } from "../../../domain/me.js";
@@ -14,7 +15,7 @@ import { gate } from "../../hooks/gate.js";
 import { queryKey } from "../../query/keys.js";
 import { useOptionalService } from "../../services.js";
 import { useMe } from "../../shell/ShellContext.js";
-import { ReportPanel } from "./ReportPanel.js";
+import { initialParams, ReportPanel } from "./ReportPanel.js";
 import { ScheduleReportButton } from "./schedules/ScheduleReportButton.js";
 
 export interface ReportSectionConfig {
@@ -79,8 +80,9 @@ export function useTagKeys(teamId: string): {
 export function ReportSectionView({ teamId, cfg }: { teamId: string; cfg: ReportSectionConfig }) {
   const me = useMe();
   const { keys: tagKeys, error: tagError, retry: retryTags } = useTagKeys(teamId);
+  const [params] = useSearchParams();
   const [controls, setControls] = useState<ReportControlsValue>(() =>
-    controlsFromParams(new URLSearchParams("range=mtd"), {
+    controlsFromParams(initialParams(params, cfg.groupBy), {
       range: "mtd",
       groupBy: cfg.defaultGroupBy,
       filters: {},
@@ -100,17 +102,19 @@ export function ReportSectionView({ teamId, cfg }: { teamId: string; cfg: Report
         groupBy={cfg.groupBy}
         defaultGroupBy={cfg.defaultGroupBy}
         filters={cfg.filters}
-        tagKeys={cfg.kind === "traffic" || cfg.kind === "activity" ? [] : tagKeys}
+        tagKeys={cfg.kind === "usage" || cfg.kind === "costs" ? tagKeys : []}
         csvDisabledReason={gate(me, "reports:read", teamId)}
         linkTeamId={teamId}
         onControls={setControls}
         actions={
-          <ScheduleReportButton
-            teamId={teamId}
-            kind={cfg.kind}
-            title={cfg.title}
-            query={toReportQuery(controls)}
-          />
+          cfg.kind === "collaboration" ? undefined : (
+            <ScheduleReportButton
+              teamId={teamId}
+              kind={cfg.kind}
+              title={cfg.title}
+              query={toReportQuery(controls)}
+            />
+          )
         }
       />
     </>
