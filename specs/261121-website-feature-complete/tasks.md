@@ -38,7 +38,7 @@
 
 | Milestone | Streams | Tasks | Done |
 |---|---|---|---|
-| M0 Foundations | 10 (+ exit) | 69 | 68 |
+| M0 Foundations | 10 (+ exit) | 69 | 69 |
 | M1 Teams & access | 10 (+ exit) | 46 | 0 |
 | M2 Agents & secrets | 7 (+ exit) | 41 | 0 |
 | M3 Spend control | 6 (+ exit) | 24 | 0 |
@@ -213,7 +213,7 @@ Owns: `apps/console/playwright.config.ts`, `e2e/` (core: `fake-afs/server.ts`, `
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M0-X1 | Merge in order; `bun run gate` and CI green; compare the lock's sha256 with `-restapi`'s current `api/openapi.yaml` and re-pin if it moved (plan.md §5); `@afs/sdk` `0.1.0`; ADR-005.. drafted from WD-2..WD-11; status, dashboard | plan.md §5 | all M0 |
+| [x] | M0-X1 | Merge in order; `bun run gate` and CI green; compare the lock's sha256 with `-restapi`'s current `api/openapi.yaml` and re-pin if it moved (plan.md §5); `@afs/sdk` `0.1.0`; ADR-005.. drafted from WD-2..WD-11; status, dashboard | plan.md §5 | all M0 |
 
 ---
 

@@ -32,3 +32,43 @@ Decisions local to this repository. Cross-repo decisions live in the root reposi
   does not run on Bun. Vite, Vitest, Biome and `tsc` 7 are unchanged.
 - Consequences: one lockfile format; contributors install Bun instead of enabling corepack. If a tool
   fails on Bun, run it under Node and record the exception here.
+
+## ADR-005 Pinned contract snapshot (WD-2, WD-8)
+
+- Status: Accepted (draft from step 3; confirmed at step 4)
+- Context: `-restapi` has no tag; the SDK must be generated reproducibly from its OpenAPI.
+- Decision: byte snapshot of `openapi.yaml`, `permissions.json`, `operations.json` in `packages/sdk/contract/`
+  with `contract.lock.json` (source, ref, commit, sha256). `contract:check` runs first in the gate;
+  `contract:update --ref` is the only way to change it. `CONTRACT_VERSION` is the snapshot's `info.version`.
+- Consequences: a hand edit fails the gate; moving to a newer contract is one reviewed commit.
+
+## ADR-006 Own code generator and generated resource modules (WD-3, WD-4, WD-5, WD-6, WD-7)
+
+- Status: Accepted (draft)
+- Decision: `tools/codegen` (Bun + `yaml`) emits schemas (open enums, branded `Money`, `readonly` server
+  fields), the operation table and one factory per resource, plus the `createAfs` facade. Signature: positional
+  path params, then body, then options; `If-Match` operations accept a `Versioned` and derive a reader for the
+  rest. `PUT` sends `If-Match` when a version is held; a schema without `version` sends `"1"` (interim).
+- Consequences: the method table cannot drift; 182 methods are not hand-maintained.
+
+## ADR-007 Libraries (WD-9)
+
+- Status: Accepted (draft)
+- Decision: TanStack Query v5, React Router, `oauth4webapi` (no storage of its own, so tokens stay in
+  memory), `web-vitals`; Testing Library with happy-dom, axe-core, Playwright with `@axe-core/playwright`,
+  Vitest browser mode. No chart library and no CSS-in-JS (CSS modules, CSP `script-src 'self'`).
+
+## ADR-008 E2E on a fake API and a fake IdP (WD-10)
+
+- Status: Accepted (draft)
+- Decision: gated e2e runs against `e2e/fake-afs` (routes and fixtures validated against the pinned OpenAPI;
+  `If-Match`, `Idempotency-Key`, 429/503 injection, CORS, request recorder) and a fake OIDC IdP. The e2e build
+  (`vite build --mode e2e`) compiles a test-only cache hook and allows an `http` issuer. The dev-environment run
+  is the opt-in `e2e:dev` project.
+- Consequences: no test calls a real service; CORS and header behaviour are exercised in a real browser.
+
+## ADR-009 Visual baselines (WD-11)
+
+- Status: Accepted (draft)
+- Decision: 1440 x 900 at device scale 2 (2880 x 1800, the mockups' size), `maxDiffPixelRatio` 0.005; baselines
+  start `pending` in `e2e/visual/approvals.json`; `bun run e2e:report` builds a side-by-side HTML report.
