@@ -12,7 +12,9 @@ the console screens by role are in its initial PRD.
 **Status:** feature work in progress (`feat/website-feature-complete`). `@afs/sdk` 0.2.0 is generated from the
 pinned API contract and adds `waitFor`. The console has sign-in, the shell and these screens: service
 dashboard, teams and create team, team overview (viewer version included), members and API keys, service
-settings and identity providers, and team history (activity, audit and config revisions). See
+settings and identity providers, team history (activity, audit and config revisions), agents and the
+agent panel, create agent, secrets, configuration values, external systems (team, agent and service catalog),
+and storage classes and agent templates. See
 [user-docs/console.md](user-docs/console.md). The remaining screens arrive milestone by milestone.
 
 ## Toolchain

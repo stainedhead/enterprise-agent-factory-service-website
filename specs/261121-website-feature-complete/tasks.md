@@ -40,7 +40,7 @@
 |---|---|---|---|
 | M0 Foundations | 10 (+ exit) | 69 | 69 |
 | M1 Teams & access | 10 (+ exit) | 46 | 46 |
-| M2 Agents & secrets | 7 (+ exit) | 41 | 40 |
+| M2 Agents & secrets | 7 (+ exit) | 41 | 41 |
 | M3 Spend control | 6 (+ exit) | 24 | 0 |
 | M4 Production readiness | 8 (+ exit) | 34 | 0 |
 | M5 Budgeted workloads and swarms | 4 (+ exit) | 19 | 0 |
@@ -449,7 +449,7 @@ Owns: area files: `admin-storageClasses`, `admin-agentTemplates`; `presentation/
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M2-X1 | Merge; gate and e2e green; viewer no-mutation e2e over every M1–M2 team screen; sentinel e2e over every M1–M2 secret flow; re-pin check; status, dashboard | WEB-US-36.1 (part), WEB-US-11.1 (part) | all M2 |
+| [x] | M2-X1 | Merge; gate and e2e green; viewer no-mutation e2e over every M1–M2 team screen; sentinel e2e over every M1–M2 secret flow; re-pin check; status, dashboard | WEB-US-36.1 (part), WEB-US-11.1 (part) | all M2 |
 
 ---
 

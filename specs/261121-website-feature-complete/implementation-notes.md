@@ -127,6 +127,7 @@ architectural ones into ADRs (`docs/architectural-decision-record.md`, ADR-005 o
 | DV-31 | T7 namespace table has no description column: the contract's config value carries no description. The agent table is read-only here; agent values are edited from create/edit agent. | M2-V1 |
 | DV-32 | Declare system is shown disabled (reason given) rather than hidden when the team may not declare; the e2e fake team 1 has mayAddExternalSystems true. T10 refreshes on invalidation after a switch, not on a timer (the list has no in-flight phases). | M2-E2 |
 | DV-33 | S7: 'Unmetered' is read-only in the contract (not in CatalogSystemRequest); built-in rows can be edited and switched but not deleted. Teams-may-declare list reads all teams via listRows (spend call tolerated) and uses UpdateTeam. | M2-F4 |
+| DV-34 | M2-X1 re-pin check on 2026-11-22: restapi feat/restapi-feature-complete (46aeee4) api/openapi.yaml is byte-identical to the pinned snapshot (contract.lock.json commit 747a484), so no re-pin. CQ-8..CQ-11 and CQ-13..CQ-15 stay open (no upstream change). | M2-X1 |
 
 ## 5. Lessons learned
 
