@@ -1,3 +1,4 @@
+import { type Fault, Faults, isFault } from "./faults.js";
 import {
   type Fixture,
   type FixtureResponse,
@@ -54,6 +55,8 @@ export class FakeAfs {
   readonly #versions = new Map<string, number>();
   readonly #idem = new Map<string, { hash: string; status: number; body: unknown }>();
   #injections: { inj: Injection; left: number }[] = [];
+  /** Operation-level request faults (401, 403 ...), armed through `inject` or directly. */
+  readonly faults = new Faults();
   #seq = 0;
 
   constructor(opts: FakeAfsOptions) {
@@ -86,11 +89,16 @@ export class FakeAfs {
       throw new Error(`Fake AFS fixtures violate the contract:\n${problems.join("\n")}`);
   }
 
-  inject(i: Injection): void {
+  inject(i: Injection | Fault): void {
+    if (isFault(i)) {
+      this.faults.add(i);
+      return;
+    }
     this.#injections.push({ inj: i, left: i.times });
   }
   clearInjections(): void {
     this.#injections = [];
+    this.faults.clear();
   }
   reset(): void {
     this.recorded.length = 0;
@@ -164,6 +172,13 @@ export class FakeAfs {
         401,
         errorBody("Unauthenticated", "Missing or unknown bearer token"),
       );
+
+    const fault = this.faults.take(route.operationId);
+    if (fault)
+      return done(route.operationId, principal, fault.status, {
+        ...errorBody(fault.code, fault.message),
+        ...(fault.details && { details: fault.details }),
+      });
 
     const key = `${req.method} ${url.pathname}`;
     const inj = this.#injections.find((x) => x.left > 0 && new RegExp(x.inj.match).test(key));

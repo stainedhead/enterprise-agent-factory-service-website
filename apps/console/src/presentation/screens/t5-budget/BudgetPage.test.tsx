@@ -1,8 +1,13 @@
-import { screen, waitFor, within } from "@testing-library/react";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it } from "vitest";
+import { MemoryRouter, Route, Routes } from "react-router";
+import { describe, expect, it, vi } from "vitest";
 import { AppError } from "../../../application/errors.js";
 import type { Me } from "../../../domain/me.js";
+import { createQueryClient } from "../../query/createQueryClient.js";
+import { ServicesContext } from "../../services.js";
+import { MeProvider } from "../../shell/ShellContext.js";
 import { budgetsServices, fakeBudgetsPort } from "../../testing/budgets.js";
 import { SERVICE_ADMIN, TEAM_ADMIN, VIEWER } from "../../testing/harness.js";
 import { renderScreen } from "../../testing/screen.js";
@@ -106,6 +111,7 @@ describe("T5 edit budget (M3-B2, M3-B3, M3-B4)", () => {
         throw new AppError({
           kind: "access-denied",
           message: "Requires service admin",
+          requestId: "req_budget_403",
           requiredPermission: "budgets:write",
         });
       },
@@ -116,7 +122,10 @@ describe("T5 edit budget (M3-B2, M3-B3, M3-B4)", () => {
     const d = await screen.findByRole("dialog");
     expect(within(d).queryByLabelText("At exhaustion")).toBeNull();
     await userEvent.click(within(d).getByRole("button", { name: "Save" }));
-    expect(await within(d).findByText("Requires service admin")).toBeTruthy();
+    // FR-002: the denial names the permission and the request id, and the dialog stays open
+    expect((await within(d).findByText(/It requires/)).textContent).toContain("budgets:write");
+    expect(within(d).getByText(/Request id: req_budget_403/)).toBeTruthy();
+    expect(screen.getByRole("dialog")).toBeTruthy();
   });
   it("service admins get a link to the guardrails; everyone with access gets the notifications link", async () => {
     open(SERVICE_ADMIN);
@@ -136,5 +145,42 @@ describe("T5 edit budget (M3-B2, M3-B3, M3-B4)", () => {
     open(TEAM_ADMIN, fakeBudgetsPort(), aTeam({ state: "suspended" }));
     const b = await screen.findByRole("button", { name: "Edit budget" });
     await waitFor(() => expect(b.getAttribute("aria-disabled")).toBe("true"));
+  });
+});
+
+describe("FR-002 the budget dialog reports a denial to the shell", () => {
+  it("routes an AccessDenied from the versioned form to the shared reporter", async () => {
+    const onDenied = vi.fn();
+    const port = fakeBudgetsPort({
+      put: async () => {
+        throw new AppError({
+          kind: "access-denied",
+          message: "no",
+          requiredPermission: "budgets:write",
+        });
+      },
+    });
+    const teams = fakeTeamsPort();
+    teams.get.mockResolvedValue(aTeam());
+    const qc = createQueryClient(onDenied);
+    render(
+      <QueryClientProvider client={qc}>
+        <ServicesContext.Provider value={{ ...budgetsServices(port), ...teamsServices(teams) }}>
+          <MeProvider value={TEAM_ADMIN}>
+            <MemoryRouter initialEntries={["/t/team_1/budget"]}>
+              <Routes>
+                <Route path="/t/:teamId/budget" element={<T5 />} />
+              </Routes>
+            </MemoryRouter>
+          </MeProvider>
+        </ServicesContext.Provider>
+      </QueryClientProvider>,
+    );
+    await userEvent.click(await screen.findByRole("button", { name: "Edit budget" }));
+    await userEvent.click(
+      within(await screen.findByRole("dialog")).getByRole("button", { name: "Save" }),
+    );
+    await waitFor(() => expect(onDenied).toHaveBeenCalledTimes(1));
+    expect(onDenied.mock.calls[0]?.[0]).toBeInstanceOf(AppError);
   });
 });

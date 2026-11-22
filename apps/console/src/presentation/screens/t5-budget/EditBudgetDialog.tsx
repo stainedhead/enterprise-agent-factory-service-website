@@ -9,6 +9,7 @@ import { format } from "../../../domain/money.js";
 import { Alert, Button, FormField, Modal, SelectInput, TextInput } from "../../components/index.js";
 import { useVersionedForm } from "../../hooks/useVersionedForm.js";
 import { ConflictAlert } from "../../query/ConflictAlert.js";
+import { DeniedAlert } from "../../query/DeniedAlert.js";
 import { useService } from "../../services.js";
 
 /**
@@ -72,11 +73,15 @@ export function EditBudgetDialog({
           Current amount: {format(cur.amountUsd)}. Your edits are kept below; save to apply them.
         </Alert>
       )}
-      {isAppError(err) && !form.stale && Object.keys(err.fields).length === 0 && (
-        <Alert kind="error" title="The budget was not saved" requestId={err.requestId}>
-          {err.message}
-        </Alert>
-      )}
+      {isAppError(err) && err.isAccessDenied && <DeniedAlert error={err} />}
+      {isAppError(err) &&
+        !form.stale &&
+        !err.isAccessDenied &&
+        Object.keys(err.fields).length === 0 && (
+          <Alert kind="error" title="The budget was not saved" requestId={err.requestId}>
+            {err.message}
+          </Alert>
+        )}
       <FormField
         label="Amount (USD)"
         hint={`The team's ceiling is ${format(team.effectiveCeilingUsd)}`}

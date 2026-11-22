@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState } from "react";
 import { isAppError } from "../../application/errors.js";
+import { useErrorReporter } from "../query/errorReporter.js";
 
 export interface VersionedResource {
   readonly version: number;
@@ -48,6 +49,9 @@ export function useVersionedForm<R extends VersionedResource, D>(
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const opts = useRef(o);
   opts.current = o;
+  const report = useErrorReporter();
+  const reportRef = useRef(report);
+  reportRef.current = report;
 
   const submit = useCallback(async () => {
     if (stale) return undefined; // the user must reload first
@@ -63,6 +67,7 @@ export function useVersionedForm<R extends VersionedResource, D>(
       if (isAppError(e) && e.kind === "stale") setStale(true);
       else if (isAppError(e) && e.kind === "validation") setFieldErrors({ ...e.fields });
       setError(e);
+      reportRef.current(e); // AccessDenied alert, 401 expiry, global notices (FR-002)
       return undefined;
     } finally {
       setSaving(false);
@@ -78,6 +83,7 @@ export function useVersionedForm<R extends VersionedResource, D>(
       setError(undefined);
     } catch (e) {
       setError(e);
+      reportRef.current(e);
     }
   }, []);
 

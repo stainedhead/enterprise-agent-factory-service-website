@@ -32,7 +32,7 @@ lines, so merges stay hunk-disjoint.
 |---|---|---|---|---|
 | A: SDK | FR-007..FR-011 | 6/6 | no | Gate green on wf/a |
 | E: Quality and edges | FR-016..FR-020 | 9/9 | no | Branch `wf/e`; gate green |
-| C: Error routing | FR-002, FR-003 (query layer), FR-015 | 0/7 | no | |
+| C: Error routing | FR-002, FR-003 (query layer), FR-015 | 7/7 | no | Gate green; `onUnauthenticated` and `faults.ts` ready for B |
 | B: Session, auth, hosting | FR-001, FR-003 (wiring), FR-005, FR-006, FR-012..FR-014, FR-004 (sign-out) | 0/10 | no | |
 | D: Drafts | FR-004, FR-021, FR-018 (`IdentitySection.tsx`) | 0/10 | no | |
 | U-1 (stream-independent) | M6-U1 contract re-pin | 0/1 | n/a | Open: blocked on the `-restapi` merge and tag (CQ-1) |
@@ -48,6 +48,9 @@ lines, so merges stay hunk-disjoint.
 ## Stream B log
 
 ## Stream C log
+
+- 2026-11-22: C-1, C-2, C-3, C-5, C-6 done (reporter, dialogs, `onUnauthenticated`, retry predicate); C-4 done (`faults.ts`, denied-secret sentinel e2e).
+- 2026-11-22: C-7 exit: `bun run gate` green; Chromium e2e `quality`, `secrets`, `members` 28 passed, 1 failed (`quality/csp.spec.ts` "every screen runs under the deploy headers", B's FR-001 area, not touched here).
 
 ## Stream D log
 
