@@ -11,7 +11,7 @@ import {
 import { ENTRIES } from "./permission.js";
 import { SCREEN_IDS } from "./screens.js";
 
-const perms = (role: "team_viewer" | "team_admin") =>
+const perms = (role: "team_viewer" | "team_collaborator" | "team_admin") =>
   ENTRIES.filter((e) => e.grants.some((g) => g.role === role && !g.condition)).map(
     (e) => e.permission,
   );
@@ -29,12 +29,22 @@ const admin = mk({
 const viewer = mk({
   teams: [{ teamId: "team_a", slug: "a", role: "team_viewer", permissions: perms("team_viewer") }],
 });
+const collaborator = mk({
+  teams: [
+    {
+      teamId: "team_a",
+      slug: "a",
+      role: "team_collaborator",
+      permissions: perms("team_collaborator"),
+    },
+  ],
+});
 const team = { teamId: "team_a", kind: "persistent" as const };
 const ids = (items: readonly { id: string }[]) => items.map((i) => i.id);
 
 describe("navigation (M0-D4)", () => {
   it("has every IA item of PRD §4.1", () => {
-    expect(NAV_ITEMS).toHaveLength(30);
+    expect(NAV_ITEMS).toHaveLength(31);
     const groups = new Set(NAV_ITEMS.map((i) => i.group));
     expect([...groups]).toEqual([
       "Service",
@@ -102,5 +112,38 @@ describe("navigation (M0-D4)", () => {
     expect(screenFor(overview, admin)).toBe("T1");
     expect(routeFor(overview, "team_a")).toBe("/t/team_a");
     expect(routeFor(NAV_ITEMS[0] as NavItem)).toBe("/");
+  });
+});
+
+describe("collaboration item (WEB-US-53)", () => {
+  const item = NAV_ITEMS.find((i) => i.id === "collaboration") as NavItem;
+  it("sits between Agents and Members & access in the Team group, with T16 and V3", () => {
+    const teamIds = ids(NAV_ITEMS.filter((i) => i.group === "Team"));
+    expect(teamIds.indexOf("collaboration")).toBe(teamIds.indexOf("agents") + 1);
+    expect(item.route).toBe("/t/:teamId/collaboration");
+    expect(item.screen).toBe("T16");
+    expect(item.viewerScreen).toBe("V3");
+  });
+  it("shows for every team role and picks V3 without collaboration:manage", () => {
+    for (const me of [admin, viewer, collaborator])
+      expect(ids(visibleItems(me, team))).toContain("collaboration");
+    expect(screenFor(item, admin, "team_a")).toBe("T16");
+    expect(screenFor(item, viewer, "team_a")).toBe("V3");
+    expect(screenFor(item, collaborator, "team_a")).toBe("V3");
+  });
+  it("has no item without collaboration:read (an API older than v1.3.0) and for security operators", () => {
+    const old = mk({
+      teams: [
+        {
+          teamId: "team_a",
+          slug: "a",
+          role: "team_viewer",
+          permissions: perms("team_viewer").filter((p) => !p.startsWith("collaboration:")),
+        },
+      ],
+    });
+    expect(ids(visibleItems(old, team))).not.toContain("collaboration");
+    expect(ids(visibleItems(sec))).not.toContain("collaboration");
+    expect(ids(visibleItems(sec, team))).not.toContain("collaboration");
   });
 });

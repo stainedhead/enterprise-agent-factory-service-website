@@ -28,6 +28,22 @@ export const control = {
   async contractVersion(v: string): Promise<void> {
     await post(`${API}/__contract-version?v=${encodeURIComponent(v)}`);
   },
+  /** Changes the collaboration state of the fake API so blocked, suspended, not-ready and managed cases can be driven. */
+  async collab(patch: {
+    baseDomain?: string | null;
+    publicEndpoints?: boolean;
+    mayExpose?: boolean;
+    providerHasCollabClient?: boolean;
+    phase?: string;
+    registrationMode?: "manual" | "managed";
+    teamState?: "active" | "suspended";
+  }): Promise<void> {
+    await post(`${API}/__collab`, patch);
+  },
+  /** Makes `CreateTeam` answer `409 hostname_held` for this slug. */
+  async holdHostname(slug: string): Promise<void> {
+    await post(`${API}/__hold-hostname?slug=${encodeURIComponent(slug)}`);
+  },
   /** `user` picks who the IdP signs in next; `ttl` is the access-token lifetime in seconds; `refresh` toggles refresh tokens. */
   async idp(opts: {
     user?: string;

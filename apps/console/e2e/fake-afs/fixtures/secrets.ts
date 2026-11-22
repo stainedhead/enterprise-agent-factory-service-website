@@ -1,3 +1,4 @@
+import { BOOT_SECRET_NAMES, HUB_AGENT_ID } from "./collaboration.js";
 import { TEAMS } from "./core.js";
 import type { Fixture, FixtureResponse } from "./index.js";
 
@@ -32,6 +33,26 @@ const seedSecrets = (): Json[] => [
     createdAt: ts,
     version: 1,
   },
+  ...(
+    [
+      ["paperclip-github-connector", "paperclip", "2026-11-22T08:10:00Z"],
+      ["paperclip-jira-sync-token", "paperclip", "2026-11-22T08:12:00Z"],
+      ["paperclip-better-auth-secret", "afs", "2026-11-22T09:00:00Z"],
+    ] as const
+  ).map(
+    ([name, managedBy, at], i): Json => ({
+      id: `sec_${NS}${String(200 + i).padStart(4, "0")}`,
+      name,
+      scope: "agent",
+      agentId: HUB_AGENT_ID,
+      managedBy,
+      boundTo: [],
+      secretsManagerPath: `afs/afs-payments/agents/paperclip-hub/${name}`,
+      lastChangedAt: at,
+      createdAt: ts,
+      version: 1,
+    }),
+  ),
 ];
 
 let secrets = new Map<string, Json[]>();
@@ -52,6 +73,39 @@ export const secretsOf = (teamId: string): Json[] => {
   }
   return s;
 };
+
+/** The three boot secrets AFS writes when a collaboration agent is created (managedBy afs). */
+export const addBootSecrets = (teamId: string, agentId: string): void => {
+  const list = secretsOf(teamId);
+  for (const name of BOOT_SECRET_NAMES) {
+    seq += 1;
+    list.push({
+      id: `sec_${NS}${String(400 + seq).padStart(4, "0")}`,
+      name,
+      scope: "agent",
+      agentId,
+      managedBy: "afs",
+      boundTo: [],
+      secretsManagerPath: `afs/${teamId}/agents/${agentId}/${name}`,
+      lastChangedAt: ts,
+      createdAt: ts,
+      version: 1,
+    });
+  }
+};
+
+const managed = (cur: Json): FixtureResponse | undefined =>
+  cur.managedBy === "afs" || cur.managedBy === "paperclip"
+    ? {
+        status: 409,
+        body: {
+          code: "Conflict",
+          message: `This secret is managed by ${cur.managedBy === "afs" ? "AFS" : "Paperclip"}`,
+          requestId: "req_fake_managed",
+          details: { reason: "managed_secret" },
+        },
+      }
+    : undefined;
 
 /** Records that an agent now uses a secret (called when an agent is created with a binding). */
 export const bindSecret = (teamId: string, secretId: string, agentId: string): void => {
@@ -79,7 +133,13 @@ export const secretsFixtures: readonly Fixture[] = [
   {
     method: "GET",
     path: "/v1/teams/{teamId}/secrets",
-    response: ({ params }) => ({ status: 200, body: { items: secretsOf(params.teamId ?? "") } }),
+    response: ({ params, query }) => {
+      const by = query.get("managedBy");
+      const items = secretsOf(params.teamId ?? "")
+        .map((x) => ({ ...x, managedBy: x.managedBy ?? "user" }))
+        .filter((x) => !by || x.managedBy === by);
+      return { status: 200, body: { items } };
+    },
   },
   {
     method: "POST",
@@ -87,6 +147,28 @@ export const secretsFixtures: readonly Fixture[] = [
     response: ({ params, body }) => {
       const b = body as Json;
       const list = secretsOf(params.teamId ?? "");
+      const name = String(b.name ?? "");
+      if (
+        (name === "paperclip" || name.startsWith("paperclip-")) &&
+        !(name === "paperclip-agent-api-key" && b.scope === "agent")
+      )
+        return {
+          status: 400,
+          body: {
+            code: "ValidationError",
+            message: "This name is reserved for Paperclip",
+            requestId: "req_fake_reserved",
+            details: {
+              fields: [
+                {
+                  field: "name",
+                  message: "This name is reserved for Paperclip",
+                  reason: "reserved_name",
+                },
+              ],
+            },
+          },
+        };
       if (list.some((s) => s.name === b.name)) return bad("name", "A secret with this name exists");
       seq += 1;
       const s: Json = {
@@ -122,6 +204,8 @@ export const secretsFixtures: readonly Fixture[] = [
       const i = list.findIndex((x) => x.id === params.secretId);
       const cur = list[i];
       if (!cur) return notFound();
+      const m = managed(cur);
+      if (m) return m;
       const upd = { ...cur, ...(body as Json), version: Number(cur.version) + 1 };
       list[i] = upd;
       return { status: 200, body: upd };
@@ -135,6 +219,8 @@ export const secretsFixtures: readonly Fixture[] = [
       const i = list.findIndex((x) => x.id === params.secretId);
       const cur = list[i];
       if (!cur) return notFound();
+      const m = managed(cur);
+      if (m) return m;
       if (((cur.boundTo as string[]) ?? []).length > 0)
         return {
           status: 409,
@@ -157,6 +243,8 @@ export const secretsFixtures: readonly Fixture[] = [
       const i = list.findIndex((x) => x.id === params.secretId);
       const cur = list[i];
       if (!cur) return notFound();
+      const m = managed(cur);
+      if (m) return m;
       list[i] = { ...cur, lastChangedAt: "2026-11-22T09:00:00Z", version: Number(cur.version) + 1 };
       return { status: 204 };
     },
@@ -169,6 +257,17 @@ export const secretsFixtures: readonly Fixture[] = [
       const i = list.findIndex((x) => x.id === params.secretId);
       const cur = list[i];
       if (!cur) return notFound();
+      if (cur.name === "paperclip-secrets-master-key")
+        return {
+          status: 400,
+          body: {
+            code: "ValidationError",
+            message: "Paperclip could no longer decrypt its stored identities",
+            requestId: "req_fake_master",
+            details: { reason: "master_key_not_rotatable" },
+          },
+        };
+      if (cur.managedBy === "paperclip") return managed(cur) as FixtureResponse;
       const upd = {
         ...cur,
         lastChangedAt: "2026-11-22T09:00:00Z",

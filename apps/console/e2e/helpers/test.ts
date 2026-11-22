@@ -14,7 +14,7 @@ interface Fixtures {
   observed: Observed;
   /** Signs in as a seeded user through the fake IdP and waits for the shell. */
   signInAs: (
-    user: "svc-admin" | "team-admin" | "viewer" | "sec-op",
+    user: "svc-admin" | "team-admin" | "viewer" | "collaborator" | "sec-op",
     path?: string,
   ) => Promise<void>;
 }

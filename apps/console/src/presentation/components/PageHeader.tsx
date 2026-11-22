@@ -7,8 +7,11 @@ export function PageHeader({
   description,
   infoHref,
   actions,
+  badge,
 }: {
   title: string;
+  /** A small label beside the title, for example *Paperclip*. */
+  badge?: ReactNode;
   description?: string;
   infoHref?: string;
   actions?: ReactNode;
@@ -17,7 +20,7 @@ export function PageHeader({
     <header className={s.hdr}>
       <div>
         <h1>
-          {title} {infoHref && <a href={infoHref}>Info</a>}
+          {title} {badge} {infoHref && <a href={infoHref}>Info</a>}
         </h1>
         {description && <div className={s.desc}>{description}</div>}
       </div>

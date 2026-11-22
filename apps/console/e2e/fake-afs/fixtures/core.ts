@@ -79,6 +79,34 @@ const teamPerms = {
     "revisions:restore",
     "pools:read",
     "pools:write",
+    "collaboration:read",
+    "collaboration:manage",
+    "collaboration:access",
+    "collaboration:contribute",
+    "collaboration:api",
+  ],
+  team_collaborator: [
+    "teams:read",
+    "work-orders:read",
+    "agents:read",
+    "members:read",
+    "budgets:read",
+    "revisions:read",
+    "usage:read",
+    "logs:read",
+    "models:read",
+    "secrets:read-metadata",
+    "config:read",
+    "external-systems:read",
+    "reports:read",
+    "tags:read",
+    "notifications:read",
+    "identities:read",
+    "pools:read",
+    "collaboration:read",
+    "collaboration:access",
+    "collaboration:contribute",
+    "collaboration:api",
   ],
   team_viewer: [
     "teams:read",
@@ -98,6 +126,8 @@ const teamPerms = {
     "notifications:read",
     "identities:read",
     "pools:read",
+    "collaboration:read",
+    "collaboration:access",
   ],
 };
 
@@ -183,6 +213,27 @@ export const coreFixtures: readonly Fixture[] = [
                   permissions: [
                     ...teamPerms.team_admin,
                     ...(teamGrants.awsAccounts ? ["teams:set-aws-accounts"] : []),
+                    ...(teamGrants.kubectl ? ["teams:get-kubeconfig"] : []),
+                  ],
+                },
+              ],
+            },
+          };
+        case "collaborator":
+          return {
+            status: 200,
+            body: {
+              principal: principalBody,
+              serviceAdmin: false,
+              securityOperator: false,
+              servicePermissions: [],
+              teams: [
+                {
+                  teamId: TEAMS[0].id,
+                  slug: TEAMS[0].slug,
+                  role: "team_collaborator",
+                  permissions: [
+                    ...teamPerms.team_collaborator,
                     ...(teamGrants.kubectl ? ["teams:get-kubeconfig"] : []),
                   ],
                 },

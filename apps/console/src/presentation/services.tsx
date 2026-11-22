@@ -19,6 +19,7 @@ import type { AdminServiceTagsUseCases } from "../application/usecases/adminServ
 import type { AgentsUseCases } from "../application/usecases/agents/AgentsUseCases.js";
 import type { CreateAgentUseCases } from "../application/usecases/agents-create/CreateAgentUseCases.js";
 import type { BudgetsUseCases } from "../application/usecases/budgets/BudgetsUseCases.js";
+import type { CollaborationUseCases } from "../application/usecases/collaboration/CollaborationUseCases.js";
 import type { ConfigUseCases } from "../application/usecases/config/ConfigUseCases.js";
 import type { DashboardUseCases } from "../application/usecases/dashboard/DashboardUseCases.js";
 import type { AdminExternalSystemsUseCases } from "../application/usecases/externalSystems/AdminExternalSystemsUseCases.js";
@@ -58,6 +59,7 @@ export interface AppServices {
   readonly adminModels: AdminModelsUseCases;
   readonly adminPricing: AdminPricingUseCases;
   readonly budgets: BudgetsUseCases;
+  readonly collaboration: CollaborationUseCases;
   readonly reports: ReportsUseCases;
   readonly identity: IdentityUseCases;
   readonly adminCostTagStatus: AdminCostTagStatusUseCases;

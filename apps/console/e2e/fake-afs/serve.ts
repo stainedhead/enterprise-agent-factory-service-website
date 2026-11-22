@@ -1,5 +1,6 @@
 // Starts the fake AFS API and the fake IdP for Playwright: `bun e2e/fake-afs/serve.ts`.
 
+import { holdHostname, setCollabControl } from "./fixtures/collaboration.js";
 import { serveFetch } from "./http.js";
 import { FakeIdp } from "./idp.js";
 import { FakeAfs } from "./server.js";
@@ -30,6 +31,14 @@ const control = async (req: Request, url: URL): Promise<Response | undefined> =>
   }
   if (url.pathname === "/__contract-version") {
     api.contractVersion = String(url.searchParams.get("v"));
+    return ok();
+  }
+  if (url.pathname === "/__collab") {
+    setCollabControl((await req.json()) as never);
+    return ok();
+  }
+  if (url.pathname === "/__hold-hostname") {
+    holdHostname(String(url.searchParams.get("slug")));
     return ok();
   }
   if (url.pathname === "/__idp") {

@@ -19,6 +19,7 @@ import { AdminServiceTagsUseCases } from "../application/usecases/adminServiceTa
 import { AgentsUseCases } from "../application/usecases/agents/AgentsUseCases.js";
 import { CreateAgentUseCases } from "../application/usecases/agents-create/CreateAgentUseCases.js";
 import { BudgetsUseCases } from "../application/usecases/budgets/BudgetsUseCases.js";
+import { CollaborationUseCases } from "../application/usecases/collaboration/CollaborationUseCases.js";
 import { ConfigUseCases } from "../application/usecases/config/ConfigUseCases.js";
 import { DashboardUseCases } from "../application/usecases/dashboard/DashboardUseCases.js";
 import { AdminExternalSystemsUseCases } from "../application/usecases/externalSystems/AdminExternalSystemsUseCases.js";
@@ -61,6 +62,7 @@ import { SdkAdminSecurityOperators } from "../infrastructure/sdk/adminSecurityOp
 import { SdkAdminServiceTags } from "../infrastructure/sdk/adminServiceTags.js";
 import { SdkAgents } from "../infrastructure/sdk/agents.js";
 import { SdkBudgets } from "../infrastructure/sdk/budgets.js";
+import { SdkCollaboration } from "../infrastructure/sdk/collaboration.js";
 import { SdkConfig } from "../infrastructure/sdk/config.js";
 import { SdkDashboard } from "../infrastructure/sdk/dashboard.js";
 import {
@@ -133,6 +135,7 @@ export function buildServices(
     reports: new ReportsUseCases(new SdkReports(client), clock),
     pools: new PoolsUseCases(new SdkPools(client), new SdkAgents(client), new SdkReports(client)),
     budgets: new BudgetsUseCases(new SdkBudgets(client), clock),
+    collaboration: new CollaborationUseCases(new SdkCollaboration(client)),
     settings: new SettingsUseCases(new SdkSettings(client)),
     identityProviders: new IdentityProvidersUseCases(new SdkIdentityProviders(client)),
     history: new HistoryUseCases(new SdkAudit(client), new SdkRevisions(client)),

@@ -22,8 +22,10 @@ export interface NavItem {
   readonly group: NavGroup;
   readonly label: string;
   readonly screen: ScreenId;
-  /** Screen shown instead for team viewers (V1, V2). */
+  /** Screen shown instead for team viewers (V1, V2, V3). */
   readonly viewerScreen?: ScreenId;
+  /** The permission whose absence selects the viewer screen; `agents:write` when not given. */
+  readonly writePermission?: Permission;
   readonly route: string;
   readonly visibleWhen: (me: Me, team?: NavTeam) => boolean;
 }
@@ -161,6 +163,16 @@ export const NAV_ITEMS: readonly NavItem[] = [
     screen: "T2",
     route: "/t/:teamId/agents",
     visibleWhen: teamItem("agents:read"),
+  },
+  {
+    id: "collaboration",
+    group: "Team",
+    label: "Collaboration",
+    screen: "T16",
+    viewerScreen: "V3",
+    writePermission: "collaboration:manage",
+    route: "/t/:teamId/collaboration",
+    visibleWhen: teamItem("collaboration:read"),
   },
   {
     id: "pools",
@@ -313,7 +325,7 @@ export function visibleItems(me: Me, team?: NavTeam): NavItem[] {
 /** The screen for `item` given the caller's role in its team. */
 export function screenFor(item: NavItem, me: Me, teamId?: string): ScreenId {
   if (!item.viewerScreen || !teamId) return item.screen;
-  return can(me, "agents:write", teamId) ? item.screen : item.viewerScreen;
+  return can(me, item.writePermission ?? "agents:write", teamId) ? item.screen : item.viewerScreen;
 }
 
 /** Route with `:teamId` filled in. */

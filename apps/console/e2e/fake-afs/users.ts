@@ -1,5 +1,5 @@
 /** Seeded principals shared by the fake IdP and the fake AFS API. The access token names the user. */
-export type SeedUserId = "svc-admin" | "team-admin" | "viewer" | "sec-op";
+export type SeedUserId = "svc-admin" | "team-admin" | "viewer" | "collaborator" | "sec-op";
 
 export interface SeedUser {
   readonly id: SeedUserId;
@@ -22,6 +22,12 @@ export const SEED_USERS: readonly SeedUser[] = [
     name: "Tia Teamadmin",
   },
   { id: "viewer", subject: "sub-viewer", email: "viewer@example.test", name: "Vic Viewer" },
+  {
+    id: "collaborator",
+    subject: "sub-collaborator",
+    email: "collaborator@example.test",
+    name: "Cory Collaborator",
+  },
   { id: "sec-op", subject: "sub-sec-op", email: "sec.op@example.test", name: "Sec Operator" },
 ];
 
