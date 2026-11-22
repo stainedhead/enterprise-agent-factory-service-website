@@ -7,6 +7,7 @@ import { DetailsTab } from "./tabs/details/DetailsTab.js";
 import { ExternalSystemsTab } from "./tabs/external-systems/ExternalSystemsTab.js";
 import { LogsTab } from "./tabs/logs/LogsTab.js";
 import { RevisionsTab } from "./tabs/revisions/RevisionsTab.js";
+import { UsageTab } from "./tabs/usage/UsageTab.js";
 
 export interface PanelTabProps {
   readonly teamId: string;
@@ -25,6 +26,7 @@ export const panelTabs: readonly PanelTab[] = [
   { id: "details", label: "Details", permission: "agents:read", Component: DetailsTab },
   { id: "logs", label: "Logs", permission: "logs:read", Component: LogsTab },
   { id: "revisions", label: "Revisions", permission: "revisions:read", Component: RevisionsTab },
+  { id: "usage", label: "Usage", permission: "reports:read", Component: UsageTab },
   {
     id: "external-systems",
     label: "External systems",

@@ -21,6 +21,7 @@ import {
   MembersUseCases,
 } from "../application/usecases/members/MembersUseCases.js";
 import { OverviewUseCases } from "../application/usecases/overview/OverviewUseCases.js";
+import { ReportsUseCases } from "../application/usecases/reports/ReportsUseCases.js";
 import { SecretsUseCases } from "../application/usecases/secrets/SecretsUseCases.js";
 import type { ListProviders } from "../application/usecases/session/ListProviders.js";
 import {
@@ -45,6 +46,7 @@ import {
 import { SdkAudit, SdkRevisions } from "../infrastructure/sdk/history.js";
 import { SdkApiKeys, SdkMembers } from "../infrastructure/sdk/members.js";
 import { SdkOverview, SdkWorkOrders } from "../infrastructure/sdk/overview.js";
+import { SdkReports } from "../infrastructure/sdk/reports.js";
 import { SdkSecrets } from "../infrastructure/sdk/secrets.js";
 import { SdkIdentityProviders, SdkSettings } from "../infrastructure/sdk/settings.js";
 import { SdkTeams } from "../infrastructure/sdk/teams.js";
@@ -99,6 +101,7 @@ export function buildServices(
     teams: new TeamsUseCases(teamsPort, clock),
     adminModels: new AdminModelsUseCases(adminModelsPort, clock),
     adminPricing: new AdminPricingUseCases(new SdkAdminPricing(client), adminModelsPort, clock),
+    reports: new ReportsUseCases(new SdkReports(client), clock),
     budgets: new BudgetsUseCases(new SdkBudgets(client), clock),
     settings: new SettingsUseCases(new SdkSettings(client)),
     identityProviders: new IdentityProvidersUseCases(new SdkIdentityProviders(client)),

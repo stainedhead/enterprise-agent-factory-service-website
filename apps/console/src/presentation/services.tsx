@@ -21,6 +21,7 @@ import type {
   MembersUseCases,
 } from "../application/usecases/members/MembersUseCases.js";
 import type { OverviewUseCases } from "../application/usecases/overview/OverviewUseCases.js";
+import type { ReportsUseCases } from "../application/usecases/reports/ReportsUseCases.js";
 import type { SecretsUseCases } from "../application/usecases/secrets/SecretsUseCases.js";
 import type { ListProviders } from "../application/usecases/session/ListProviders.js";
 import type {
@@ -40,6 +41,7 @@ export interface AppServices {
   readonly adminModels: AdminModelsUseCases;
   readonly adminPricing: AdminPricingUseCases;
   readonly budgets: BudgetsUseCases;
+  readonly reports: ReportsUseCases;
   readonly secrets: SecretsUseCases;
   readonly history: HistoryUseCases;
   readonly identityProviders: IdentityProvidersUseCases;

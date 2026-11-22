@@ -41,11 +41,11 @@
 | M0 Foundations | 10 (+ exit) | 69 | 69 |
 | M1 Teams & access | 10 (+ exit) | 46 | 46 |
 | M2 Agents & secrets | 7 (+ exit) | 41 | 41 |
-| M3 Spend control | 6 (+ exit) | 24 | 10 |
+| M3 Spend control | 6 (+ exit) | 24 | 17 |
 | M4 Production readiness | 8 (+ exit) | 34 | 0 |
 | M5 Budgeted workloads and swarms | 4 (+ exit) | 19 | 0 |
 | M6 CVE remediation and completion | 6 (+ exit) | 26 | 0 |
-| **Total** | **51** | **259** | **167** |
+| **Total** | **51** | **259** | **174** |
 
 ## External dependencies and contract questions
 
@@ -503,13 +503,13 @@ Owns: area files: `reports`; `presentation/screens/s8-reports/`, `presentation/s
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M3-R1 | Report page core: controls (M3-C2), charts and table; *Download CSV* downloads exactly what the API returns for the same query | WEB-US-37.1, WEB-9 | M3-K1, M3-C1, M3-C2 |
-| [ ] | M3-R2 | Activity views: working, idle and other states, utilization, *idle since* for idle agents | WEB-US-37.2 | M3-R1 |
-| [ ] | M3-R3 | Every report shows the API's `notes` (incl. non-Bedrock spend); external traffic shows counts and bytes, never a cost; *Unmetered* notices | WEB-US-37.3, WEB-9 | M3-R1 |
-| [ ] | M3-R4 | S8 *Reconciliation* tab (`/reports/reconciliation`, `ListCostReconciliations`) listing team-days over the threshold | WEB-US-37.4 | M3-R1 |
-| [ ] | M3-R5 | A viewer of team A: S8 and other teams' reports absent from navigation; routes show not-found | WEB-US-37.5 | M3-R1 |
-| [ ] | M3-R6 | T11 team tabs (budget and usage, activity, models, external systems) and T12 agent *Usage* tab (cost, calls, tokens, utilization, longest idle) | WEB-US-37.1 (part), WEB-US-37.2 (part) | M3-R1 |
-| [ ] | M3-R7 | e2e, axe, visual S8 (`22`), T11 (`23`), T12 (`24`) | WEB-US-42.1 (part), WEB-US-42.2 (part) | M3-R1..R6 |
+| [x] | M3-R1 | Report page core: controls (M3-C2), charts and table; *Download CSV* downloads exactly what the API returns for the same query | WEB-US-37.1, WEB-9 | M3-K1, M3-C1, M3-C2 |
+| [x] | M3-R2 | Activity views: working, idle and other states, utilization, *idle since* for idle agents | WEB-US-37.2 | M3-R1 |
+| [x] | M3-R3 | Every report shows the API's `notes` (incl. non-Bedrock spend); external traffic shows counts and bytes, never a cost; *Unmetered* notices | WEB-US-37.3, WEB-9 | M3-R1 |
+| [x] | M3-R4 | S8 *Reconciliation* tab (`/reports/reconciliation`, `ListCostReconciliations`) listing team-days over the threshold | WEB-US-37.4 | M3-R1 |
+| [x] | M3-R5 | A viewer of team A: S8 and other teams' reports absent from navigation; routes show not-found | WEB-US-37.5 | M3-R1 |
+| [x] | M3-R6 | T11 team tabs (budget and usage, activity, models, external systems) and T12 agent *Usage* tab (cost, calls, tokens, utilization, longest idle) | WEB-US-37.1 (part), WEB-US-37.2 (part) | M3-R1 |
+| [x] | M3-R7 | e2e, axe, visual S8 (`22`), T11 (`23`), T12 (`24`) | WEB-US-42.1 (part), WEB-US-42.2 (part) | M3-R1..R6 |
 
 ### M3-N · Notifications (T14)
 

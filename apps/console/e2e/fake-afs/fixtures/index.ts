@@ -12,6 +12,7 @@ import { externalSystemsFixtures, resetExternalSystems } from "./externalSystems
 import { historyFixtures } from "./history.js";
 import { membersFixtures, resetMembers } from "./members.js";
 import { overviewFixtures, resetOverview } from "./overview.js";
+import { reportsFixtures } from "./reports.js";
 import { resetSecrets, secretsFixtures } from "./secrets.js";
 import { resetSettings, settingsFixtures } from "./settings.js";
 import { resetTeams, teamsFixtures } from "./teams.js";
@@ -55,6 +56,7 @@ export const fixtureModules: readonly (readonly Fixture[])[] = [
   historyFixtures,
   budgetsFixtures,
   adminModelsFixtures,
+  reportsFixtures,
 ];
 
 /** Stateful fixture modules register a reset here; the server calls them on `/__reset`. */
