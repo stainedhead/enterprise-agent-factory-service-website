@@ -1,6 +1,7 @@
 import { type Mock, vi } from "vitest";
 import type { OverviewPort } from "../../application/ports/overview.js";
 import type { TeamRecord, TeamsPort } from "../../application/ports/teams.js";
+import { DashboardUseCases } from "../../application/usecases/dashboard/DashboardUseCases.js";
 import { OverviewUseCases } from "../../application/usecases/overview/OverviewUseCases.js";
 import { ListProviders } from "../../application/usecases/session/ListProviders.js";
 import { TeamsUseCases } from "../../application/usecases/teams/TeamsUseCases.js";
@@ -106,8 +107,19 @@ export function shellScreenServices(): Partial<AppServices> {
     agents: async () => [],
     recentActivity: async () => [],
   };
+  const teams = fakeTeamsPort();
   return {
-    ...teamsServices(fakeTeamsPort()),
+    ...teamsServices(teams),
     overview: new OverviewUseCases(overview, { listForTeam: async () => ({ items: [] }) }),
+    dashboard: new DashboardUseCases(
+      teams,
+      overview,
+      {
+        readiness: async () => ({ status: "ok", checks: {} }),
+        varianceDays: async () => ({ count: 0, more: false }),
+        pendingProposals: async () => ({ count: 0, more: false }),
+      },
+      { now: () => Date.parse("2026-11-22T00:00:00Z") },
+    ),
   };
 }

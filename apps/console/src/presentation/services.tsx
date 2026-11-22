@@ -1,5 +1,6 @@
 // The use cases a screen may call, built once in main/wiring.ts (architecture §3.2: one line per area).
 import { createContext, useContext } from "react";
+import type { DashboardUseCases } from "../application/usecases/dashboard/DashboardUseCases.js";
 import type {
   ApiKeysUseCases,
   MembersUseCases,
@@ -9,6 +10,7 @@ import type { ListProviders } from "../application/usecases/session/ListProvider
 import type { TeamsUseCases } from "../application/usecases/teams/TeamsUseCases.js";
 
 export interface AppServices {
+  readonly dashboard: DashboardUseCases;
   readonly apiKeys: ApiKeysUseCases;
   readonly members: MembersUseCases;
   readonly overview: OverviewUseCases;

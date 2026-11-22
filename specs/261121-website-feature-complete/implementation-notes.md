@@ -63,6 +63,8 @@ architectural ones into ADRs (`docs/architectural-decision-record.md`, ADR-005 o
 | CQ-7 | platform, IdP admins | Dev environment, seeded users, IdP SPA registrations, CloudFront and `config.json` per environment | Open; `e2e:dev` only |
 | CQ-8 | `-restapi` | `Team` and the service reports carry no agent count, so the S2 *Agents* column and the S1 agent total cannot be filled from one call | Open; S2 shows "—" (hover says why); S1 counts from the same source once available |
 | CQ-9 | `Team` has no cluster name or IAM role ARN. T1 shows the cluster as "—" and takes the ARN from a `team_shared` agent's `iamRoleArn` (shown once such an agent exists). Needs a team-level field in the API. | M1-O1 |
+| CQ-10 | No aggregate of agent counts or agent health per team: S1 reads `ListAgents` for the first 50 active teams, five at a time, and says how many teams were not read. Needs an agent count and a degraded count in a service report. | M1-D1 |
+| CQ-11 | No reconciler-health endpoint: S1 reads the `reconciler` check of `GET /readyz` (else the overall status). Needs a documented check name. | M1-D1 |
 
 ## 3. Edge cases and solutions (seeded at spec time; extend during implementation)
 
@@ -108,6 +110,7 @@ architectural ones into ADRs (`docs/architectural-decision-record.md`, ADR-005 o
 | DV-18 | The *Models* tab is `/t/:teamId?tab=models`, not `/t/:teamId/models` (M1-O2): routes are generated from `navigation.ts` items and a nav item for a tab would add a menu entry; a sub-route would be a 404. | M1-O2 |
 | DV-19 | `useTeamWriteGate` and `TeamLayout` read the team through the shared `teamKey` query, enabled only for service admins and callers bound to the team; `renderApp` (shell tests) now provides empty team and overview services via `shellScreenServices` because `/t/:id` renders the real T1. | M1-O4 |
 | DV-20 | A new API key's expiry is computed at submit as now + N days, minus one minute when N is 90, so the API's "at most 90 days ahead" holds despite clock skew (M1-M2). | M1-M2 |
+| DV-21 | S1 sums each live team's `maxBudgetUsd` as "the sum of budgets" (as S2 does) and takes month-to-date spend from the usage report grouped by team, rather than reading each team's `GetBudget` (N calls). *Reverted drift* is a `DriftCorrected=True` condition changed within 24 h on the team or one of its agents. | M1-D1, M1-D2 |
 
 ## 5. Lessons learned
 

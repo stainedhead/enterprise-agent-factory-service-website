@@ -1,5 +1,6 @@
 import type { AfsClient } from "@afs/sdk";
 import type { ClockPort } from "../application/ports/auth.js";
+import { DashboardUseCases } from "../application/usecases/dashboard/DashboardUseCases.js";
 import {
   ApiKeysUseCases,
   MembersUseCases,
@@ -7,6 +8,7 @@ import {
 import { OverviewUseCases } from "../application/usecases/overview/OverviewUseCases.js";
 import type { ListProviders } from "../application/usecases/session/ListProviders.js";
 import { TeamsUseCases } from "../application/usecases/teams/TeamsUseCases.js";
+import { SdkDashboard } from "../infrastructure/sdk/dashboard.js";
 import { SdkApiKeys, SdkMembers } from "../infrastructure/sdk/members.js";
 import { SdkOverview, SdkWorkOrders } from "../infrastructure/sdk/overview.js";
 import { SdkTeams } from "../infrastructure/sdk/teams.js";
@@ -43,11 +45,14 @@ export function buildServices(
   clock: Pick<ClockPort, "now">,
   shared: { listProviders: ListProviders },
 ): Partial<AppServices> {
+  const teamsPort = new SdkTeams(client);
+  const overviewPort = new SdkOverview(client);
   return {
     signInProviders: shared.listProviders,
-    teams: new TeamsUseCases(new SdkTeams(client), clock),
+    teams: new TeamsUseCases(teamsPort, clock),
     members: new MembersUseCases(new SdkMembers(client)),
     apiKeys: new ApiKeysUseCases(new SdkApiKeys(client), clock),
-    overview: new OverviewUseCases(new SdkOverview(client), new SdkWorkOrders(client)),
+    overview: new OverviewUseCases(overviewPort, new SdkWorkOrders(client)),
+    dashboard: new DashboardUseCases(teamsPort, overviewPort, new SdkDashboard(client), clock),
   };
 }

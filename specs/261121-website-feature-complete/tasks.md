@@ -39,13 +39,13 @@
 | Milestone | Streams | Tasks | Done |
 |---|---|---|---|
 | M0 Foundations | 10 (+ exit) | 69 | 69 |
-| M1 Teams & access | 10 (+ exit) | 46 | 34 |
+| M1 Teams & access | 10 (+ exit) | 46 | 38 |
 | M2 Agents & secrets | 7 (+ exit) | 41 | 0 |
 | M3 Spend control | 6 (+ exit) | 24 | 0 |
 | M4 Production readiness | 8 (+ exit) | 34 | 0 |
 | M5 Budgeted workloads and swarms | 4 (+ exit) | 19 | 0 |
 | M6 CVE remediation and completion | 6 (+ exit) | 26 | 0 |
-| **Total** | **51** | **259** | **103** |
+| **Total** | **51** | **259** | **107** |
 
 ## External dependencies and contract questions
 
@@ -312,10 +312,10 @@ Owns: area files: `dashboard`; `presentation/screens/s1-dashboard/`.
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M1-D1 | Team and agent counts, month-to-date spend against the sum of budgets (service report), reconciler health, top 5 spenders linking to their teams; each widget in a `WidgetBoundary` | WEB-US-12.1 | M1-Q7 |
-| [ ] | M1-D2 | *Teams needing attention*: expiring within 7 days, budget ≥ 80%, *Budget blocked*, `Degraded` agents, reverted drift in 24 h, each with reason and link | WEB-US-12.2 | M1-D1 |
-| [ ] | M1-D3 | Warning banner when a team-day is over the variance threshold or price proposals are pending, with counts and links to S8 *Reconciliation* and S4 | WEB-US-12.3 | M1-D1 |
-| [ ] | M1-D4 | e2e, axe, visual S1 (`01`) | WEB-US-42.1 (part), WEB-US-42.2 (part) | M1-D1..D3 |
+| [x] | M1-D1 | Team and agent counts, month-to-date spend against the sum of budgets (service report), reconciler health, top 5 spenders linking to their teams; each widget in a `WidgetBoundary` | WEB-US-12.1 | M1-Q7 |
+| [x] | M1-D2 | *Teams needing attention*: expiring within 7 days, budget ≥ 80%, *Budget blocked*, `Degraded` agents, reverted drift in 24 h, each with reason and link | WEB-US-12.2 | M1-D1 |
+| [x] | M1-D3 | Warning banner when a team-day is over the variance threshold or price proposals are pending, with counts and links to S8 *Reconciliation* and S4 | WEB-US-12.3 | M1-D1 |
+| [x] | M1-D4 | e2e, axe, visual S1 (`01`) | WEB-US-42.1 (part), WEB-US-42.2 (part) | M1-D1..D3 |
 
 ### M1-N · Service settings: shell, settings, identity providers (S10)
 

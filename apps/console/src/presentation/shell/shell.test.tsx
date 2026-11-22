@@ -19,6 +19,9 @@ import {
 
 const at = (h: ReturnType<typeof renderApp>) => h.router.state.location.pathname;
 
+/** The console header: a page header inside `main` is also a `<header>`, so take the first banner. */
+const findHeader = async () => (await screen.findAllByRole("banner"))[0] as HTMLElement;
+
 describe("routing (M0-H1)", () => {
   it("every nav item resolves to a route with a registered screen, and every route has a screen", () => {
     for (const item of NAV_ITEMS) {
@@ -51,7 +54,7 @@ describe("routing (M0-H1)", () => {
   });
   it("a service admin opens any team and a team user lands on their first team", async () => {
     const a = renderApp({ me: SERVICE_ADMIN, path: "/t/team_77" });
-    await screen.findByRole("banner");
+    await findHeader();
     expect(at(a)).toBe("/t/team_77");
     const b = renderApp({ me: TEAM_ADMIN, path: "/" });
     await waitFor(() => expect(at(b)).toBe("/t/team_1"));
@@ -95,7 +98,7 @@ describe("caller identity (M0-H3, H10)", () => {
   });
   it("refreshes on window focus only once stale, and after AccessDenied", async () => {
     const h = renderApp({ me: TEAM_ADMIN, path: "/t/team_1" });
-    await screen.findByRole("banner");
+    await findHeader();
     act(() => void window.dispatchEvent(new Event("focus")));
     expect(h.meGet).toHaveBeenCalledTimes(1);
     act(() => h.bus.emit(accessDenied("agents:write")));
@@ -111,7 +114,7 @@ describe("header and navigation (M0-H4..H6)", () => {
     [VIEWER, "Team viewer"],
   ])("role pill for %#", async (me, label) => {
     renderApp({ me, path: me.teams[0] ? "/t/team_1" : "/" });
-    const header = await screen.findByRole("banner");
+    const header = await findHeader();
     expect(within(header).getByText(label)).toBeTruthy();
     expect(within(header).getByText("Dev")).toBeTruthy();
     expect(
@@ -120,7 +123,7 @@ describe("header and navigation (M0-H4..H6)", () => {
   });
   it("names the team in the header and filters navigation by role", async () => {
     renderApp({ me: VIEWER, path: "/t/team_1" });
-    const header = await screen.findByRole("banner");
+    const header = await findHeader();
     expect(within(header).getByText("alpha")).toBeTruthy();
     const nav = screen.getByRole("navigation", { name: "Main" });
     const labels = visibleItems(VIEWER, { teamId: "team_1" }).map((i) => i.label);
@@ -163,7 +166,7 @@ describe("header and navigation (M0-H4..H6)", () => {
   });
   it("the shell is axe-clean", async () => {
     const h = renderApp({ me: SERVICE_ADMIN, path: "/" });
-    await screen.findByRole("banner");
+    await findHeader();
     await expectNoA11yViolations(h.view.container);
   });
 });
@@ -209,7 +212,7 @@ describe("header search (M0-H7)", () => {
 describe("notices (M0-H8, H9)", () => {
   it("names the required permission and the request id for any denied call, dismissibly", async () => {
     const h = renderApp({ me: TEAM_ADMIN, path: "/t/team_1" });
-    await screen.findByRole("banner");
+    await findHeader();
     act(() => h.bus.emit(accessDenied("agents:write")));
     const alert = await screen.findByRole("alert");
     expect(within(alert).getByText("agents:write")).toBeTruthy();
@@ -221,7 +224,7 @@ describe("notices (M0-H8, H9)", () => {
   });
   it("a denied query in the cache raises the same alert", async () => {
     const h = renderApp({ me: TEAM_ADMIN, path: "/t/team_1" });
-    await screen.findByRole("banner");
+    await findHeader();
     await h.queryClient
       .fetchQuery({ queryKey: ["x"], queryFn: () => Promise.reject(accessDenied("teams:write")) })
       .catch(() => {});
@@ -229,7 +232,7 @@ describe("notices (M0-H8, H9)", () => {
   });
   it("shows the contract notice once and lets the user dismiss it", async () => {
     const h = renderApp({ me: TEAM_ADMIN, path: "/t/team_1" });
-    await screen.findByRole("banner");
+    await findHeader();
     expect(screen.queryByText(/newer version of AFS/)).toBeNull();
     act(() => h.contractNotice.report());
     expect(await screen.findByText(/A newer version of AFS is available; reload/)).toBeTruthy();
