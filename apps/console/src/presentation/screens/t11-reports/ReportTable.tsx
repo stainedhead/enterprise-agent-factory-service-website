@@ -68,7 +68,7 @@ function cell(key: string, row: ReportRowRecord, teamId: string | undefined): Re
       return v;
     }
   }
-  if (/bytes$/i.test(key)) return bytes(num(row, key));
+  if (/^bytes|bytes(in|out)$/i.test(key)) return bytes(num(row, key));
   if (/seconds$/i.test(key)) return duration(num(row, key));
   if (key === "idleSince" && typeof v === "string") return v.replace("T", " ").slice(0, 16);
   if (typeof v === "number") return v.toLocaleString("en-GB");

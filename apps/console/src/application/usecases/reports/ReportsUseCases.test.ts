@@ -3,6 +3,7 @@ import type { ReportData, ReportsPort } from "../../ports/reports.js";
 import { ReportsUseCases } from "./ReportsUseCases.js";
 import {
   bytes,
+  bytesOf,
   chartOf,
   columnsOf,
   costOf,
@@ -96,6 +97,26 @@ describe("report reading (M3-R, CQ-16)", () => {
     expect(s.longestIdleSeconds).toBe(11400);
     expect(utilizationPct({ utilization: 0.5 })).toBe(50);
     expect(idleSeconds({}, NOW)).toBeUndefined();
+  });
+  it("reads the documented time-in-state measures and bytes in and out", () => {
+    const rows = [
+      { agent: "a", workingSeconds: 900, idleSeconds: 100, utilizationPct: 90 },
+      { agent: "b", workingSeconds: 10, idleSeconds: 500, utilizationPct: 2 },
+      { agent: "c", offSeconds: 86400 },
+      { agent: "d", impairedSeconds: 60 },
+      { agent: "e" },
+    ];
+    expect(summarizeActivity(rows, NOW)).toMatchObject({
+      working: 1,
+      idle: 1,
+      paused: 1,
+      other: 2,
+      utilizationPct: 46,
+      longestIdleSeconds: 500,
+    });
+    expect(bytesOf({ bytesOut: 10, bytesIn: 5 })).toBe(15);
+    expect(bytesOf({ bytes: 7 })).toBe(7);
+    expect(bytesOf({})).toBeUndefined();
   });
   it("lists unmetered systems from the rows", () => {
     expect(unmeteredSystems([{ system: "openai", unmetered: true }, { system: "github" }])).toEqual(

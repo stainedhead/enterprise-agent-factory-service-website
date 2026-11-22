@@ -1,6 +1,6 @@
 {
   "name": "@afs/sdk",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "TypeScript accelerator SDK for the Agent Factory Service REST API",
   "type": "module",
   "main": "./dist/index.js",

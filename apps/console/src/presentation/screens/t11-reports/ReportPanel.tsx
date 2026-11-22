@@ -2,7 +2,13 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { type ReactNode, useState } from "react";
 import { isAppError } from "../../../application/errors.js";
 import type { ReportKind, ReportScope } from "../../../application/ports/reports.js";
-import { bytes, costOf, duration, num } from "../../../application/usecases/reports/reportView.js";
+import {
+  bytes,
+  bytesOf,
+  costOf,
+  duration,
+  num,
+} from "../../../application/usecases/reports/reportView.js";
 import { format } from "../../../domain/money.js";
 import { Chart } from "../../components/charts/index.js";
 import { Alert, Button, Card } from "../../components/index.js";
@@ -145,8 +151,8 @@ export function ReportPanel(p: ReportPanelProps) {
           {p.kind === "traffic" && num(totals, "connections") !== undefined && (
             <Stat label="Connections" value={String(num(totals, "connections"))} />
           )}
-          {p.kind === "traffic" && num(totals, "bytes") !== undefined && (
-            <Stat label="Traffic" value={bytes(num(totals, "bytes"))} />
+          {p.kind === "traffic" && bytesOf(totals) !== undefined && (
+            <Stat label="Traffic" value={bytes(bytesOf(totals))} />
           )}
           {a && (
             <>

@@ -141,9 +141,31 @@ export function utilizationPct(row: ReportRowRecord): number | undefined {
   return Math.round(u <= 1 ? u * 100 : u);
 }
 
-/** The agent state of an activity row, lower-cased (`working`, `idle`, `paused`, ...). */
-export const stateOf = (row: ReportRowRecord): string =>
-  typeof row.state === "string" ? row.state.toLowerCase() : "";
+/**
+ * The agent state of an activity row, lower-cased (`working`, `idle`, `paused`, ...). Rows that carry
+ * time-in-state seconds (`workingSeconds`, `idleSeconds`, `offSeconds`, `impairedSeconds`) take the state
+ * they spent the most time in (`off` reads as `paused`, `impaired` as other).
+ */
+export function stateOf(row: ReportRowRecord): string {
+  if (typeof row.state === "string") return row.state.toLowerCase();
+  const by = [
+    ["working", num(row, "workingSeconds") ?? 0],
+    ["idle", num(row, "idleSeconds") ?? 0],
+    ["paused", num(row, "offSeconds") ?? 0],
+    ["impaired", num(row, "impairedSeconds") ?? 0],
+  ] as const;
+  const top = by.reduce((a, b) => (b[1] > a[1] ? b : a));
+  return top[1] > 0 ? top[0] : "";
+}
+
+/** Bytes moved: `bytes`, else `bytesOut` plus `bytesIn`. */
+export function bytesOf(row: ReportRowRecord): number | undefined {
+  const b = num(row, "bytes");
+  if (b !== undefined) return b;
+  const o = num(row, "bytesOut");
+  const i = num(row, "bytesIn");
+  return o === undefined && i === undefined ? undefined : (o ?? 0) + (i ?? 0);
+}
 
 /** Seconds a row has been idle: `idleSeconds`, else now minus `idleSince`. */
 export function idleSeconds(row: ReportRowRecord, now: number): number | undefined {

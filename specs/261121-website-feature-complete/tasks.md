@@ -41,11 +41,11 @@
 | M0 Foundations | 10 (+ exit) | 69 | 69 |
 | M1 Teams & access | 10 (+ exit) | 46 | 46 |
 | M2 Agents & secrets | 7 (+ exit) | 41 | 41 |
-| M3 Spend control | 6 (+ exit) | 24 | 23 |
+| M3 Spend control | 6 (+ exit) | 24 | 24 |
 | M4 Production readiness | 8 (+ exit) | 34 | 0 |
 | M5 Budgeted workloads and swarms | 4 (+ exit) | 19 | 0 |
 | M6 CVE remediation and completion | 6 (+ exit) | 26 | 0 |
-| **Total** | **51** | **259** | **180** |
+| **Total** | **51** | **259** | **181** |
 
 ## External dependencies and contract questions
 
@@ -528,7 +528,7 @@ Owns: area files: `notifications`; `presentation/screens/t14-delivery/` (page, `
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M3-X1 | Merge; gate and e2e green; viewer no-mutation e2e over M3 team screens; re-pin check; `@afs/sdk` `0.3.0` (reports); status, dashboard | WEB-US-36.1 (part) | all M3 |
+| [x] | M3-X1 | Merge; gate and e2e green; viewer no-mutation e2e over M3 team screens; re-pin check; `@afs/sdk` `0.3.0` (reports); status, dashboard | WEB-US-36.1 (part) | all M3 |
 
 ---
 

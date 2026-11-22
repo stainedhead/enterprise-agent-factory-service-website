@@ -3170,7 +3170,7 @@ components:
         rows:
           items:
             additionalProperties: true
-            description: groupBy columns, then measures; traffic rows carry counts and bytes, never a cost
+            description: groupBy columns, then measures. usage rows carry calls, inputTokens, outputTokens and costUsd; costs rows carry estimatedUsd (the gateway's metering) and billedUsd (the AWS Cost and Usage Report, once reconciled); activity rows carry workingSeconds, idleSeconds, offSeconds, impairedSeconds, modelCalls and utilizationPct; traffic rows carry connections, deniedConnections, requests, errors, bytesOut and bytesIn, never a cost. A call is a gateway request whose outcome is ok or error.
             type: object
           type: array
         totals:

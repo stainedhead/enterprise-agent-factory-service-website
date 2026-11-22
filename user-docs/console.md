@@ -96,6 +96,31 @@ outcome and resource; the filter is in the URL, so you can share it. **Download 
 matches. **Config revisions** lists revisions per resource; tick two revisions of the same resource to see
 what changed between them.
 
+## Budget and usage (`/t/<team>/budget`)
+
+Shows month-to-date spend against the budget, the forecast and the date the cap is projected to be hit, daily spend
+split between Bedrock tokens and EKS compute, and spend by agent. *Edit budget* changes the amount, period and
+thresholds; only a service admin can choose what happens at exhaustion. *Download CSV* returns the usage report.
+
+## Reports (`/t/<team>/reports`, `/t/<team>/reports/agents/<agent>`, `/reports`)
+
+Team reports have tabs for budget and usage, activity, models and external systems. Pick a range, group by and
+filters; each report has a chart with a data table alternative, the API's notes, and *Download CSV*. Traffic reports
+show counts and bytes, never a cost, and flag unmetered systems. An agent's *Usage* tab links to its report. Service
+admins also have `/reports` and *Cost reconciliation*, which lists team-days where the gateway estimate and the billed
+cost differ.
+
+## Model catalog and pricing (`/models`, service admins)
+
+Models with the price in effect now, pending price proposals to approve or reject, and each model's price history.
+
+## Notifications (`/t/<team>/delivery/notifications`)
+
+Channels (Slack, email, webhook, Jira, EventBridge) with their events and delivery status. A failed delivery shows its
+error on the channel. *Send test* sends one message and shows whether it was delivered; a pending test is followed
+until it is reported. Credentials are chosen as secrets and are never shown. Deleting a channel lists the report
+schedules that deliver to it first.
+
 ## Troubleshooting
 
 - *Page not found* for a page you expect: you may not hold the role it needs, or the team is not yours.

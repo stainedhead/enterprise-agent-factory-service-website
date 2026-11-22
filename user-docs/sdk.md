@@ -46,6 +46,19 @@ Use an npm alias so existing imports keep working:
 `import { createAfs } from "@afs/sdk"` then resolves to the published package. The alias needs the same
 `.npmrc` registry line and a token that can read the package.
 
+## Reports
+
+`createReports(client)` returns typed team, agent and service reports. Rows carry the API's measure names; `asCsv()`
+returns the CSV body exactly as the API sends it.
+
+```ts
+import { AfsClient, createReports } from "@afs/sdk";
+
+const reports = createReports(new AfsClient({ baseUrl, auth }));
+const costs = await reports.team("team_01...", "costs", { range: "30d", groupBy: ["day", "model"] });
+const csv = await reports.team("team_01...", "usage", { range: "7d" }).asCsv();
+```
+
 ## Versions
 
 Releases are cut by pushing a tag `sdk-v<version>` (for example `sdk-v0.3.0`); the version is taken from the tag.
