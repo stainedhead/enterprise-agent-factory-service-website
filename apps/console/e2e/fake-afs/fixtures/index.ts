@@ -2,6 +2,7 @@
 import type { SeedUser } from "../users.js";
 import { adminCatalogsFixtures, resetAdminCatalogs } from "./admin-catalogs.js";
 import { adminExternalSystemsFixtures } from "./admin-externalSystems.js";
+import { adminModelsFixtures, resetAdminModels } from "./admin-models.js";
 import { agentsFixtures, resetAgents } from "./agents.js";
 import { budgetsFixtures, resetBudgets } from "./budgets.js";
 import { configFixtures, resetConfig } from "./config.js";
@@ -53,6 +54,7 @@ export const fixtureModules: readonly (readonly Fixture[])[] = [
   settingsFixtures,
   historyFixtures,
   budgetsFixtures,
+  adminModelsFixtures,
 ];
 
 /** Stateful fixture modules register a reset here; the server calls them on `/__reset`. */
@@ -67,4 +69,5 @@ export const fixtureResets: readonly (() => void)[] = [
   resetMembers,
   resetSettings,
   resetBudgets,
+  resetAdminModels,
 ];

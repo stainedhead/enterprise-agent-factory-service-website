@@ -4,6 +4,10 @@ import {
   AdminAgentTemplatesUseCases,
   AdminStorageClassesUseCases,
 } from "../application/usecases/adminCatalogs/AdminCatalogsUseCases.js";
+import {
+  AdminModelsUseCases,
+  AdminPricingUseCases,
+} from "../application/usecases/adminModels/AdminModelsUseCases.js";
 import { AgentsUseCases } from "../application/usecases/agents/AgentsUseCases.js";
 import { CreateAgentUseCases } from "../application/usecases/agents-create/CreateAgentUseCases.js";
 import { BudgetsUseCases } from "../application/usecases/budgets/BudgetsUseCases.js";
@@ -29,6 +33,7 @@ import {
   SdkAdminStorageClasses,
 } from "../infrastructure/sdk/adminCatalogs.js";
 
+import { SdkAdminModels, SdkAdminPricing } from "../infrastructure/sdk/adminModels.js";
 import { SdkAgents } from "../infrastructure/sdk/agents.js";
 import { SdkBudgets } from "../infrastructure/sdk/budgets.js";
 import { SdkConfig } from "../infrastructure/sdk/config.js";
@@ -77,6 +82,7 @@ export function buildServices(
   shared: { listProviders: ListProviders },
 ): Partial<AppServices> {
   const teamsPort = new SdkTeams(client);
+  const adminModelsPort = new SdkAdminModels(client);
   const overviewPort = new SdkOverview(client);
   const agentsUseCases = new AgentsUseCases(new SdkAgents(client));
   const configValues = new ConfigUseCases(new SdkConfig(client));
@@ -91,6 +97,8 @@ export function buildServices(
     adminAgentTemplates: new AdminAgentTemplatesUseCases(new SdkAdminAgentTemplates(client)),
     createAgent: new CreateAgentUseCases(agentsUseCases, configValues),
     teams: new TeamsUseCases(teamsPort, clock),
+    adminModels: new AdminModelsUseCases(adminModelsPort, clock),
+    adminPricing: new AdminPricingUseCases(new SdkAdminPricing(client), adminModelsPort, clock),
     budgets: new BudgetsUseCases(new SdkBudgets(client), clock),
     settings: new SettingsUseCases(new SdkSettings(client)),
     identityProviders: new IdentityProvidersUseCases(new SdkIdentityProviders(client)),

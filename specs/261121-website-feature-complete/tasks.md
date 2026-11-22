@@ -41,11 +41,11 @@
 | M0 Foundations | 10 (+ exit) | 69 | 69 |
 | M1 Teams & access | 10 (+ exit) | 46 | 46 |
 | M2 Agents & secrets | 7 (+ exit) | 41 | 41 |
-| M3 Spend control | 6 (+ exit) | 24 | 8 |
+| M3 Spend control | 6 (+ exit) | 24 | 10 |
 | M4 Production readiness | 8 (+ exit) | 34 | 0 |
 | M5 Budgeted workloads and swarms | 4 (+ exit) | 19 | 0 |
 | M6 CVE remediation and completion | 6 (+ exit) | 26 | 0 |
-| **Total** | **51** | **259** | **165** |
+| **Total** | **51** | **259** | **167** |
 
 ## External dependencies and contract questions
 
@@ -494,8 +494,8 @@ Owns: area files: `admin-models`, `admin-pricing`; `presentation/screens/s4-mode
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M3-P1 | Models with effective-dated prices; pending proposals with old and new prices; *Approve*/*Reject* with confirmation and optional note; after success the row moves to price history with approver and time | WEB-US-15.1 | — |
-| [ ] | M3-P2 | e2e, axe, visual S4 (`04`) | WEB-US-42.1 (part), WEB-US-42.2 (part) | M3-P1 |
+| [x] | M3-P1 | Models with effective-dated prices; pending proposals with old and new prices; *Approve*/*Reject* with confirmation and optional note; after success the row moves to price history with approver and time | WEB-US-15.1 | — |
+| [x] | M3-P2 | e2e, axe, visual S4 (`04`) | WEB-US-42.1 (part), WEB-US-42.2 (part) | M3-P1 |
 
 ### M3-R · Reports (S8, T11, T12)
 
