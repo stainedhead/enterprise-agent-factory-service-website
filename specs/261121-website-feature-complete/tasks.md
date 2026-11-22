@@ -40,7 +40,7 @@
 |---|---|---|---|
 | M0 Foundations | 10 (+ exit) | 69 | 69 |
 | M1 Teams & access | 10 (+ exit) | 46 | 46 |
-| M2 Agents & secrets | 7 (+ exit) | 41 | 27 |
+| M2 Agents & secrets | 7 (+ exit) | 41 | 31 |
 | M3 Spend control | 6 (+ exit) | 24 | 0 |
 | M4 Production readiness | 8 (+ exit) | 34 | 0 |
 | M5 Budgeted workloads and swarms | 4 (+ exit) | 19 | 0 |
@@ -417,10 +417,10 @@ Owns: area files: `externalSystems`; `presentation/screens/t9-external-systems/`
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M2-E1 | T9 switches with inherited state; a system off at a higher level shown off and disabled naming the level; *Unmetered* badge on unmetered LLM systems | WEB-US-32.1 | — |
-| [ ] | M2-E2 | *Declare system* only when `mayAddExternalSystems`; declare, edit and delete team-declared systems | WEB-US-32.2 | M2-E1 |
-| [ ] | M2-E3 | T10 agent tab: effective access with `disabledAt`; switching a system off for one agent shows *Off at agent level* within one polling interval | WEB-US-32.3 | M2-E1, M2-A5 |
-| [ ] | M2-E4 | e2e, axe, visual T9 (`20`) and T10 (`21`) | WEB-US-42.1 (part), WEB-US-42.2 (part) | M2-E1..E3 |
+| [x] | M2-E1 | T9 switches with inherited state; a system off at a higher level shown off and disabled naming the level; *Unmetered* badge on unmetered LLM systems | WEB-US-32.1 | — |
+| [x] | M2-E2 | *Declare system* only when `mayAddExternalSystems`; declare, edit and delete team-declared systems | WEB-US-32.2 | M2-E1 |
+| [x] | M2-E3 | T10 agent tab: effective access with `disabledAt`; switching a system off for one agent shows *Off at agent level* within one polling interval | WEB-US-32.3 | M2-E1, M2-A5 |
+| [x] | M2-E4 | e2e, axe, visual T9 (`20`) and T10 (`21`) | WEB-US-42.1 (part), WEB-US-42.2 (part) | M2-E1..E3 |
 
 ### M2-F · External systems catalog (S7)
 

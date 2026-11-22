@@ -32,6 +32,8 @@ function seed(): void {
         ...coreTeam(t),
         costCenter: i === 0 ? "CC-100" : "CC-200",
         maxBudgetUsd: i === 0 ? "5000.00" : "8000.00",
+        // the first team may declare its own external systems (T9 e2e); the second may not
+        mayAddExternalSystems: i === 0,
       },
     });
   });

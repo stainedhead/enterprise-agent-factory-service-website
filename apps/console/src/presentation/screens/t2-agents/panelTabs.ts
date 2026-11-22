@@ -4,6 +4,7 @@ import type { ComponentType } from "react";
 import type { AgentRecord } from "../../../application/ports/agents.js";
 import type { Permission } from "../../../domain/permission.js";
 import { DetailsTab } from "./tabs/details/DetailsTab.js";
+import { ExternalSystemsTab } from "./tabs/external-systems/ExternalSystemsTab.js";
 import { LogsTab } from "./tabs/logs/LogsTab.js";
 import { RevisionsTab } from "./tabs/revisions/RevisionsTab.js";
 
@@ -24,4 +25,10 @@ export const panelTabs: readonly PanelTab[] = [
   { id: "details", label: "Details", permission: "agents:read", Component: DetailsTab },
   { id: "logs", label: "Logs", permission: "logs:read", Component: LogsTab },
   { id: "revisions", label: "Revisions", permission: "revisions:read", Component: RevisionsTab },
+  {
+    id: "external-systems",
+    label: "External systems",
+    permission: "external-systems:read",
+    Component: ExternalSystemsTab,
+  },
 ];
