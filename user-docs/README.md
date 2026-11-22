@@ -8,3 +8,9 @@ How to install, configure and use `@afs/sdk` and the Agent Factory web console.
 - [Console usage examples](console-examples.md): task walkthroughs and the matching `afs` commands.
 - [Installing the SDK from GitHub Packages](sdk.md): authentication, install and the `@afs/sdk` alias.
 - [SDK usage examples](sdk-examples.md): clients, pagination, updates, waiting, reports and errors.
+
+## The rest of the product
+
+These guides cover this repository only. For the service as a whole, start with the
+[service overview](https://github.com/stainedhead/enterprise-agent-factory-service#readme) and the
+[adoption guide](https://github.com/stainedhead/enterprise-agent-factory-service/blob/main/user-docs/adoption-guide.md).
