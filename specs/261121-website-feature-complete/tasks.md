@@ -44,8 +44,8 @@
 | M3 Spend control | 6 (+ exit) | 24 | 24 |
 | M4 Production readiness | 8 (+ exit) | 34 | 34 |
 | M5 Budgeted workloads and swarms | 4 (+ exit) | 19 | 19 |
-| M6 CVE remediation and completion | 6 (+ exit) | 26 | 14 |
-| **Total** | **51** | **259** | **248** |
+| M6 CVE remediation and completion | 6 (+ exit) | 26 | 17 |
+| **Total** | **51** | **259** | **251** |
 
 ## External dependencies and contract questions
 
@@ -740,9 +740,9 @@ Owns: area files: `admin-apiKeys`, `admin-securityOperators`; `presentation/scre
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M6-K1 | *Service API keys*: create with the `security_operator` role only, expiry ≤ 90 days, secret shown once; list prefix, expiry, last use; delete | WEB-US-20.5, WEB-US-11.3 (part), WEB-16 | — |
-| [ ] | M6-K2 | *Security operators*: add or remove users and IdP groups | WEB-US-20.6, WEB-16 | — |
-| [ ] | M6-K3 | e2e incl. sentinel for `CreateServiceApiKey`; axe; visual (S2 pattern) | WEB-US-11.1 (part), WEB-US-42.1 (part), WEB-US-42.2 (part) | M6-K1, M6-K2 |
+| [x] | M6-K1 | *Service API keys*: create with the `security_operator` role only, expiry ≤ 90 days, secret shown once; list prefix, expiry, last use; delete | WEB-US-20.5, WEB-US-11.3 (part), WEB-16 | — |
+| [x] | M6-K2 | *Security operators*: add or remove users and IdP groups | WEB-US-20.6, WEB-16 | — |
+| [x] | M6-K3 | e2e incl. sentinel for `CreateServiceApiKey`; axe; visual (S2 pattern) | WEB-US-11.1 (part), WEB-US-42.1 (part), WEB-US-42.2 (part) | M6-K1, M6-K2 |
 
 ### M6-Q · Quality sweep (after O, W, T, K)
 

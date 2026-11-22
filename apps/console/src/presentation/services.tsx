@@ -1,5 +1,6 @@
 // The use cases a screen may call, built once in main/wiring.ts (architecture §3.2: one line per area).
 import { createContext, useContext } from "react";
+import type { AdminApiKeysUseCases } from "../application/usecases/adminApiKeys/AdminApiKeysUseCases.js";
 import type { AdminAuditUseCases } from "../application/usecases/adminAudit/AdminAuditUseCases.js";
 import type {
   AdminAgentTemplatesUseCases,
@@ -13,6 +14,7 @@ import type {
 } from "../application/usecases/adminModels/AdminModelsUseCases.js";
 import type { AdminNotificationChannelsUseCases } from "../application/usecases/adminNotificationChannels/AdminNotificationChannelsUseCases.js";
 import type { AdminOrgAccountsUseCases } from "../application/usecases/adminOrgAccounts/AdminOrgAccountsUseCases.js";
+import type { AdminSecurityOperatorsUseCases } from "../application/usecases/adminSecurityOperators/AdminSecurityOperatorsUseCases.js";
 import type { AdminServiceTagsUseCases } from "../application/usecases/adminServiceTags/AdminServiceTagsUseCases.js";
 import type { AgentsUseCases } from "../application/usecases/agents/AgentsUseCases.js";
 import type { CreateAgentUseCases } from "../application/usecases/agents-create/CreateAgentUseCases.js";
@@ -78,6 +80,8 @@ export interface AppServices {
   readonly settings: SettingsUseCases;
   readonly dashboard: DashboardUseCases;
   readonly apiKeys: ApiKeysUseCases;
+  readonly adminApiKeys: AdminApiKeysUseCases;
+  readonly adminSecurityOperators: AdminSecurityOperatorsUseCases;
   readonly members: MembersUseCases;
   readonly overview: OverviewUseCases;
   readonly teams: TeamsUseCases;

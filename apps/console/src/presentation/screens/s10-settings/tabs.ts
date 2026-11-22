@@ -5,6 +5,8 @@ import type { Permission } from "../../../domain/permission.js";
 import { AgentTemplatesTab } from "./tabs/agent-templates/AgentTemplatesTab.js";
 import { IdentityProvidersTab } from "./tabs/identity-providers/IdentityProvidersTab.js";
 import { NotificationChannelsTab } from "./tabs/notification-channels/NotificationChannelsTab.js";
+import { SecurityOperatorsTab } from "./tabs/security-operators/SecurityOperatorsTab.js";
+import { ServiceApiKeysTab } from "./tabs/service-api-keys/ServiceApiKeysTab.js";
 import { SettingsTab } from "./tabs/settings/SettingsTab.js";
 import { StorageClassesTab } from "./tabs/storage-classes/StorageClassesTab.js";
 
@@ -42,5 +44,17 @@ export const sections: readonly SettingsSection[] = [
     label: "Notification channels",
     permission: "admin:settings",
     Component: NotificationChannelsTab,
+  },
+  {
+    id: "service-api-keys",
+    label: "Service API keys",
+    permission: "admin:settings",
+    Component: ServiceApiKeysTab,
+  },
+  {
+    id: "security-operators",
+    label: "Security operators",
+    permission: "admin:settings",
+    Component: SecurityOperatorsTab,
   },
 ];

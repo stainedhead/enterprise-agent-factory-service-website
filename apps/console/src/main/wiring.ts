@@ -1,5 +1,6 @@
 import type { AfsClient } from "@afs/sdk";
 import type { ClockPort } from "../application/ports/auth.js";
+import { AdminApiKeysUseCases } from "../application/usecases/adminApiKeys/AdminApiKeysUseCases.js";
 import { AdminAuditUseCases } from "../application/usecases/adminAudit/AdminAuditUseCases.js";
 import {
   AdminAgentTemplatesUseCases,
@@ -13,6 +14,7 @@ import {
 } from "../application/usecases/adminModels/AdminModelsUseCases.js";
 import { AdminNotificationChannelsUseCases } from "../application/usecases/adminNotificationChannels/AdminNotificationChannelsUseCases.js";
 import { AdminOrgAccountsUseCases } from "../application/usecases/adminOrgAccounts/AdminOrgAccountsUseCases.js";
+import { AdminSecurityOperatorsUseCases } from "../application/usecases/adminSecurityOperators/AdminSecurityOperatorsUseCases.js";
 import { AdminServiceTagsUseCases } from "../application/usecases/adminServiceTags/AdminServiceTagsUseCases.js";
 import { AgentsUseCases } from "../application/usecases/agents/AgentsUseCases.js";
 import { CreateAgentUseCases } from "../application/usecases/agents-create/CreateAgentUseCases.js";
@@ -44,6 +46,7 @@ import { TagsUseCases } from "../application/usecases/tags/TagsUseCases.js";
 import { TeamDirectoryUseCases } from "../application/usecases/teamDirectory/TeamDirectoryUseCases.js";
 import { TeamsUseCases } from "../application/usecases/teams/TeamsUseCases.js";
 import { WorkOrdersUseCases } from "../application/usecases/workOrders/WorkOrdersUseCases.js";
+import { SdkAdminApiKeys } from "../infrastructure/sdk/adminApiKeys.js";
 import { SdkAdminAudit } from "../infrastructure/sdk/adminAudit.js";
 import {
   SdkAdminAgentTemplates,
@@ -54,6 +57,7 @@ import { SdkAdminExports } from "../infrastructure/sdk/adminExports.js";
 import { SdkAdminModels, SdkAdminPricing } from "../infrastructure/sdk/adminModels.js";
 import { SdkAdminNotificationChannels } from "../infrastructure/sdk/adminNotificationChannels.js";
 import { SdkAdminOrgAccounts } from "../infrastructure/sdk/adminOrgAccounts.js";
+import { SdkAdminSecurityOperators } from "../infrastructure/sdk/adminSecurityOperators.js";
 import { SdkAdminServiceTags } from "../infrastructure/sdk/adminServiceTags.js";
 import { SdkAgents } from "../infrastructure/sdk/agents.js";
 import { SdkBudgets } from "../infrastructure/sdk/budgets.js";
@@ -156,6 +160,10 @@ export function buildServices(
     history: new HistoryUseCases(new SdkAudit(client), new SdkRevisions(client)),
     members: new MembersUseCases(new SdkMembers(client)),
     apiKeys: new ApiKeysUseCases(new SdkApiKeys(client), clock),
+    adminApiKeys: new AdminApiKeysUseCases(new SdkAdminApiKeys(client), clock),
+    adminSecurityOperators: new AdminSecurityOperatorsUseCases(
+      new SdkAdminSecurityOperators(client),
+    ),
     overview: new OverviewUseCases(overviewPort, workOrdersPort),
     workOrders: new WorkOrdersUseCases(workOrdersPort),
     teamDirectory: new TeamDirectoryUseCases(new SdkTeamDirectory(client)),

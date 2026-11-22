@@ -230,6 +230,10 @@ A work order's page shows its SLA, the remediation team and spend against the ca
 
 *Swarm templates* lists the templates a work order's remediation team is built from, with state, spend cap, time to live, teardown rule and version; select one to see its stages, pools, handoffs, secrets needed and configuration. Service admins create, edit, enable, disable and delete templates (a new template starts disabled; a template used by an open work order cannot be deleted). The spec is edited as JSON with the sections `stages`, `pools`, `handoffs`, `secrets` and `configValues`. Security operators see the page read-only; a disabled template is not offered when creating a work order.
 
+## Service API keys and security operators (`/settings/service-api-keys`, `/settings/security-operators`, service admins)
+
+*Service API keys* are keys for automation, such as a pipeline that raises work orders. They always act as a security operator, last at most 90 days (30 by default) and are listed with their prefix, expiry and last use. The secret is shown once, when the key is created, and cannot be shown again; if a create is retried the console says so, and you delete the key and create a new one. *Security operators* lists the people and IdP groups bound to the security operator role; service admins add or remove them. Both pages show the equivalent `afs admin` command.
+
 ## Troubleshooting
 
 - *Page not found* for a page you expect: you may not hold the role it needs, or the team is not yours.

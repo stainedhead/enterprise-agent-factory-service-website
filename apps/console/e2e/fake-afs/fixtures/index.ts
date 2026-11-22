@@ -1,5 +1,6 @@
 // Shared list: one fixture module per area, added by the area stream.
 import type { SeedUser } from "../users.js";
+import { adminApiKeysFixtures, resetAdminApiKeys } from "./admin-apiKeys.js";
 import { adminAuditFixtures } from "./admin-audit.js";
 import { adminCatalogsFixtures, resetAdminCatalogs } from "./admin-catalogs.js";
 import { adminCostTagStatusFixtures } from "./admin-costTagStatus.js";
@@ -90,6 +91,7 @@ export const fixtureModules: readonly (readonly Fixture[])[] = [
   reportSchedulesFixtures,
   adminNotificationChannelsFixtures,
   poolsFixtures,
+  adminApiKeysFixtures,
 ];
 
 /** Stateful fixture modules register a reset here; the server calls them on `/__reset`. */
@@ -116,4 +118,5 @@ export const fixtureResets: readonly (() => void)[] = [
   resetPools,
   resetWorkOrders,
   resetSwarmTemplates,
+  resetAdminApiKeys,
 ];
