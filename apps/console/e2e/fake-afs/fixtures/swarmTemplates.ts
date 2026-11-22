@@ -1,4 +1,5 @@
-import type { Fixture } from "./index.js";
+import type { Fixture, FixtureContext } from "./index.js";
+import { openOrdersUsing } from "./workOrders.js";
 
 type Json = Record<string, unknown>;
 
@@ -58,11 +59,106 @@ export const resetSwarmTemplates = (): void => {
   templates = seedTemplates();
 };
 
-/** Swarm templates (P5; read by *Create work order*). */
+const isOperator = (c: FixtureContext) =>
+  c.principal?.id === "svc-admin" || c.principal?.id === "sec-op";
+const denied = (permission: string) => ({
+  status: 403,
+  body: {
+    code: "AccessDenied",
+    message: `Requires ${permission}`,
+    requestId: "req_fake_ad",
+    details: { requiredPermission: permission },
+  },
+});
+const err = (status: number, code: string, message: string) => ({
+  status,
+  body: { code, message, requestId: "req_fake_err", details: {} },
+});
+const find = (id: string | undefined) => templates.findIndex((t) => t.id === id);
+let seq = 100;
+
+/** Swarm templates (P5; read by *Create work order*): service admins write, security operators read. */
 export const swarmTemplatesFixtures: readonly Fixture[] = [
   {
     method: "GET",
     path: "/v1/admin/swarm-templates",
-    response: () => ({ status: 200, body: { items: templates } }),
+    response: (c) =>
+      isOperator(c) ? { status: 200, body: { items: templates } } : denied("swarm-templates:read"),
   },
+  {
+    method: "POST",
+    path: "/v1/admin/swarm-templates",
+    response: (c) => {
+      if (c.principal?.id !== "svc-admin") return denied("admin:swarm-templates");
+      const b = c.body as Json;
+      if (templates.some((t) => t.name === b.name))
+        return err(409, "Conflict", `A template named ${String(b.name)} already exists`);
+      seq += 1;
+      const t: Json = {
+        ...b,
+        id: `swt_${NS}${String(seq).padStart(4, "0")}`,
+        enabled: b.enabled ?? false,
+        createdAt: ts,
+        updatedAt: ts,
+        version: 1,
+      };
+      templates = [...templates, t];
+      return { status: 201, body: t };
+    },
+  },
+  {
+    method: "GET",
+    path: "/v1/admin/swarm-templates/{templateId}",
+    response: (c) => {
+      if (!isOperator(c)) return denied("swarm-templates:read");
+      const t = templates[find(c.params.templateId)];
+      return t ? { status: 200, body: t } : err(404, "NotFound", "Template not found");
+    },
+  },
+  {
+    method: "PATCH",
+    path: "/v1/admin/swarm-templates/{templateId}",
+    response: (c) => {
+      if (c.principal?.id !== "svc-admin") return denied("admin:swarm-templates");
+      const i = find(c.params.templateId);
+      const t = templates[i];
+      if (!t) return err(404, "NotFound", "Template not found");
+      const next = { ...t, ...(c.body as Json), updatedAt: ts, version: Number(t.version) + 1 };
+      templates[i] = next;
+      return { status: 200, body: next };
+    },
+  },
+  {
+    method: "DELETE",
+    path: "/v1/admin/swarm-templates/{templateId}",
+    response: (c) => {
+      if (c.principal?.id !== "svc-admin") return denied("admin:swarm-templates");
+      const t = templates[find(c.params.templateId)];
+      if (!t) return err(404, "NotFound", "Template not found");
+      if (openOrdersUsing(String(t.id)))
+        return err(409, "Conflict", "An open work order uses this template");
+      templates = templates.filter((x) => x.id !== t.id);
+      return { status: 204 };
+    },
+  },
+  ...(["enable", "disable"] as const).map(
+    (verb): Fixture => ({
+      method: "POST",
+      path: `/v1/admin/swarm-templates/{templateId}:${verb}`,
+      response: (c) => {
+        if (c.principal?.id !== "svc-admin") return denied("admin:swarm-templates");
+        const i = find(c.params.templateId);
+        const t = templates[i];
+        if (!t) return err(404, "NotFound", "Template not found");
+        const next = {
+          ...t,
+          enabled: verb === "enable",
+          version: Number(t.version) + 1,
+          updatedAt: ts,
+        };
+        templates[i] = next;
+        return { status: 200, body: next };
+      },
+    }),
+  ),
 ];

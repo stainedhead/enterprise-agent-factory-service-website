@@ -131,6 +131,12 @@ export function fakeSwarmTemplatesPort(
       aSwarmTemplate(),
       aSwarmTemplate({ id: "swt_2", name: "retired", enabled: false }),
     ]),
+    get: vi.fn(async () => aSwarmTemplate()),
+    create: vi.fn(async () => aSwarmTemplate()),
+    update: vi.fn(async () => aSwarmTemplate({ version: 2 })),
+    delete: vi.fn(async () => undefined),
+    enable: vi.fn(async () => aSwarmTemplate({ enabled: true })),
+    disable: vi.fn(async () => aSwarmTemplate({ enabled: false })),
     ...over,
   } as unknown as FakeSwarmTemplatesPort;
 }

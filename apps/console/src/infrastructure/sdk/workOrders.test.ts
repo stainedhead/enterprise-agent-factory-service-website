@@ -199,3 +199,71 @@ describe("SdkTeamDirectory and SdkSwarmTemplates (M6-W1)", () => {
     });
   });
 });
+
+describe("SdkSwarmTemplates writes (M6-T1)", () => {
+  const wire = {
+    id: "swt_1",
+    name: "cve",
+    kind: "cve_remediation",
+    spec: { stages: [{ name: "a" }], pools: [{ name: "b" }] },
+    budgetUsd: "500.00",
+    ttlHours: 72,
+    teardownRule: "at_expiry",
+    enabled: false,
+    version: 2,
+  };
+  it("creates, gets, updates with If-Match, enables, disables and deletes", async () => {
+    const { client, calls } = fakeApi(
+      on("POST", "/v1/admin/swarm-templates", () => json(wire, 201)),
+      on("GET", "/v1/admin/swarm-templates/swt_1", () => json(wire)),
+      on("PATCH", "/v1/admin/swarm-templates/swt_1", () => json({ ...wire, version: 3 })),
+      on("POST", "/v1/admin/swarm-templates/swt_1:enable", () => json({ ...wire, enabled: true })),
+      on("POST", "/v1/admin/swarm-templates/swt_1:disable", () => json(wire)),
+      on("DELETE", "/v1/admin/swarm-templates/swt_1", () => json({}, 204)),
+    );
+    const port = new SdkSwarmTemplates(client);
+    const made = await port.create({
+      name: "cve",
+      kind: "cve_remediation",
+      description: "d",
+      budgetUsd: "500.00",
+      ttlHours: 72,
+      teardownRule: "at_expiry",
+      enabled: false,
+      spec: wire.spec,
+    });
+    expect(made.id).toBe("swt_1");
+    expect((await port.get("swt_1")).name).toBe("cve");
+    const upd = await port.update(
+      { id: "swt_1", version: 2 },
+      {
+        description: "x",
+        budgetUsd: "600.00",
+        ttlHours: 96,
+        teardownRule: "at_cap_or_expiry",
+        spec: wire.spec,
+      },
+    );
+    expect(upd.version).toBe(3);
+    expect(calls.find((c) => c.method === "PATCH")?.headers.get("if-match")).toBe('"2"');
+    expect((await port.enable("swt_1")).enabled).toBe(true);
+    expect((await port.disable("swt_1")).enabled).toBe(false);
+    await port.delete({ id: "swt_1", version: 3 });
+    expect(calls.find((c) => c.method === "DELETE")?.headers.get("if-match")).toBe('"3"');
+  });
+  it("maps a delete refused while a work order uses the template", async () => {
+    const { client } = fakeApi(
+      on("DELETE", "/v1/admin/swarm-templates/swt_1", () =>
+        json(
+          { code: "Conflict", message: "An open work order uses it", requestId: "r", details: {} },
+          409,
+        ),
+      ),
+    );
+    await expect(
+      new SdkSwarmTemplates(client).delete({ id: "swt_1", version: 2 }),
+    ).rejects.toMatchObject({
+      kind: "conflict",
+    });
+  });
+});

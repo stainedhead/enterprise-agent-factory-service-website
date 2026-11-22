@@ -44,8 +44,8 @@
 | M3 Spend control | 6 (+ exit) | 24 | 24 |
 | M4 Production readiness | 8 (+ exit) | 34 | 34 |
 | M5 Budgeted workloads and swarms | 4 (+ exit) | 19 | 19 |
-| M6 CVE remediation and completion | 6 (+ exit) | 26 | 11 |
-| **Total** | **51** | **259** | **245** |
+| M6 CVE remediation and completion | 6 (+ exit) | 26 | 14 |
+| **Total** | **51** | **259** | **248** |
 
 ## External dependencies and contract questions
 
@@ -730,9 +730,9 @@ Owns: area files: `swarmTemplates`; `presentation/screens/p5-swarm-templates/`.
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M6-T1 | Service admins create and edit templates (stages, pools, handoffs, secrets needed, configuration, cap, TTL, teardown), see revisions, enable/disable; a disabled template is not offered in *Create work order* | WEB-US-41.1, WEB-13 | — |
-| [ ] | M6-T2 | Security operators see the page read-only; team roles do not see it (not-found) | WEB-US-41.2, D37 | M6-T1 |
-| [ ] | M6-T3 | e2e, axe, visual P5 (`28`) | WEB-US-42.1 (part), WEB-US-42.2 (part) | M6-T1, M6-T2 |
+| [x] | M6-T1 | Service admins create and edit templates (stages, pools, handoffs, secrets needed, configuration, cap, TTL, teardown), see revisions, enable/disable; a disabled template is not offered in *Create work order* | WEB-US-41.1, WEB-13 | — |
+| [x] | M6-T2 | Security operators see the page read-only; team roles do not see it (not-found) | WEB-US-41.2, D37 | M6-T1 |
+| [x] | M6-T3 | e2e, axe, visual P5 (`28`) | WEB-US-42.1 (part), WEB-US-42.2 (part) | M6-T1, M6-T2 |
 
 ### M6-K · Service API keys and security operators (S10)
 

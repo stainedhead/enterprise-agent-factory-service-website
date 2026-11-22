@@ -22,6 +22,42 @@ export interface SwarmTemplateSpec {
   readonly configValues?: readonly Readonly<Record<string, unknown>>[] | undefined;
 }
 
-export interface SwarmTemplatesPort {
+export interface SwarmTemplatesReadPort {
   list(signal?: AbortSignal): Promise<readonly SwarmTemplateRecord[]>;
 }
+
+export type TeardownRule = "at_expiry" | "at_cap_or_expiry" | "at_work_complete";
+
+export interface SwarmTemplateInput {
+  readonly name: string;
+  readonly kind: "cve_remediation" | "general";
+  readonly description?: string | undefined;
+  readonly budgetUsd: string;
+  readonly ttlHours: number;
+  readonly teardownRule: TeardownRule;
+  readonly enabled: boolean;
+  readonly spec: SwarmTemplateSpec;
+}
+
+export interface SwarmTemplatePatch {
+  readonly description?: string | undefined;
+  readonly budgetUsd?: string | undefined;
+  readonly ttlHours?: number | undefined;
+  readonly teardownRule?: TeardownRule | undefined;
+  readonly spec?: SwarmTemplateSpec | undefined;
+}
+
+export interface SwarmTemplatesWritePort {
+  get(id: string, signal?: AbortSignal): Promise<SwarmTemplateRecord>;
+  create(input: SwarmTemplateInput): Promise<SwarmTemplateRecord>;
+  /** Replaces the changed fields; `version` is sent as `If-Match`. */
+  update(
+    ref: { id: string; version?: number | undefined },
+    patch: SwarmTemplatePatch,
+  ): Promise<SwarmTemplateRecord>;
+  delete(ref: { id: string; version?: number | undefined }): Promise<void>;
+  enable(id: string): Promise<SwarmTemplateRecord>;
+  disable(id: string): Promise<SwarmTemplateRecord>;
+}
+
+export interface SwarmTemplatesPort extends SwarmTemplatesReadPort, SwarmTemplatesWritePort {}

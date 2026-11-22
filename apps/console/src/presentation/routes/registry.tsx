@@ -20,6 +20,7 @@ export const registry: Record<Exclude<ScreenId, "AUTH" | "NOT_FOUND">, ScreenCom
   // P2 (create an ephemeral team) is the budget-step variant of S3, so it shares S3's page
   P2: lazy(() => import("../screens/s3-create-team/index.js")),
   P3: lazy(() => import("../screens/p3-work-orders/index.js")),
+  P5: lazy(() => import("../screens/p5-swarm-templates/index.js")),
   P6: lazy(() => import("../screens/p6-work-order/index.js")),
   P4: lazy(() => import("../screens/p4-pools/index.js")),
   S1: lazy(() => import("../screens/s1-dashboard/index.js")),

@@ -226,6 +226,10 @@ A security operator signs in to a reduced console: the header shows *Security op
 
 A work order's page shows its SLA, the remediation team and spend against the cap, and one row per repository with its status, pull request and notifications sent. Cancelling asks for a reason. Team admins and viewers of an owning team can open it read-only and see only their own repositories. The form shows the equivalent `afs work-orders create-work-order` command.
 
+## Swarm templates
+
+*Swarm templates* lists the templates a work order's remediation team is built from, with state, spend cap, time to live, teardown rule and version; select one to see its stages, pools, handoffs, secrets needed and configuration. Service admins create, edit, enable, disable and delete templates (a new template starts disabled; a template used by an open work order cannot be deleted). The spec is edited as JSON with the sections `stages`, `pools`, `handoffs`, `secrets` and `configValues`. Security operators see the page read-only; a disabled template is not offered when creating a work order.
+
 ## Troubleshooting
 
 - *Page not found* for a page you expect: you may not hold the role it needs, or the team is not yours.

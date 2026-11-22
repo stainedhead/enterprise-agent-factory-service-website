@@ -1,11 +1,11 @@
 import { TEAMS } from "./core.js";
 import type { Fixture, FixtureContext } from "./index.js";
-import { TEMPLATE_IDS } from "./swarmTemplates.js";
 
 type Json = Record<string, unknown>;
 
 const ts = "2026-11-21T18:00:00Z";
 const NS = "01JD2Q3R4S5T6V7W8X9Y0Z";
+const TEMPLATE_IDS = [`swt_${NS}0001`] as const;
 export const WORK_ORDER_IDS = [`wo_${NS}0001`, `wo_${NS}0002`, `wo_${NS}0003`] as const;
 
 const progress = (repos: number, over: Json = {}): Json => ({
@@ -109,6 +109,13 @@ export const resetWorkOrders = (): void => {
   repos = seedRepos();
   seq = 100;
 };
+
+/** Whether an open work order uses the template (a delete is refused while one does). */
+export const openOrdersUsing = (templateId: string): boolean =>
+  orders.some(
+    (o) =>
+      o.templateId === templateId && !["done", "failed", "cancelled"].includes(String(o.status)),
+  );
 
 const notFound = {
   status: 404,
