@@ -188,6 +188,14 @@ The service's own email, Slack, webhook and Jira channels, with their events and
 disable and delete them. A channel's credential is a reference to a secret, never a value. Deleting the channel that
 work orders name is refused by the API; disable it instead.
 
+## Ephemeral teams
+
+Choose *Ephemeral* as the kind when creating a team. The budget step then takes a lifetime budget (it never resets and
+calls stop at the cap), an expiry date (at most the service's `teams.ephemeral_max_days` ahead) and a teardown rule:
+*at expiry or cap, whichever first* (the default) or *at expiry only*. An estimate shows the daily cost (type your own, or
+the budget is spread evenly) and the day the cap would be reached. An ephemeral team's overview has an *Ephemeral team*
+card with the time to expiry and the spend against the cap, and after teardown when and why it happened.
+
 ## Troubleshooting
 
 - *Page not found* for a page you expect: you may not hold the role it needs, or the team is not yours.

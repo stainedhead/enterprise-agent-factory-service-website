@@ -95,6 +95,8 @@ export const teamsFixtures: readonly Fixture[] = [
         maxBudgetUsd: b.maxBudgetUsd,
         effectiveCeilingUsd: b.maxBudgetUsd,
         ...(b.costCenter ? { costCenter: b.costCenter } : {}),
+        ...(b.expiresAt ? { expiresAt: b.expiresAt } : {}),
+        ...(b.teardownRule ? { teardownRule: b.teardownRule } : {}),
         status: status("Pending"),
         generation: 1,
       };

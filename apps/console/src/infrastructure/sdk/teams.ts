@@ -77,6 +77,7 @@ export class SdkTeams implements TeamsPort {
         ...(input.budget && {
           budget: {
             amountUsd: money(input.budget.amountUsd),
+            ...(input.budget.period && { period: input.budget.period }),
             ...(input.budget.thresholds && { thresholds: [...input.budget.thresholds] }),
           },
         }),

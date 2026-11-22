@@ -29,6 +29,11 @@ import { queryKey } from "../../query/keys.js";
 import { useService } from "../../services.js";
 import { useMe } from "../../shell/ShellContext.js";
 import { budgetStepVariants } from "./budgetStepVariants.js";
+import {
+  EphemeralBudgetStep,
+  ephemeralReview,
+  useEphemeralMaxDays,
+} from "./ephemeral/EphemeralBudgetStep.js";
 
 const STEPS: { id: StepId; title: string }[] = [
   { id: "details", title: "Details" },
@@ -52,6 +57,8 @@ export function cliValues(d: TeamDraft): Record<string, CliValue> {
     models: i.models as readonly string[] | undefined,
     tags: i.tags && i.tags.length > 0 ? [...i.tags] : undefined,
     budget: i.budget,
+    expiresAt: i.expiresAt,
+    teardownRule: i.teardownRule,
     firstAdmin: i.firstAdmin,
   };
 }
@@ -78,7 +85,10 @@ export function CreateTeamPage() {
   const catalog = (modelsQ.data ?? []).filter((m) => m.enabled);
   const set = <K extends keyof TeamDraft>(k: K, v: TeamDraft[K]) =>
     setDraft((d) => ({ ...d, [k]: v }));
-  const errs = (step: StepId) => validateStep(step, draft, tags);
+  const maxDays = useEphemeralMaxDays();
+  const [now] = useState(() => new Date());
+  const errs = (step: StepId) =>
+    validateStep(step, draft, tags, { ephemeralMaxDays: maxDays, now });
   const server = serverError?.kind === "validation" ? serverError.fields : {};
   const variant = budgetStepVariants[draft.kind];
   const [busy, setBusy] = useState(false);
@@ -231,7 +241,20 @@ export function CreateTeamPage() {
       valid: Object.keys(errs("budget")).length === 0,
       content: (
         <div>
-          {variant.fields.includes("maxBudgetUsd") && (
+          {draft.kind === "ephemeral" && (
+            <EphemeralBudgetStep
+              budget={draft.maxBudgetUsd}
+              thresholds={draft.thresholds}
+              draft={draft.ephemeral}
+              maxDays={maxDays}
+              errors={{ ...errs("budget"), ...server }}
+              now={now}
+              onBudget={(v) => set("maxBudgetUsd", v)}
+              onThresholds={(v) => set("thresholds", v)}
+              onChange={(v) => set("ephemeral", v)}
+            />
+          )}
+          {draft.kind !== "ephemeral" && variant.fields.includes("maxBudgetUsd") && (
             <FormField
               label="Monthly budget (USD)"
               hint="A decimal amount such as 5000.00"
@@ -247,7 +270,7 @@ export function CreateTeamPage() {
               />
             </FormField>
           )}
-          {variant.fields.includes("thresholds") && (
+          {draft.kind !== "ephemeral" && variant.fields.includes("thresholds") && (
             <FormField
               label="Alert thresholds (%)"
               hint="Comma separated, for example 50, 80, 100"
@@ -340,7 +363,11 @@ export function CreateTeamPage() {
                 .join(", ") || "—",
           },
           { label: "Models", value: draft.models.join(", ") || "—" },
-          { label: "Budget", value: draft.maxBudgetUsd ? safeFormat(draft.maxBudgetUsd) : "—" },
+          {
+            label: draft.kind === "ephemeral" ? "Lifetime budget" : "Budget",
+            value: draft.maxBudgetUsd ? safeFormat(draft.maxBudgetUsd) : "—",
+          },
+          ...(draft.kind === "ephemeral" ? ephemeralReview(draft.ephemeral) : []),
           { label: "Alert thresholds", value: draft.thresholds || "—" },
           {
             label: "First admin",

@@ -49,6 +49,9 @@ export interface TeamRecord {
   readonly mayManageAwsAccounts: boolean;
   readonly allowedAwsAccounts: readonly string[];
   readonly teardownRule?: string;
+  /** When an ephemeral team was torn down, and why (`expired`, `cap_reached`, `work_complete`, `manual`). */
+  readonly tornDownAt?: string;
+  readonly teardownReason?: string;
   readonly quotas?: QuotasRecord;
 }
 
@@ -69,7 +72,7 @@ export interface CreateTeamInput {
   readonly identityProviderId?: string;
   readonly models?: readonly string[];
   readonly tags?: readonly { key: string; value: string }[];
-  readonly budget?: { amountUsd: string; thresholds?: readonly number[] };
+  readonly budget?: { amountUsd: string; period?: "lifetime"; thresholds?: readonly number[] };
   readonly firstAdmin: FirstAdminInput;
   readonly expiresAt?: string;
   readonly teardownRule?: string;

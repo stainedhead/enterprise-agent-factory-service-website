@@ -1,6 +1,13 @@
 import { compare, parse } from "../../../domain/money.js";
 import { isValidName } from "../../../domain/names.js";
 import type { CreateTeamInput, ServiceTagRecord } from "../../ports/teams.js";
+import {
+  DEFAULT_EPHEMERAL_MAX_DAYS,
+  type EphemeralDraft,
+  emptyEphemeral,
+  expiryTimestamp,
+  validateEphemeral,
+} from "./ephemeral.js";
 
 /** The S3 wizard's form state (strings, as typed). */
 export interface TeamDraft {
@@ -20,6 +27,8 @@ export interface TeamDraft {
   adminType: "user" | "group";
   adminEmail: string;
   adminGroup: string;
+  /** Lifetime, expiry and teardown of an ephemeral team (M5-E); used only when `kind` is `ephemeral`. */
+  ephemeral: EphemeralDraft;
 }
 
 export const emptyTeamDraft = (): TeamDraft => ({
@@ -37,6 +46,7 @@ export const emptyTeamDraft = (): TeamDraft => ({
   adminType: "user",
   adminEmail: "",
   adminGroup: "",
+  ephemeral: emptyEphemeral(),
 });
 
 export type StepId = "details" | "models" | "budget" | "members";
@@ -53,6 +63,7 @@ export function validateStep(
   step: StepId,
   d: TeamDraft,
   tags: readonly ServiceTagRecord[],
+  opts: { ephemeralMaxDays?: number; now?: Date } = {},
 ): FieldErrors {
   const e: Record<string, string> = {};
   if (step === "details") {
@@ -69,7 +80,19 @@ export function validateStep(
     }
   }
   if (step === "models" && d.models.length === 0) e.models = "Choose at least one model";
-  if (step === "budget") {
+  if (step === "budget" && d.kind === "ephemeral") {
+    Object.assign(
+      e,
+      validateEphemeral(
+        d.maxBudgetUsd,
+        d.ephemeral,
+        opts.ephemeralMaxDays ?? DEFAULT_EPHEMERAL_MAX_DAYS,
+        opts.now ?? new Date(),
+      ),
+    );
+    if (parseThresholds(d.thresholds) === undefined)
+      e.thresholds = "Enter percentages between 1 and 100, for example 50, 80, 100";
+  } else if (step === "budget") {
     try {
       if (compare(d.maxBudgetUsd, "0") <= 0) e.maxBudgetUsd = "Enter an amount above zero";
     } catch {
@@ -116,7 +139,15 @@ export function toCreateInput(d: TeamDraft): CreateTeamInput {
     tags: Object.entries(d.tags)
       .filter(([, v]) => v !== "")
       .map(([key, value]) => ({ key, value })),
-    budget: { amountUsd: d.maxBudgetUsd, ...(thresholds.length > 0 && { thresholds }) },
+    budget: {
+      amountUsd: d.maxBudgetUsd,
+      ...(d.kind === "ephemeral" && { period: "lifetime" }),
+      ...(thresholds.length > 0 && { thresholds }),
+    },
+    ...(d.kind === "ephemeral" && {
+      expiresAt: expiryTimestamp(d.ephemeral.expiresOn) ?? "",
+      teardownRule: d.ephemeral.teardownRule,
+    }),
     firstAdmin:
       d.adminType === "user"
         ? { subjectType: "user", email: d.adminEmail }

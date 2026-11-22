@@ -43,9 +43,9 @@
 | M2 Agents & secrets | 7 (+ exit) | 41 | 41 |
 | M3 Spend control | 6 (+ exit) | 24 | 24 |
 | M4 Production readiness | 8 (+ exit) | 34 | 34 |
-| M5 Budgeted workloads and swarms | 4 (+ exit) | 19 | 0 |
+| M5 Budgeted workloads and swarms | 4 (+ exit) | 19 | 4 |
 | M6 CVE remediation and completion | 6 (+ exit) | 26 | 0 |
-| **Total** | **51** | **259** | **215** |
+| **Total** | **51** | **259** | **219** |
 
 ## External dependencies and contract questions
 
@@ -645,10 +645,10 @@ Owns: `presentation/screens/s3-create-team/ephemeral/` (+ line in `budgetStepVar
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M5-E1 | *Ephemeral* in S3 adds lifetime budget, expiry (≤ `teams.ephemeral_max_days`) and teardown rule to the budget step; *Next* disabled until all three are set; review shows them | WEB-US-38.1 | — |
-| [ ] | M5-E2 | Teardown rule defaults to *at cap or expiry*; the step shows an estimated daily cost and the date the cap would be reached | WEB-US-38.2 | M5-E1 |
-| [ ] | M5-E3 | Ephemeral team overview card: time to expiry, spend against cap, and after teardown when and why | WEB-US-38.3 | — |
-| [ ] | M5-E4 | e2e, axe, visual P2 (`14`) | WEB-US-42.1 (part), WEB-US-42.2 (part) | M5-E1..E3 |
+| [x] | M5-E1 | *Ephemeral* in S3 adds lifetime budget, expiry (≤ `teams.ephemeral_max_days`) and teardown rule to the budget step; *Next* disabled until all three are set; review shows them | WEB-US-38.1 | — |
+| [x] | M5-E2 | Teardown rule defaults to *at cap or expiry*; the step shows an estimated daily cost and the date the cap would be reached | WEB-US-38.2 | M5-E1 |
+| [x] | M5-E3 | Ephemeral team overview card: time to expiry, spend against cap, and after teardown when and why | WEB-US-38.3 | — |
+| [x] | M5-E4 | e2e, axe, visual P2 (`14`) | WEB-US-42.1 (part), WEB-US-42.2 (part) | M5-E1..E3 |
 
 ### M5-P · Pools and stages (P4)
 

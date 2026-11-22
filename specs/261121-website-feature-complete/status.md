@@ -37,7 +37,7 @@
 | M2 Agents & secrets | Complete | 41 / 41 |
 | M3 Spend control | Complete | 24 / 24 |
 | M4 Production readiness | Complete | 34 / 34 |
-| M5 Budgeted workloads and swarms | Not Started | 0 / 19 |
+| M5 Budgeted workloads and swarms | In Progress | 4 / 19 |
 | M6 CVE remediation and completion | Not Started | 0 / 26 |
 
 ## Blockers
@@ -47,6 +47,7 @@ none blocks M0.
 
 ## Recent activity
 
+- 2026-11-22: M5 M5-E1, M5-E2, M5-E3, M5-E4 done (4/19).
 - 2026-11-22: M4-X1 done: gate green (963 console and 275 SDK tests, console coverage 98.6% statements, domain 98.7%), chromium e2e 191/191 (one S7 spec made poll-safe), viewer no-mutation e2e over the M4 team screens, upstream re-pinned (DV-49). M4 34/34.
 - 2026-11-22: M4 M4-X1 done (34/34).
 - 2026-11-22: M4 M4-N1, M4-N2 done (33/34).
