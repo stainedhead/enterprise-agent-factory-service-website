@@ -25,6 +25,7 @@ import {
   type WizardStep,
 } from "../../components/index.js";
 import { gate } from "../../hooks/gate.js";
+import { useDraft } from "../../hooks/useDraft.js";
 import { queryKey } from "../../query/keys.js";
 import { useService } from "../../services.js";
 import { useMe } from "../../shell/ShellContext.js";
@@ -68,7 +69,12 @@ export function CreateTeamPage() {
   const me = useMe();
   const teams = useService("teams");
   const navigate = useNavigate();
-  const [draft, setDraft] = useState<TeamDraft>(emptyTeamDraft);
+  // non-secret wizard fields survive a session expiry (FR-004); discarded on create and on cancel
+  const {
+    value: draft,
+    setValue: setDraft,
+    discard,
+  } = useDraft<TeamDraft>("s3-create-team", emptyTeamDraft());
   const [serverError, setServerError] = useState<AppError | undefined>();
   const providers = useProviders();
   const defaultProvider = providers.find((p) => p.isDefault)?.id ?? providers[0]?.id ?? "";
@@ -98,6 +104,7 @@ export function CreateTeamPage() {
     setServerError(undefined);
     try {
       await teams.create(draft);
+      discard();
       navigate("/teams");
     } catch (e) {
       setServerError(
@@ -401,7 +408,10 @@ export function CreateTeamPage() {
         onSubmit={() => {
           if (allValid && !denied) void submit();
         }}
-        onCancel={() => navigate("/teams")}
+        onCancel={() => {
+          discard();
+          navigate("/teams");
+        }}
       />
     </div>
   );

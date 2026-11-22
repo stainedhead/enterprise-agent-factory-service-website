@@ -137,3 +137,19 @@ Decisions local to this repository. Cross-repo decisions live in the root reposi
   value (including at the CDN, if it overrides `frame-ancestors` or adds `X-Frame-Options: DENY`, which would
   block the frame too; use `SAMEORIGIN`) before relying on frame renewal. IdPs that issue refresh tokens never
   use the frame and are unaffected.
+
+## ADR-015 T3 creates an agent with one mutation per configuration value (FR-021, DV-28, CQ-14)
+
+- Status: Accepted, removal trigger open
+- Context: the archived spec's non-goals rule out client-side workflows that combine several mutations, but
+  `CreateAgentRequest` takes no configuration values (CQ-14): each value is one `PutAgentConfigValue` after
+  `CreateAgent`.
+- Decision: T3 is a deliberate exception. `CreateAgent` runs first; configuration values follow one call each.
+  A refused value never undoes the agent: the page stays, lists each refused value as `name: message`, says the
+  agent was created, and links to the configuration values screen (T7) to retry. The draft is discarded as soon
+  as the agent exists (FR-004), so a refused value is fixed in T7, not by resubmitting T3. Covered by the
+  `CreateAgentUseCases` test (`configFailures`) and the `CreateAgentPage` partial-failure component test.
+- Removal trigger: `-restapi` resolves CQ-14 upstream (configuration values and persona in
+  `CreateAgentRequest`); T3 then sends one request and this exception is deleted.
+- Consequences: one create can leave an agent without some values. That is visible, recoverable and audited
+  per call by the API.

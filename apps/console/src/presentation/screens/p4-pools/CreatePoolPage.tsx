@@ -16,6 +16,7 @@ import {
   SelectInput,
   TextInput,
 } from "../../components/index.js";
+import { useDraft } from "../../hooks/useDraft.js";
 import { useTeamWriteGate } from "../../hooks/useTeamWriteGate.js";
 import { queryKey } from "../../query/keys.js";
 import { useService } from "../../services.js";
@@ -76,7 +77,13 @@ export function CreatePoolPage() {
   const configValues = useService("configValues");
   const write = useTeamWriteGate(teamId);
   const qc = useQueryClient();
-  const [draft, setDraft] = useState<PoolDraft>(EMPTY);
+  // non-secret fields survive a session expiry (FR-004); discarded on create and on cancel
+  const {
+    value: draft,
+    setValue: setDraft,
+    restored,
+    discard,
+  } = useDraft<PoolDraft>(`p4-create-pool:${teamId}`, EMPTY);
   const [serverErrors, setServerErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState(false);
   const [failures, setFailures] = useState<string[]>([]);
@@ -123,7 +130,7 @@ export function CreatePoolPage() {
       }),
     });
   };
-  const prefilled = useRef(false);
+  const prefilled = useRef(restored); // a restored draft is not overwritten by the template defaults
   useEffect(() => {
     if (prefilled.current || !templates.data || !models.data) return;
     prefilled.current = true;
@@ -138,7 +145,7 @@ export function CreatePoolPage() {
       }),
       modelId: models.data[0]?.id ?? "",
     }));
-  }, [templates.data, models.data]);
+  }, [templates.data, models.data, setDraft]);
 
   const local = validatePool(
     draft,
@@ -156,6 +163,7 @@ export function CreatePoolPage() {
         namespace: (namespace.data ?? []).map((v) => v.name),
       }),
     onSuccess: (r) => {
+      discard();
       setServerErrors({});
       void qc.invalidateQueries({ queryKey: poolsKey(teamId) });
       if (r.failures.length > 0) {
@@ -300,7 +308,14 @@ export function CreatePoolPage() {
             secrets={secretList.data ?? []}
           />
           <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
-            <Button onClick={() => navigate(`/t/${teamId}/pools`)}>Cancel</Button>
+            <Button
+              onClick={() => {
+                discard();
+                navigate(`/t/${teamId}/pools`);
+              }}
+            >
+              Cancel
+            </Button>
             <Button
               variant="primary"
               type="submit"

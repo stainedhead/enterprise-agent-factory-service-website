@@ -1,11 +1,13 @@
-import { render, screen, waitFor, within } from "@testing-library/react";
+import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { AppError } from "../../../application/errors.js";
 import { AgentsUseCases } from "../../../application/usecases/agents/AgentsUseCases.js";
 import { CreateAgentUseCases } from "../../../application/usecases/agents-create/CreateAgentUseCases.js";
 import { ConfigUseCases } from "../../../application/usecases/config/ConfigUseCases.js";
+import { DraftStore } from "../../../application/usecases/session/DraftStore.js";
 import type { Me } from "../../../domain/me.js";
+import { draftIds, expectNoDraftLeft, withDrafts } from "../../hooks/useDraft.testing.js";
 import { agentsServices, fakeAgentsPort } from "../../testing/agents.js";
 import { TEAM_ADMIN, VIEWER } from "../../testing/harness.js";
 import { renderScreen } from "../../testing/screen.js";
@@ -27,6 +29,7 @@ function open(
     agents?: ReturnType<typeof fakeAgentsPort>;
     config?: ReturnType<typeof fakeConfigPort>;
     secrets?: ReturnType<typeof fakeSecretsPort>;
+    drafts?: DraftStore;
   } = {},
 ) {
   const agents = o.agents ?? fakeAgentsPort();
@@ -48,7 +51,7 @@ function open(
   });
   const ag = new AgentsUseCases(agents);
   const cf = new ConfigUseCases(config);
-  renderScreen(<T3 />, {
+  renderScreen(o.drafts ? withDrafts(<T3 />, o.drafts) : <T3 />, {
     me: o.me ?? TEAM_ADMIN,
     services: {
       ...teamsServices(teams),
@@ -220,6 +223,30 @@ describe("T3 help, bindings, identity, config (M2-C2..C5)", () => {
     );
   });
 
+  it("partial failure: a refused configuration value is listed with the T7 link and the agent stays created (FR-021)", async () => {
+    const config = fakeConfigPort({
+      putAgent: vi.fn(async () => {
+        throw new AppError({ kind: "validation", message: "value refused by policy" });
+      }),
+    });
+    const { agents } = open({ config });
+    await ready();
+    await userEvent.type(screen.getByLabelText("Name"), "security-patcher");
+    await userEvent.click(screen.getByRole("button", { name: "Add value" }));
+    await userEvent.type(screen.getByLabelText("Name of value 1"), "MAX_OPEN_PRS");
+    await userEvent.type(screen.getByLabelText("Value of MAX_OPEN_PRS"), "3");
+    await userEvent.click(screen.getByRole("button", { name: "Create agent" }));
+    await waitFor(() => expect(agents.create).toHaveBeenCalledOnce());
+    const alert = await screen.findByText(/The agent was created, but some configuration values/);
+    expect(alert).toBeTruthy();
+    expect(screen.getByText(/MAX_OPEN_PRS: value refused by policy/)).toBeTruthy();
+    const link = screen.getByRole("link", { name: "Open configuration values" });
+    expect(link.getAttribute("href")).toBe("/t/team_1/config");
+    // no second create, and the page did not navigate away
+    expect(agents.create).toHaveBeenCalledTimes(1);
+    expect(screen.queryByText("elsewhere")).toBeNull();
+  });
+
   it("with cross-account links, going back to the shared role is disabled and says why", () => {
     const set = vi.fn();
     render(
@@ -255,5 +282,74 @@ describe("T3 CLI panel and viewer (M2-C6)", () => {
     expect(disabled(b)).toBe(true);
     await userEvent.click(b);
     expect(agents.create).not.toHaveBeenCalled();
+  });
+});
+
+describe("T3 drafts (FR-004, D-2)", () => {
+  const FORM = "t3-create-agent:team_1";
+
+  it("restores non-secret fields after a remount, and keeps the template defaults out of the way", async () => {
+    const drafts = new DraftStore();
+    const first = open({ drafts });
+    await ready();
+    await userEvent.type(screen.getByLabelText("Name"), "security-patcher");
+    await userEvent.selectOptions(screen.getByLabelText("Template"), "hermes-ops");
+    expect(draftIds(drafts)).toEqual([FORM]);
+    cleanup();
+
+    open({ drafts, agents: first.agents });
+    expect(((await screen.findByLabelText("Name")) as HTMLInputElement).value).toBe(
+      "security-patcher",
+    );
+    await screen.findByRole("option", { name: "hermes-ops" });
+    // the prefill from the lists must not overwrite what the person had chosen
+    await waitFor(() =>
+      expect((screen.getByLabelText("Template") as HTMLSelectElement).value).toBe("hermes-ops"),
+    );
+    expect((screen.getByLabelText("Image") as HTMLInputElement).value).toBe("x@sha256:1");
+  });
+
+  it("holds no secret value: bindings carry ids only", async () => {
+    const drafts = new DraftStore();
+    open({ drafts });
+    await ready();
+    await userEvent.click(screen.getByRole("button", { name: "Add secret binding" }));
+    await userEvent.selectOptions(screen.getByLabelText("Secret 1"), "sec_1");
+    expect(JSON.stringify(drafts.snapshot())).not.toMatch(/password|secretValue/i);
+  });
+
+  it("discards the draft on successful create", async () => {
+    const drafts = new DraftStore();
+    const { agents } = open({ drafts });
+    await ready();
+    await userEvent.type(screen.getByLabelText("Name"), "security-patcher");
+    expect(draftIds(drafts)).toEqual([FORM]);
+    await userEvent.click(screen.getByRole("button", { name: "Create agent" }));
+    await waitFor(() => expect(agents.create).toHaveBeenCalled());
+    await waitFor(() => expectNoDraftLeft(drafts));
+  });
+
+  it("discards the draft on cancel", async () => {
+    const drafts = new DraftStore();
+    open({ drafts });
+    await ready();
+    await userEvent.type(screen.getByLabelText("Name"), "security-patcher");
+    await userEvent.click(screen.getByRole("button", { name: "Cancel" }));
+    expectNoDraftLeft(drafts);
+  });
+
+  it("keeps the draft when the create is refused", async () => {
+    const drafts = new DraftStore();
+    const agents = fakeAgentsPort({
+      create: vi.fn(async () => {
+        throw new AppError({ kind: "unavailable", message: "try later" });
+      }),
+    });
+    open({ drafts, agents });
+    await ready();
+    await userEvent.type(screen.getByLabelText("Name"), "security-patcher");
+    await userEvent.click(screen.getByRole("button", { name: "Create agent" }));
+    await waitFor(() => expect(agents.create).toHaveBeenCalled());
+    expect(draftIds(drafts)).toEqual([FORM]);
   });
 });

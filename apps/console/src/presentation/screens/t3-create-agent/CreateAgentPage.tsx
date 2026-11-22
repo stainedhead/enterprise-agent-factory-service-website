@@ -16,6 +16,7 @@ import {
   CliPreview,
   PageHeader,
 } from "../../components/index.js";
+import { useDraft } from "../../hooks/useDraft.js";
 import { useTeamWriteGate } from "../../hooks/useTeamWriteGate.js";
 import { queryKey } from "../../query/keys.js";
 import { useService } from "../../services.js";
@@ -93,7 +94,13 @@ export function CreateAgentPage() {
   const create = useService("createAgent");
   const write = useTeamWriteGate(teamId);
   const qc = useQueryClient();
-  const [draft, setDraft] = useState<CreateAgentDraft>(EMPTY);
+  // non-secret fields only: they survive a session expiry (FR-004); discarded on success and on cancel
+  const {
+    value: draft,
+    setValue: setDraft,
+    restored,
+    discard,
+  } = useDraft<CreateAgentDraft>(`t3-create-agent:${teamId}`, EMPTY);
   const [errors, setErrors] = useState<DraftErrors>({});
   const [unmapped, setUnmapped] = useState<string[]>([]);
 
@@ -132,7 +139,7 @@ export function CreateAgentPage() {
   };
 
   // prefill once the lists arrive: the first enabled template (its defaults), the team's first model, the first enabled class
-  const prefilled = useRef(false);
+  const prefilled = useRef(restored); // a restored draft is not overwritten by the template defaults
   useEffect(() => {
     if (prefilled.current || !templates.data || !models.data || !classes.data) return;
     prefilled.current = true;
@@ -148,11 +155,12 @@ export function CreateAgentPage() {
       modelId: models.data[0]?.id ?? "",
       storageClass: classes.data.find((c) => c.enabled)?.name ?? "",
     }));
-  }, [templates.data, models.data, classes.data]);
+  }, [templates.data, models.data, classes.data, setDraft]);
 
   const submit = useMutation({
     mutationFn: () => create.create(teamId, draft, namespace.data ?? []),
     onSuccess: (r) => {
+      discard();
       setErrors({});
       void qc.invalidateQueries({ queryKey: agentsKey(teamId) });
       if (r.configFailures.length > 0) {
@@ -250,7 +258,14 @@ export function CreateAgentPage() {
             readOnlyReason={reason}
           />
           <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
-            <Button onClick={() => navigate(`/t/${teamId}/agents`)}>Cancel</Button>
+            <Button
+              onClick={() => {
+                discard();
+                navigate(`/t/${teamId}/agents`);
+              }}
+            >
+              Cancel
+            </Button>
             <Button
               variant="primary"
               type="submit"

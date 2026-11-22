@@ -1,4 +1,4 @@
-import { Card, FormField, SelectInput } from "../../../components/index.js";
+import { Card, FormField } from "../../../components/index.js";
 import type { SectionProps } from "./types.js";
 
 export const REMOVE_CROSS_ACCOUNT_FIRST = "Remove cross-account roles first";

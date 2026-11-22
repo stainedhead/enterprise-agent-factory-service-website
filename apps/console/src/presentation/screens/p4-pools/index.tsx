@@ -11,5 +11,5 @@ export default function P4() {
   const { kind, loading } = useTeamKind(teamId);
   if (loading) return <p role="status">Loading…</p>;
   if (kind !== "ephemeral") return <NotFoundPage />;
-  return pathname.endsWith("/pools/new") ? <CreatePoolPage /> : <PoolsPage />;
+  return pathname.endsWith("/pools/new") ? <CreatePoolPage key={teamId} /> : <PoolsPage />;
 }
