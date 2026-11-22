@@ -10,6 +10,7 @@ import {
   AdminPricingUseCases,
 } from "../application/usecases/adminModels/AdminModelsUseCases.js";
 import { AdminOrgAccountsUseCases } from "../application/usecases/adminOrgAccounts/AdminOrgAccountsUseCases.js";
+import { AdminServiceTagsUseCases } from "../application/usecases/adminServiceTags/AdminServiceTagsUseCases.js";
 import { AgentsUseCases } from "../application/usecases/agents/AgentsUseCases.js";
 import { CreateAgentUseCases } from "../application/usecases/agents-create/CreateAgentUseCases.js";
 import { BudgetsUseCases } from "../application/usecases/budgets/BudgetsUseCases.js";
@@ -31,6 +32,7 @@ import {
   IdentityProvidersUseCases,
   SettingsUseCases,
 } from "../application/usecases/settings/SettingsUseCases.js";
+import { TagsUseCases } from "../application/usecases/tags/TagsUseCases.js";
 import { TeamsUseCases } from "../application/usecases/teams/TeamsUseCases.js";
 import { SdkAdminAudit } from "../infrastructure/sdk/adminAudit.js";
 import {
@@ -39,6 +41,7 @@ import {
 } from "../infrastructure/sdk/adminCatalogs.js";
 import { SdkAdminModels, SdkAdminPricing } from "../infrastructure/sdk/adminModels.js";
 import { SdkAdminOrgAccounts } from "../infrastructure/sdk/adminOrgAccounts.js";
+import { SdkAdminServiceTags } from "../infrastructure/sdk/adminServiceTags.js";
 import { SdkAgents } from "../infrastructure/sdk/agents.js";
 import { SdkBudgets } from "../infrastructure/sdk/budgets.js";
 import { SdkConfig } from "../infrastructure/sdk/config.js";
@@ -54,6 +57,7 @@ import { SdkOverview, SdkWorkOrders } from "../infrastructure/sdk/overview.js";
 import { SdkReports } from "../infrastructure/sdk/reports.js";
 import { SdkSecrets } from "../infrastructure/sdk/secrets.js";
 import { SdkIdentityProviders, SdkSettings } from "../infrastructure/sdk/settings.js";
+import { SdkTags } from "../infrastructure/sdk/tags.js";
 import { SdkTeams } from "../infrastructure/sdk/teams.js";
 import type { AppServices } from "../presentation/services.js";
 
@@ -106,6 +110,8 @@ export function buildServices(
     teams: new TeamsUseCases(teamsPort, clock),
     adminModels: new AdminModelsUseCases(adminModelsPort, clock),
     adminPricing: new AdminPricingUseCases(new SdkAdminPricing(client), adminModelsPort, clock),
+    adminServiceTags: new AdminServiceTagsUseCases(new SdkAdminServiceTags(client)),
+    tags: new TagsUseCases(new SdkTags(client)),
     adminOrgAccounts: new AdminOrgAccountsUseCases(new SdkAdminOrgAccounts(client)),
     adminAudit: new AdminAuditUseCases(new SdkAdminAudit(client)),
     notifications: new NotificationsUseCases(new SdkNotifications(client), {

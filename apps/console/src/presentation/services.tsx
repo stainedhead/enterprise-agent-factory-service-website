@@ -10,6 +10,7 @@ import type {
   AdminPricingUseCases,
 } from "../application/usecases/adminModels/AdminModelsUseCases.js";
 import type { AdminOrgAccountsUseCases } from "../application/usecases/adminOrgAccounts/AdminOrgAccountsUseCases.js";
+import type { AdminServiceTagsUseCases } from "../application/usecases/adminServiceTags/AdminServiceTagsUseCases.js";
 import type { AgentsUseCases } from "../application/usecases/agents/AgentsUseCases.js";
 import type { CreateAgentUseCases } from "../application/usecases/agents-create/CreateAgentUseCases.js";
 import type { BudgetsUseCases } from "../application/usecases/budgets/BudgetsUseCases.js";
@@ -31,6 +32,7 @@ import type {
   IdentityProvidersUseCases,
   SettingsUseCases,
 } from "../application/usecases/settings/SettingsUseCases.js";
+import type { TagsUseCases } from "../application/usecases/tags/TagsUseCases.js";
 import type { TeamsUseCases } from "../application/usecases/teams/TeamsUseCases.js";
 
 export interface AppServices {
@@ -45,6 +47,8 @@ export interface AppServices {
   readonly adminPricing: AdminPricingUseCases;
   readonly budgets: BudgetsUseCases;
   readonly reports: ReportsUseCases;
+  readonly adminServiceTags: AdminServiceTagsUseCases;
+  readonly tags: TagsUseCases;
   readonly adminOrgAccounts: AdminOrgAccountsUseCases;
   readonly adminAudit: AdminAuditUseCases;
   readonly notifications: NotificationsUseCases;

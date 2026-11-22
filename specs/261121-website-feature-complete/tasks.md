@@ -42,10 +42,10 @@
 | M1 Teams & access | 10 (+ exit) | 46 | 46 |
 | M2 Agents & secrets | 7 (+ exit) | 41 | 41 |
 | M3 Spend control | 6 (+ exit) | 24 | 24 |
-| M4 Production readiness | 8 (+ exit) | 34 | 8 |
+| M4 Production readiness | 8 (+ exit) | 34 | 14 |
 | M5 Budgeted workloads and swarms | 4 (+ exit) | 19 | 0 |
 | M6 CVE remediation and completion | 6 (+ exit) | 26 | 0 |
-| **Total** | **51** | **259** | **189** |
+| **Total** | **51** | **259** | **195** |
 
 ## External dependencies and contract questions
 
@@ -565,12 +565,12 @@ Owns: area files: `admin-serviceTags`, `tags`; `presentation/screens/s9-cost-tag
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M4-G1 | S9: system tags read-only; service tags add, edit, remove (fixed or required, allowed values, default); teams missing a required value listed with links | WEB-US-19.1 | — |
-| [ ] | M4-G2 | Spend grouped by any tag key with *(untagged)* separate | WEB-US-19.2 | M4-G1, M3-R1 |
-| [ ] | M4-G3 | One-time "activate cost allocation tags in AWS Billing" banner until a service admin acknowledges (`PutSetting billing.tag_activation_acknowledged`); team roles never see S9 (not-found) and its API `403` is handled | WEB-US-19.4, WEB-19 (part) | M4-G1 |
-| [ ] | M4-G4 | T13: system, service and team tags with source; team-admins edit required values and their own tags; fixed and system tags read-only; viewers read-only | WEB-US-33.1 | — |
-| [ ] | M4-G5 | T13 lists tags dropped from Bedrock request metadata (`requestMetadataDroppedKeys`, CD-6, D27) | WEB-US-33.2 | M4-G4 |
-| [ ] | M4-G6 | e2e, axe, visual S9 (`25`) and T13 (`26`) | WEB-US-42.1 (part), WEB-US-42.2 (part) | M4-G1..G5 |
+| [x] | M4-G1 | S9: system tags read-only; service tags add, edit, remove (fixed or required, allowed values, default); teams missing a required value listed with links | WEB-US-19.1 | — |
+| [x] | M4-G2 | Spend grouped by any tag key with *(untagged)* separate | WEB-US-19.2 | M4-G1, M3-R1 |
+| [x] | M4-G3 | One-time "activate cost allocation tags in AWS Billing" banner until a service admin acknowledges (`PutSetting billing.tag_activation_acknowledged`); team roles never see S9 (not-found) and its API `403` is handled | WEB-US-19.4, WEB-19 (part) | M4-G1 |
+| [x] | M4-G4 | T13: system, service and team tags with source; team-admins edit required values and their own tags; fixed and system tags read-only; viewers read-only | WEB-US-33.1 | — |
+| [x] | M4-G5 | T13 lists tags dropped from Bedrock request metadata (`requestMetadataDroppedKeys`, CD-6, D27) | WEB-US-33.2 | M4-G4 |
+| [x] | M4-G6 | e2e, axe, visual S9 (`25`) and T13 (`26`) | WEB-US-42.1 (part), WEB-US-42.2 (part) | M4-G1..G5 |
 
 ### M4-I · Agent AWS access (T8), identities
 

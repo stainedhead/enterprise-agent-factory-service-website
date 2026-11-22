@@ -18,6 +18,8 @@ export const registry: Record<Exclude<ScreenId, "AUTH" | "NOT_FOUND">, ScreenCom
   >),
   // one line per built screen
   S1: lazy(() => import("../screens/s1-dashboard/index.js")),
+  S9: lazy(() => import("../screens/s9-cost-tags/index.js")),
+  T13: lazy(() => import("../screens/t13-tags/index.js")),
   S5: lazy(() => import("../screens/s5-audit/index.js")),
   S10: lazy(() => import("../screens/s10-settings/index.js")),
   S2: lazy(() => import("../screens/s2-teams/index.js")),

@@ -136,6 +136,20 @@ the number of agent links to each. A change that narrows the filter first lists 
 links will be disabled, and asks you to confirm. *Team manages its own accounts* is changed by service admins only; when it
 is on, the team's admins can edit the filter themselves, otherwise they see it read-only with "Requires service admin".
 
+## Cost allocation tags (`/cost-tags`, service admins)
+
+System tags (always set by AFS) are listed read-only. Service tags are either fixed (the same value for every team) or
+required (each team sets a value, optionally from an allowed list, with an optional default); add, edit and remove them
+here. Teams that still miss a required value are listed with a link to their tags. *Spend by tag* is the cost report
+grouped by any tag key, with records lacking a value shown as "(untagged)". Until a service admin acknowledges it, a
+notice asks you to activate the tags as cost allocation tags in AWS Billing.
+
+## Team tags (`/t/<team>/tags`)
+
+Every tag on the team with its source: system, service (fixed), service default, required but not set, or team.
+Team-admins set the required values and add or remove their own tags; system and fixed tags are read-only, and viewers
+see everything without edit controls. Keys that do not fit in the 16 request metadata pairs sent to Bedrock are listed.
+
 ## Troubleshooting
 
 - *Page not found* for a page you expect: you may not hold the role it needs, or the team is not yours.

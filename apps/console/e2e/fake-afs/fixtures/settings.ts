@@ -16,6 +16,14 @@ const seedSettings = (): Json[] => [
     version: 1,
   },
   {
+    key: "billing.tag_activation_acknowledged",
+    value: false,
+    default: false,
+    type: "boolean",
+    allowed: "true or false",
+    version: 1,
+  },
+  {
     key: "gateway.fail_closed",
     value: true,
     default: true,

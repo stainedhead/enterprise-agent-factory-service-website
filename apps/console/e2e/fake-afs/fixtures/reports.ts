@@ -9,6 +9,19 @@ const range = { from: "2026-11-01T00:00:00Z", to: "2026-11-22T10:00:00Z" };
 function report(kind: string, groupBy: readonly string[], teamId?: string): Json {
   switch (kind) {
     case "costs":
+      if (groupBy.some((g) => g.startsWith("tag:")))
+        return {
+          kind,
+          range,
+          groupBy,
+          notes: [],
+          rows: [
+            { [groupBy[0] ?? "tag"]: "CC-100", estimatedUsd: "310.00" },
+            { [groupBy[0] ?? "tag"]: "CC-200", estimatedUsd: "120.40" },
+            { [groupBy[0] ?? "tag"]: "(untagged)", estimatedUsd: "53.30" },
+          ],
+          totals: { estimatedUsd: "483.70" },
+        };
       return {
         kind,
         range,

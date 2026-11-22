@@ -5,6 +5,7 @@ import { adminCatalogsFixtures, resetAdminCatalogs } from "./admin-catalogs.js";
 import { adminExternalSystemsFixtures } from "./admin-externalSystems.js";
 import { adminModelsFixtures, resetAdminModels } from "./admin-models.js";
 import { adminOrgAccountsFixtures } from "./admin-orgAccounts.js";
+import { adminServiceTagsFixtures, resetAdminServiceTags } from "./admin-serviceTags.js";
 import { agentsFixtures, resetAgents } from "./agents.js";
 import { budgetsFixtures, resetBudgets } from "./budgets.js";
 import { configFixtures, resetConfig } from "./config.js";
@@ -66,6 +67,7 @@ export const fixtureModules: readonly (readonly Fixture[])[] = [
   notificationsFixtures,
   adminAuditFixtures,
   adminOrgAccountsFixtures,
+  adminServiceTagsFixtures,
   identityFixtures,
 ];
 
@@ -84,4 +86,5 @@ export const fixtureResets: readonly (() => void)[] = [
   resetBudgets,
   resetAdminModels,
   resetIdentity,
+  resetAdminServiceTags,
 ];

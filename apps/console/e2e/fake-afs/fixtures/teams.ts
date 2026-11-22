@@ -232,23 +232,6 @@ export const teamsFixtures: readonly Fixture[] = [
   },
   {
     method: "GET",
-    path: "/v1/admin/service-tags",
-    response: {
-      status: 200,
-      body: {
-        items: [
-          {
-            key: "environment",
-            mode: "required",
-            allowedValues: ["prod", "staging", "dev"],
-            description: "Deployment environment",
-          },
-        ],
-      },
-    },
-  },
-  {
-    method: "GET",
     path: "/v1/reports/{kind}",
     response: {
       status: 200,
