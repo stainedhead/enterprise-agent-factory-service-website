@@ -49,6 +49,8 @@ const teamPerms = {
     "agents:write",
     "members:read",
     "members:write",
+    "api-keys:read",
+    "api-keys:write",
     "budgets:read",
     "revisions:read",
     "audit:read",

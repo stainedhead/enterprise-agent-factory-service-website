@@ -107,6 +107,7 @@ architectural ones into ADRs (`docs/architectural-decision-record.md`, ADR-005 o
 | DV-17 | `/teams/:teamId/admin` and `/teams/new` have no navigation item, so the route guard cannot hide them; their screen entry points (`s2-teams/index.tsx`, `s3-create-team/index.tsx`) render the not-found page for anyone but a service admin | M1-T4 |
 | DV-18 | The *Models* tab is `/t/:teamId?tab=models`, not `/t/:teamId/models` (M1-O2): routes are generated from `navigation.ts` items and a nav item for a tab would add a menu entry; a sub-route would be a 404. | M1-O2 |
 | DV-19 | `useTeamWriteGate` and `TeamLayout` read the team through the shared `teamKey` query, enabled only for service admins and callers bound to the team; `renderApp` (shell tests) now provides empty team and overview services via `shellScreenServices` because `/t/:id` renders the real T1. | M1-O4 |
+| DV-20 | A new API key's expiry is computed at submit as now + N days, minus one minute when N is 90, so the API's "at most 90 days ahead" holds despite clock skew (M1-M2). | M1-M2 |
 
 ## 5. Lessons learned
 

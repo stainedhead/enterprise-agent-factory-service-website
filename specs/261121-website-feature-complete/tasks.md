@@ -39,13 +39,13 @@
 | Milestone | Streams | Tasks | Done |
 |---|---|---|---|
 | M0 Foundations | 10 (+ exit) | 69 | 69 |
-| M1 Teams & access | 10 (+ exit) | 46 | 28 |
+| M1 Teams & access | 10 (+ exit) | 46 | 34 |
 | M2 Agents & secrets | 7 (+ exit) | 41 | 0 |
 | M3 Spend control | 6 (+ exit) | 24 | 0 |
 | M4 Production readiness | 8 (+ exit) | 34 | 0 |
 | M5 Budgeted workloads and swarms | 4 (+ exit) | 19 | 0 |
 | M6 CVE remediation and completion | 6 (+ exit) | 26 | 0 |
-| **Total** | **51** | **259** | **97** |
+| **Total** | **51** | **259** | **103** |
 
 ## External dependencies and contract questions
 
@@ -299,12 +299,12 @@ Owns: area files: `members`, `apiKeys`; `presentation/screens/t6-members/`.
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M1-M1 | *Members*: add people by email or IdP groups as team-admin or team viewer (no `service_admin`/`security_operator` choice; a crafted request's refusal shown); edit role, remove | WEB-US-29.1 | M1-Q1 |
-| [ ] | M1-M2 | *API keys*: create (name, role, expiry ≤ 90 days, default 30) via `useSecretMutation`; `secretKey` shown once in `OneTimeSecretDialog`; list shows prefix, role, expiry, last use; delete | WEB-US-29.2, WEB-US-11.3 (part) | M1-M1, M1-Q6 |
-| [ ] | M1-M3 | Viewer: membership controls disabled "Requires team-admin"; *API keys* tab not shown and its route not-found (D50) | WEB-US-29.3 | M1-M1 |
-| [ ] | M1-M4 | Team sign-in provider shown; team-admins change it among enabled providers | WEB-US-29.4 | M1-M1 |
-| [ ] | M1-M5 | Replayed `CreateApiKey` (no `secretKey`, `idempotentReplayed`): dialog says the key was created but cannot be shown again and offers *Delete key* | WEB-US-29.5, WEB-US-6.2 (part), D52 | M1-M2 |
-| [ ] | M1-M6 | e2e incl. sentinel `secretKey` from `CreateApiKey` absent everywhere after the dialog closes; axe; visual T6 (`11`) | WEB-US-11.1 (part), WEB-US-42.1 (part), WEB-US-42.2 (part) | M1-M2..M5 |
+| [x] | M1-M1 | *Members*: add people by email or IdP groups as team-admin or team viewer (no `service_admin`/`security_operator` choice; a crafted request's refusal shown); edit role, remove | WEB-US-29.1 | M1-Q1 |
+| [x] | M1-M2 | *API keys*: create (name, role, expiry ≤ 90 days, default 30) via `useSecretMutation`; `secretKey` shown once in `OneTimeSecretDialog`; list shows prefix, role, expiry, last use; delete | WEB-US-29.2, WEB-US-11.3 (part) | M1-M1, M1-Q6 |
+| [x] | M1-M3 | Viewer: membership controls disabled "Requires team-admin"; *API keys* tab not shown and its route not-found (D50) | WEB-US-29.3 | M1-M1 |
+| [x] | M1-M4 | Team sign-in provider shown; team-admins change it among enabled providers | WEB-US-29.4 | M1-M1 |
+| [x] | M1-M5 | Replayed `CreateApiKey` (no `secretKey`, `idempotentReplayed`): dialog says the key was created but cannot be shown again and offers *Delete key* | WEB-US-29.5, WEB-US-6.2 (part), D52 | M1-M2 |
+| [x] | M1-M6 | e2e incl. sentinel `secretKey` from `CreateApiKey` absent everywhere after the dialog closes; axe; visual T6 (`11`) | WEB-US-11.1 (part), WEB-US-42.1 (part), WEB-US-42.2 (part) | M1-M2..M5 |
 
 ### M1-D · Service dashboard (S1)
 

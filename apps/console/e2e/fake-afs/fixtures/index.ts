@@ -1,6 +1,7 @@
 // Shared list: one fixture module per area, added by the area stream.
 import type { SeedUser } from "../users.js";
 import { coreFixtures } from "./core.js";
+import { membersFixtures, resetMembers } from "./members.js";
 import { overviewFixtures, resetOverview } from "./overview.js";
 import { resetTeams, teamsFixtures } from "./teams.js";
 
@@ -31,7 +32,8 @@ export const fixtureModules: readonly (readonly Fixture[])[] = [
   coreFixtures,
   teamsFixtures,
   overviewFixtures,
+  membersFixtures,
 ];
 
 /** Stateful fixture modules register a reset here; the server calls them on `/__reset`. */
-export const fixtureResets: readonly (() => void)[] = [resetTeams, resetOverview];
+export const fixtureResets: readonly (() => void)[] = [resetTeams, resetOverview, resetMembers];

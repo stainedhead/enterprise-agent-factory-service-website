@@ -19,7 +19,7 @@
 | 2 | Research and data modeling | Complete | research.md, data-dictionary.md |
 | 3 | Architecture and planning | Complete | architecture.md, plan.md |
 | 4 | Task breakdown | Complete | tasks.md: 51 streams, 259 tasks |
-| 5 | Implementation (M0–M6) | In Progress | Step 3, M0 complete (69/69), M1 28/46 |
+| 5 | Implementation (M0–M6) | In Progress | Step 3, M0 complete (69/69), M1 34/46 |
 | 6 | Completion and archival | Not Started | |
 
 ## Phase 0 checklist
@@ -33,7 +33,7 @@
 | Milestone | Status | Tasks done |
 |---|---|---|
 | M0 Foundations | Complete | 69 / 69 |
-| M1 Teams & access | In Progress | 28 / 46 |
+| M1 Teams & access | In Progress | 34 / 46 |
 | M2 Agents & secrets | Not Started | 0 / 41 |
 | M3 Spend control | Not Started | 0 / 24 |
 | M4 Production readiness | Not Started | 0 / 34 |
@@ -47,6 +47,7 @@ none blocks M0.
 
 ## Recent activity
 
+- 2026-11-22: M1 M1-M1, M1-M2, M1-M3, M1-M4, M1-M5, M1-M6 done (34/46).
 - 2026-11-22: M1 M1-O1, M1-O2, M1-O3, M1-O4, M1-O5, M1-O6, M1-O7 done (28/46).
 - 2026-11-22: M1 M1-T1, M1-T2, M1-T3, M1-T4, M1-T5, M1-T6, M1-T7, M1-T8, M1-T9 done (21/46).
 - 2026-11-22: M1 M1-Y1 done (12/46).

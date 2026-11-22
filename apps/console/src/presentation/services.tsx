@@ -1,10 +1,16 @@
 // The use cases a screen may call, built once in main/wiring.ts (architecture §3.2: one line per area).
 import { createContext, useContext } from "react";
+import type {
+  ApiKeysUseCases,
+  MembersUseCases,
+} from "../application/usecases/members/MembersUseCases.js";
 import type { OverviewUseCases } from "../application/usecases/overview/OverviewUseCases.js";
 import type { ListProviders } from "../application/usecases/session/ListProviders.js";
 import type { TeamsUseCases } from "../application/usecases/teams/TeamsUseCases.js";
 
 export interface AppServices {
+  readonly apiKeys: ApiKeysUseCases;
+  readonly members: MembersUseCases;
   readonly overview: OverviewUseCases;
   readonly teams: TeamsUseCases;
   /** The sign-in providers a team may be bound to (S3, T1, T6). */
