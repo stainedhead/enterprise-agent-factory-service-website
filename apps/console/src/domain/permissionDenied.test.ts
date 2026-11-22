@@ -39,7 +39,9 @@ const ROLES: readonly Role[] = [
 ];
 /** Team roles are asked inside their team; the service roles are asked without one. */
 const scope = (role: Role): string | undefined =>
-  role === "team_viewer" || role === "team_collaborator" || role === "team_admin" ? "team_a" : undefined;
+  role === "team_viewer" || role === "team_collaborator" || role === "team_admin"
+    ? "team_a"
+    : undefined;
 
 describe("every permission has a denied case (M6-Q7)", () => {
   it.each(PERMISSIONS)("%s is allowed exactly to the roles that hold it", (p) => {
