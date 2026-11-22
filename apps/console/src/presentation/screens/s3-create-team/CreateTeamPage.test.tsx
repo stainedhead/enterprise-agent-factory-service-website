@@ -1,7 +1,9 @@
-import { screen, waitFor } from "@testing-library/react";
+import { cleanup, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { AppError } from "../../../application/errors.js";
+import { DraftStore } from "../../../application/usecases/session/DraftStore.js";
+import { draftIds, expectNoDraftLeft, withDrafts } from "../../hooks/useDraft.testing.js";
 import { SERVICE_ADMIN } from "../../testing/harness.js";
 import { renderScreen } from "../../testing/screen.js";
 import {
@@ -19,9 +21,9 @@ const IDPS = [
   { id: "idp_2", name: "Partners", isDefault: false },
 ];
 
-function open(over = {}, me = SERVICE_ADMIN, providers: typeof IDPS = []) {
+function open(over = {}, me = SERVICE_ADMIN, providers: typeof IDPS = [], drafts?: DraftStore) {
   const port = fakeTeamsPort({ serviceTags: vi.fn(async () => [tag]), ...over });
-  const view = renderScreen(<CreateTeamPage />, {
+  const view = renderScreen(drafts ? withDrafts(<CreateTeamPage />, drafts) : <CreateTeamPage />, {
     me,
     services: teamsServices(port, { providers }),
     path: "/teams/new",
@@ -162,5 +164,59 @@ describe("S3 required tags and provider (M1-T6)", () => {
     await userEvent.selectOptions(kind, "ephemeral");
     expect(kind.value).toBe("ephemeral");
     expect(aTeam().kind).toBe("persistent");
+  });
+});
+
+describe("S3 drafts (FR-004, D-3)", () => {
+  const FORM = "s3-create-team";
+
+  it("restores the typed fields after a remount", async () => {
+    const drafts = new DraftStore();
+    open({}, SERVICE_ADMIN, [], drafts);
+    await fillDetails();
+    expect(draftIds(drafts)).toEqual([FORM]);
+    cleanup();
+    open({}, SERVICE_ADMIN, [], drafts);
+    expect((screen.getByLabelText("Display name") as HTMLInputElement).value).toBe("Payments");
+    expect((screen.getByLabelText("Slug") as HTMLInputElement).value).toBe("payments");
+    expect(((await screen.findByLabelText("Tag: environment")) as HTMLSelectElement).value).toBe(
+      "prod",
+    );
+  });
+
+  it("discards the draft when the team is created", async () => {
+    const drafts = new DraftStore();
+    const { port } = open({}, SERVICE_ADMIN, [], drafts);
+    await fillAll();
+    expect(draftIds(drafts)).toEqual([FORM]);
+    await userEvent.click(screen.getByRole("button", { name: "Create team" }));
+    await waitFor(() => expect(port.create).toHaveBeenCalledTimes(1));
+    await waitFor(() => expectNoDraftLeft(drafts));
+  });
+
+  it("discards the draft on cancel", async () => {
+    const drafts = new DraftStore();
+    open({}, SERVICE_ADMIN, [], drafts);
+    await fillDetails();
+    await userEvent.click(screen.getByRole("button", { name: "Cancel" }));
+    expectNoDraftLeft(drafts);
+  });
+
+  it("keeps the draft when the create is refused", async () => {
+    const drafts = new DraftStore();
+    const { port } = open(
+      {
+        create: vi.fn(async () => {
+          throw new AppError({ kind: "unavailable", message: "later" });
+        }),
+      },
+      SERVICE_ADMIN,
+      [],
+      drafts,
+    );
+    await fillAll();
+    await userEvent.click(screen.getByRole("button", { name: "Create team" }));
+    await waitFor(() => expect(port.create).toHaveBeenCalled());
+    expect(draftIds(drafts)).toEqual([FORM]);
   });
 });

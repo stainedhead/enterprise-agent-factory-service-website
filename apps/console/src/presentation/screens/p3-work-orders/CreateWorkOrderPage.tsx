@@ -27,6 +27,7 @@ import {
   TextInput,
 } from "../../components/index.js";
 import { gate } from "../../hooks/gate.js";
+import { useDraft } from "../../hooks/useDraft.js";
 import { queryKey } from "../../query/keys.js";
 import { useService } from "../../services.js";
 import { useMe } from "../../shell/ShellContext.js";
@@ -70,7 +71,12 @@ export function CreateWorkOrderPage() {
   const qc = useQueryClient();
   const navigate = useNavigate();
   const reason = gate(me, "work-orders:write");
-  const [d, setD] = useState<WorkOrderDraft>(EMPTY);
+  // non-secret fields survive a session expiry (FR-004); discarded on create and on cancel
+  const {
+    value: d,
+    setValue: setD,
+    discard,
+  } = useDraft<WorkOrderDraft>("p3-create-work-order", EMPTY);
   const [touched, setTouched] = useState(false);
   const [unowned, setUnowned] = useState<ReadonlySet<string>>(new Set());
   const [ambiguous, setAmbiguous] = useState<ReadonlyMap<string, readonly string[]>>(new Map());
@@ -90,6 +96,7 @@ export function CreateWorkOrderPage() {
   const create = useMutation({
     mutationFn: () => uc.create(d, enabledIds),
     onSuccess: (w) => {
+      discard();
       void qc.invalidateQueries({ queryKey: ["workOrders"] });
       navigate(`/work-orders/${w.id}`, { state: { created: w.repos } });
     },
@@ -297,7 +304,14 @@ export function CreateWorkOrderPage() {
       </Card>
       <CliPreview command={cliForWorkOrder(d)} />
       <div>
-        <Button onClick={() => navigate("/work-orders")}>Cancel</Button>
+        <Button
+          onClick={() => {
+            discard();
+            navigate("/work-orders");
+          }}
+        >
+          Cancel
+        </Button>
         <Button
           variant="primary"
           disabledReason={reason}
