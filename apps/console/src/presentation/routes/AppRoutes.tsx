@@ -17,6 +17,7 @@ import {
   NarrowViewportNotice,
   SideNav,
 } from "../shell/Chrome.js";
+import { GlobalBanners } from "../shell/GlobalBanners.js";
 import { MeGate } from "../shell/MeGate.js";
 import { NotFoundPage } from "../shell/pages.js";
 import { useMe } from "../shell/ShellContext.js";
@@ -41,6 +42,7 @@ function Shell() {
         <NarrowViewportNotice />
         <ContractBanner />
         <AccessDeniedAlert />
+        <GlobalBanners />
         <Suspense fallback={<p role="status">Loading…</p>}>
           <Outlet />
         </Suspense>

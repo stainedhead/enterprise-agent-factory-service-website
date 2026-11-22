@@ -39,13 +39,13 @@
 | Milestone | Streams | Tasks | Done |
 |---|---|---|---|
 | M0 Foundations | 10 (+ exit) | 69 | 69 |
-| M1 Teams & access | 10 (+ exit) | 46 | 0 |
+| M1 Teams & access | 10 (+ exit) | 46 | 7 |
 | M2 Agents & secrets | 7 (+ exit) | 41 | 0 |
 | M3 Spend control | 6 (+ exit) | 24 | 0 |
 | M4 Production readiness | 8 (+ exit) | 34 | 0 |
 | M5 Budgeted workloads and swarms | 4 (+ exit) | 19 | 0 |
 | M6 CVE remediation and completion | 6 (+ exit) | 26 | 0 |
-| **Total** | **51** | **259** | **0** |
+| **Total** | **51** | **259** | **76** |
 
 ## External dependencies and contract questions
 
@@ -229,13 +229,13 @@ Owns: `presentation/query/`, `presentation/hooks/{useVersionedForm,useSecretMuta
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M1-Q1 | `QueryClient` setup, key conventions, global error routing: `AccessDenied` → alert + `GetMe` refetch; `Unavailable`/network after retries → "AFS is not responding" banner with *Retry*, open forms keep non-secret values; `409 team_suspended` → "Team is suspended" | WEB-US-10.2, NFR-4 | — |
-| [ ] | M1-Q2 | `usePolledQuery`: interval from `PollPolicy` over every phase the page shows; stops on Ready/Failed; Degraded 30 s; no request while the tab is hidden, one refresh on return | WEB-US-9.2, WEB-US-9.3, WEB-7 | M1-Q1 |
-| [ ] | M1-Q3 | List polling: a list with 50 Pending rows sends one list request per interval, not one per row (fake timers + request count) | WEB-US-9.4, WD-21 | M1-Q2 |
-| [ ] | M1-Q4 | `ThrottleGate`: any `429` with `Retry-After: 10` suppresses polling for 10 s; non-blocking "Slowing down" notice | WEB-US-9.5, NFR-4 | M1-Q2 |
-| [ ] | M1-Q5 | `useVersionedForm`: `412` → "This changed since you opened it" with *Reload*; the user's edits stay visible beside the reloaded values; resubmit uses the new version | WEB-US-10.1, WEB-11 | M1-Q1 |
-| [ ] | M1-Q6 | `useSecretMutation` (no `useMutation`, variables never cached, `gcTime: 0` for the result, secret fields scrubbed); `GenerationNote` ("Generation N, observed M"; "Change not applied yet" while `M < N`) | WEB-US-9.1, WEB-US-11.1 (part), WEB-8, WD-31 | M1-Q1 |
-| [ ] | M1-Q7 | `WidgetBoundary`: a failing widget shows its own error with request id and *Retry* without blanking the page | NFR-4 | M1-Q1 |
+| [x] | M1-Q1 | `QueryClient` setup, key conventions, global error routing: `AccessDenied` → alert + `GetMe` refetch; `Unavailable`/network after retries → "AFS is not responding" banner with *Retry*, open forms keep non-secret values; `409 team_suspended` → "Team is suspended" | WEB-US-10.2, NFR-4 | — |
+| [x] | M1-Q2 | `usePolledQuery`: interval from `PollPolicy` over every phase the page shows; stops on Ready/Failed; Degraded 30 s; no request while the tab is hidden, one refresh on return | WEB-US-9.2, WEB-US-9.3, WEB-7 | M1-Q1 |
+| [x] | M1-Q3 | List polling: a list with 50 Pending rows sends one list request per interval, not one per row (fake timers + request count) | WEB-US-9.4, WD-21 | M1-Q2 |
+| [x] | M1-Q4 | `ThrottleGate`: any `429` with `Retry-After: 10` suppresses polling for 10 s; non-blocking "Slowing down" notice | WEB-US-9.5, NFR-4 | M1-Q2 |
+| [x] | M1-Q5 | `useVersionedForm`: `412` → "This changed since you opened it" with *Reload*; the user's edits stay visible beside the reloaded values; resubmit uses the new version | WEB-US-10.1, WEB-11 | M1-Q1 |
+| [x] | M1-Q6 | `useSecretMutation` (no `useMutation`, variables never cached, `gcTime: 0` for the result, secret fields scrubbed); `GenerationNote` ("Generation N, observed M"; "Change not applied yet" while `M < N`) | WEB-US-9.1, WEB-US-11.1 (part), WEB-8, WD-31 | M1-Q1 |
+| [x] | M1-Q7 | `WidgetBoundary`: a failing widget shows its own error with request id and *Retry* without blanking the page | NFR-4 | M1-Q1 |
 
 ### M1-L · CLI previews
 

@@ -19,7 +19,7 @@
 | 2 | Research and data modeling | Complete | research.md, data-dictionary.md |
 | 3 | Architecture and planning | Complete | architecture.md, plan.md |
 | 4 | Task breakdown | Complete | tasks.md: 51 streams, 259 tasks |
-| 5 | Implementation (M0–M6) | In Progress | Step 3, M0 complete (69/69) |
+| 5 | Implementation (M0–M6) | In Progress | Step 3, M0 complete (69/69), M1 7/46 |
 | 6 | Completion and archival | Not Started | |
 
 ## Phase 0 checklist
@@ -33,7 +33,7 @@
 | Milestone | Status | Tasks done |
 |---|---|---|
 | M0 Foundations | Complete | 69 / 69 |
-| M1 Teams & access | Not Started | 0 / 46 |
+| M1 Teams & access | In Progress | 7 / 46 |
 | M2 Agents & secrets | Not Started | 0 / 41 |
 | M3 Spend control | Not Started | 0 / 24 |
 | M4 Production readiness | Not Started | 0 / 34 |
@@ -47,6 +47,7 @@ none blocks M0.
 
 ## Recent activity
 
+- 2026-11-22: M1 M1-Q1, M1-Q2, M1-Q3, M1-Q4, M1-Q5, M1-Q6, M1-Q7 done (7/46).
 - 2026-11-22: M0 M0-X1 done (69/69).
 - 2026-11-22: M0 M0-E1, M0-E2, M0-E3, M0-E4, M0-E5 done (68/69).
 - 2026-11-21: M0 M0-H1, M0-H2, M0-H3, M0-H4, M0-H5, M0-H6, M0-H7, M0-H8, M0-H9, M0-H10 done (63/69).
