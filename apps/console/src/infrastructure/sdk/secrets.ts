@@ -94,9 +94,15 @@ export class SdkSecrets implements SecretsPort {
       secrets(this.client).putValue(teamId, { id: ref.id, version: ref.version }, { value }),
     );
   }
-  rotate(teamId: string, secretId: string, value: string): Promise<SecretRecord> {
+  rotate(teamId: string, secretId: string, value?: string): Promise<SecretRecord> {
     return wrap(async () =>
-      toRecord(await secrets(this.client).rotate(teamId, secretId, { value })),
+      toRecord(
+        await secrets(this.client).rotate(
+          teamId,
+          secretId,
+          value === undefined ? undefined : { value },
+        ),
+      ),
     );
   }
 }

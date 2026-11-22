@@ -36,7 +36,19 @@ async function recordStorageWrites(
   });
   return {
     all: async () => {
-      const kept = await page.evaluate(() => sessionStorage.getItem("__recorded") ?? "[]");
+      // The page may still be finishing a navigation (the redirect back from the IdP, then the route's own
+      // redirects); an evaluate that straddles one loses its execution context. Wait for the load and read again.
+      let kept = "[]";
+      for (let attempt = 0; ; attempt++) {
+        try {
+          await page.waitForLoadState("load");
+          kept = await page.evaluate(() => sessionStorage.getItem("__recorded") ?? "[]");
+          break;
+        } catch (e) {
+          if (attempt >= 5 || !/Execution context was destroyed|navigation/i.test(String(e)))
+            throw e;
+        }
+      }
       return [...bound, ...(JSON.parse(kept) as string[])];
     },
   };

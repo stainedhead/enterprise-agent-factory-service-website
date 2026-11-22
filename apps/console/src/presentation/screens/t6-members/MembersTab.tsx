@@ -24,6 +24,7 @@ import { SignInProviderCard } from "./SignInProviderCard.js";
 
 const ROLES = [
   { value: "team_admin", label: "Team admin" },
+  { value: "team_collaborator", label: "Team collaborator" },
   { value: "team_viewer", label: "Team viewer" },
 ];
 const roleLabel = (r: string) => ROLES.find((x) => x.value === r)?.label ?? r;

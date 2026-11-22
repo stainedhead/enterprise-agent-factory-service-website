@@ -192,3 +192,14 @@ export const MASTER_KEY_TEXT =
 
 /** A team id shortened for the CLI panel: 12 characters and an ellipsis (WP-D16). */
 export const shortId = (id: string): string => (id.length > 12 ? `${id.slice(0, 12)}…` : id);
+
+/** The text for the API's managed-secret refusals when a request is forced (WEB-US-54); `undefined` for any other reason. */
+export function managedRefusalText(
+  reason: string | undefined,
+  managedBy?: string,
+): string | undefined {
+  if (reason === "managed_secret")
+    return `This secret is managed by ${managedBy === "paperclip" ? "Paperclip" : "AFS"} and cannot be changed here`;
+  if (reason === "master_key_not_rotatable") return MASTER_KEY_TEXT;
+  return undefined;
+}

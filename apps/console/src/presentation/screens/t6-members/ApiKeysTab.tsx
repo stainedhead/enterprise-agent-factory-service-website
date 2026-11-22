@@ -31,6 +31,7 @@ import { useService } from "../../services.js";
 
 const ROLES = [
   { value: "team_viewer", label: "Team viewer" },
+  { value: "team_collaborator", label: "Team collaborator" },
   { value: "team_admin", label: "Team admin" },
 ];
 const roleLabel = (r: string) =>

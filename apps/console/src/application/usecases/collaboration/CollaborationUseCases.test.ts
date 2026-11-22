@@ -1,12 +1,83 @@
-import { describe, expect, it } from "vitest";
-import {
-  aCollaboration,
-  aLink,
-  fakeCollaborationPort,
-} from "../../../presentation/testing/collaboration.js";
+import { describe, expect, it, vi } from "vitest";
 import { AppError } from "../../errors.js";
-import type { CollaborationPort } from "../../ports/collaboration.js";
+import type {
+  CollaborationPort,
+  CollaborationRecord,
+  LinkRecord,
+} from "../../ports/collaboration.js";
 import { AGENT_MISSING, CollaborationUseCases, isAgentMissing } from "./CollaborationUseCases.js";
+
+const aCollaboration = (): CollaborationRecord => ({
+  teamId: "team_1",
+  agentId: "agt_collab",
+  version: 3,
+  generation: 4,
+  hostname: "alpha.collab.example.test",
+  webUiEnabled: true,
+  restApiEnabled: false,
+  webUiUrl: null,
+  restApiUrl: null,
+  registrationMode: "manual",
+  effective: { webUi: true, restApi: false, reasons: [] },
+  phase: "Ready",
+  observedGeneration: 4,
+  conditions: [],
+  unmanagedPaperclipAgents: [],
+});
+const aLink = (over: Partial<LinkRecord> = {}): LinkRecord => ({
+  agentId: "agt_1",
+  agentName: "reviewer-bot",
+  connect: true,
+  linkState: "linked",
+  version: 1,
+  ...over,
+});
+const fakeCollaborationPort = (over: Partial<CollaborationPort> = {}) =>
+  ({
+    get: vi.fn(async () => aCollaboration()),
+    put: vi.fn(async () => aCollaboration()),
+    listLinks: vi.fn(async () => ({ items: [aLink()] })),
+    connect: vi.fn(async (_t: string, a: string) => aLink({ agentId: a })),
+    disconnect: vi.fn(async (_t: string, a: string) => aLink({ agentId: a })),
+    rotateKeys: vi.fn(async () => ({
+      rotated: [],
+      signsOutEveryone: true,
+      agentRolloutPending: true,
+    })),
+    listManagedSecrets: vi.fn(async (_t: string, by: string) => ({
+      items: [
+        { id: `sec_${by}`, name: "n", managedBy: by, agentId: "agt_collab" },
+        { id: `other_${by}`, name: "x", managedBy: by, agentId: "agt_other" },
+      ],
+      more: false,
+    })),
+    recentAccess: vi.fn(async () => ({
+      signIns: 5,
+      uniquePeople: 2,
+      deniedRequests: 1,
+      rows: [
+        { principal: { id: "usr_1", name: "Ada" }, signIns: 2, requests: 10, deniedRequests: 0 },
+        {
+          principal: { id: "usr_1", name: "Ada" },
+          signIns: 1,
+          requests: 5,
+          deniedRequests: 1,
+          serviceAdminEntry: true,
+        },
+      ],
+    })),
+    listEndpoints: vi.fn(async () => ({ items: [] })),
+    endpointsCsv: vi.fn(async () => "team,hostname\n"),
+    ...over,
+  }) as unknown as CollaborationPort & {
+    put: ReturnType<typeof vi.fn>;
+    connect: ReturnType<typeof vi.fn>;
+    disconnect: ReturnType<typeof vi.fn>;
+    get: ReturnType<typeof vi.fn>;
+    listLinks: ReturnType<typeof vi.fn>;
+    rotateKeys: ReturnType<typeof vi.fn>;
+    listEndpoints: ReturnType<typeof vi.fn>;
+  };
 
 const make = (over: Partial<CollaborationPort> = {}) => {
   const port = fakeCollaborationPort(over);

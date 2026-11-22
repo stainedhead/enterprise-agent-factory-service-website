@@ -53,5 +53,6 @@ export interface SecretsPort {
   update(teamId: string, ref: SecretRef, input: UpdateSecretInput): Promise<SecretRecord>;
   delete(teamId: string, ref: SecretRef): Promise<void>;
   putValue(teamId: string, ref: SecretRef, value: string): Promise<void>;
-  rotate(teamId: string, secretId: string, value: string): Promise<SecretRecord>;
+  /** `value` is omitted for a secret AFS generates itself (`managedBy` afs). */
+  rotate(teamId: string, secretId: string, value?: string): Promise<SecretRecord>;
 }

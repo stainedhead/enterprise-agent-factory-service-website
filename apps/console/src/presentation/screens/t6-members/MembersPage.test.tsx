@@ -79,7 +79,7 @@ describe("T6 members (M1-M1)", () => {
     const roleOptions = within(within(dialog).getByLabelText("Role"))
       .getAllByRole("option")
       .map((o) => o.textContent);
-    expect(roleOptions).toEqual(["Team admin", "Team viewer"]);
+    expect(roleOptions).toEqual(["Team admin", "Team collaborator", "Team viewer"]);
     await userEvent.click(within(dialog).getByRole("button", { name: "Add" }));
     await waitFor(() =>
       expect(members.add).toHaveBeenCalledWith("team_1", {
@@ -325,5 +325,35 @@ describe("T6 API keys (M1-M2, M1-M5)", () => {
     await waitFor(() =>
       expect(disabled(screen.getByRole("button", { name: "Create API key" }))).toBe(true),
     );
+  });
+});
+
+describe("T6 collaborator role (WEB-US-56)", () => {
+  it("the member role picker offers Team collaborator beside admin and viewer", async () => {
+    const { members } = open();
+    await screen.findByText("ana@example.com");
+    await userEvent.click(screen.getByRole("button", { name: "Change role of ana@example.com" }));
+    const picker = within(screen.getByRole("dialog")).getByLabelText("Role");
+    expect(
+      within(picker)
+        .getAllByRole("option")
+        .map((o) => o.textContent),
+    ).toEqual(["Team admin", "Team collaborator", "Team viewer"]);
+    await userEvent.selectOptions(picker, "team_collaborator");
+    await userEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Save" }));
+    await waitFor(() =>
+      expect(members.update).toHaveBeenCalledWith(
+        "team_1",
+        { id: "mem_1", version: 2 },
+        "team_collaborator",
+      ),
+    );
+  });
+  it("the API key role picker offers Team collaborator", async () => {
+    open({ path: "/t/team_1/members/api-keys" });
+    await screen.findByText("ci");
+    await userEvent.click(screen.getByRole("button", { name: "Create API key" }));
+    const picker = within(screen.getByRole("dialog")).getByLabelText("Role");
+    expect(within(picker).getByRole("option", { name: "Team collaborator" })).toBeTruthy();
   });
 });

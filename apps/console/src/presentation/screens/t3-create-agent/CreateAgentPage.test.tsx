@@ -355,6 +355,8 @@ describe("T3 drafts (FR-004, D-2)", () => {
   });
 });
 
+const sent = (a: ReturnType<typeof fakeAgentsPort>) =>
+  a.create.mock.calls[0]?.[1] as unknown as { collaboration?: unknown };
 const paperclipTpl = aTemplate({
   name: "paperclip-hub",
   capabilities: ["paperclip"],
@@ -441,11 +443,9 @@ describe("T3 role step (WEB-US-45)", () => {
     await userEvent.type(screen.getByLabelText("Name"), "worker-one");
     await userEvent.click(screen.getByRole("button", { name: "Create agent" }));
     await waitFor(() => expect(agents.create).toHaveBeenCalled());
-    expect((agents.create.mock.calls[0]?.[1] as { collaboration?: unknown }).collaboration).toEqual(
-      {
-        connect: true,
-      },
-    );
+    expect(sent(agents).collaboration).toEqual({
+      connect: true,
+    });
   });
   it("connect switch is off and disabled without a collaboration agent", async () => {
     const agents = rolePort();
@@ -457,9 +457,7 @@ describe("T3 role step (WEB-US-45)", () => {
     await userEvent.type(screen.getByLabelText("Name"), "worker-two");
     await userEvent.click(screen.getByRole("button", { name: "Create agent" }));
     await waitFor(() => expect(agents.create).toHaveBeenCalled());
-    expect(
-      (agents.create.mock.calls[0]?.[1] as { collaboration?: unknown }).collaboration,
-    ).toBeUndefined();
+    expect(sent(agents).collaboration).toBeUndefined();
   });
   it("409 collaboration_agent_exists shows the same text on the step", async () => {
     const agents = rolePort();

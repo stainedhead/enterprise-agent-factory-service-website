@@ -5,6 +5,7 @@ import { AppError } from "../../../application/errors.js";
 import type { OverviewPort } from "../../../application/ports/overview.js";
 import { OverviewUseCases } from "../../../application/usecases/overview/OverviewUseCases.js";
 import type { Me } from "../../../domain/me.js";
+import { collaborationServices, fakeCollaborationPort } from "../../testing/collaboration.js";
 import { TEAM_ADMIN, VIEWER } from "../../testing/harness.js";
 import { renderScreen } from "../../testing/screen.js";
 import {
@@ -81,6 +82,7 @@ function open(
     path?: string;
     teams?: ReturnType<typeof fakeTeamsPort>;
     ov?: ReturnType<typeof overviewPorts>;
+    collab?: ReturnType<typeof fakeCollaborationPort>;
   } = {},
 ) {
   const teams = o.teams ?? fakeTeamsPort();
@@ -88,7 +90,11 @@ function open(
   const Page = o.viewer ? V1 : T1;
   renderScreen(<Page />, {
     me: o.me ?? serviceAdminWith(ALL_PERMS),
-    services: { ...teamsServices(teams), overview: ov.overview },
+    services: {
+      ...teamsServices(teams),
+      overview: ov.overview,
+      ...(o.collab ? collaborationServices(o.collab) : {}),
+    },
     path: o.path ?? "/t/team_1",
     route: "/t/:teamId/*",
   });
@@ -242,5 +248,66 @@ describe("V1 viewer overview (M1-O4)", () => {
         true,
       );
     }
+  });
+});
+
+describe("T1 and V1 collaboration tile (WEB-US-53)", () => {
+  it("collaboration tile shows the hostname, the surfaces, the phase and Open Paperclip", async () => {
+    open({ collab: fakeCollaborationPort() });
+    expect(await screen.findByText("alpha.collab.example.test")).toBeTruthy();
+    expect(screen.getByRole("link", { name: "Open Paperclip" }).getAttribute("href")).toContain(
+      "alpha.collab",
+    );
+    expect(screen.getByRole("link", { name: "Manage collaboration" })).toBeTruthy();
+  });
+  it("tile empty state offers create to a team-admin", async () => {
+    const collab = fakeCollaborationPort({
+      get: async () => {
+        throw new AppError({
+          kind: "not-found",
+          message: "none",
+          reason: "collaboration_agent_missing",
+        });
+      },
+    });
+    open({ collab });
+    expect(await screen.findByRole("link", { name: "Create collaboration agent" })).toBeTruthy();
+  });
+  it("tile empty state links a viewer to the page", async () => {
+    const collab = fakeCollaborationPort({
+      get: async () => {
+        throw new AppError({
+          kind: "not-found",
+          message: "none",
+          reason: "collaboration_agent_missing",
+        });
+      },
+    });
+    open({ collab, me: VIEWER, viewer: true });
+    expect(await screen.findByRole("link", { name: "Open collaboration" })).toBeTruthy();
+  });
+  it("a failing call shows the card's own error", async () => {
+    const collab = fakeCollaborationPort({
+      get: async () => {
+        throw new AppError({ kind: "unavailable", message: "down" });
+      },
+    });
+    open({ collab });
+    expect(await screen.findByText("Collaboration could not be loaded")).toBeTruthy();
+  });
+  it("tile hidden without collaboration:read, and nothing is requested", async () => {
+    const collab = fakeCollaborationPort();
+    open({
+      collab,
+      me: {
+        ...VIEWER,
+        teams: [
+          { teamId: "team_1", slug: "alpha", role: "team_viewer", permissions: ["teams:read"] },
+        ],
+      },
+    });
+    expect(await screen.findByRole("heading", { name: /^Alpha/ })).toBeTruthy();
+    expect(screen.queryByText("Collaboration")).toBeNull();
+    expect(collab.get).not.toHaveBeenCalled();
   });
 });
