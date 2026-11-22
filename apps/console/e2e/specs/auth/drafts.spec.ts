@@ -95,9 +95,16 @@ test.describe("drafts across re-authentication (FR-004)", () => {
     await expect(page.getByLabel("Template")).toHaveValue("coder");
 
     // the only draft write is the carrier key, holding the form's non-secret fields, no token
+    // poll: the recorder merges a binding call with a sessionStorage copy, and the latter is read after the
+    // redirect back; on a loaded runner both can lag the page, so wait for the carrier write instead of reading once
+    await expect
+      .poll(async () => (await recorder.all()).filter((w) => w.startsWith("afs.drafts=")).length, {
+        message: "the carrier write afs.drafts was never recorded",
+        timeout: 10_000,
+      })
+      .toBeGreaterThan(0);
     const writes = await recorder.all();
     const draftWrites = writes.filter((w) => w.startsWith("afs.drafts="));
-    expect(draftWrites.length).toBeGreaterThan(0);
     for (const w of writes) {
       expect(w).not.toMatch(/access_token|refresh_token|id_token|Bearer /);
     }

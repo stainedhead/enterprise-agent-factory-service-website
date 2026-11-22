@@ -61,7 +61,7 @@ export function Modal({
         onKeyDown={onKey}
       >
         <h2 id={titleId}>{title}</h2>
-        {children}
+        <div className={s.dialogBody}>{children}</div>
         {actions && <div className={s.dialogActions}>{actions}</div>}
       </div>
     </div>
