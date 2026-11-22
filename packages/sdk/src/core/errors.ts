@@ -7,6 +7,7 @@ export type AfsErrorCode =
   | "Conflict"
   | "PreconditionFailed"
   | "PreconditionRequired"
+  | "SecretDetected"
   | "Throttled"
   | "InternalError"
   | "Unavailable"
@@ -60,6 +61,10 @@ export class AfsError extends Error {
   }
   get isPreconditionRequired(): boolean {
     return this.code === "PreconditionRequired";
+  }
+  /** Code `SecretDetected` (422): returned only by the collaboration edge, never by afs-api (SDK-15, WP-D10). */
+  get isSecretDetected(): boolean {
+    return this.code === "SecretDetected";
   }
   get isThrottled(): boolean {
     return this.code === "Throttled";

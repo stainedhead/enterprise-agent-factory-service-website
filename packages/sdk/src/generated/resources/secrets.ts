@@ -7,7 +7,7 @@ import type { CreateSecretRequest, PutSecretValueRequest, RotateSecretRequest, S
 export function secrets(core: AfsClient) {
   return {
     /** List secrets (requires `secrets:read-metadata`). GET /v1/teams/{teamId}/secrets */
-    list(teamId: string, opts?: CallOptions & { maxResults?: number; nextToken?: string }): Paginated<Secret> {
+    list(teamId: string, opts?: CallOptions & { managedBy?: "user" | "afs" | "paperclip" | (string & {}); maxResults?: number; nextToken?: string }): Paginated<Secret> {
       return core.paginate<Secret>("ListSecrets", { path: [teamId] }, opts);
     },
     /** Create secret (requires `secrets:write`). POST /v1/teams/{teamId}/secrets */
@@ -31,7 +31,7 @@ export function secrets(core: AfsClient) {
       return core.call<void>("PutSecretValue", { path: [teamId, secretId], body }, opts);
     },
     /** Rotate secret (requires `secrets:write`). POST /v1/teams/{teamId}/secrets/{secretId}:rotate */
-    rotate(teamId: string, secretId: string, body: RotateSecretRequest, opts?: CallOptions): Promise<Secret> {
+    rotate(teamId: string, secretId: string, body?: RotateSecretRequest, opts?: CallOptions): Promise<Secret> {
       return core.call<Secret>("RotateSecret", { path: [teamId, secretId], body }, opts);
     },
   };

@@ -60,7 +60,7 @@ moving the pin to a tag is a `contract:update --ref <tag>` and a regenerate.
 
 ## What is here
 
-- **`@afs/sdk`** 0.3.0, published to GitHub Packages as **`@stainedhead/afs-sdk`**. Generated from the pinned
+- **`@afs/sdk`** 1.0.1, published to GitHub Packages as **`@stainedhead/afs-sdk`**. Generated from the pinned
   contract: 182 operations in 41 resource modules, async-iterator pagination, `If-Match` and `Idempotency-Key`
   handling, retries, `AfsError`, `waitFor` and typed reports (`createReports`). Zero runtime dependencies.
 - **The console**: 33 screens for service admins, team admins, team viewers and the security operator, covering

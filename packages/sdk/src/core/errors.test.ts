@@ -111,3 +111,61 @@ describe("AfsError (M0-C2)", () => {
     });
   });
 });
+
+describe("collaboration errors (SDK-15)", () => {
+  it("isSecretDetected is true only for SecretDetected", async () => {
+    const e = await fail(422, {
+      body: {
+        code: "SecretDetected",
+        message: "m",
+        requestId: "r",
+        details: { patterns: ["aws_access_key"] },
+      },
+    });
+    expect(e.isSecretDetected).toBe(true);
+    for (const [, g] of GETTERS) expect(e[g]).toBe(false);
+    const other = await fail(400, {
+      body: { code: "ValidationError", message: "m", requestId: "r" },
+    });
+    expect(other.isSecretDetected).toBe(false);
+  });
+  it("collaboration reasons stay in details and an unknown reason passes through", async () => {
+    for (const reason of [
+      "collaboration_agent_exists",
+      "managed_secret",
+      "hostname_held",
+      "team_suspended",
+      "future_reason",
+    ]) {
+      const e = await fail(409, {
+        body: { code: "Conflict", message: "m", requestId: "r", details: { reason } },
+      });
+      expect(e.isConflict).toBe(true);
+      expect(e.details.reason).toBe(reason);
+    }
+    const v = await fail(400, {
+      body: {
+        code: "ValidationError",
+        message: "m",
+        requestId: "r",
+        details: {
+          reason: "master_key_not_rotatable",
+          fields: [{ field: "names", reason: "master_key_not_rotatable" }],
+        },
+      },
+    });
+    expect(v.isValidationError).toBe(true);
+    expect((v.details.fields as { reason: string }[])[0]?.reason).toBe("master_key_not_rotatable");
+  });
+  it("a 404 collaboration_agent_missing is NotFound", async () => {
+    const e = await fail(404, {
+      body: {
+        code: "NotFound",
+        message: "m",
+        requestId: "r",
+        details: { reason: "collaboration_agent_missing" },
+      },
+    });
+    expect(e.isNotFound).toBe(true);
+  });
+});

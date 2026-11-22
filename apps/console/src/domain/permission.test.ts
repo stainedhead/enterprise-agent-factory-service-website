@@ -16,7 +16,7 @@ const json = JSON.parse(
 
 describe("catalog drift (M0-D2)", () => {
   it("has every permission, role and condition of permissions.json and nothing else", () => {
-    expect(PERMISSIONS).toHaveLength(58);
+    expect(PERMISSIONS).toHaveLength(63);
     expect(CATALOG.map((e) => e.permission)).toEqual(json.permissions.map((p) => p.name));
     for (const p of json.permissions) {
       const entry = CATALOG.find((e) => e.permission === p.name);

@@ -10,7 +10,7 @@ export interface Principal {
 export interface MeTeam {
   readonly teamId: string;
   readonly slug: string;
-  readonly role: "team_admin" | "team_viewer" | "workload";
+  readonly role: "team_admin" | "team_collaborator" | "team_viewer" | "workload";
   readonly permissions: readonly Permission[];
 }
 
@@ -53,6 +53,7 @@ export type ActiveRole =
   | "service_admin"
   | "security_operator"
   | "team_admin"
+  | "team_collaborator"
   | "team_viewer"
   | "workload"
   | "none";

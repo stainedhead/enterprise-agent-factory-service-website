@@ -11,7 +11,7 @@ export interface AddMemberRequest {
   email?: string;
   groupName?: string;
   identityProviderId?: string;
-  role: "team_admin" | "team_viewer" | (string & {});
+  role: "team_admin" | "team_collaborator" | "team_viewer" | (string & {});
   subjectType: "user" | "group" | (string & {});
   userId?: string;
 }
@@ -29,6 +29,7 @@ export interface AddSecurityOperatorRequest {
 /** An agent. It has no replica count (RA-US-4.6) */
 
 export interface Agent {
+  collaboration?: AgentCollaboration;
   readonly createdAt?: Timestamp;
   readonly createdBy?: string;
   description?: string;
@@ -41,6 +42,8 @@ export interface Agent {
   readonly name: Name;
   readonly paused: boolean;
   resources?: Resources;
+  /** worker or collaboration; set on create, immutable */
+  role?: "worker" | "collaboration" | (string & {});
   secretBindings?: SecretBinding[];
   readonly status: Status;
   /** Agent template name */
@@ -49,6 +52,24 @@ export interface Agent {
   /** Optimistic-concurrency version; ETag is "<version>" */
   readonly version: number;
   volume?: AgentVolume;
+}
+
+/** A worker agent's connection to the team's Paperclip (absent on the collaboration agent) */
+
+export interface AgentCollaboration {
+  connect: boolean;
+  readonly lastError?: string | null;
+  readonly lastSyncedAt?: string | null;
+  readonly linkState: "pending" | "linked" | "failed" | "disabled" | (string & {});
+  paperclipAgentId?: string | null;
+}
+
+/** AgentCollaborationInput (OpenAPI schema `AgentCollaborationInput`). */
+
+export interface AgentCollaborationInput {
+  connect?: boolean;
+  /** Accepted only while registrationMode is manual */
+  paperclipAgentId?: string;
 }
 
 /** AgentIdentity (OpenAPI schema `AgentIdentity`). */
@@ -86,6 +107,7 @@ export interface AgentList {
 
 export interface AgentTemplate {
   allowedDigests: string[];
+  capabilities?: ("paperclip" | (string & {}))[];
   readonly createdAt?: Timestamp;
   currentDigest: string;
   defaultResources?: Resources;
@@ -152,7 +174,7 @@ export interface ApiKey {
   readonly keyPrefix: string;
   readonly lastUsedAt?: Timestamp | null;
   name: string;
-  role: "team_admin" | "team_viewer" | "security_operator" | (string & {});
+  role: "team_admin" | "team_collaborator" | "team_viewer" | "security_operator" | (string & {});
   /** Create response only; shown once, never stored or returned again (D52) */
   readonly secretKey?: string;
 }
@@ -237,6 +259,63 @@ export interface CatalogSystemRequest {
   slug: string;
 }
 
+/** What the edge honours (stored choice, team guardrail, service settings and the provider's collaboration client) */
+
+export interface CollaborationEffective {
+  reasons: ("team_not_allowed" | "service_endpoints_off" | "base_domain_unset" | "provider_without_collab_client" | (string & {}))[];
+  restApi: boolean;
+  webUi: boolean;
+}
+
+/** CollaborationEndpoint (OpenAPI schema `CollaborationEndpoint`). */
+
+export interface CollaborationEndpoint {
+  agentId: string;
+  effective: {
+    restApi: boolean;
+    webUi: boolean;
+  };
+  hostname: string | null;
+  lastAccessAt?: string | null;
+  mayExposeCollaboration: boolean;
+  phase: "Ready" | "Degraded" | "Failed" | "Pending" | (string & {});
+  restApiEnabled: boolean;
+  slug: string;
+  teamId: string;
+  teamState: "active" | "suspended" | "deleting" | "deleted" | (string & {});
+  webUiEnabled: boolean;
+}
+
+/** CollaborationEndpointList (OpenAPI schema `CollaborationEndpointList`). */
+
+export interface CollaborationEndpointList {
+  items: CollaborationEndpoint[];
+  /** Absent on the last page */
+  nextToken?: string;
+}
+
+/** CollaborationLink (OpenAPI schema `CollaborationLink`). */
+
+export interface CollaborationLink {
+  readonly agentId: string;
+  readonly agentName: string;
+  connect: boolean;
+  /** A short sanitized reason; never a Paperclip key or content */
+  readonly lastError?: string | null;
+  readonly lastSyncedAt?: string | null;
+  readonly linkState: "pending" | "linked" | "failed" | "disabled" | (string & {});
+  paperclipAgentId?: string | null;
+  readonly version: number;
+}
+
+/** CollaborationLinkList (OpenAPI schema `CollaborationLinkList`). */
+
+export interface CollaborationLinkList {
+  items: CollaborationLink[];
+  /** Absent on the last page */
+  nextToken?: string;
+}
+
 /** Condition (OpenAPI schema `Condition`). */
 
 export interface Condition {
@@ -271,6 +350,13 @@ export interface ConfigValueList {
   items: ConfigValue[];
   /** Absent on the last page */
   nextToken?: string;
+}
+
+/** ConnectAgentRequest (OpenAPI schema `ConnectAgentRequest`). */
+
+export interface ConnectAgentRequest {
+  /** Accepted only while registrationMode is manual */
+  paperclipAgentId?: string;
 }
 
 /** CostList (OpenAPI schema `CostList`). */
@@ -342,12 +428,15 @@ export interface CreateAgentIdentityRequest {
 /** CreateAgentRequest (OpenAPI schema `CreateAgentRequest`). */
 
 export interface CreateAgentRequest {
+  collaboration?: AgentCollaborationInput;
   description?: string;
   iamIdentity?: "team_shared" | "dedicated" | (string & {});
   image: ImageRef;
   modelId: string;
   name: Name;
   resources?: Resources;
+  /** Set on create; immutable */
+  role?: "worker" | "collaboration" | (string & {});
   secretBindings?: SecretBinding[];
   /** Agent template name */
   template: string;
@@ -360,7 +449,7 @@ export interface CreateApiKeyRequest {
   /** At most 90 days ahead */
   expiresAt: string;
   name: string;
-  role: "team_admin" | "team_viewer" | (string & {});
+  role: "team_admin" | "team_collaborator" | "team_viewer" | (string & {});
 }
 
 /** CreateExportRequest (OpenAPI schema `CreateExportRequest`). */
@@ -375,6 +464,10 @@ export interface CreateExportRequest {
 export interface CreateIdentityProviderRequest {
   cliClientId: string;
   clientSecretArn?: string;
+  /** The collaboration (Paperclip edge) client of this provider */
+  collabClientId?: string | null;
+  /** Reference only; needs collabClientId; never returned by ListSignInProviders */
+  collabClientSecretArn?: string | null;
   consoleClientId: string;
   enabled?: boolean;
   groupsClaim?: string;
@@ -545,6 +638,8 @@ export interface CreateTeamRequest {
   maxBudgetUsd: Money;
   /** Guardrail field: needs teams:set-guardrails */
   mayAddExternalSystems?: boolean;
+  /** Guardrail field: needs teams:set-guardrails. Whether the team may publish its Paperclip endpoints (default true) */
+  mayExposeCollaboration?: boolean;
   /** Guardrail field: needs teams:set-guardrails */
   mayManageAwsAccounts?: boolean;
   /** Model ids enabled for the team */
@@ -613,7 +708,7 @@ export interface Error {
 
 /** API contract §6 codes returned by afs-api (BudgetExceeded and UpstreamError come only from afs-gateway) */
 
-export type ErrorCode = "ValidationError" | "Unauthenticated" | "AccessDenied" | "NotFound" | "Conflict" | "PreconditionFailed" | "PreconditionRequired" | "Throttled" | "InternalError" | "Unavailable" | (string & {});
+export type ErrorCode = "ValidationError" | "Unauthenticated" | "AccessDenied" | "NotFound" | "Conflict" | "PreconditionFailed" | "PreconditionRequired" | "SecretDetected" | "Throttled" | "InternalError" | "Unavailable" | (string & {});
 
 /** Machine-readable details; which fields appear depends on code and reason. Never holds a secret value */
 
@@ -724,6 +819,10 @@ export interface IdentityProvider {
   cliClientId: string;
   /** Secrets Manager ARN of the confidential client's secret; the value never reaches AFS */
   clientSecretArn?: string | null;
+  /** The collaboration (Paperclip edge) client of this provider */
+  collabClientId?: string | null;
+  /** Reference only; needs collabClientId; never returned by ListSignInProviders */
+  collabClientSecretArn?: string | null;
   consoleClientId: string;
   readonly createdAt?: Timestamp;
   readonly createdBy?: string;
@@ -826,7 +925,7 @@ export interface Me {
 export interface MeTeam {
   /** Effective permissions on this team (D42); UX only */
   permissions: string[];
-  role: "team_admin" | "team_viewer" | "workload" | (string & {});
+  role: "team_admin" | "team_collaborator" | "team_viewer" | "workload" | (string & {});
   slug: Name;
   teamId: string;
 }
@@ -840,7 +939,7 @@ export interface Member {
   groupName?: string;
   readonly id: string;
   identityProviderId?: string;
-  role: "team_admin" | "team_viewer" | (string & {});
+  role: "team_admin" | "team_collaborator" | "team_viewer" | (string & {});
   subjectType: "user" | "group" | (string & {});
   readonly updatedAt?: Timestamp;
   userId?: string;
@@ -1095,6 +1194,7 @@ export interface Principal {
 
 export interface PutAgentTemplateRequest {
   allowedDigests: string[];
+  capabilities?: ("paperclip" | (string & {}))[];
   currentDigest: string;
   defaultResources?: Resources;
   description?: string;
@@ -1168,6 +1268,15 @@ export interface PutStorageClassRequest {
   description?: string;
   enabled?: boolean;
   volumeType: "gp3" | "io2" | (string & {});
+}
+
+/** PutTeamCollaborationRequest (OpenAPI schema `PutTeamCollaborationRequest`). */
+
+export interface PutTeamCollaborationRequest {
+  /** Omitted keeps the current value */
+  registrationMode?: "manual" | "managed" | (string & {});
+  restApiEnabled: boolean;
+  webUiEnabled: boolean;
 }
 
 /** PutTeamModelsRequest (OpenAPI schema `PutTeamModelsRequest`). */
@@ -1349,10 +1458,33 @@ export interface RoleLinkList {
   nextToken?: string;
 }
 
-/** Writes a new Secrets Manager version with this value */
+/** RotateCollaborationKeysRequest (OpenAPI schema `RotateCollaborationKeysRequest`). */
+
+export interface RotateCollaborationKeysRequest {
+  /** Default is both. paperclip-secrets-master-key is refused (master_key_not_rotatable) */
+  names?: ("paperclip-better-auth-secret" | "paperclip-tool-action-signing-secret" | (string & {}))[];
+}
+
+/** RotateCollaborationKeysResult (OpenAPI schema `RotateCollaborationKeysResult`). */
+
+export interface RotateCollaborationKeysResult {
+  agentRolloutPending: boolean;
+  rotated: RotatedSecret[];
+  signsOutEveryone: boolean;
+}
+
+/** Writes a new Secrets Manager version with this value. Required for a secret a team manages; an AFS-managed secret takes no body (AFS generates the value) and a Paperclip secret is refused (409 managed_secret) */
 
 export interface RotateSecretRequest {
-  value: SecretValue;
+  value?: SecretValue;
+}
+
+/** RotatedSecret (OpenAPI schema `RotatedSecret`). */
+
+export interface RotatedSecret {
+  name: string;
+  secretId: string;
+  versionId: string;
 }
 
 /** ScalePoolRequest (OpenAPI schema `ScalePoolRequest`). */
@@ -1372,6 +1504,7 @@ export interface Secret {
   externalSystemId?: string | null;
   readonly id: string;
   readonly lastChangedAt?: Timestamp;
+  readonly managedBy?: "user" | "afs" | "paperclip" | (string & {});
   name: string;
   poolId?: string;
   rotation?: {
@@ -1607,6 +1740,10 @@ export interface SwarmTemplateList {
 /** SwarmTemplateSpec (OpenAPI schema `SwarmTemplateSpec`). */
 
 export interface SwarmTemplateSpec {
+  /** Optional collaboration agent of the remediation team (PC-D29); the template must be enabled and carry capability paperclip */
+  collaboration?: {
+    templateId: string;
+  };
   configValues?: Record<string, unknown>[];
   handoffs?: Record<string, unknown>[];
   pools: Record<string, unknown>[];
@@ -1656,6 +1793,8 @@ export interface Team {
   maxBudgetUsd: Money;
   /** Guardrail field: needs teams:set-guardrails */
   mayAddExternalSystems: boolean;
+  /** Guardrail field: needs teams:set-guardrails. Whether the team may publish its Paperclip endpoints (default true) */
+  mayExposeCollaboration?: boolean;
   /** Guardrail field: needs teams:set-guardrails */
   mayManageAwsAccounts: boolean;
   readonly namespace: string;
@@ -1680,6 +1819,28 @@ export interface TeamBudgetInput {
   amountUsd: Money;
   period?: "lifetime" | (string & {});
   thresholds?: number[];
+}
+
+/** The team's collaboration resource; singleton per team (API contract §4.4b) */
+
+export interface TeamCollaboration {
+  readonly agentId: string;
+  readonly createdAt?: Timestamp;
+  readonly createdBy?: string;
+  effective: CollaborationEffective;
+  readonly generation: number;
+  readonly hostname: string | null;
+  registrationMode: "manual" | "managed" | (string & {});
+  restApiEnabled: boolean;
+  readonly restApiUrl: string | null;
+  readonly status: Status;
+  readonly teamId: string;
+  readonly unmanagedPaperclipAgents: string[];
+  readonly updatedAt?: Timestamp;
+  /** Optimistic-concurrency version; ETag is "<version>" */
+  readonly version: number;
+  webUiEnabled: boolean;
+  readonly webUiUrl: string | null;
 }
 
 /** TeamDirectoryEntry (OpenAPI schema `TeamDirectoryEntry`). */
@@ -1736,6 +1897,7 @@ export type Timestamp = string;
 /** UpdateAgentRequest (OpenAPI schema `UpdateAgentRequest`). */
 
 export interface UpdateAgentRequest {
+  collaboration?: AgentCollaborationInput;
   description?: string;
   iamIdentity?: "team_shared" | "dedicated" | (string & {});
   image?: ImageRef;
@@ -1774,6 +1936,10 @@ export interface UpdateExternalSystemRequest {
 export interface UpdateIdentityProviderRequest {
   cliClientId?: string;
   clientSecretArn?: string | null;
+  /** The collaboration (Paperclip edge) client of this provider */
+  collabClientId?: string | null;
+  /** Reference only; needs collabClientId; never returned by ListSignInProviders */
+  collabClientSecretArn?: string | null;
   consoleClientId?: string;
   enabled?: boolean;
   groupsClaim?: string;
@@ -1793,7 +1959,7 @@ export interface UpdateLogDestinationRequest {
 /** UpdateMemberRequest (OpenAPI schema `UpdateMemberRequest`). */
 
 export interface UpdateMemberRequest {
-  role: "team_admin" | "team_viewer" | (string & {});
+  role: "team_admin" | "team_collaborator" | "team_viewer" | (string & {});
 }
 
 /** UpdateModelRequest (OpenAPI schema `UpdateModelRequest`). */
@@ -1869,7 +2035,7 @@ export interface UpdateSwarmTemplateRequest {
   ttlHours?: number;
 }
 
-/** Fields to change. maxBudgetUsd, the ceiling override, quotas, isolationTier, viewerKubectl, mayManageAwsAccounts and mayAddExternalSystems need teams:set-guardrails; allowedAwsAccounts needs teams:set-aws-accounts */
+/** Fields to change. maxBudgetUsd, the ceiling override, quotas, isolationTier, viewerKubectl, mayManageAwsAccounts, mayAddExternalSystems and mayExposeCollaboration need teams:set-guardrails; allowedAwsAccounts needs teams:set-aws-accounts */
 
 export interface UpdateTeamRequest {
   allowedAwsAccounts?: AwsAccountId[];
@@ -1886,6 +2052,7 @@ export interface UpdateTeamRequest {
   kind?: "persistent" | "ephemeral" | (string & {});
   maxBudgetUsd?: Money;
   mayAddExternalSystems?: boolean;
+  mayExposeCollaboration?: boolean;
   mayManageAwsAccounts?: boolean;
   ownerEmail?: string;
   quotas?: Quotas;

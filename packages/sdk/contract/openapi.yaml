@@ -347,6 +347,7 @@ components:
         role:
           enum:
             - team_admin
+            - team_collaborator
             - team_viewer
           type: string
         subjectType:
@@ -388,6 +389,8 @@ components:
     Agent:
       description: An agent. It has no replica count (RA-US-4.6)
       properties:
+        collaboration:
+          $ref: '#/components/schemas/AgentCollaboration'
         createdAt:
           $ref: '#/components/schemas/Timestamp'
           readOnly: true
@@ -426,6 +429,12 @@ components:
           type: boolean
         resources:
           $ref: '#/components/schemas/Resources'
+        role:
+          description: worker or collaboration; set on create, immutable
+          enum:
+            - worker
+            - collaboration
+          type: string
         secretBindings:
           items:
             $ref: '#/components/schemas/SecretBinding'
@@ -457,6 +466,48 @@ components:
         - version
         - generation
         - status
+      type: object
+    AgentCollaboration:
+      description: A worker agent's connection to the team's Paperclip (absent on the collaboration agent)
+      properties:
+        connect:
+          type: boolean
+        lastError:
+          readOnly: true
+          type:
+            - string
+            - "null"
+        lastSyncedAt:
+          format: date-time
+          readOnly: true
+          type:
+            - string
+            - "null"
+        linkState:
+          enum:
+            - pending
+            - linked
+            - failed
+            - disabled
+          readOnly: true
+          type: string
+        paperclipAgentId:
+          pattern: ^[A-Za-z0-9._:-]{1,128}$
+          type:
+            - string
+            - "null"
+      required:
+        - connect
+        - linkState
+      type: object
+    AgentCollaborationInput:
+      properties:
+        connect:
+          type: boolean
+        paperclipAgentId:
+          description: Accepted only while registrationMode is manual
+          pattern: ^[A-Za-z0-9._:-]{1,128}$
+          type: string
       type: object
     AgentIdentity:
       properties:
@@ -540,6 +591,12 @@ components:
         allowedDigests:
           items:
             pattern: ^sha256:[0-9a-f]{64}$
+            type: string
+          type: array
+        capabilities:
+          items:
+            enum:
+              - paperclip
             type: string
           type: array
         createdAt:
@@ -692,6 +749,7 @@ components:
         role:
           enum:
             - team_admin
+            - team_collaborator
             - team_viewer
             - security_operator
           type: string
@@ -922,6 +980,160 @@ components:
         - category
         - endpoints
       type: object
+    CollaborationEffective:
+      description: What the edge honours (stored choice, team guardrail, service settings and the provider's collaboration client)
+      properties:
+        reasons:
+          items:
+            enum:
+              - team_not_allowed
+              - service_endpoints_off
+              - base_domain_unset
+              - provider_without_collab_client
+            type: string
+          type: array
+        restApi:
+          type: boolean
+        webUi:
+          type: boolean
+      required:
+        - webUi
+        - restApi
+        - reasons
+      type: object
+    CollaborationEndpoint:
+      properties:
+        agentId:
+          pattern: ^agt_[0-9A-HJKMNP-TV-Z]{26}$
+          type: string
+        effective:
+          properties:
+            restApi:
+              type: boolean
+            webUi:
+              type: boolean
+          required:
+            - webUi
+            - restApi
+          type: object
+        hostname:
+          type:
+            - string
+            - "null"
+        lastAccessAt:
+          format: date-time
+          type:
+            - string
+            - "null"
+        mayExposeCollaboration:
+          type: boolean
+        phase:
+          enum:
+            - Ready
+            - Degraded
+            - Failed
+            - Pending
+          type: string
+        restApiEnabled:
+          type: boolean
+        slug:
+          type: string
+        teamId:
+          pattern: ^team_[0-9A-HJKMNP-TV-Z]{26}$
+          type: string
+        teamState:
+          enum:
+            - active
+            - suspended
+            - deleting
+            - deleted
+          type: string
+        webUiEnabled:
+          type: boolean
+      required:
+        - teamId
+        - slug
+        - teamState
+        - hostname
+        - agentId
+        - webUiEnabled
+        - restApiEnabled
+        - effective
+        - mayExposeCollaboration
+        - phase
+      type: object
+    CollaborationEndpointList:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/CollaborationEndpoint'
+          type: array
+        nextToken:
+          description: Absent on the last page
+          type: string
+      required:
+        - items
+      type: object
+    CollaborationLink:
+      properties:
+        agentId:
+          pattern: ^agt_[0-9A-HJKMNP-TV-Z]{26}$
+          readOnly: true
+          type: string
+        agentName:
+          readOnly: true
+          type: string
+        connect:
+          type: boolean
+        lastError:
+          description: A short sanitized reason; never a Paperclip key or content
+          maxLength: 500
+          readOnly: true
+          type:
+            - string
+            - "null"
+        lastSyncedAt:
+          format: date-time
+          readOnly: true
+          type:
+            - string
+            - "null"
+        linkState:
+          enum:
+            - pending
+            - linked
+            - failed
+            - disabled
+          readOnly: true
+          type: string
+        paperclipAgentId:
+          pattern: ^[A-Za-z0-9._:-]{1,128}$
+          type:
+            - string
+            - "null"
+        version:
+          minimum: 1
+          readOnly: true
+          type: integer
+      required:
+        - agentId
+        - agentName
+        - connect
+        - linkState
+        - version
+      type: object
+    CollaborationLinkList:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/CollaborationLink'
+          type: array
+        nextToken:
+          description: Absent on the last page
+          type: string
+      required:
+        - items
+      type: object
     Condition:
       properties:
         lastTransitionTime:
@@ -995,6 +1207,13 @@ components:
           type: string
       required:
         - items
+      type: object
+    ConnectAgentRequest:
+      properties:
+        paperclipAgentId:
+          description: Accepted only while registrationMode is manual
+          pattern: ^[A-Za-z0-9._:-]{1,128}$
+          type: string
       type: object
     CostList:
       properties:
@@ -1150,6 +1369,8 @@ components:
       type: object
     CreateAgentRequest:
       properties:
+        collaboration:
+          $ref: '#/components/schemas/AgentCollaborationInput'
         description:
           maxLength: 1000
           type: string
@@ -1166,6 +1387,12 @@ components:
           $ref: '#/components/schemas/Name'
         resources:
           $ref: '#/components/schemas/Resources'
+        role:
+          description: Set on create; immutable
+          enum:
+            - worker
+            - collaboration
+          type: string
         secretBindings:
           items:
             $ref: '#/components/schemas/SecretBinding'
@@ -1194,6 +1421,7 @@ components:
         role:
           enum:
             - team_admin
+            - team_collaborator
             - team_viewer
           type: string
       required:
@@ -1217,6 +1445,16 @@ components:
           type: string
         clientSecretArn:
           type: string
+        collabClientId:
+          description: The collaboration (Paperclip edge) client of this provider
+          type:
+            - string
+            - "null"
+        collabClientSecretArn:
+          description: Reference only; needs collabClientId; never returned by ListSignInProviders
+          type:
+            - string
+            - "null"
         consoleClientId:
           type: string
         enabled:
@@ -1619,6 +1857,9 @@ components:
         mayAddExternalSystems:
           description: 'Guardrail field: needs teams:set-guardrails'
           type: boolean
+        mayExposeCollaboration:
+          description: 'Guardrail field: needs teams:set-guardrails. Whether the team may publish its Paperclip endpoints (default true)'
+          type: boolean
         mayManageAwsAccounts:
           description: 'Guardrail field: needs teams:set-guardrails'
           type: boolean
@@ -1794,6 +2035,7 @@ components:
         - Conflict
         - PreconditionFailed
         - PreconditionRequired
+        - SecretDetected
         - Throttled
         - InternalError
         - Unavailable
@@ -2077,6 +2319,16 @@ components:
           type:
             - string
             - "null"
+        collabClientId:
+          description: The collaboration (Paperclip edge) client of this provider
+          type:
+            - string
+            - "null"
+        collabClientSecretArn:
+          description: Reference only; needs collabClientId; never returned by ListSignInProviders
+          type:
+            - string
+            - "null"
         consoleClientId:
           type: string
         createdAt:
@@ -2319,6 +2571,7 @@ components:
         role:
           enum:
             - team_admin
+            - team_collaborator
             - team_viewer
             - workload
           type: string
@@ -2360,6 +2613,7 @@ components:
         role:
           enum:
             - team_admin
+            - team_collaborator
             - team_viewer
           type: string
         subjectType:
@@ -2980,6 +3234,12 @@ components:
             type: string
           minItems: 1
           type: array
+        capabilities:
+          items:
+            enum:
+              - paperclip
+            type: string
+          type: array
         currentDigest:
           pattern: ^sha256:[0-9a-f]{64}$
           type: string
@@ -3115,6 +3375,22 @@ components:
           type: string
       required:
         - volumeType
+      type: object
+    PutTeamCollaborationRequest:
+      properties:
+        registrationMode:
+          description: Omitted keeps the current value
+          enum:
+            - manual
+            - managed
+          type: string
+        restApiEnabled:
+          type: boolean
+        webUiEnabled:
+          type: boolean
+      required:
+        - webUiEnabled
+        - restApiEnabled
       type: object
     PutTeamModelsRequest:
       properties:
@@ -3534,13 +3810,51 @@ components:
       required:
         - items
       type: object
+    RotateCollaborationKeysRequest:
+      properties:
+        names:
+          description: Default is both. paperclip-secrets-master-key is refused (master_key_not_rotatable)
+          items:
+            enum:
+              - paperclip-better-auth-secret
+              - paperclip-tool-action-signing-secret
+            type: string
+          type: array
+      type: object
+    RotateCollaborationKeysResult:
+      properties:
+        agentRolloutPending:
+          type: boolean
+        rotated:
+          items:
+            $ref: '#/components/schemas/RotatedSecret'
+          type: array
+        signsOutEveryone:
+          type: boolean
+      required:
+        - rotated
+        - signsOutEveryone
+        - agentRolloutPending
+      type: object
     RotateSecretRequest:
-      description: Writes a new Secrets Manager version with this value
+      description: Writes a new Secrets Manager version with this value. Required for a secret a team manages; an AFS-managed secret takes no body (AFS generates the value) and a Paperclip secret is refused (409 managed_secret)
       properties:
         value:
           $ref: '#/components/schemas/SecretValue'
+      type: object
+    RotatedSecret:
+      properties:
+        name:
+          type: string
+        secretId:
+          pattern: ^sec_[0-9A-HJKMNP-TV-Z]{26}$
+          type: string
+        versionId:
+          type: string
       required:
-        - value
+        - secretId
+        - name
+        - versionId
       type: object
     ScalePoolRequest:
       properties:
@@ -3587,6 +3901,13 @@ components:
         lastChangedAt:
           $ref: '#/components/schemas/Timestamp'
           readOnly: true
+        managedBy:
+          enum:
+            - user
+            - afs
+            - paperclip
+          readOnly: true
+          type: string
         name:
           pattern: ^[a-z][a-z0-9-]{0,62}$
           type: string
@@ -4131,6 +4452,15 @@ components:
       type: object
     SwarmTemplateSpec:
       properties:
+        collaboration:
+          description: Optional collaboration agent of the remediation team (PC-D29); the template must be enabled and carry capability paperclip
+          properties:
+            templateId:
+              pattern: ^tpl_[0-9A-HJKMNP-TV-Z]{26}$
+              type: string
+          required:
+            - templateId
+          type: object
         configValues:
           items:
             type: object
@@ -4257,6 +4587,9 @@ components:
         mayAddExternalSystems:
           description: 'Guardrail field: needs teams:set-guardrails'
           type: boolean
+        mayExposeCollaboration:
+          description: 'Guardrail field: needs teams:set-guardrails. Whether the team may publish its Paperclip endpoints (default true)'
+          type: boolean
         mayManageAwsAccounts:
           description: 'Guardrail field: needs teams:set-guardrails'
           type: boolean
@@ -4345,6 +4678,84 @@ components:
           type: array
       required:
         - amountUsd
+      type: object
+    TeamCollaboration:
+      description: The team's collaboration resource; singleton per team (API contract §4.4b)
+      properties:
+        agentId:
+          pattern: ^agt_[0-9A-HJKMNP-TV-Z]{26}$
+          readOnly: true
+          type: string
+        createdAt:
+          $ref: '#/components/schemas/Timestamp'
+          readOnly: true
+        createdBy:
+          readOnly: true
+          type: string
+        effective:
+          $ref: '#/components/schemas/CollaborationEffective'
+        generation:
+          minimum: 1
+          readOnly: true
+          type: integer
+        hostname:
+          readOnly: true
+          type:
+            - string
+            - "null"
+        registrationMode:
+          enum:
+            - manual
+            - managed
+          type: string
+        restApiEnabled:
+          type: boolean
+        restApiUrl:
+          readOnly: true
+          type:
+            - string
+            - "null"
+        status:
+          $ref: '#/components/schemas/Status'
+          readOnly: true
+        teamId:
+          pattern: ^team_[0-9A-HJKMNP-TV-Z]{26}$
+          readOnly: true
+          type: string
+        unmanagedPaperclipAgents:
+          items:
+            type: string
+          readOnly: true
+          type: array
+        updatedAt:
+          $ref: '#/components/schemas/Timestamp'
+          readOnly: true
+        version:
+          description: Optimistic-concurrency version; ETag is "<version>"
+          minimum: 1
+          readOnly: true
+          type: integer
+        webUiEnabled:
+          type: boolean
+        webUiUrl:
+          readOnly: true
+          type:
+            - string
+            - "null"
+      required:
+        - teamId
+        - agentId
+        - hostname
+        - webUiUrl
+        - restApiUrl
+        - webUiEnabled
+        - restApiEnabled
+        - registrationMode
+        - effective
+        - unmanagedPaperclipAgents
+        - version
+        - generation
+        - status
       type: object
     TeamDirectoryEntry:
       properties:
@@ -4440,6 +4851,8 @@ components:
       type: string
     UpdateAgentRequest:
       properties:
+        collaboration:
+          $ref: '#/components/schemas/AgentCollaborationInput'
         description:
           maxLength: 1000
           type: string
@@ -4511,6 +4924,16 @@ components:
           type:
             - string
             - "null"
+        collabClientId:
+          description: The collaboration (Paperclip edge) client of this provider
+          type:
+            - string
+            - "null"
+        collabClientSecretArn:
+          description: Reference only; needs collabClientId; never returned by ListSignInProviders
+          type:
+            - string
+            - "null"
         consoleClientId:
           type: string
         enabled:
@@ -4546,6 +4969,7 @@ components:
         role:
           enum:
             - team_admin
+            - team_collaborator
             - team_viewer
           type: string
       required:
@@ -4691,7 +5115,7 @@ components:
           type: integer
       type: object
     UpdateTeamRequest:
-      description: Fields to change. maxBudgetUsd, the ceiling override, quotas, isolationTier, viewerKubectl, mayManageAwsAccounts and mayAddExternalSystems need teams:set-guardrails; allowedAwsAccounts needs teams:set-aws-accounts
+      description: Fields to change. maxBudgetUsd, the ceiling override, quotas, isolationTier, viewerKubectl, mayManageAwsAccounts, mayAddExternalSystems and mayExposeCollaboration need teams:set-guardrails; allowedAwsAccounts needs teams:set-aws-accounts
       properties:
         allowedAwsAccounts:
           items:
@@ -4740,6 +5164,8 @@ components:
         maxBudgetUsd:
           $ref: '#/components/schemas/Money'
         mayAddExternalSystems:
+          type: boolean
+        mayExposeCollaboration:
           type: boolean
         mayManageAwsAccounts:
           type: boolean
@@ -5124,12 +5550,12 @@ components:
       scheme: bearer
       type: http
 info:
-  description: Control plane API of the Enterprise Agent Factory Service (afs-api). Machine-readable form of the root repository's docs/contracts/api-contract.md v1.1.0; once an operation is here, this document wins. Role-based access is enforced on every operation (x-afs-permission, x-afs-scope).
+  description: Control plane API of the Enterprise Agent Factory Service (afs-api). Machine-readable form of the root repository's docs/contracts/api-contract.md v1.3.1; once an operation is here, this document wins. Role-based access is enforced on every operation (x-afs-permission, x-afs-scope).
   license:
     identifier: LicenseRef-Proprietary
     name: Proprietary
   title: Enterprise Agent Factory Service API
-  version: 1.1.0
+  version: 1.3.1
 openapi: 3.1.0
 paths:
   /healthz:
@@ -5695,6 +6121,81 @@ paths:
       x-afs-scope: service
       x-afs-screen: S5
       x-afs-sdk: admin.audit.list()
+  /v1/admin/collaboration-endpoints:
+    get:
+      operationId: ListCollaborationEndpoints
+      parameters:
+        - in: query
+          name: teamId
+          schema:
+            pattern: ^team_[0-9A-HJKMNP-TV-Z]{26}$
+            type: string
+        - in: query
+          name: state
+          schema:
+            enum:
+              - Ready
+              - Degraded
+              - Failed
+              - Pending
+            type: string
+        - $ref: '#/components/parameters/MaxResults'
+        - $ref: '#/components/parameters/NextToken'
+        - $ref: '#/components/parameters/XRequestId'
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+                items:
+                  - agentId: agt_01JD2Q3R4S5T6V7W8X9Y0Z0001
+                    effective:
+                      restApi: false
+                      webUi: true
+                    hostname: payments-factory.collab.example.com
+                    lastAccessAt: "2026-11-22T09:41:00Z"
+                    mayExposeCollaboration: true
+                    phase: Ready
+                    restApiEnabled: false
+                    slug: payments-factory
+                    teamId: team_01JD2Q3R4S5T6V7W8X9Y0Z0001
+                    teamState: active
+                    webUiEnabled: true
+              schema:
+                $ref: '#/components/schemas/CollaborationEndpointList'
+            text/csv:
+              example: "teamId,slug,teamState,hostname,agentId,webUiEnabled,restApiEnabled,mayExposeCollaboration,phase,lastAccessAt\r\nteam_01JD2Q3R4S5T6V7W8X9Y0Z0001,payments-factory,active,payments-factory.collab.example.com,agt_01JD2Q3R4S5T6V7W8X9Y0Z0001,true,false,true,Ready,2026-11-22T09:41:00Z\r\n"
+              schema:
+                type: string
+          description: Success
+          headers:
+            X-Afs-Contract-Version:
+              $ref: '#/components/headers/XAfsContractVersion'
+            X-Request-Id:
+              $ref: '#/components/headers/XRequestId'
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "401":
+          $ref: '#/components/responses/Unauthenticated'
+        "403":
+          $ref: '#/components/responses/AccessDenied'
+        "429":
+          $ref: '#/components/responses/Throttled'
+        "500":
+          $ref: '#/components/responses/InternalError'
+        "503":
+          $ref: '#/components/responses/Unavailable'
+      summary: List collaboration endpoints
+      tags:
+        - collaboration
+      x-afs-cli: admin list-collaboration-endpoints
+      x-afs-csv: true
+      x-afs-events: []
+      x-afs-permission: admin:settings
+      x-afs-priority: P0
+      x-afs-scope: service
+      x-afs-screen: S10
+      x-afs-sdk: admin.collaborationEndpoints.list()
   /v1/admin/cost-reconciliations:
     get:
       operationId: ListCostReconciliations
@@ -8773,6 +9274,12 @@ paths:
       description: (enabled templates with allowed digests)
       operationId: ListAgentTemplates
       parameters:
+        - in: query
+          name: capability
+          schema:
+            enum:
+              - paperclip
+            type: string
         - $ref: '#/components/parameters/MaxResults'
         - $ref: '#/components/parameters/NextToken'
         - $ref: '#/components/parameters/XRequestId'
@@ -9927,6 +10434,13 @@ paths:
     get:
       operationId: ListAgents
       parameters:
+        - in: query
+          name: role
+          schema:
+            enum:
+              - worker
+              - collaboration
+            type: string
         - $ref: '#/components/parameters/TeamId'
         - $ref: '#/components/parameters/MaxResults'
         - $ref: '#/components/parameters/NextToken'
@@ -12409,6 +12923,441 @@ paths:
       x-afs-scope: team
       x-afs-screen: T5
       x-afs-sdk: budgets.put()
+  /v1/teams/{teamId}/collaboration:
+    get:
+      operationId: GetTeamCollaboration
+      parameters:
+        - $ref: '#/components/parameters/TeamId'
+        - $ref: '#/components/parameters/XRequestId'
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+                agentId: agt_01JD2Q3R4S5T6V7W8X9Y0Z0001
+                createdAt: "2026-11-22T09:00:00Z"
+                createdBy: usr_01JD2Q3R4S5T6V7W8X9Y0Z0001
+                effective:
+                  reasons: []
+                  restApi: false
+                  webUi: true
+                generation: 4
+                hostname: payments-factory.collab.example.com
+                registrationMode: manual
+                restApiEnabled: false
+                restApiUrl: https://payments-factory.collab.example.com/api
+                status:
+                  conditions:
+                    - lastTransitionTime: "2026-11-22T09:00:00Z"
+                      message: Endpoint is serving
+                      reason: Ready
+                      status: "True"
+                      type: EndpointReady
+                  observedGeneration: 4
+                  phase: Ready
+                  updatedAt: "2026-11-22T09:05:00Z"
+                teamId: team_01JD2Q3R4S5T6V7W8X9Y0Z0001
+                unmanagedPaperclipAgents: []
+                updatedAt: "2026-11-22T09:00:00Z"
+                version: 4
+                webUiEnabled: true
+                webUiUrl: https://payments-factory.collab.example.com/
+              schema:
+                $ref: '#/components/schemas/TeamCollaboration'
+          description: Success
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+            X-Afs-Contract-Version:
+              $ref: '#/components/headers/XAfsContractVersion'
+            X-Request-Id:
+              $ref: '#/components/headers/XRequestId'
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "401":
+          $ref: '#/components/responses/Unauthenticated'
+        "403":
+          $ref: '#/components/responses/AccessDenied'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "429":
+          $ref: '#/components/responses/Throttled'
+        "500":
+          $ref: '#/components/responses/InternalError'
+        "503":
+          $ref: '#/components/responses/Unavailable'
+      summary: Get team collaboration
+      tags:
+        - collaboration
+      x-afs-cli: collaboration describe-collaboration
+      x-afs-csv: false
+      x-afs-events: []
+      x-afs-permission: collaboration:read
+      x-afs-priority: P0
+      x-afs-scope: team
+      x-afs-screen: T16, V3, T1
+      x-afs-sdk: collaboration.get()
+    put:
+      operationId: PutTeamCollaboration
+      parameters:
+        - $ref: '#/components/parameters/TeamId'
+        - $ref: '#/components/parameters/XRequestId'
+        - $ref: '#/components/parameters/IfMatchPut'
+      requestBody:
+        content:
+          application/json:
+            example:
+              registrationMode: manual
+              restApiEnabled: false
+              webUiEnabled: true
+            schema:
+              $ref: '#/components/schemas/PutTeamCollaborationRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+                agentId: agt_01JD2Q3R4S5T6V7W8X9Y0Z0001
+                createdAt: "2026-11-22T09:00:00Z"
+                createdBy: usr_01JD2Q3R4S5T6V7W8X9Y0Z0001
+                effective:
+                  reasons: []
+                  restApi: false
+                  webUi: true
+                generation: 4
+                hostname: payments-factory.collab.example.com
+                registrationMode: manual
+                restApiEnabled: false
+                restApiUrl: https://payments-factory.collab.example.com/api
+                status:
+                  conditions:
+                    - lastTransitionTime: "2026-11-22T09:00:00Z"
+                      message: Endpoint is serving
+                      reason: Ready
+                      status: "True"
+                      type: EndpointReady
+                  observedGeneration: 4
+                  phase: Ready
+                  updatedAt: "2026-11-22T09:05:00Z"
+                teamId: team_01JD2Q3R4S5T6V7W8X9Y0Z0001
+                unmanagedPaperclipAgents: []
+                updatedAt: "2026-11-22T09:00:00Z"
+                version: 4
+                webUiEnabled: true
+                webUiUrl: https://payments-factory.collab.example.com/
+              schema:
+                $ref: '#/components/schemas/TeamCollaboration'
+          description: Success
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+            X-Afs-Contract-Version:
+              $ref: '#/components/headers/XAfsContractVersion'
+            X-Request-Id:
+              $ref: '#/components/headers/XRequestId'
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "401":
+          $ref: '#/components/responses/Unauthenticated'
+        "403":
+          $ref: '#/components/responses/AccessDenied'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "409":
+          $ref: '#/components/responses/Conflict'
+        "412":
+          $ref: '#/components/responses/PreconditionFailed'
+        "428":
+          $ref: '#/components/responses/PreconditionRequired'
+        "429":
+          $ref: '#/components/responses/Throttled'
+        "500":
+          $ref: '#/components/responses/InternalError'
+        "503":
+          $ref: '#/components/responses/Unavailable'
+      summary: Put team collaboration
+      tags:
+        - collaboration
+      x-afs-cli: collaboration put-collaboration
+      x-afs-csv: false
+      x-afs-events:
+        - collaboration.updated
+      x-afs-permission: collaboration:manage
+      x-afs-priority: P0
+      x-afs-scope: team
+      x-afs-screen: T16
+      x-afs-sdk: collaboration.put()
+  /v1/teams/{teamId}/collaboration/links:
+    get:
+      operationId: ListCollaborationLinks
+      parameters:
+        - $ref: '#/components/parameters/TeamId'
+        - in: query
+          name: linkState
+          schema:
+            enum:
+              - pending
+              - linked
+              - failed
+              - disabled
+            type: string
+        - in: query
+          name: connect
+          schema:
+            type: boolean
+        - $ref: '#/components/parameters/MaxResults'
+        - $ref: '#/components/parameters/NextToken'
+        - $ref: '#/components/parameters/XRequestId'
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+                items:
+                  - agentId: agt_01JD2Q3R4S5T6V7W8X9Y0Z0001
+                    agentName: reviewer-bot
+                    connect: true
+                    lastError: null
+                    lastSyncedAt: "2026-11-22T10:00:00Z"
+                    linkState: linked
+                    paperclipAgentId: ag_8f2
+                    version: 2
+              schema:
+                $ref: '#/components/schemas/CollaborationLinkList'
+          description: Success
+          headers:
+            X-Afs-Contract-Version:
+              $ref: '#/components/headers/XAfsContractVersion'
+            X-Request-Id:
+              $ref: '#/components/headers/XRequestId'
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "401":
+          $ref: '#/components/responses/Unauthenticated'
+        "403":
+          $ref: '#/components/responses/AccessDenied'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "429":
+          $ref: '#/components/responses/Throttled'
+        "500":
+          $ref: '#/components/responses/InternalError'
+        "503":
+          $ref: '#/components/responses/Unavailable'
+      summary: List collaboration links
+      tags:
+        - collaboration
+      x-afs-cli: collaboration list-collaboration-links
+      x-afs-csv: false
+      x-afs-events: []
+      x-afs-permission: collaboration:read
+      x-afs-priority: P0
+      x-afs-scope: team
+      x-afs-screen: T16
+      x-afs-sdk: collaboration.links.list()
+  /v1/teams/{teamId}/collaboration/links/{agentId}:connect:
+    post:
+      operationId: ConnectAgentToCollaboration
+      parameters:
+        - $ref: '#/components/parameters/TeamId'
+        - in: path
+          name: agentId
+          required: true
+          schema:
+            example: agt_01JD2Q3R4S5T6V7W8X9Y0Z0001
+            pattern: ^agt_[0-9A-HJKMNP-TV-Z]{26}$
+            type: string
+        - $ref: '#/components/parameters/XRequestId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        content:
+          application/json:
+            example:
+              paperclipAgentId: ag_8f2
+            schema:
+              $ref: '#/components/schemas/ConnectAgentRequest'
+        required: false
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+                agentId: agt_01JD2Q3R4S5T6V7W8X9Y0Z0001
+                agentName: reviewer-bot
+                connect: true
+                lastError: null
+                lastSyncedAt: "2026-11-22T10:00:00Z"
+                linkState: linked
+                paperclipAgentId: ag_8f2
+                version: 2
+              schema:
+                $ref: '#/components/schemas/CollaborationLink'
+          description: Success
+          headers:
+            Idempotent-Replayed:
+              $ref: '#/components/headers/IdempotentReplayed'
+            X-Afs-Contract-Version:
+              $ref: '#/components/headers/XAfsContractVersion'
+            X-Request-Id:
+              $ref: '#/components/headers/XRequestId'
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "401":
+          $ref: '#/components/responses/Unauthenticated'
+        "403":
+          $ref: '#/components/responses/AccessDenied'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "409":
+          $ref: '#/components/responses/Conflict'
+        "429":
+          $ref: '#/components/responses/Throttled'
+        "500":
+          $ref: '#/components/responses/InternalError'
+        "503":
+          $ref: '#/components/responses/Unavailable'
+      summary: Connect agent to collaboration
+      tags:
+        - collaboration
+      x-afs-cli: collaboration connect-agent
+      x-afs-csv: false
+      x-afs-events: []
+      x-afs-permission: collaboration:manage
+      x-afs-priority: P0
+      x-afs-scope: team
+      x-afs-screen: T16
+      x-afs-sdk: collaboration.connectAgent()
+  /v1/teams/{teamId}/collaboration/links/{agentId}:disconnect:
+    post:
+      operationId: DisconnectAgentFromCollaboration
+      parameters:
+        - $ref: '#/components/parameters/TeamId'
+        - in: path
+          name: agentId
+          required: true
+          schema:
+            example: agt_01JD2Q3R4S5T6V7W8X9Y0Z0001
+            pattern: ^agt_[0-9A-HJKMNP-TV-Z]{26}$
+            type: string
+        - $ref: '#/components/parameters/XRequestId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+                agentId: agt_01JD2Q3R4S5T6V7W8X9Y0Z0001
+                agentName: reviewer-bot
+                connect: true
+                lastError: null
+                lastSyncedAt: "2026-11-22T10:00:00Z"
+                linkState: linked
+                paperclipAgentId: ag_8f2
+                version: 2
+              schema:
+                $ref: '#/components/schemas/CollaborationLink'
+          description: Success
+          headers:
+            Idempotent-Replayed:
+              $ref: '#/components/headers/IdempotentReplayed'
+            X-Afs-Contract-Version:
+              $ref: '#/components/headers/XAfsContractVersion'
+            X-Request-Id:
+              $ref: '#/components/headers/XRequestId'
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "401":
+          $ref: '#/components/responses/Unauthenticated'
+        "403":
+          $ref: '#/components/responses/AccessDenied'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "409":
+          $ref: '#/components/responses/Conflict'
+        "429":
+          $ref: '#/components/responses/Throttled'
+        "500":
+          $ref: '#/components/responses/InternalError'
+        "503":
+          $ref: '#/components/responses/Unavailable'
+      summary: Disconnect agent from collaboration
+      tags:
+        - collaboration
+      x-afs-cli: collaboration disconnect-agent
+      x-afs-csv: false
+      x-afs-events: []
+      x-afs-permission: collaboration:manage
+      x-afs-priority: P0
+      x-afs-scope: team
+      x-afs-screen: T16
+      x-afs-sdk: collaboration.disconnectAgent()
+  /v1/teams/{teamId}/collaboration:rotate-keys:
+    post:
+      operationId: RotateCollaborationKeys
+      parameters:
+        - $ref: '#/components/parameters/TeamId'
+        - $ref: '#/components/parameters/XRequestId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        content:
+          application/json:
+            example:
+              names:
+                - paperclip-better-auth-secret
+                - paperclip-tool-action-signing-secret
+            schema:
+              $ref: '#/components/schemas/RotateCollaborationKeysRequest'
+        required: false
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+                agentRolloutPending: true
+                rotated:
+                  - name: paperclip-better-auth-secret
+                    secretId: sec_01JD2Q3R4S5T6V7W8X9Y0Z0001
+                    versionId: 3b2c9f1e-0000-4000-8000-000000000001
+                signsOutEveryone: true
+              schema:
+                $ref: '#/components/schemas/RotateCollaborationKeysResult'
+          description: Success
+          headers:
+            Idempotent-Replayed:
+              $ref: '#/components/headers/IdempotentReplayed'
+            X-Afs-Contract-Version:
+              $ref: '#/components/headers/XAfsContractVersion'
+            X-Request-Id:
+              $ref: '#/components/headers/XRequestId'
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "401":
+          $ref: '#/components/responses/Unauthenticated'
+        "403":
+          $ref: '#/components/responses/AccessDenied'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "409":
+          $ref: '#/components/responses/Conflict'
+        "429":
+          $ref: '#/components/responses/Throttled'
+        "500":
+          $ref: '#/components/responses/InternalError'
+        "503":
+          $ref: '#/components/responses/Unavailable'
+      summary: Rotate collaboration keys
+      tags:
+        - collaboration
+      x-afs-cli: collaboration rotate-collaboration-keys
+      x-afs-csv: false
+      x-afs-events:
+        - secret.rotated
+      x-afs-permission: collaboration:manage
+      x-afs-priority: P1
+      x-afs-scope: team
+      x-afs-screen: T16
+      x-afs-sdk: collaboration.rotateKeys()
   /v1/teams/{teamId}/config-values:
     get:
       operationId: ListNamespaceConfigValues
@@ -16696,6 +17645,14 @@ paths:
     get:
       operationId: ListSecrets
       parameters:
+        - in: query
+          name: managedBy
+          schema:
+            enum:
+              - user
+              - afs
+              - paperclip
+            type: string
         - $ref: '#/components/parameters/TeamId'
         - $ref: '#/components/parameters/MaxResults'
         - $ref: '#/components/parameters/NextToken'
@@ -17134,7 +18091,7 @@ paths:
               value: example-value-not-a-real-token
             schema:
               $ref: '#/components/schemas/RotateSecretRequest'
-        required: true
+        required: false
       responses:
         "200":
           content:
@@ -18678,6 +19635,8 @@ tags:
     name: external-systems
   - description: API contract §4.9
     name: budgets-reports
+  - description: API contract §4.4b
+    name: collaboration
   - description: API contract §4.10
     name: delivery-audit
   - description: API contract §4.10a

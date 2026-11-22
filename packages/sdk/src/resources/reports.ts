@@ -2,8 +2,8 @@ import type { AfsClient } from "../core/client.js";
 import type { CallOptions, ReportCall } from "../core/types.js";
 import { reports as generatedReports } from "../generated/resources/reports.js";
 
-/** The four report kinds of the API. */
-export type ReportKind = "usage" | "costs" | "activity" | "traffic";
+/** The report kinds of the API; `collaboration` is usage only and cannot be scheduled (SDK-13). */
+export type ReportKind = "usage" | "costs" | "activity" | "traffic" | "collaboration";
 
 /** What a report is grouped by; `tag:<key>` groups by a cost allocation tag. */
 export type ReportGroup =
@@ -14,7 +14,30 @@ export type ReportGroup =
   | "pool"
   | "day"
   | "hour"
+  | "surface"
+  | "reason"
+  | "person"
   | (string & {});
+
+/** A row of the `collaboration` report: counts per group, never Paperclip content. */
+export interface CollaborationReportRow {
+  readonly day?: string;
+  readonly team?: string;
+  readonly surface?: "web_ui" | "rest_api" | (string & {});
+  readonly reason?: string;
+  readonly signIns?: number;
+  readonly uniquePeople?: number;
+  readonly requests?: number;
+  readonly deniedRequests?: number;
+  readonly secretDetections?: number;
+  readonly principal?: {
+    readonly id: string;
+    readonly type: "user" | "api_key" | (string & {});
+    readonly name?: string;
+  };
+  readonly serviceAdminEntry?: true;
+  readonly [measure: string]: unknown;
+}
 
 /** One report row: the group-by values and the measures of the report kind. */
 export type ReportRow = Readonly<Record<string, unknown>>;
