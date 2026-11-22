@@ -68,6 +68,7 @@ architectural ones into ADRs (`docs/architectural-decision-record.md`, ADR-005 o
 | CQ-12 | `-restapi` | `CreateIdentityProvider`/`UpdateIdentityProvider` take only `clientSecretArn`, but the task list and data dictionary expect a write-only secret value (M1-N3) | Open; S10 takes the ARN in a normal field and shows only the ARN; no `SecretInput` |
 | CQ-13 | `-restapi` | The in-use `409` of `DeleteSecret`, `DeleteNamespaceConfigValue` and `DeleteStorageClass` documents no dependents list (`details` has only `reason`), yet WEB-US-27.4, 30.3 and 20.3 expect the agents to be listed | Open; interim: `details.agents` when present, else computed from list data (DV-24) |
 | CQ-14 | `-restapi` | `CreateAgentRequest`/`Agent` have no persona or instructions field although the T3 mockup and WEB-US-26.1 have one; and the create request takes no configuration values (T3 uses one `PutAgentConfigValue` per value) | Open; interim: persona is stored in `description` (DV-28) |
+| CQ-15 | `-restapi` | -restapi: StorageClass has no default flag (WEB-US-20.3 mark default), no service-level revisions read for templates (WEB-US-22.1 revisions per template), and the in-use 409 for classes and templates carries no agent list | Console shows the API message and any details.agents if sent; no Mark default; no template revisions view. Raise with -restapi |
 
 ## 3. Edge cases and solutions (seeded at spec time; extend during implementation)
 

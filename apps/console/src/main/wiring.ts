@@ -1,5 +1,9 @@
 import type { AfsClient } from "@afs/sdk";
 import type { ClockPort } from "../application/ports/auth.js";
+import {
+  AdminAgentTemplatesUseCases,
+  AdminStorageClassesUseCases,
+} from "../application/usecases/adminCatalogs/AdminCatalogsUseCases.js";
 import { AgentsUseCases } from "../application/usecases/agents/AgentsUseCases.js";
 import { CreateAgentUseCases } from "../application/usecases/agents-create/CreateAgentUseCases.js";
 import { ConfigUseCases } from "../application/usecases/config/ConfigUseCases.js";
@@ -19,6 +23,11 @@ import {
   SettingsUseCases,
 } from "../application/usecases/settings/SettingsUseCases.js";
 import { TeamsUseCases } from "../application/usecases/teams/TeamsUseCases.js";
+import {
+  SdkAdminAgentTemplates,
+  SdkAdminStorageClasses,
+} from "../infrastructure/sdk/adminCatalogs.js";
+
 import { SdkAgents } from "../infrastructure/sdk/agents.js";
 import { SdkConfig } from "../infrastructure/sdk/config.js";
 import { SdkDashboard } from "../infrastructure/sdk/dashboard.js";
@@ -76,6 +85,8 @@ export function buildServices(
     configValues,
     externalSystems: new ExternalSystemsUseCases(new SdkExternalSystems(client)),
     adminExternalSystems: new AdminExternalSystemsUseCases(new SdkAdminExternalSystems(client)),
+    adminStorageClasses: new AdminStorageClassesUseCases(new SdkAdminStorageClasses(client)),
+    adminAgentTemplates: new AdminAgentTemplatesUseCases(new SdkAdminAgentTemplates(client)),
     createAgent: new CreateAgentUseCases(agentsUseCases, configValues),
     teams: new TeamsUseCases(teamsPort, clock),
     settings: new SettingsUseCases(new SdkSettings(client)),

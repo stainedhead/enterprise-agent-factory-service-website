@@ -2,8 +2,10 @@
 // templates M2, storage classes, service API keys, security operators, notification channels).
 import type { ComponentType } from "react";
 import type { Permission } from "../../../domain/permission.js";
+import { AgentTemplatesTab } from "./tabs/agent-templates/AgentTemplatesTab.js";
 import { IdentityProvidersTab } from "./tabs/identity-providers/IdentityProvidersTab.js";
 import { SettingsTab } from "./tabs/settings/SettingsTab.js";
+import { StorageClassesTab } from "./tabs/storage-classes/StorageClassesTab.js";
 
 export interface SettingsSection {
   /** The `:section` of `/settings/:section`. */
@@ -21,5 +23,17 @@ export const sections: readonly SettingsSection[] = [
     label: "Identity providers",
     permission: "admin:identity-providers",
     Component: IdentityProvidersTab,
+  },
+  {
+    id: "storage-classes",
+    label: "Storage classes",
+    permission: "admin:storage-classes",
+    Component: StorageClassesTab,
+  },
+  {
+    id: "agent-templates",
+    label: "Agent templates",
+    permission: "admin:agent-templates",
+    Component: AgentTemplatesTab,
   },
 ];

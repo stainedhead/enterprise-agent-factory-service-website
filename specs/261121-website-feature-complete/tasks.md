@@ -40,7 +40,7 @@
 |---|---|---|---|
 | M0 Foundations | 10 (+ exit) | 69 | 69 |
 | M1 Teams & access | 10 (+ exit) | 46 | 46 |
-| M2 Agents & secrets | 7 (+ exit) | 41 | 36 |
+| M2 Agents & secrets | 7 (+ exit) | 41 | 40 |
 | M3 Spend control | 6 (+ exit) | 24 | 0 |
 | M4 Production readiness | 8 (+ exit) | 34 | 0 |
 | M5 Budgeted workloads and swarms | 4 (+ exit) | 19 | 0 |
@@ -440,10 +440,10 @@ Owns: area files: `admin-storageClasses`, `admin-agentTemplates`; `presentation/
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M2-G1 | *Storage classes*: add, edit, remove, mark default; a class in use cannot be removed (`409` lists the agents) | WEB-US-20.3, WEB-16 | — |
-| [ ] | M2-G2 | *Agent templates*: add and edit (name, description, harness, default resources, allowed digests with one current), enable/disable, revisions per template | WEB-US-22.1, WEB-US-20.4, WEB-20 | — |
-| [ ] | M2-G3 | *Platform › Agent templates* opens `/settings/agent-templates` directly | WEB-20, WEB-18 (part) | M2-G2 |
-| [ ] | M2-G4 | e2e, axe, visual (S2 pattern) | WEB-US-42.1 (part), WEB-US-42.2 (part) | M2-G1..G3 |
+| [x] | M2-G1 | *Storage classes*: add, edit, remove, mark default; a class in use cannot be removed (`409` lists the agents) | WEB-US-20.3, WEB-16 | — |
+| [x] | M2-G2 | *Agent templates*: add and edit (name, description, harness, default resources, allowed digests with one current), enable/disable, revisions per template | WEB-US-22.1, WEB-US-20.4, WEB-20 | — |
+| [x] | M2-G3 | *Platform › Agent templates* opens `/settings/agent-templates` directly | WEB-20, WEB-18 (part) | M2-G2 |
+| [x] | M2-G4 | e2e, axe, visual (S2 pattern) | WEB-US-42.1 (part), WEB-US-42.2 (part) | M2-G1..G3 |
 
 ### M2-X · Exit
 

@@ -1,5 +1,6 @@
 // Shared list: one fixture module per area, added by the area stream.
 import type { SeedUser } from "../users.js";
+import { adminCatalogsFixtures, resetAdminCatalogs } from "./admin-catalogs.js";
 import { adminExternalSystemsFixtures } from "./admin-externalSystems.js";
 import { agentsFixtures, resetAgents } from "./agents.js";
 import { configFixtures, resetConfig } from "./config.js";
@@ -43,6 +44,7 @@ export const fixtureModules: readonly (readonly Fixture[])[] = [
   configFixtures,
   externalSystemsFixtures,
   adminExternalSystemsFixtures,
+  adminCatalogsFixtures,
   teamsFixtures,
   overviewFixtures,
   membersFixtures,
@@ -58,6 +60,7 @@ export const fixtureResets: readonly (() => void)[] = [
   resetSecrets,
   resetConfig,
   resetExternalSystems,
+  resetAdminCatalogs,
   resetOverview,
   resetMembers,
   resetSettings,
