@@ -32,6 +32,7 @@ function setup(opts: { ttl?: number; refresh?: boolean } = {}) {
       map.delete(s);
       return f;
     },
+    discard: (s) => void map.delete(s),
   };
   const client = new OidcClient({
     flows,
@@ -151,7 +152,7 @@ describe("OidcClient", () => {
     expect(u.searchParams.get("id_token_hint")).toBe("idtok");
     expect(u.searchParams.get("post_logout_redirect_uri")).toBe("http://console.test/signed-out");
     const bare = new OidcClient({
-      flows: new SessionFlowStore(() => new MemoryStorage()),
+      flows: new SessionFlowStore(() => globalThis.sessionStorage),
       allowInsecure: true,
       fetcher: (async () =>
         new Response(
@@ -216,6 +217,56 @@ describe("OidcClient", () => {
     ).resolves.toBeUndefined(); // timeout
   });
 
+  it("silent renewal: a renewal that times out removes its own flow", async () => {
+    const { client, flows } = setup();
+    await expect(
+      client.renewInFrame(provider, "http://localhost:3000/auth/callback", 0),
+    ).resolves.toBeUndefined(); // the frame never answers: timeout
+    expect(flows.size).toBe(0);
+  });
+
+  it("flows carry their creation time", async () => {
+    const { client, flows } = setup();
+    const before = Date.now();
+    const u = new URL(await client.begin(provider, { redirectUri: REDIRECT, returnTo: "/" }));
+    const created = flows.get(u.searchParams.get("state") as string)?.createdAt as number;
+    expect(created).toBeGreaterThanOrEqual(before);
+    expect(created).toBeLessThanOrEqual(Date.now());
+  });
+
+  it("a blocked store makes begin fail with an AuthError saying browser storage is required", async () => {
+    const { fetcher } = setup();
+    const client = new OidcClient({
+      flows: new SessionFlowStore(() => {
+        throw new Error("SecurityError");
+      }),
+      fetcher,
+      allowInsecure: true,
+    });
+    const err = await client
+      .begin(provider, { redirectUri: REDIRECT, returnTo: "/" })
+      .catch((e: unknown) => e);
+    expect(err).toBeInstanceOf(AuthError);
+    expect((err as AuthError).reason).toBe("storage");
+    expect((err as AuthError).message).toMatch(/browser storage is required for sign-in/i);
+  });
+
+  it("login-required carries the flow's return route (FR-013)", async () => {
+    const { client, authorize } = setup();
+    const url = await client.begin(provider, {
+      redirectUri: REDIRECT,
+      returnTo: "/t/team_1/agents",
+    });
+    const cb = await authorize(url); // no IdP session and prompt=none would be login_required; force it
+    const withErr = new URL(cb);
+    withErr.searchParams.delete("code");
+    withErr.searchParams.set("error", "login_required");
+    const err = await client.complete(withErr.toString(), 0).catch((e: unknown) => e);
+    expect(err).toBeInstanceOf(AuthError);
+    expect((err as AuthError).reason).toBe("interaction_required");
+    expect((err as AuthError).returnTo).toBe("/t/team_1/agents");
+  });
+
   it("postCallbackToParent posts only from inside a frame", () => {
     const sent: unknown[] = [];
     const top = {
@@ -229,52 +280,5 @@ describe("OidcClient", () => {
     } as unknown as Window;
     expect(postCallbackToParent(child)).toBe(true);
     expect(sent).toEqual([[{ type: "afs-callback", url: "http://x/cb?code=1" }, "http://x"]]);
-  });
-});
-
-class MemoryStorage implements Storage {
-  #m = new Map<string, string>();
-  get length() {
-    return this.#m.size;
-  }
-  clear() {
-    this.#m.clear();
-  }
-  getItem(k: string) {
-    return this.#m.get(k) ?? null;
-  }
-  key(i: number) {
-    return [...this.#m.keys()][i] ?? null;
-  }
-  removeItem(k: string) {
-    this.#m.delete(k);
-  }
-  setItem(k: string, v: string) {
-    this.#m.set(k, v);
-  }
-}
-
-describe("SessionFlowStore", () => {
-  const flow: PendingFlow = {
-    verifier: "v",
-    nonce: "n",
-    redirectUri: REDIRECT,
-    returnTo: "/",
-    provider,
-  };
-  it("is single use and tolerates corrupt or unavailable storage", () => {
-    const shared = new MemoryStorage();
-    const s = new SessionFlowStore(() => shared);
-    s.put("a", flow);
-    expect(s.take("a")).toEqual(flow);
-    expect(s.take("a")).toBeUndefined();
-    const m = new MemoryStorage();
-    m.setItem("afs.flow.b", "{not json");
-    expect(new SessionFlowStore(() => m).take("b")).toBeUndefined();
-    expect(
-      new SessionFlowStore(() => {
-        throw new Error("blocked");
-      }).take("c"),
-    ).toBeUndefined();
   });
 });

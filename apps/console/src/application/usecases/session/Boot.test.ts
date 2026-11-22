@@ -21,7 +21,11 @@ function setup(remembered?: string, listed: ProviderInfo[] = [p("a"), p("b")]) {
   const begin = { execute: vi.fn(async () => {}) };
   const redirect = { navigate: vi.fn(), replaceUrl: vi.fn() };
   const drafts = new DraftStore();
-  const persisted = { write: vi.fn(), take: vi.fn(() => ({ form: { name: "x" } })) };
+  const persisted = {
+    write: vi.fn(),
+    take: vi.fn(() => ({ form: { name: "x" } })),
+    clear: vi.fn(),
+  };
   const boot = new Boot(
     new ListProviders({ list: async () => listed }, []),
     begin as never,
@@ -97,7 +101,7 @@ describe("SignOut", () => {
 describe("ReAuthenticate", () => {
   it("persists drafts then starts sign-in at the same route", async () => {
     const begin = { execute: vi.fn(async () => {}) };
-    const persisted = { write: vi.fn(), take: vi.fn() };
+    const persisted = { write: vi.fn(), take: vi.fn(), clear: vi.fn() };
     const drafts = new DraftStore();
     drafts.save("f", { a: "1" });
     await new ReAuthenticate(begin as never, drafts, persisted).execute(p("a"), "/t/x");

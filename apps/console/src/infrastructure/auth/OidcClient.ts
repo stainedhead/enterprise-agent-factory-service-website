@@ -15,6 +15,8 @@ export interface OidcClientOptions {
   readonly allowInsecure?: boolean;
   /** Hidden-frame timeout for silent renewal. */
   readonly frameTimeoutMs?: number;
+  /** Epoch ms clock for flow creation times; tests substitute a fake. */
+  readonly now?: () => number;
   /** Creates the hidden frame element; tests substitute a plain element. */
   readonly createFrame?: () => HTMLIFrameElement;
 }
@@ -33,6 +35,7 @@ export class OidcClient implements OidcPort {
   readonly #fetch: typeof fetch;
   readonly #insecure: boolean;
   readonly #frameTimeout: number;
+  readonly #now: () => number;
   readonly #createFrame: () => HTMLIFrameElement;
   readonly #servers = new Map<string, Promise<oauth.AuthorizationServer>>();
 
@@ -41,6 +44,7 @@ export class OidcClient implements OidcPort {
     this.#fetch = opts.fetcher ?? ((...a) => fetch(...a));
     this.#insecure = opts.allowInsecure ?? false;
     this.#frameTimeout = opts.frameTimeoutMs ?? 10_000;
+    this.#now = opts.now ?? (() => Date.now());
     this.#createFrame = opts.createFrame ?? (() => document.createElement("iframe"));
   }
 
@@ -78,6 +82,7 @@ export class OidcClient implements OidcPort {
       redirectUri: opts.redirectUri,
       returnTo: opts.returnTo,
       provider,
+      createdAt: this.#now(),
     });
     const url = new URL(as.authorization_endpoint);
     url.searchParams.set("client_id", provider.consoleClientId);
@@ -107,7 +112,7 @@ export class OidcClient implements OidcPort {
     const err = url.searchParams.get("error");
     if (err) {
       throw INTERACTION.has(err)
-        ? new AuthError("interaction_required", "The provider needs you to sign in")
+        ? new AuthError("interaction_required", "The provider needs you to sign in", flow.returnTo)
         : new AuthError("denied", `The provider refused sign-in (${err})`);
     }
     const client: oauth.Client = {
@@ -185,13 +190,17 @@ export class OidcClient implements OidcPort {
     now: number,
   ): Promise<SessionTokens | undefined> {
     const authorizeUrl = await this.begin(provider, { redirectUri, returnTo: "/", prompt: "none" });
-    const callback = await this.#frame(authorizeUrl, new URL(redirectUri).origin);
-    if (!callback) return undefined;
+    const state = new URL(authorizeUrl).searchParams.get("state") as string;
     try {
+      const callback = await this.#frame(authorizeUrl, new URL(redirectUri).origin);
+      if (!callback) return undefined;
       return (await this.complete(callback, now)).tokens;
     } catch (e) {
       if (e instanceof AuthError && e.reason === "interaction_required") return undefined;
       throw e;
+    } finally {
+      // `complete` already took the flow; on a timeout or any failure this removes the orphan (FR-012)
+      this.#flows.discard(state);
     }
   }
 

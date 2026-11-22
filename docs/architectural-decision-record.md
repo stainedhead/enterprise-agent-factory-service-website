@@ -117,3 +117,23 @@ Decisions local to this repository. Cross-repo decisions live in the root reposi
   `parseSpec` and updates the fixtures, after `-restapi` merges to `main` and tags.
 - Consequences: the SDK and console may lag small upstream contract edits; `contract:check` guarantees the pin is
   what the generated code was built from.
+
+## ADR-014 The console may frame its own callback: `frame-ancestors 'self'` (FR-001)
+
+- Status: Accepted. Departs from archived spec FR-037 and PRD section 6.2 (`frame-ancestors 'none'`).
+- Context: an IdP that issues no refresh token makes `OidcClient.renewInFrame` load `prompt=none` in a hidden
+  frame of the console (WD-30). The IdP redirects that frame to the console's own `/auth/callback`. Under
+  `frame-ancestors 'none'` the browser refuses to render that response, and `frame-src <issuers>` does not allow
+  the same-origin redirect target. The frame timed out after 10 s and the session expired once per token
+  lifetime. The unit test used a plain element and no policy, so nothing caught it.
+- Decision: the policy is `frame-src 'self' <issuers>` and `frame-ancestors 'self'`. Only the console's own
+  origin may frame the console; any other origin still cannot. `script-src 'self'` is unchanged, with no
+  `unsafe-inline` and no `unsafe-eval`. `build-output.test.ts` and `e2e/specs/quality/csp.spec.ts` assert the
+  values, and `e2e/specs/auth/silent-renew.spec.ts` proves renewal through the frame with the fake IdP's
+  refresh tokens off, under the deploy headers, with no CSP violation and no session-expired dialog.
+- Consequences: clickjacking protection still holds for third-party origins. A same-origin page could frame the
+  console, which needs script execution on the console origin and is already outside this control. The platform
+  Terraform consumes `apps/console/deploy/response-headers-policy.json`, so the platform must apply the new
+  value (including at the CDN, if it overrides `frame-ancestors` or adds `X-Frame-Options: DENY`, which would
+  block the frame too; use `SAMEORIGIN`) before relying on frame renewal. IdPs that issue refresh tokens never
+  use the frame and are unaffected.

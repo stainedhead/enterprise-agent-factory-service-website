@@ -1,5 +1,6 @@
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
+import { AuthError } from "../../application/ports/auth.js";
 import type { ProviderInfo } from "../../application/ports/config.js";
 import { PROVIDER_PREF, safeReturnTo } from "../../application/usecases/session/Boot.js";
 import { chooseProvider } from "../../application/usecases/session/chooseProvider.js";
@@ -39,11 +40,15 @@ export function SignInPage() {
 
   const go = (p: ProviderInfo) => {
     auth.prefs.set(PROVIDER_PREF, p.id);
-    auth.beginSignIn
-      .execute(p, returnTo, forcePick ? "login" : undefined)
-      .catch(() =>
-        setState({ kind: "failed", message: "The sign-in provider could not be reached." }),
-      );
+    auth.beginSignIn.execute(p, returnTo, forcePick ? "login" : undefined).catch((e: unknown) =>
+      setState({
+        kind: "failed",
+        message:
+          e instanceof AuthError && e.reason === "storage"
+            ? e.message
+            : "The sign-in provider could not be reached.",
+      }),
+    );
   };
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: run once per mount
@@ -144,8 +149,13 @@ export function CallbackPage() {
     if (auth.relayCallbackToParent()) return;
     void auth.completeSignIn.execute(window.location.href).then((r) => {
       if (r.kind === "signed-in") navigate(r.returnTo, { replace: true });
-      else if (r.kind === "login-required") navigate("/sign-in", { replace: true });
-      else setError(r.error.message);
+      else if (r.kind === "login-required") {
+        // keep the route the flow was for: the picker (several providers) lands there afterwards
+        const back = safeReturnTo(r.returnTo);
+        navigate(back === "/" ? "/sign-in" : `/sign-in?returnTo=${encodeURIComponent(back)}`, {
+          replace: true,
+        });
+      } else setError(r.error.message);
     });
   }, []);
 
@@ -212,6 +222,7 @@ export function SessionExpiredDialog() {
   const auth = useAuth();
   const state = useSessionState(auth.session);
   const [busy, setBusy] = useState(false);
+  const [problem, setProblem] = useState<string | undefined>();
   const expired = state === "expired";
 
   useEffect(() => {
@@ -221,15 +232,29 @@ export function SessionExpiredDialog() {
   if (!expired) return null;
   const reauth = async () => {
     setBusy(true);
-    const { providers } = await auth.listProviders.execute();
-    const remembered = auth.prefs.get(PROVIDER_PREF);
-    const p =
-      providers.find((x) => x.id === remembered) ??
-      providers.find((x) => x.isDefault) ??
-      providers[0];
-    if (p)
+    setProblem(undefined);
+    try {
+      const { providers } = await auth.listProviders.execute();
+      const remembered = auth.prefs.get(PROVIDER_PREF);
+      const p =
+        providers.find((x) => x.id === remembered) ??
+        providers.find((x) => x.isDefault) ??
+        providers[0];
+      if (!p) {
+        setProblem("No sign-in provider is available. Ask a service administrator to enable one.");
+        setBusy(false);
+        return;
+      }
+      // On success the browser leaves for the provider; the button stays disabled until it does.
       await auth.reAuthenticate.execute(p, `${window.location.pathname}${window.location.search}`);
-    else setBusy(false);
+    } catch (e: unknown) {
+      setProblem(
+        e instanceof AuthError && e.reason === "storage"
+          ? e.message
+          : "Could not reach the sign-in provider. Check your connection and try again.",
+      );
+      setBusy(false);
+    }
   };
   return (
     <Modal
@@ -245,6 +270,11 @@ export function SessionExpiredDialog() {
         Sign in again to continue. You will return to this page; anything typed that is not a secret
         is kept.
       </p>
+      {problem && (
+        <Alert kind="error" title="Could not sign in again">
+          {problem}
+        </Alert>
+      )}
     </Modal>
   );
 }

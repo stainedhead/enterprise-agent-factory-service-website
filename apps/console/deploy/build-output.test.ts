@@ -59,7 +59,7 @@ describe("build output (M0-W2, FR-036, FR-037)", () => {
 });
 
 describe("deploy artefacts (M0-W2)", () => {
-  it("the CSP has the directives of FR-037 and the WD-30 frame-src", () => {
+  it("the CSP has the directives of FR-037 as amended by ADR-014 (frame-ancestors and frame-src 'self')", () => {
     const csp = (read("deploy/response-headers-policy.json").headers as Record<string, string>)[
       "Content-Security-Policy"
     ] as string;
@@ -67,12 +67,16 @@ describe("deploy artefacts (M0-W2)", () => {
       "default-src 'self'",
       "script-src 'self'",
       "connect-src 'self' <apiUrl> <issuers> <telemetryUrl>",
-      "frame-ancestors 'none'",
+      "frame-ancestors 'self'",
       "object-src 'none'",
-      "frame-src <issuers>",
+      "frame-src 'self' <issuers>",
     ]) {
       expect(csp).toContain(d);
     }
+    // ADR-014: silent renewal loads the console's own callback in its own hidden frame, so 'self' may
+    // frame it; no other origin may (never a wildcard or a bare scheme).
+    expect(csp).not.toContain("frame-ancestors 'none'");
+    expect(csp).not.toMatch(/frame-ancestors[^;]*(\*|https?:)/);
     expect(csp).not.toContain("unsafe-inline");
     expect(csp).not.toContain("unsafe-eval");
   });

@@ -1,5 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
-import { AuthError, type ClockPort, type OidcPort, type SessionTokens } from "../../ports/auth.js";
+import {
+  AuthError,
+  type ClockPort,
+  type OidcPort,
+  type SessionMessage,
+  type SessionTokens,
+} from "../../ports/auth.js";
 import type { ProviderInfo } from "../../ports/config.js";
 import { BeginSignIn, CompleteSignIn } from "./CompleteSignIn.js";
 import { IdleMonitor } from "./IdleMonitor.js";
@@ -52,8 +58,8 @@ const tokens = (clock: FakeClock, over: Partial<SessionTokens> = {}): SessionTok
 
 function setup(over: Partial<OidcPort> = {}) {
   const clock = new FakeClock();
-  const handlers: ((m: string) => void)[] = [];
-  const posts: string[] = [];
+  const handlers: ((m: SessionMessage) => void)[] = [];
+  const posts: SessionMessage[] = [];
   const oidc: OidcPort = {
     begin: vi.fn(async () => "https://i.test/authorize?x"),
     complete: vi.fn(async () => ({ tokens: tokens(clock), returnTo: "/t/team_1" })),
@@ -71,9 +77,11 @@ function setup(over: Partial<OidcPort> = {}) {
     ...over,
   };
   const clear = vi.fn();
+  const clearDrafts = vi.fn();
   const session = new Session({
     oidc,
     clock,
+    drafts: { clear: clearDrafts },
     redirectUri: "https://c.test/cb",
     clearCaches: clear,
     providerById: (id) => (id === "idp" ? provider : undefined),
@@ -85,7 +93,7 @@ function setup(over: Partial<OidcPort> = {}) {
       },
     },
   });
-  return { clock, oidc, session, handlers, posts, clear };
+  return { clock, oidc, session, handlers, posts, clear, clearDrafts };
 }
 
 describe("Session", () => {
@@ -160,6 +168,20 @@ describe("Session", () => {
     expect(clear).toHaveBeenCalled();
     expect(clock.timers.size).toBe(0);
   });
+  it("sign-out, here or from another tab, clears the drafts; expiry keeps them (FR-004 AC3)", async () => {
+    const a = setup();
+    a.session.establish(tokens(a.clock));
+    await a.session.signOut("/x");
+    expect(a.clearDrafts).toHaveBeenCalledOnce();
+    const b = setup();
+    b.session.establish(tokens(b.clock));
+    b.handlers[0]?.("signout");
+    expect(b.clearDrafts).toHaveBeenCalledOnce();
+    const c = setup();
+    c.session.establish(tokens(c.clock));
+    c.session.expire();
+    expect(c.clearDrafts).not.toHaveBeenCalled();
+  });
   it("sign-out still completes when the end-session lookup fails or there is no session", async () => {
     const { clock, session } = setup({
       endSessionUrl: async () => {
@@ -173,7 +195,8 @@ describe("Session", () => {
   it("signs out when another tab broadcasts, and ignores other messages", () => {
     const { clock, session, handlers } = setup();
     session.establish(tokens(clock));
-    handlers[0]?.("hello");
+    handlers[0]?.("hello" as never);
+    handlers[0]?.("activity");
     expect(session.state).toBe("active");
     handlers[0]?.("signout");
     expect(session.state).toBe("signed-out");
@@ -241,6 +264,11 @@ describe("BeginSignIn and CompleteSignIn", () => {
     };
     expect(await mk(new AuthError("interaction_required", "x"))).toEqual({
       kind: "login-required",
+      returnTo: "/",
+    });
+    expect(await mk(new AuthError("interaction_required", "x", "/t/team_1/agents"))).toEqual({
+      kind: "login-required",
+      returnTo: "/t/team_1/agents",
     });
     expect(await mk(new AuthError("state", "bad state"))).toMatchObject({
       kind: "error",

@@ -33,7 +33,7 @@ lines, so merges stay hunk-disjoint.
 | A: SDK | FR-007..FR-011 | 6/6 | no | Gate green on wf/a |
 | E: Quality and edges | FR-016..FR-020 | 9/9 | no | Branch `wf/e`; gate green |
 | C: Error routing | FR-002, FR-003 (query layer), FR-015 | 7/7 | no | Gate green; `onUnauthenticated` and `faults.ts` ready for B |
-| B: Session, auth, hosting | FR-001, FR-003 (wiring), FR-005, FR-006, FR-012..FR-014, FR-004 (sign-out) | 0/10 | no | |
+| B: Session, auth, hosting | FR-001, FR-003 (wiring), FR-005, FR-006, FR-012..FR-014, FR-004 (sign-out) | 9/10 | no | B-6 is not ticked: spec and SEAM are written, verified red and green in a scratch merge with C; waits for C's merge |
 | D: Drafts | FR-004, FR-021, FR-018 (`IdentitySection.tsx`) | 0/10 | no | |
 | U-1 (stream-independent) | M6-U1 contract re-pin | 0/1 | n/a | Open: blocked on the `-restapi` merge and tag (CQ-1) |
 
@@ -46,6 +46,14 @@ lines, so merges stay hunk-disjoint.
 - 2026-11-22: A-1..A-5 done test-first (FR-007..FR-011); A-6 stream exit: gate green, public surface unchanged. Decisions in implementation-notes.md "Stream A".
 
 ## Stream B log
+
+- B-1 (FR-006) done: `parseConfig` requires https, loopback http only in dev and e2e builds.
+- B-2, B-3 (FR-001) done: CSP `'self'` for `frame-src` and `frame-ancestors`; `silent-renew.spec.ts`; ADR-014; ASVS V3.7.
+- B-4 (FR-005) done: shared activity across tabs, typed session channel.
+- B-5 (FR-004 sign-out) done: `afs.drafts` cleared on sign-out.
+- B-7, B-8, B-9 (FR-012, FR-013, FR-014) done.
+- B-10 done: `bun run gate` green; Chromium e2e `auth` and `quality` 25 passed, 2 skipped (B-6, seam).
+- B-6 (FR-003 wiring): spec and SEAM written, waiting for stream C's merge (see implementation notes RF-B8).
 
 ## Stream C log
 

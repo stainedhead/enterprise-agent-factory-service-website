@@ -65,4 +65,41 @@ describe("parseConfig", () => {
       expect((e as ConfigError).reasons.length).toBe(3);
     }
   });
+
+  describe("transport security (FR-006)", () => {
+    it.each(["apiUrl", "redirectUri", "telemetryUrl"])(
+      "refuses http for %s and names the field",
+      (k) => {
+        const raw = { ...base, [k]: "http://example.com/x" };
+        expect(() => parseConfig(raw)).toThrow(ConfigError);
+        try {
+          parseConfig(raw);
+        } catch (e) {
+          expect((e as ConfigError).reasons.join(" ")).toContain(k);
+          expect((e as ConfigError).reasons.join(" ")).toContain("https");
+        }
+      },
+    );
+    it("accepts https for every URL", () => {
+      expect(parseConfig({ ...base, telemetryUrl: "https://t.example.test/v" }).telemetryUrl).toBe(
+        "https://t.example.test/v",
+      );
+    });
+    it("still refuses a non-loopback http URL when insecure loopback is allowed", () => {
+      expect(() =>
+        parseConfig({ ...base, apiUrl: "http://example.com" }, { allowLoopbackHttp: true }),
+      ).toThrow(ConfigError);
+    });
+    it.each(["http://localhost:8080", "http://127.0.0.1:4010", "http://[::1]:8080"])(
+      "allows %s only when insecure loopback is allowed (dev and e2e builds)",
+      (url) => {
+        expect(() => parseConfig({ ...base, apiUrl: url })).toThrow(ConfigError);
+        expect(parseConfig({ ...base, apiUrl: url }, { allowLoopbackHttp: true }).apiUrl).toBe(url);
+        expect(
+          parseConfig({ ...base, redirectUri: `${url}/auth/callback` }, { allowLoopbackHttp: true })
+            .redirectUri,
+        ).toBe(`${url}/auth/callback`);
+      },
+    );
+  });
 });
