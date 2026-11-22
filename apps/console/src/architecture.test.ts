@@ -40,7 +40,10 @@ function stripComments(src: string): string {
 }
 
 function importsOf(src: string): string[] {
-  return [...src.matchAll(/(?:from|import)\s+["']([^"']+)["']/g)].map((m) => m[1] ?? "");
+  // Static `from "x"` (import and re-export, multi-line included), bare `import "x"` and `import("x")`.
+  return [...stripComments(src).matchAll(/(?:\bfrom\s*|\bimport\s*\(?\s*)["']([^"']+)["']/g)].map(
+    (m) => m[1] ?? "",
+  );
 }
 
 export function importViolations(layer: string, file: string, src: string): string[] {
@@ -66,16 +69,66 @@ export function browserApiViolations(layer: string, file: string, src: string): 
 }
 
 const isTest = (f: string) => /\.test\.tsx?$/.test(f) || f.endsWith("architecture.test.ts");
+// This file holds violating snippets as strings, so it is the one file the dependency scan skips.
+const isSelf = (f: string) => f.endsWith("architecture.test.ts");
+
+// Test files are scanned too (FR-016). An entry is "<file relative to src/> -> <import specifier>" and
+// needs a reason. Do not add entries to hide a new violation; fix the import.
+export const TEST_ALLOW_LIST: Record<string, string> = {
+  "application/usecases/adminApiKeys/AdminApiKeysUseCases.test.ts -> ../../../presentation/testing/adminApiKeys.js":
+    "application use-case tests reuse the in-memory fake ports in presentation/testing/ (pure fakes, no React); moving them to application/testing/ is a refactor outside this spec (RF-E2)",
+  "application/usecases/adminCatalogs/AdminCatalogsUseCases.test.ts -> ../../../presentation/testing/adminCatalogs.js":
+    "application use-case tests reuse the in-memory fake ports in presentation/testing/ (pure fakes, no React); moving them to application/testing/ is a refactor outside this spec (RF-E2)",
+  "application/usecases/adminCatalogs/AdminCatalogsUseCases.test.ts -> ../../../presentation/testing/agents.js":
+    "application use-case tests reuse the in-memory fake ports in presentation/testing/ (pure fakes, no React); moving them to application/testing/ is a refactor outside this spec (RF-E2)",
+  "application/usecases/adminSecurityOperators/AdminSecurityOperatorsUseCases.test.ts -> ../../../presentation/testing/adminApiKeys.js":
+    "application use-case tests reuse the in-memory fake ports in presentation/testing/ (pure fakes, no React); moving them to application/testing/ is a refactor outside this spec (RF-E2)",
+  "application/usecases/agents/AgentsUseCases.test.ts -> ../../../presentation/testing/agents.js":
+    "application use-case tests reuse the in-memory fake ports in presentation/testing/ (pure fakes, no React); moving them to application/testing/ is a refactor outside this spec (RF-E2)",
+  "application/usecases/agents/AgentsUseCases.test.ts -> ../../../presentation/testing/teams.js":
+    "application use-case tests reuse the in-memory fake ports in presentation/testing/ (pure fakes, no React); moving them to application/testing/ is a refactor outside this spec (RF-E2)",
+  "application/usecases/agents-create/CreateAgentUseCases.test.ts -> ../../../presentation/testing/agents.js":
+    "application use-case tests reuse the in-memory fake ports in presentation/testing/ (pure fakes, no React); moving them to application/testing/ is a refactor outside this spec (RF-E2)",
+  "application/usecases/agents-create/CreateAgentUseCases.test.ts -> ../../../presentation/testing/secrets.js":
+    "application use-case tests reuse the in-memory fake ports in presentation/testing/ (pure fakes, no React); moving them to application/testing/ is a refactor outside this spec (RF-E2)",
+  "application/usecases/externalSystems/AdminExternalSystemsUseCases.test.ts -> ../../../presentation/testing/externalSystems.js":
+    "application use-case tests reuse the in-memory fake ports in presentation/testing/ (pure fakes, no React); moving them to application/testing/ is a refactor outside this spec (RF-E2)",
+  "application/usecases/externalSystems/ExternalSystemsUseCases.test.ts -> ../../../presentation/testing/externalSystems.js":
+    "application use-case tests reuse the in-memory fake ports in presentation/testing/ (pure fakes, no React); moving them to application/testing/ is a refactor outside this spec (RF-E2)",
+  "application/usecases/identity/IdentityUseCases.test.ts -> ../../../presentation/testing/identity.js":
+    "application use-case tests reuse the in-memory fake ports in presentation/testing/ (pure fakes, no React); moving them to application/testing/ is a refactor outside this spec (RF-E2)",
+  "application/usecases/pools/PoolsUseCases.test.ts -> ../../../presentation/testing/agents.js":
+    "application use-case tests reuse the in-memory fake ports in presentation/testing/ (pure fakes, no React); moving them to application/testing/ is a refactor outside this spec (RF-E2)",
+  "application/usecases/pools/PoolsUseCases.test.ts -> ../../../presentation/testing/pools.js":
+    "application use-case tests reuse the in-memory fake ports in presentation/testing/ (pure fakes, no React); moving them to application/testing/ is a refactor outside this spec (RF-E2)",
+};
 
 describe("dependency rule", () => {
   for (const layer of Object.keys(FORBIDDEN)) {
     it(`${layer}/ does not import outer layers`, () => {
       const violations = files(join(SRC, layer))
-        .filter((f) => !isTest(f))
-        .flatMap((f) => importViolations(layer, f, readFileSync(f, "utf8")));
+        .filter((f) => !isSelf(f))
+        .flatMap((f) => importViolations(layer, f, readFileSync(f, "utf8")))
+        .filter((v) => !(v in TEST_ALLOW_LIST));
       expect(violations).toEqual([]);
     });
   }
+});
+
+describe("test-file allow-list", () => {
+  it("has a reason per entry and no stale entries", () => {
+    const live = new Set(
+      Object.keys(FORBIDDEN).flatMap((layer) =>
+        files(join(SRC, layer))
+          .filter((f) => !isSelf(f))
+          .flatMap((f) => importViolations(layer, f, readFileSync(f, "utf8"))),
+      ),
+    );
+    for (const [entry, reason] of Object.entries(TEST_ALLOW_LIST)) {
+      expect(reason.length, entry).toBeGreaterThan(10);
+      expect(live.has(entry), `stale allow-list entry: ${entry}`).toBe(true);
+    }
+  });
 });
 
 describe("browser API rules", () => {
@@ -144,6 +197,17 @@ describe("the rules themselves (red cases)", () => {
     expect(
       browserApiViolations("domain", f("domain/x.ts"), "// never window\n/* fetch */"),
     ).toEqual([]);
+  });
+  it("dynamic imports and re-exports from outer layers are violations", () => {
+    for (const code of [
+      'const m = await import("@afs/sdk");',
+      'const m = import("../infrastructure/a.js");',
+      'export { x } from "../infrastructure/a.js";',
+      'export * from "@afs/sdk";',
+      'export type { T } from "@afs/sdk";',
+      'import {\n  a,\n  b,\n} from "@afs/sdk";',
+    ])
+      expect(importViolations("presentation", f("presentation/x.ts"), code)).toHaveLength(1);
   });
   it("existing outward imports remain violations", () => {
     expect(importViolations("domain", f("domain/x.ts"), 'import "react";')).toHaveLength(1);

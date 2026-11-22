@@ -31,7 +31,7 @@ lines, so merges stay hunk-disjoint.
 | Stream | Findings | Tasks done | Merged | Notes |
 |---|---|---|---|---|
 | A: SDK | FR-007..FR-011 | 6/6 | no | Gate green on wf/a |
-| E: Quality and edges | FR-016..FR-020 | 0/9 | no | |
+| E: Quality and edges | FR-016..FR-020 | 9/9 | no | Branch `wf/e`; gate green |
 | C: Error routing | FR-002, FR-003 (query layer), FR-015 | 0/7 | no | |
 | B: Session, auth, hosting | FR-001, FR-003 (wiring), FR-005, FR-006, FR-012..FR-014, FR-004 (sign-out) | 0/10 | no | |
 | D: Drafts | FR-004, FR-021, FR-018 (`IdentitySection.tsx`) | 0/10 | no | |
@@ -52,6 +52,12 @@ lines, so merges stay hunk-disjoint.
 ## Stream D log
 
 ## Stream E log
+
+- 2026-11-22: E-1, E-2 architecture rule covers dynamic imports, re-exports and test files (13 allow-list entries).
+- 2026-11-22: E-3 coverage excludes 34 type-only port files; `auth.ts`, `config.ts`, `preferences.ts` now counted.
+- 2026-11-22: E-4 Biome at 0 warnings; `lint` runs `--error-on-warnings`; scoped override for `IdentitySection.tsx`.
+- 2026-11-22: E-5..E-7 inline error, request id and Retry for report tag keys, spend tag keys, ephemeral budget burn.
+- 2026-11-22: E-8 `https:`-only `prUrl` and `downloadUrl`. E-9 `bun run gate` green (sdk 275, console 1268 tests); Chromium e2e green: shell, tags, adminExports, ephemeral, workOrders, reports, overview (68 tests).
 
 ## Blockers
 

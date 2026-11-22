@@ -1,4 +1,4 @@
-import { screen, waitFor } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import { AppError } from "../../../application/errors.js";
@@ -53,6 +53,74 @@ describe("T11 team reports (M3-R1)", () => {
     );
     open(TEAM_ADMIN, port);
     expect(await screen.findByText("The report could not be run")).toBeTruthy();
+  });
+});
+
+describe("T11 tag keys failure (FR-019)", () => {
+  function openWithFailingTags() {
+    const teams = fakeTeamsPort();
+    teams.get.mockResolvedValue(aTeam());
+    teams.tags
+      .mockRejectedValueOnce(
+        new AppError({ kind: "unavailable", message: "tags down", requestId: "req_tags" }),
+      )
+      .mockResolvedValue({ tags: [{ key: "env", value: "prod" }] } as never);
+    renderScreen(<T11 />, {
+      me: TEAM_ADMIN,
+      services: { ...reportsServices(fakeReportsPort()), ...teamsServices(teams) },
+      path: "/t/team_1/reports",
+      route: "/t/:teamId/reports",
+    });
+    return teams;
+  }
+  it("shows an inline alert with the request id, keeps the report, and Retry re-runs the query", async () => {
+    const teams = openWithFailingTags();
+    const alert = await screen.findByRole("alert");
+    expect(alert.textContent).toContain("Tag keys could not be loaded");
+    expect(alert.textContent).toContain("req_tags");
+    expect(await screen.findByText("$15.75")).toBeTruthy();
+    await userEvent.click(within(alert).getByRole("button", { name: "Retry" }));
+    await waitFor(() => expect(teams.tags).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(screen.queryByRole("alert")).toBeNull());
+  });
+  it("shows no alert when the role cannot read tags (denied case)", async () => {
+    const teams = fakeTeamsPort();
+    teams.get.mockResolvedValue(aTeam());
+    const noTags: Me = {
+      ...VIEWER,
+      teams: VIEWER.teams.map((t) => ({
+        ...t,
+        permissions: t.permissions.filter((p) => p !== "tags:read"),
+      })),
+    };
+    renderScreen(<T11 />, {
+      me: noTags,
+      services: { ...reportsServices(fakeReportsPort()), ...teamsServices(teams) },
+      path: "/t/team_1/reports",
+      route: "/t/:teamId/reports",
+    });
+    expect(await screen.findByText("$15.75")).toBeTruthy();
+    expect(teams.tags).not.toHaveBeenCalled();
+    expect(screen.queryByText("Tag keys could not be loaded")).toBeNull();
+  });
+});
+
+describe("T11 tag keys access denied by the API (FR-019)", () => {
+  it("shows no inline alert; access denial is the API's answer and is handled elsewhere", async () => {
+    const teams = fakeTeamsPort();
+    teams.get.mockResolvedValue(aTeam());
+    teams.tags.mockRejectedValue(
+      new AppError({ kind: "access-denied", message: "no", requestId: "req_403" }),
+    );
+    renderScreen(<T11 />, {
+      me: TEAM_ADMIN,
+      services: { ...reportsServices(fakeReportsPort()), ...teamsServices(teams) },
+      path: "/t/team_1/reports",
+      route: "/t/:teamId/reports",
+    });
+    expect(await screen.findByText("$15.75")).toBeTruthy();
+    await waitFor(() => expect(teams.tags).toHaveBeenCalled());
+    expect(screen.queryByText("Tag keys could not be loaded")).toBeNull();
   });
 });
 

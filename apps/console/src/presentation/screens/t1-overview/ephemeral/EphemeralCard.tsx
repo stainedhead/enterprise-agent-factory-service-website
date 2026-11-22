@@ -9,6 +9,7 @@ import { teamKey } from "../../../hooks/useTeamWriteGate.js";
 import { queryKey } from "../../../query/keys.js";
 import { useService } from "../../../services.js";
 import { useMe } from "../../../shell/ShellContext.js";
+import { SecondaryQueryAlert } from "../../t11-reports/ReportSection.js";
 
 const RULE = {
   at_cap_or_expiry: "At the cap or at expiry, whichever comes first",
@@ -31,11 +32,16 @@ export function EphemeralCard({ teamId }: { teamId: string }) {
     enabled: can(me, "budgets:read", teamId),
   });
   const team = t.data;
-  if (!team || team.kind !== "ephemeral") return null;
+  if (team?.kind !== "ephemeral") return null;
   const st = ephemeralStatus(team, now);
   const rule = RULE[team.teardownRule as keyof typeof RULE] ?? team.teardownRule ?? "—";
   return (
     <Card title="Ephemeral team">
+      <SecondaryQueryAlert
+        title="The budget burn could not be loaded"
+        error={budget.error}
+        onRetry={() => void budget.refetch()}
+      />
       <KeyValue
         items={[
           {
@@ -57,9 +63,11 @@ export function EphemeralCard({ teamId }: { teamId: string }) {
             label: "Spend against the cap",
             value: budget.data
               ? `${format(budget.data.budget.spentUsd)} of ${format(budget.data.budget.amountUsd)} (${Math.round(budget.data.percent)}%)`
-              : can(me, "budgets:read", teamId)
-                ? "Loading…"
-                : "You cannot view the budget",
+              : !can(me, "budgets:read", teamId)
+                ? "You cannot view the budget"
+                : budget.isError
+                  ? "Unavailable"
+                  : "Loading…",
           },
           { label: "Teardown", value: rule },
           ...(st.tornDown

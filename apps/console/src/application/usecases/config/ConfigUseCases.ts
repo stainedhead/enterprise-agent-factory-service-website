@@ -2,7 +2,6 @@ import { isCredentialLikeName } from "../../../domain/names.js";
 import { AppError } from "../../errors.js";
 import type {
   AgentConfigInput,
-  ConfigRef,
   ConfigValueRecord,
   ConfigValuesPort,
 } from "../../ports/configValues.js";

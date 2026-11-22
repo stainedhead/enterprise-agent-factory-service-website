@@ -3,8 +3,6 @@ import type { Fixture } from "./index.js";
 
 type Json = Record<string, unknown>;
 
-const ts = "2026-11-21T18:00:00Z";
-const ok = (phase = "Ready") => ({ conditions: [], observedGeneration: 1, phase, updatedAt: ts });
 const MODELS: Json[] = [
   ["anthropic.claude-sonnet-4-5", "Claude Sonnet 4.5"],
   ["anthropic.claude-haiku-4-5", "Claude Haiku 4.5"],

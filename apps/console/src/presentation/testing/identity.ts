@@ -52,5 +52,10 @@ export function fakeIdentityPort(over: Partial<IdentityPort> = {}): FakeIdentity
   } as unknown as FakeIdentityPort;
 }
 
-const clock = { setTimeout: (fn: () => void) => (fn(), 0) };
+const clock = {
+  setTimeout: (fn: () => void) => {
+    fn();
+    return 0;
+  },
+};
 export const identityServices = (p: IdentityPort) => ({ identity: new IdentityUseCases(p, clock) });

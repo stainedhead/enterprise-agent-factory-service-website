@@ -1,7 +1,7 @@
 import { TEAMS } from "../../fake-afs/fixtures/core.js";
 import { expectAxeClean } from "../../helpers/axe.js";
 import { control } from "../../helpers/control.js";
-import { mutatingCount, requestsWhere } from "../../helpers/counters.js";
+import { requestsWhere } from "../../helpers/counters.js";
 import { expect, test } from "../../helpers/test.js";
 import { expectVisual } from "../../helpers/visual.js";
 

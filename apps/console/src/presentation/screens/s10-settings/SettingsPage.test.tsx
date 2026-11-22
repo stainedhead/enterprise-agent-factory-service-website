@@ -5,13 +5,7 @@ import { AppError } from "../../../application/errors.js";
 import type { Me } from "../../../domain/me.js";
 import { TEAM_ADMIN } from "../../testing/harness.js";
 import { renderScreen } from "../../testing/screen.js";
-import {
-  anIdp,
-  aSetting,
-  fakeIdpPort,
-  fakeSettingsPort,
-  settingsServices,
-} from "../../testing/settings.js";
+import { fakeIdpPort, fakeSettingsPort, settingsServices } from "../../testing/settings.js";
 import { ALL_PERMS, serviceAdminWith } from "../../testing/teams.js";
 import S10 from "./index.js";
 
@@ -33,8 +27,6 @@ function open(
   });
   return { settings, idps };
 }
-const disabled = (el: HTMLElement) =>
-  (el as HTMLButtonElement).disabled || el.getAttribute("aria-disabled") === "true";
 
 describe("S10 shell (M1-N1)", () => {
   it("shows the Settings and Identity providers tabs", async () => {

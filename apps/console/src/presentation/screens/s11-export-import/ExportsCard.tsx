@@ -153,7 +153,14 @@ export function ExportsCard() {
                     Download
                   </a>
                 );
-              if (s === "expired") return <span>Expired</span>;
+              // "expired" also covers a succeeded export without a usable link (the adapter drops a non-https
+              // `downloadUrl`, FR-020): that is a dash, not a claim that the 7 days have passed.
+              if (s === "expired")
+                return e.downloadExpiresAt && Date.parse(e.downloadExpiresAt) <= now ? (
+                  <span>Expired</span>
+                ) : (
+                  "—"
+                );
               return "—";
             },
           },
