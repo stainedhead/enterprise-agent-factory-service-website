@@ -23,6 +23,9 @@ const FORBIDDEN: Record<string, RegExp[]> = {
 // table) is data, not a reference to the global.
 const BROWSER_GLOBALS =
   /(?<![\w-])(window|document|fetch|localStorage|sessionStorage|indexedDB)(?![\w-])/;
+// XSS and CSP sinks (ASVS V5, M6-Q6): nothing may build markup or code from strings.
+const XSS_SINKS =
+  /dangerouslySetInnerHTML|\.innerHTML\s*=|\.outerHTML\s*=|insertAdjacentHTML|\beval\(|new Function\(/;
 const STORAGE_APIS = /\b(localStorage|sessionStorage|indexedDB)\b/;
 
 function files(dir: string): string[] {
@@ -56,6 +59,7 @@ export function browserApiViolations(layer: string, file: string, src: string): 
   const out: string[] = [];
   if ((layer === "domain" || layer === "application") && BROWSER_GLOBALS.test(code))
     out.push(`${rel}: references a browser global`);
+  if (XSS_SINKS.test(code)) out.push(`${rel}: uses an HTML or code injection sink`);
   if (!rel.startsWith("infrastructure/storage/") && STORAGE_APIS.test(code))
     out.push(`${rel}: touches web storage outside infrastructure/storage/`);
   return out;
@@ -112,6 +116,18 @@ describe("the rules themselves (red cases)", () => {
     expect(
       browserApiViolations("application", f("application/x.ts"), "await fetch(u);"),
     ).toHaveLength(1);
+  });
+  it("an HTML or code injection sink is a violation in every layer", () => {
+    for (const code of [
+      "<div dangerouslySetInnerHTML={{ __html: x }} />",
+      "el.innerHTML = x;",
+      "eval(x)",
+      "new Function('a', x)",
+    ])
+      expect(browserApiViolations("presentation", f("presentation/x.tsx"), code)).toHaveLength(1);
+    expect(
+      browserApiViolations("presentation", f("presentation/x.tsx"), "el.textContent = x;"),
+    ).toEqual([]);
   });
   it("storage outside infrastructure/storage is a violation", () => {
     expect(

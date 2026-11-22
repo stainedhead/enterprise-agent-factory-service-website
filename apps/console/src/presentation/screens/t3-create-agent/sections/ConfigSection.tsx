@@ -1,7 +1,7 @@
 import type { ConfigValueRecord } from "../../../../application/ports/configValues.js";
 import type { ConfigRow } from "../../../../application/usecases/agents-create/CreateAgentUseCases.js";
 import { Button, Card, FormField, SelectInput, TextInput } from "../../../components/index.js";
-import type { SectionProps } from "./types.js";
+import type { RowEditProps, SectionProps } from "./types.js";
 
 /**
  * *Configuration values* (WEB-US-26.5): *Use namespace value* is offered only for a name the namespace has,
@@ -12,7 +12,8 @@ export function ConfigSection({
   set,
   errors,
   namespace,
-}: SectionProps & { namespace: readonly ConfigValueRecord[] }) {
+  readOnlyReason,
+}: SectionProps & RowEditProps & { namespace: readonly ConfigValueRecord[] }) {
   const change = (i: number, patch: Partial<ConfigRow>) =>
     set({ config: draft.config.map((c, n) => (n === i ? { ...c, ...patch } : c)) });
   return (
@@ -20,6 +21,7 @@ export function ConfigSection({
       title="Configuration values"
       actions={
         <Button
+          disabledReason={readOnlyReason}
           onClick={() =>
             set({ config: [...draft.config, { name: "", source: "literal", value: "" }] })
           }

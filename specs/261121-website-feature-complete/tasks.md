@@ -44,8 +44,8 @@
 | M3 Spend control | 6 (+ exit) | 24 | 24 |
 | M4 Production readiness | 8 (+ exit) | 34 | 34 |
 | M5 Budgeted workloads and swarms | 4 (+ exit) | 19 | 19 |
-| M6 CVE remediation and completion | 6 (+ exit) | 26 | 17 |
-| **Total** | **51** | **259** | **251** |
+| M6 CVE remediation and completion | 6 (+ exit) | 26 | 24 |
+| **Total** | **51** | **259** | **258** |
 
 ## External dependencies and contract questions
 
@@ -750,13 +750,13 @@ Owns: `e2e/specs/sweep/`, `e2e/visual/approvals.json` (all entries), `e2e/visual
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M6-Q1 | axe on all 33 screens and their dialogs with no serious or critical issue; keyboard-only completion of each role's key flows (root §5.4); status changes announced through live regions | WEB-US-42.1, WEB-10, NFR-8 | all M6 streams |
-| [ ] | M6-Q2 | Visual: one baseline per screen (33) at 1440 × 900 @2× with mockup fixture data; side-by-side report artifact; `approvals.json` complete (`pending` until the web lead approves, W-3); diffs above 0.5% fail CI | WEB-US-42.2, WEB-1 | M6-Q1 |
-| [ ] | M6-Q3 | Viewer sessions over every team screen send no mutating `fetch` (recorder) | WEB-US-36.1 | — |
-| [ ] | M6-Q4 | Sentinel e2e over every secret path (create and rotate secret, `CreateApiKey`, `CreateServiceApiKey`, identity provider client secret): absent from TanStack query and mutation caches, storages, IndexedDB, cookies, URL and history state, console output, telemetry payloads and the DOM after close | WEB-US-11.1 | — |
-| [ ] | M6-Q5 | Performance and browsers: FCP < 1.5 s and route change < 300 ms with cached data on the fake API with 40 ms RTT and 50 Mbit/s throttling; initial route ≤ 300 KB gzip; Firefox and WebKit smoke | NFR-1, NFR-3 | — |
-| [ ] | M6-Q6 | Security: serve the build with the `deploy/` headers in e2e and assert no CSP violation on any screen; OWASP ASVS L2 checklist (session, data protection, configuration) recorded in implementation-notes.md | NFR-6, FR-037 | — |
-| [ ] | M6-Q7 | Coverage ≥ 90% on `domain` and `application`; audit that every `Permission` has a denied-case test (fails on a permission without one) | NFR-7 | — |
+| [x] | M6-Q1 | axe on all 33 screens and their dialogs with no serious or critical issue; keyboard-only completion of each role's key flows (root §5.4); status changes announced through live regions | WEB-US-42.1, WEB-10, NFR-8 | all M6 streams |
+| [x] | M6-Q2 | Visual: one baseline per screen (33) at 1440 × 900 @2× with mockup fixture data; side-by-side report artifact; `approvals.json` complete (`pending` until the web lead approves, W-3); diffs above 0.5% fail CI | WEB-US-42.2, WEB-1 | M6-Q1 |
+| [x] | M6-Q3 | Viewer sessions over every team screen send no mutating `fetch` (recorder) | WEB-US-36.1 | — |
+| [x] | M6-Q4 | Sentinel e2e over every secret path (create and rotate secret, `CreateApiKey`, `CreateServiceApiKey`, identity provider client secret): absent from TanStack query and mutation caches, storages, IndexedDB, cookies, URL and history state, console output, telemetry payloads and the DOM after close | WEB-US-11.1 | — |
+| [x] | M6-Q5 | Performance and browsers: FCP < 1.5 s and route change < 300 ms with cached data on the fake API with 40 ms RTT and 50 Mbit/s throttling; initial route ≤ 300 KB gzip; Firefox and WebKit smoke | NFR-1, NFR-3 | — |
+| [x] | M6-Q6 | Security: serve the build with the `deploy/` headers in e2e and assert no CSP violation on any screen; OWASP ASVS L2 checklist (session, data protection, configuration) recorded in implementation-notes.md | NFR-6, FR-037 | — |
+| [x] | M6-Q7 | Coverage ≥ 90% on `domain` and `application`; audit that every `Permission` has a denied-case test (fails on a permission without one) | NFR-7 | — |
 
 ### M6-U · Contract re-pin
 

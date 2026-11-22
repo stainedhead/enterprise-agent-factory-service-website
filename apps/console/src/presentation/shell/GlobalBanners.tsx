@@ -1,6 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useSyncExternalStore } from "react";
 import { Alert } from "../components/Alert.js";
+import { LiveRegion } from "../components/LiveRegion.js";
 import { globalStatusOf } from "../query/globalStatus.js";
 
 /**
@@ -21,6 +22,7 @@ export function GlobalBanners() {
 
   return (
     <>
+      <LiveRegion message={st.announcement} />
       {st.unavailable && (
         <Alert
           kind="error"

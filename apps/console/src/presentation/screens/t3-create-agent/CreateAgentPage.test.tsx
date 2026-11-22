@@ -146,6 +146,19 @@ describe("T3 form (M2-C1)", () => {
     expect((await screen.findAllByText(/lower-case letters/)).length).toBeGreaterThan(0);
     expect(agents.create).not.toHaveBeenCalled();
   });
+
+  it("a viewer cannot add rows to the draft either; a team admin can (M6-Q3)", async () => {
+    open({ me: VIEWER });
+    await ready();
+    for (const n of ["Add value", "Add secret binding"])
+      expect(disabled(screen.getByRole("button", { name: n })), n).toBe(true);
+  });
+  it("a team admin can add configuration and secret rows", async () => {
+    open({ me: TEAM_ADMIN });
+    await ready();
+    for (const n of ["Add value", "Add secret binding"])
+      expect(disabled(screen.getByRole("button", { name: n })), n).toBe(false);
+  });
 });
 
 describe("T3 help, bindings, identity, config (M2-C2..C5)", () => {

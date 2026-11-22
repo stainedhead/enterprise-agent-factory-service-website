@@ -235,8 +235,20 @@ export function CreateAgentPage() {
           <StorageSection draft={draft} set={set} errors={errors} classes={classes.data ?? []} />
           <IdentitySection draft={draft} set={set} errors={errors} />
           <HelpPanel />
-          <ConfigSection draft={draft} set={set} errors={errors} namespace={namespace.data ?? []} />
-          <SecretsSection draft={draft} set={set} errors={errors} secrets={secretList.data ?? []} />
+          <ConfigSection
+            draft={draft}
+            set={set}
+            errors={errors}
+            namespace={namespace.data ?? []}
+            readOnlyReason={reason}
+          />
+          <SecretsSection
+            draft={draft}
+            set={set}
+            errors={errors}
+            secrets={secretList.data ?? []}
+            readOnlyReason={reason}
+          />
           <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
             <Button onClick={() => navigate(`/t/${teamId}/agents`)}>Cancel</Button>
             <Button

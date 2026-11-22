@@ -10,6 +10,8 @@ export interface GlobalStatusState {
   readonly teamSuspended: boolean;
   /** Polling is suppressed until this time (ms epoch); 0 when not throttled. */
   readonly throttledUntil: number;
+  /** The last change outcome for the polite live region ("Change saved"); empty until a write succeeds. */
+  readonly announcement: string;
 }
 
 /**
@@ -17,7 +19,12 @@ export interface GlobalStatusState {
  * `QueryClient`; it also acts as the `ThrottleGate`.
  */
 export class GlobalStatus {
-  #state: GlobalStatusState = { unavailable: false, teamSuspended: false, throttledUntil: 0 };
+  #state: GlobalStatusState = {
+    unavailable: false,
+    teamSuspended: false,
+    throttledUntil: 0,
+    announcement: "",
+  };
   readonly #listeners = new Set<() => void>();
 
   constructor(private readonly now: () => number = Date.now) {}
@@ -38,7 +45,8 @@ export class GlobalStatus {
     if (
       next.unavailable === this.#state.unavailable &&
       next.teamSuspended === this.#state.teamSuspended &&
-      next.throttledUntil === this.#state.throttledUntil
+      next.throttledUntil === this.#state.throttledUntil &&
+      next.announcement === this.#state.announcement
     )
       return;
     this.#state = next;
@@ -50,6 +58,15 @@ export class GlobalStatus {
   }
   setTeamSuspended(v: boolean): void {
     this.#set({ teamSuspended: v });
+  }
+
+  /**
+   * Announces a change outcome through the shell's live region. The same message twice in a row alternates a
+   * trailing full stop so a screen reader reads it again.
+   */
+  announce(message: string): void {
+    const last = this.#state.announcement;
+    this.#set({ announcement: last === message ? `${message}.` : message });
   }
 
   /** Any 429: suppress polling for `Retry-After` seconds (default 10). */

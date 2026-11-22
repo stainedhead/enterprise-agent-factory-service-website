@@ -8,7 +8,7 @@ import {
   SelectInput,
   TextInput,
 } from "../../../components/index.js";
-import type { SectionProps } from "./types.js";
+import type { RowEditProps, SectionProps } from "./types.js";
 
 /**
  * *Secrets* (WEB-US-26.3): bindings to team-shared secrets (and this agent's own, which can only exist after
@@ -19,7 +19,8 @@ export function SecretsSection({
   set,
   errors,
   secrets,
-}: SectionProps & { secrets: readonly SecretRecord[] }) {
+  readOnlyReason,
+}: SectionProps & RowEditProps & { secrets: readonly SecretRecord[] }) {
   const usable = secrets.filter((s) => s.scope === "team");
   const change = (i: number, patch: Partial<BindingRow>) =>
     set({ bindings: draft.bindings.map((b, n) => (n === i ? { ...b, ...patch } : b)) });
@@ -28,6 +29,7 @@ export function SecretsSection({
       title="Secrets"
       actions={
         <Button
+          disabledReason={readOnlyReason}
           onClick={() =>
             set({ bindings: [...draft.bindings, { secretId: "", delivery: "env", target: "" }] })
           }

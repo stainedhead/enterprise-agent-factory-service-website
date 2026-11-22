@@ -35,7 +35,10 @@ export function createQueryClient(
     }),
     mutationCache: new MutationCache({
       onError: report,
-      onSuccess: () => status.setUnavailable(false),
+      onSuccess: () => {
+        status.setUnavailable(false);
+        status.announce("Change saved");
+      },
     }),
     defaultOptions: {
       queries: {

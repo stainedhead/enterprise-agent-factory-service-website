@@ -9,3 +9,8 @@ export interface SectionProps {
   readonly set: (patch: Partial<CreateAgentDraft>) => void;
   readonly errors: DraftErrors;
 }
+
+/** For the sections that add rows to the draft: why that is disabled for this caller (a viewer), if it is. */
+export interface RowEditProps {
+  readonly readOnlyReason?: string | undefined;
+}

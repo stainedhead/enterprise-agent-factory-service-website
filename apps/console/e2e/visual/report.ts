@@ -10,7 +10,7 @@ const mockups =
   join(here, "..", "..", "..", "..", "..", "enterprise-agent-factory-service", "docs", "ui");
 const approvals = JSON.parse(readFileSync(join(here, "approvals.json"), "utf8")) as Record<
   string,
-  { status: string; mockup?: string }
+  { status: string; snapshots: string[]; mockup?: string }
 >;
 
 function snapshots(dir: string): string[] {
@@ -29,12 +29,16 @@ const img = (p: string | undefined) =>
     ? `<img alt="" src="data:image/png;base64,${readFileSync(p).toString("base64")}">`
     : "<p><em>no image</em></p>";
 
-const rows = snapshots(specs).map((snap) => {
-  const name = (snap.split("/").pop() ?? "").replace(/-chromium-linux\.png$/, "");
-  const a = approvals[name.toUpperCase()] ?? { status: "pending" };
-  const mock = a.mockup ? join(mockups, a.mockup) : undefined;
-  return `<section><h2>${name} <small>${a.status}</small></h2><div class="pair"><figure>${img(mock)}<figcaption>Mockup</figcaption></figure><figure>${img(snap)}<figcaption>Snapshot</figcaption></figure></div></section>`;
-});
+const byName = new Map(
+  snapshots(specs).map((p) => [(p.split("/").pop() ?? "").replace(/-chromium-linux\.png$/, ""), p]),
+);
+const rows = Object.entries(approvals).flatMap(([screen, a]) =>
+  a.snapshots.map((name) => {
+    const snap = byName.get(name);
+    const mock = a.mockup ? join(mockups, a.mockup) : undefined;
+    return `<section><h2>${screen} · ${name} <small>${a.status}</small></h2><div class="pair"><figure>${img(mock)}<figcaption>Mockup</figcaption></figure><figure>${img(snap)}<figcaption>Snapshot</figcaption></figure></div></section>`;
+  }),
+);
 
 mkdirSync(join(here, "report"), { recursive: true });
 writeFileSync(

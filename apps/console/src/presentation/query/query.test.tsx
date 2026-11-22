@@ -248,3 +248,44 @@ describe("GenerationNote and WidgetBoundary", () => {
     spy.mockRestore();
   });
 });
+
+describe("M6-Q1 change announcements", () => {
+  it("a successful write is announced in a polite live region, and a repeat is read again", async () => {
+    const qc = createQueryClient(() => {});
+    render(
+      <QueryClientProvider client={qc}>
+        <GlobalBanners />
+      </QueryClientProvider>,
+    );
+    const region = screen.getByRole("status");
+    expect(region.getAttribute("aria-live")).toBe("polite");
+    expect(region.textContent).toBe("");
+    const run = () =>
+      act(async () => {
+        await qc
+          .getMutationCache()
+          .build(qc, { mutationFn: async () => 1 })
+          .execute(undefined);
+      });
+    await run();
+    expect(region.textContent).toBe("Change saved");
+    await run();
+    expect(region.textContent).toBe("Change saved.");
+  });
+  it("a failed write is not announced as saved", async () => {
+    const qc = createQueryClient(() => {});
+    render(
+      <QueryClientProvider client={qc}>
+        <GlobalBanners />
+      </QueryClientProvider>,
+    );
+    await act(async () => {
+      await qc
+        .getMutationCache()
+        .build(qc, { mutationFn: () => Promise.reject(new Error("x")) })
+        .execute(undefined)
+        .catch(() => {});
+    });
+    expect(screen.getByRole("status").textContent).toBe("");
+  });
+});
