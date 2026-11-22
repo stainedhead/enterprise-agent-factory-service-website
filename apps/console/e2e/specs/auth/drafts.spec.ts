@@ -32,10 +32,19 @@ async function recordStorageWrites(
       return set.call(this, k, v);
     };
   });
+  // Chromium also reports every sessionStorage write through the DevTools protocol, which a navigation cannot lose.
+  const cdp: string[] = [];
+  if (page.context().browser()?.browserType().name() === "chromium") {
+    const session = await page.context().newCDPSession(page);
+    await session.send("DOMStorage.enable");
+    const onWrite = (e: { key: string; newValue?: string }) => cdp.push(`${e.key}=${e.newValue}`);
+    session.on("DOMStorage.domStorageItemAdded", onWrite);
+    session.on("DOMStorage.domStorageItemUpdated", onWrite);
+  }
   return {
     all: async () => {
       const kept = await page.evaluate(() => (window.name.startsWith("[") ? window.name : "[]"));
-      return [...bound, ...(JSON.parse(kept) as string[])];
+      return [...bound, ...cdp, ...(JSON.parse(kept) as string[])];
     },
   };
 }
