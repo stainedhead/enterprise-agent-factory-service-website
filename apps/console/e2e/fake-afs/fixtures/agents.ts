@@ -49,6 +49,7 @@ const seedAgents = (): Json[] => [
     image: digestOf("coder"),
     modelId: "anthropic.claude-haiku-4-5",
     iamIdentity: "dedicated",
+    iamRoleArn: "arn:aws:iam::000000000000:role/afs/agents/afs-payments/triage",
     paused: false,
     version: 1,
     generation: 1,

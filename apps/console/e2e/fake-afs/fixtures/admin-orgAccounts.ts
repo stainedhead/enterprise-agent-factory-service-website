@@ -2,7 +2,7 @@ import type { Fixture } from "./index.js";
 import { teamBody } from "./teams.js";
 
 const ts = "2026-11-21T18:00:00Z";
-const ACCOUNTS = [
+export const ACCOUNTS = [
   ["111122223333", "prod-payments", "active"],
   ["222233334444", "prod-platform", "active"],
   ["444455556666", "staging-payments", "active"],
@@ -11,7 +11,7 @@ const ACCOUNTS = [
 ] as const;
 
 /** The same glob as the console and the API: `*` any run, `?` one character. */
-const glob = (pattern: string, text: string): boolean =>
+export const glob = (pattern: string, text: string): boolean =>
   new RegExp(
     `^${pattern
       .replace(/[.+^${}()|[\]\\]/g, "\\$&")

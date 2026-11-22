@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { useSearchParams } from "react-router";
 import { isAppError } from "../../../application/errors.js";
 import type { AgentRecord } from "../../../application/ports/agents.js";
 import { can } from "../../../domain/me.js";
@@ -23,7 +24,8 @@ export function AgentPanel({ teamId, agent }: { teamId: string; agent: AgentReco
   const write = useTeamWriteGate(teamId);
   const reason = write.reasonFor("agents:write");
   const [dialog, setDialog] = useState<"pause" | "snapshot" | "edit" | undefined>();
-  const [tab, setTab] = useState("details");
+  const [params] = useSearchParams();
+  const [tab, setTab] = useState(params.get("tab") ?? "details");
   const refresh = () => qc.invalidateQueries({ queryKey: agentsKey(teamId) });
   const act = useMutation({
     mutationFn: (fn: () => Promise<unknown>) => fn(),

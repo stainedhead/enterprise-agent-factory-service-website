@@ -68,6 +68,10 @@ export class AdminOrgAccountsUseCases {
   accounts(teamId: string, serviceAdmin: boolean, signal?: AbortSignal) {
     return serviceAdmin ? this.port.listOrgAccounts(signal) : this.port.listAllowed(teamId, signal);
   }
+  /** The accounts the team's filter allows (what T8 offers for a cross-account role). */
+  allowed(teamId: string, signal?: AbortSignal) {
+    return this.port.listAllowed(teamId, signal);
+  }
   linkCounts(teamId: string, signal?: AbortSignal) {
     return this.port.linkCounts(teamId, signal);
   }

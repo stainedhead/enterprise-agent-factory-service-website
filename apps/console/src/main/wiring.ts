@@ -19,6 +19,7 @@ import { DashboardUseCases } from "../application/usecases/dashboard/DashboardUs
 import { AdminExternalSystemsUseCases } from "../application/usecases/externalSystems/AdminExternalSystemsUseCases.js";
 import { ExternalSystemsUseCases } from "../application/usecases/externalSystems/ExternalSystemsUseCases.js";
 import { HistoryUseCases } from "../application/usecases/history/HistoryUseCases.js";
+import { IdentityUseCases } from "../application/usecases/identity/IdentityUseCases.js";
 import {
   ApiKeysUseCases,
   MembersUseCases,
@@ -51,6 +52,7 @@ import {
   SdkExternalSystems,
 } from "../infrastructure/sdk/externalSystems.js";
 import { SdkAudit, SdkRevisions } from "../infrastructure/sdk/history.js";
+import { SdkIdentity } from "../infrastructure/sdk/identity.js";
 import { SdkApiKeys, SdkMembers } from "../infrastructure/sdk/members.js";
 import { SdkNotifications } from "../infrastructure/sdk/notifications.js";
 import { SdkOverview, SdkWorkOrders } from "../infrastructure/sdk/overview.js";
@@ -110,6 +112,9 @@ export function buildServices(
     teams: new TeamsUseCases(teamsPort, clock),
     adminModels: new AdminModelsUseCases(adminModelsPort, clock),
     adminPricing: new AdminPricingUseCases(new SdkAdminPricing(client), adminModelsPort, clock),
+    identity: new IdentityUseCases(new SdkIdentity(client), {
+      setTimeout: (fn, ms) => globalThis.setTimeout(fn, ms),
+    }),
     adminServiceTags: new AdminServiceTagsUseCases(new SdkAdminServiceTags(client)),
     tags: new TagsUseCases(new SdkTags(client)),
     adminOrgAccounts: new AdminOrgAccountsUseCases(new SdkAdminOrgAccounts(client)),

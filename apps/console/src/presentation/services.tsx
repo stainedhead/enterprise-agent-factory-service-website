@@ -19,6 +19,7 @@ import type { DashboardUseCases } from "../application/usecases/dashboard/Dashbo
 import type { AdminExternalSystemsUseCases } from "../application/usecases/externalSystems/AdminExternalSystemsUseCases.js";
 import type { ExternalSystemsUseCases } from "../application/usecases/externalSystems/ExternalSystemsUseCases.js";
 import type { HistoryUseCases } from "../application/usecases/history/HistoryUseCases.js";
+import type { IdentityUseCases } from "../application/usecases/identity/IdentityUseCases.js";
 import type {
   ApiKeysUseCases,
   MembersUseCases,
@@ -47,6 +48,7 @@ export interface AppServices {
   readonly adminPricing: AdminPricingUseCases;
   readonly budgets: BudgetsUseCases;
   readonly reports: ReportsUseCases;
+  readonly identity: IdentityUseCases;
   readonly adminServiceTags: AdminServiceTagsUseCases;
   readonly tags: TagsUseCases;
   readonly adminOrgAccounts: AdminOrgAccountsUseCases;

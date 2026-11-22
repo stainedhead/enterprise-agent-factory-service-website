@@ -42,10 +42,10 @@
 | M1 Teams & access | 10 (+ exit) | 46 | 46 |
 | M2 Agents & secrets | 7 (+ exit) | 41 | 41 |
 | M3 Spend control | 6 (+ exit) | 24 | 24 |
-| M4 Production readiness | 8 (+ exit) | 34 | 14 |
+| M4 Production readiness | 8 (+ exit) | 34 | 21 |
 | M5 Budgeted workloads and swarms | 4 (+ exit) | 19 | 0 |
 | M6 CVE remediation and completion | 6 (+ exit) | 26 | 0 |
-| **Total** | **51** | **259** | **195** |
+| **Total** | **51** | **259** | **202** |
 
 ## External dependencies and contract questions
 
@@ -578,13 +578,13 @@ Owns: area files: `identity`; `presentation/screens/t2-agents/tabs/{secrets-iden
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M4-I1 | *Secrets & identity* tab: identity (shared or dedicated), role ARN, Pod Identity association, accounts the team may use | WEB-US-31.1 | — |
-| [ ] | M4-I2 | *Add cross-account role* only for a dedicated identity; only accounts inside the team's filter; role ARN, profile name, max session length | WEB-US-31.2 | M4-I1 |
-| [ ] | M4-I3 | Trust policy with generated external ID and *Copy*; *Pending trust* until *Verify now* succeeds → *Verified*, or *Failed* with the reason | WEB-US-31.3 | M4-I2 |
-| [ ] | M4-I4 | Viewers: identity, links and trust policies read-only | WEB-US-31.4 | M4-I1 |
-| [ ] | M4-I5 | *Identities* tab: external identities (AGT-5) with add and remove | WEB-US-25.4 (part) | — |
-| [ ] | M4-I6 | Team view `/t/:teamId/identities`: every agent's identity and links, opening the agent's T8 tab; *AWS account access* section with `AwsAccountAccess` for team roles (WD-32) | WEB-1 (part), WEB-US-8.2 (part) | M4-I1, M4-W3 |
-| [ ] | M4-I7 | e2e, axe, visual T8 (`17`) | WEB-US-42.1 (part), WEB-US-42.2 (part) | M4-I1..I6 |
+| [x] | M4-I1 | *Secrets & identity* tab: identity (shared or dedicated), role ARN, Pod Identity association, accounts the team may use | WEB-US-31.1 | — |
+| [x] | M4-I2 | *Add cross-account role* only for a dedicated identity; only accounts inside the team's filter; role ARN, profile name, max session length | WEB-US-31.2 | M4-I1 |
+| [x] | M4-I3 | Trust policy with generated external ID and *Copy*; *Pending trust* until *Verify now* succeeds → *Verified*, or *Failed* with the reason | WEB-US-31.3 | M4-I2 |
+| [x] | M4-I4 | Viewers: identity, links and trust policies read-only | WEB-US-31.4 | M4-I1 |
+| [x] | M4-I5 | *Identities* tab: external identities (AGT-5) with add and remove | WEB-US-25.4 (part) | — |
+| [x] | M4-I6 | Team view `/t/:teamId/identities`: every agent's identity and links, opening the agent's T8 tab; *AWS account access* section with `AwsAccountAccess` for team roles (WD-32) | WEB-1 (part), WEB-US-8.2 (part) | M4-I1, M4-W3 |
+| [x] | M4-I7 | e2e, axe, visual T8 (`17`) | WEB-US-42.1 (part), WEB-US-42.2 (part) | M4-I1..I6 |
 
 ### M4-L · Log delivery (T14)
 

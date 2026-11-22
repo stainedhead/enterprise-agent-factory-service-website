@@ -150,6 +150,15 @@ Every tag on the team with its source: system, service (fixed), service default,
 Team-admins set the required values and add or remove their own tags; system and fixed tags are read-only, and viewers
 see everything without edit controls. Keys that do not fit in the 16 request metadata pairs sent to Bedrock are listed.
 
+## Agent AWS access (`/t/<team>/identities`, agent *Secrets & identity* and *Identities* tabs)
+
+*Secrets & identity* shows whether the agent has a shared or dedicated IAM role, the role, and the accounts the team may
+use. For a dedicated agent, *Add cross-account role* offers only accounts inside the team's filter. The new role shows
+a trust policy with an external ID and *Copy*; the link stays *Pending trust* until *Verify now* succeeds (*Verified*) or
+fails with the reason (*Failed*). *Identities* lists the agent's external identities with add and remove. The team view
+lists every agent's identity and links and holds the *AWS account access* section. Viewers read everything; changes are
+disabled with the role required.
+
 ## Troubleshooting
 
 - *Page not found* for a page you expect: you may not hold the role it needs, or the team is not yours.
