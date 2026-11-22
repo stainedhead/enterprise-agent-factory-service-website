@@ -180,6 +180,30 @@ owns the "Coordinator" section. Do not edit another stream's section.
   `adminExports.ts`. In `ExportsCard.tsx`, a succeeded export with no link and no past expiry renders "—" rather
   than "Expired" (`downloadState` in `application` is not owned and still returns `expired`).
 
+## U-1 Contract re-pin (M6-U1)
+
+- **Pin.** `-restapi` `main` at `d8876092759b4025327607d5d7295f93e80c23ed` (PR #4, "restapi feature complete").
+  There is no release tag yet, so the pin is the merge commit on `main` (a commit on `main` replaces the moving
+  feature branch of ADR-013). Done with `contract:update --ref <sha>`, then `codegen`; `contract.lock.json` records
+  the source, ref, commit and sha256 of the three files. Contract version still reads 1.1.0. CQ-1 and DV-62 are
+  closed for the website: the SDK no longer pins a feature branch. Moving to a `v*` tag, and `@afs/sdk` 1.0.0, wait
+  for `-restapi` to tag.
+- **Diff against `549a2f2`.** (1) `SwarmTemplateSpec.secrets` is typed `{pool, name, description?, delivery?
+  (env|file), target?}` with `pool` and `name` required, max 100 entries. This is the only generated-code change
+  (`src/generated/schemas.ts`). (2) `UpdateWorkOrderRepo` description: a workload principal may omit `If-Match`.
+  The SDK keeps auto-reading the version for human callers, so no behavior change. (3) `/readyz` failing checks
+  report only `unavailable` (description and example). (4) Two `operations.json` notes (notification test
+  `202 pending`, restore `RestoreResult`). No path, operationId, parameter or permission changed.
+- **Console (TDD).** `parseSpec` now validates template secrets: `pool` and `name` required, pool defined in the
+  template, name pattern, unique names, delivery env or file, target pattern per delivery and unique per pool,
+  description length, at most 100. Eight red cases first, then green. The e2e swarm template fixture and the
+  `summarise` test use typed secrets; the spec editor hint names pool and name.
+- **Permissions.** `permissions.json` is byte-identical to `-restapi` `api/contract/permissions.json` at the pin;
+  the 58 permission names equal the constants in `internal/authz/catalog_gen.go`, and `-restapi`'s
+  `TestCatalogEqualsContract` holds catalog and grants equal to that file. No drift.
+- **CQ-2** stays open: `ApiKey` still has no `version`, so the `If-Match: "1"` interim stays. **CQ-3** is
+  confirmed: `IfMatchPut` reads "Required when the resource exists (428 otherwise); omit when the PUT creates it".
+
 ## Deferred findings
 
 (none yet; a deferral needs a written reason here)

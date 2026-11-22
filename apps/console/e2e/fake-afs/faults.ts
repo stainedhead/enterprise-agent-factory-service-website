@@ -1,6 +1,6 @@
 // Request fault hook for the fake AFS API (FR-002, FR-003): fail the next N calls of one operation with a
 // chosen status, for the statuses `Injection` cannot produce (401 and 403) and for operation-level control.
-// Owned by stream C of specs/261122-website-feature-complete-auto-review.
+// Owned by stream C of specs/archive/261121-website-feature-complete/261122-website-feature-complete-auto-review.
 
 export type FaultStatus = 401 | 403 | 429 | 500 | 503;
 

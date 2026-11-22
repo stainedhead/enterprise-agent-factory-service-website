@@ -764,7 +764,7 @@ Owns: `packages/sdk/contract/`, `packages/sdk/src/generated/`, `domain/generated
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M6-U1 | Re-pin to the `-restapi` release tag (CQ-1) with `contract:update --ref <tag>`; regenerate; fix compile errors; drift tests green; remove the CQ-2 interim if `ApiKey.version` exists; confirm CQ-3; `@afs/sdk` `1.0.0` when the tag is v1 | SDK-1, plan.md §5 | CQ-1 |
+| [x] | M6-U1 | Re-pin to the `-restapi` release tag (CQ-1) with `contract:update --ref <tag>`; regenerate; fix compile errors; drift tests green; remove the CQ-2 interim if `ApiKey.version` exists; confirm CQ-3; `@afs/sdk` `1.0.0` when the tag is v1 | SDK-1, plan.md §5 | CQ-1 |
 
 ### M6-X · Exit (feature complete)
 

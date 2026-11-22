@@ -4,9 +4,9 @@
 |---|---|
 | **Feature** | website-feature-complete-auto-review |
 | **Created** | 2026-11-22 |
-| **Spec** | `specs/261122-website-feature-complete-auto-review/` |
+| **Spec** | `specs/archive/261121-website-feature-complete/261122-website-feature-complete-auto-review/` |
 | **Branch** | `feat/website-feature-complete` |
-| **Dashboard** | `specs/archive/261121-website-feature-complete/website-feature-complete-status.md` |
+| **Dashboard** | `../website-feature-complete-status.md` |
 
 **MANDATORY:** update this file after every task and every phase.
 
@@ -23,8 +23,8 @@ lines, so merges stay hunk-disjoint.
 | 2 | Research and data modeling | Complete | research.md, data-dictionary.md |
 | 3 | Architecture and planning | Complete | architecture.md, plan.md |
 | 4 | Task breakdown | Complete | tasks.md: 5 streams, 42 tasks plus U-1 |
-| 5 | Implementation (step 9) | Complete | 42 of 43; only U-1 open (external) |
-| 6 | Completion and archival | Not Started | Step 10 archives this spec inside the original archive |
+| 5 | Implementation (step 9) | Complete | 43 of 43 including U-1 |
+| 6 | Completion and archival | Complete | Archived inside the original archive in step 10 |
 
 ## Streams
 
@@ -35,7 +35,7 @@ lines, so merges stay hunk-disjoint.
 | C: Error routing | FR-002, FR-003 (query layer), FR-015 | 7/7 | yes | |
 | B: Session, auth, hosting | FR-001, FR-003 (wiring), FR-005, FR-006, FR-012..FR-014, FR-004 (sign-out) | 10/10 | yes | B-6 wired and un-skipped by the integrator |
 | D: Drafts | FR-004, FR-021, FR-018 (`IdentitySection.tsx`) | 10/10 | yes | D-6, D-9, D-10 done by the integrator |
-| U-1 (stream-independent) | M6-U1 contract re-pin | 0/1 | n/a | Open: blocked on the `-restapi` merge and tag (CQ-1) |
+| U-1 (stream-independent) | M6-U1 contract re-pin | 1/1 | n/a | Done: pinned to `-restapi` `main` d887609 (no tag yet) |
 
 ## Merge log
 
@@ -79,7 +79,7 @@ lines, so merges stay hunk-disjoint.
 
 ## Blockers
 
-- U-1 waits for `-restapi` `feat/restapi-feature-complete` to merge to `main` and be tagged (CQ-1, DV-62).
+- None. (U-1 closed; the SDK moves to a release tag when `-restapi` tags one.)
 
 ## Recent activity
 

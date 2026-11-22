@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | **Feature** | website-feature-complete-auto-review |
-| **Spec** | `specs/261122-website-feature-complete-auto-review/` (created 2026-11-22 by `create-spec`, step 8 of `implm-frm-prd`) |
+| **Spec** | `specs/archive/261121-website-feature-complete/261122-website-feature-complete-auto-review/` (created 2026-11-22 by `create-spec`, step 8 of `implm-frm-prd`) |
 | **Branch** | `feat/website-feature-complete` (streams branch off it in worktrees) |
 | **Reviewed spec** | `specs/archive/261121-website-feature-complete/` |
 | **Source PRD** | [website-feature-complete-review-PRD.md](website-feature-complete-review-PRD.md) (sections 6 and 7 are authoritative for evidence and acceptance criteria) |

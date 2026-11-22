@@ -9,7 +9,7 @@
 ## 1. Development approach
 
 TDD per finding (red, green, refactor), a brief code and design review before each commit, `bun run gate`
-green per commit, commits referencing `specs/261122-website-feature-complete-auto-review/` and the task id.
+green per commit, commits referencing `specs/archive/261121-website-feature-complete/261122-website-feature-complete-auto-review/` and the task id.
 P1 before P2 within a stream. Each stream is a parallel worker in its own git worktree off
 `feat/website-feature-complete`; the coordinator merges and gates.
 

@@ -4,7 +4,7 @@
 |---|---|
 | **Feature** | website-feature-complete-auto-review |
 | **Date** | 2026-11-22 |
-| **Status** | Streams A-E merged and complete (42 of 43); U-1 open, waits for the `-restapi` merge |
+| **Status** | All streams and U-1 complete (43 of 43) |
 
 ## Progress summary
 
@@ -15,8 +15,8 @@
 | C | 7 | 7 |
 | B | 10 | 10 |
 | D | 10 | 10 |
-| U-1 | 0 | 1 |
-| **All** | **42** | **43** |
+| U-1 | 1 | 1 |
+| **All** | **43** | **43** |
 
 ## How to use this file
 
@@ -175,7 +175,7 @@ and the generated fixtures, which no stream may edit, so it must not run in para
 
 | Done | ID | Task | AC | Depends |
 |---|---|---|---|---|
-| [ ] | U-1 | Carried from the archived spec (M6-U1, `specs/archive/261121-website-feature-complete/tasks.md`). Re-pin to the `-restapi` release tag (CQ-1) with `contract:update --ref <tag>`; regenerate; fix compile errors; drift tests green; remove the CQ-2 interim if `ApiKey.version` exists; confirm CQ-3; validate typed swarm template secrets in `parseSpec` and update fixtures (ADR-013); `@afs/sdk` `1.0.0` when the tag is v1. **Status: open, blocked on the `-restapi` merge to `main` and tag.** Not a review finding and not on the step 9 critical path | SDK-1, plan.md section 5 of the archived spec | CQ-1 (external) |
+| [x] | U-1 | Carried from the archived spec (M6-U1, `specs/archive/261121-website-feature-complete/tasks.md`). Re-pin to the `-restapi` release tag (CQ-1) with `contract:update --ref <tag>`; regenerate; fix compile errors; drift tests green; remove the CQ-2 interim if `ApiKey.version` exists; confirm CQ-3; validate typed swarm template secrets in `parseSpec` and update fixtures (ADR-013); `@afs/sdk` `1.0.0` when the tag is v1. **Status: done against `-restapi` `main` d887609 (no tag yet); see implementation-notes "U-1".** Not a review finding and not on the step 9 critical path | SDK-1, plan.md section 5 of the archived spec | CQ-1 (external) |
 
 ## Traceability: finding to tasks
 
