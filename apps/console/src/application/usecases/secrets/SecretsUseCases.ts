@@ -59,6 +59,7 @@ export class SecretsUseCases {
         ...(input.description?.trim() && { description: input.description.trim() }),
         ...(input.scope === "agent" && { agentId: input.agentId }),
         ...(input.externalSystemId && { externalSystemId: input.externalSystemId }),
+        ...(input.rotation && { rotation: input.rotation }),
       },
       value,
     );

@@ -4,6 +4,7 @@ import type { AgentsUseCases } from "../application/usecases/agents/AgentsUseCas
 import type { CreateAgentUseCases } from "../application/usecases/agents-create/CreateAgentUseCases.js";
 import type { ConfigUseCases } from "../application/usecases/config/ConfigUseCases.js";
 import type { DashboardUseCases } from "../application/usecases/dashboard/DashboardUseCases.js";
+import type { ExternalSystemsUseCases } from "../application/usecases/externalSystems/ExternalSystemsUseCases.js";
 import type { HistoryUseCases } from "../application/usecases/history/HistoryUseCases.js";
 import type {
   ApiKeysUseCases,
@@ -22,6 +23,7 @@ export interface AppServices {
   readonly agents: AgentsUseCases;
   readonly configValues: ConfigUseCases;
   readonly createAgent: CreateAgentUseCases;
+  readonly externalSystems: ExternalSystemsUseCases;
   readonly secrets: SecretsUseCases;
   readonly history: HistoryUseCases;
   readonly identityProviders: IdentityProvidersUseCases;

@@ -41,6 +41,9 @@ seed();
 /** Back to the two seeded teams (called by the fake server's reset). */
 export const resetTeams = seed;
 
+/** The current body of a team, for fixtures of other areas that follow a team's guardrails. */
+export const teamBody = (id: string): Json | undefined => teams.get(id)?.body;
+
 const view = (e: Entry): Json => {
   if (e.newTeam) {
     e.reads++;

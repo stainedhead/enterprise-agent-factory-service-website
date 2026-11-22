@@ -34,7 +34,7 @@
 |---|---|---|
 | M0 Foundations | Complete | 69 / 69 |
 | M1 Teams & access | In Progress | 46 / 46 |
-| M2 Agents & secrets | In Progress | 15 / 41 |
+| M2 Agents & secrets | In Progress | 22 / 41 |
 | M3 Spend control | Not Started | 0 / 24 |
 | M4 Production readiness | Not Started | 0 / 34 |
 | M5 Budgeted workloads and swarms | Not Started | 0 / 19 |
@@ -47,6 +47,7 @@ none blocks M0.
 
 ## Recent activity
 
+- 2026-11-22: M2 M2-S1, M2-S2, M2-S3, M2-S4, M2-S5, M2-S6, M2-S7 done (22/41).
 - 2026-11-22: M2 M2-C1, M2-C2, M2-C3, M2-C4, M2-C5, M2-C6, M2-C7 done (15/41).
 - 2026-11-22: M2 M2-A1, M2-A2, M2-A3, M2-A4, M2-A5, M2-A6, M2-A7, M2-A8 done (8/41).
 - 2026-11-22: M1 M1-X1 done (46/46).

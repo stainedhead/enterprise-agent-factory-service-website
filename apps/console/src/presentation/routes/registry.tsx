@@ -21,6 +21,8 @@ export const registry: Record<Exclude<ScreenId, "AUTH" | "NOT_FOUND">, ScreenCom
   S10: lazy(() => import("../screens/s10-settings/index.js")),
   S2: lazy(() => import("../screens/s2-teams/index.js")),
   S3: lazy(() => import("../screens/s3-create-team/index.js")),
+  T4: lazy(() => import("../screens/t4-secrets/index.js")),
+  V2: lazy(() => import("../screens/t4-secrets/viewer.js")),
   T3: lazy(() => import("../screens/t3-create-agent/index.js")),
   T2: lazy(() => import("../screens/t2-agents/index.js")),
   T6: lazy(() => import("../screens/t6-members/index.js")),

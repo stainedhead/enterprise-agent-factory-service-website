@@ -40,7 +40,7 @@
 |---|---|---|---|
 | M0 Foundations | 10 (+ exit) | 69 | 69 |
 | M1 Teams & access | 10 (+ exit) | 46 | 46 |
-| M2 Agents & secrets | 7 (+ exit) | 41 | 15 |
+| M2 Agents & secrets | 7 (+ exit) | 41 | 22 |
 | M3 Spend control | 6 (+ exit) | 24 | 0 |
 | M4 Production readiness | 8 (+ exit) | 34 | 0 |
 | M5 Budgeted workloads and swarms | 4 (+ exit) | 19 | 0 |
@@ -391,13 +391,13 @@ Owns: area files: `secrets`; `presentation/screens/t4-secrets/`.
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M2-S1 | `SecretsPort`, adapter, use cases; create, put value and rotate through `useSecretMutation` only | WEB-8 | — |
-| [ ] | M2-S2 | Create dialog: scope, name, description, optional external system, value (`SecretInput`); managed path previewed; value cleared after submit and never shown again | WEB-US-27.1, WEB-US-11.2 (part) | M2-S1 |
-| [ ] | M2-S3 | Table: scope, managed path, usage, rotation, last change; value column always "Write-only"; V2 for viewers: names, paths, usage, rotation, no value content | WEB-US-27.2, WEB-US-36.2 | M2-S1 |
-| [ ] | M2-S4 | *Rotate*: new value and a warning naming the agents that restart | WEB-US-27.3 | M2-S2 |
-| [ ] | M2-S5 | Delete a bound secret: API `409` with the agents, each linked | WEB-US-27.4 | M2-S3 |
-| [ ] | M2-S6 | CLI preview for create-secret shows `--secret-value file://<path>` | WEB-US-11.4 (part), WEB-6 | M2-S2, M1-L2 |
-| [ ] | M2-S7 | e2e: sentinel typed in create and rotate absent from every store, telemetry and DOM afterwards; V2 viewer read-only; axe; visual T4 (`09`) and V2 (`13`) | WEB-US-11.1 (part), WEB-US-42.1 (part), WEB-US-42.2 (part) | M2-S2..S6 |
+| [x] | M2-S1 | `SecretsPort`, adapter, use cases; create, put value and rotate through `useSecretMutation` only | WEB-8 | — |
+| [x] | M2-S2 | Create dialog: scope, name, description, optional external system, value (`SecretInput`); managed path previewed; value cleared after submit and never shown again | WEB-US-27.1, WEB-US-11.2 (part) | M2-S1 |
+| [x] | M2-S3 | Table: scope, managed path, usage, rotation, last change; value column always "Write-only"; V2 for viewers: names, paths, usage, rotation, no value content | WEB-US-27.2, WEB-US-36.2 | M2-S1 |
+| [x] | M2-S4 | *Rotate*: new value and a warning naming the agents that restart | WEB-US-27.3 | M2-S2 |
+| [x] | M2-S5 | Delete a bound secret: API `409` with the agents, each linked | WEB-US-27.4 | M2-S3 |
+| [x] | M2-S6 | CLI preview for create-secret shows `--secret-value file://<path>` | WEB-US-11.4 (part), WEB-6 | M2-S2, M1-L2 |
+| [x] | M2-S7 | e2e: sentinel typed in create and rotate absent from every store, telemetry and DOM afterwards; V2 viewer read-only; axe; visual T4 (`09`) and V2 (`13`) | WEB-US-11.1 (part), WEB-US-42.1 (part), WEB-US-42.2 (part) | M2-S2..S6 |
 
 ### M2-V · Configuration values (T7)
 

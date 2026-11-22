@@ -4,6 +4,7 @@ import { agentsFixtures, resetAgents } from "./agents.js";
 import { configFixtures, resetConfig } from "./config.js";
 import { coreFixtures } from "./core.js";
 import { dashboardFixtures } from "./dashboard.js";
+import { externalSystemsFixtures, resetExternalSystems } from "./externalSystems.js";
 import { historyFixtures } from "./history.js";
 import { membersFixtures, resetMembers } from "./members.js";
 import { overviewFixtures, resetOverview } from "./overview.js";
@@ -39,6 +40,7 @@ export const fixtureModules: readonly (readonly Fixture[])[] = [
   agentsFixtures,
   secretsFixtures,
   configFixtures,
+  externalSystemsFixtures,
   teamsFixtures,
   overviewFixtures,
   membersFixtures,
@@ -53,6 +55,7 @@ export const fixtureResets: readonly (() => void)[] = [
   resetAgents,
   resetSecrets,
   resetConfig,
+  resetExternalSystems,
   resetOverview,
   resetMembers,
   resetSettings,
