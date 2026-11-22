@@ -121,6 +121,13 @@ error on the channel. *Send test* sends one message and shows whether it was del
 until it is reported. Credentials are chosen as secrets and are never shown. Deleting a channel lists the report
 schedules that deliver to it first.
 
+## Audit log (`/audit`, service admins)
+
+Every audit record across teams. Filter by team, actor, action, outcome (allowed, denied, failed), resource and period;
+the filters are in the address, so a filtered view can be shared. A denied request shows *Denied* with the permission it
+needed, and a correction the reconciler made shows *Drift corrected* with the object. *Download CSV* returns the same
+filters as a file.
+
 ## Troubleshooting
 
 - *Page not found* for a page you expect: you may not hold the role it needs, or the team is not yours.

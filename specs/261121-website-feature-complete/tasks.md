@@ -42,10 +42,10 @@
 | M1 Teams & access | 10 (+ exit) | 46 | 46 |
 | M2 Agents & secrets | 7 (+ exit) | 41 | 41 |
 | M3 Spend control | 6 (+ exit) | 24 | 24 |
-| M4 Production readiness | 8 (+ exit) | 34 | 0 |
+| M4 Production readiness | 8 (+ exit) | 34 | 4 |
 | M5 Budgeted workloads and swarms | 4 (+ exit) | 19 | 0 |
 | M6 CVE remediation and completion | 6 (+ exit) | 26 | 0 |
-| **Total** | **51** | **259** | **181** |
+| **Total** | **51** | **259** | **185** |
 
 ## External dependencies and contract questions
 
@@ -543,10 +543,10 @@ Owns: area files: `admin-audit`; `presentation/screens/s5-audit/`.
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M4-A1 | Filters by team, actor, action, outcome (allowed, denied) and time range, sent as API query parameters (`AuditFilters` from M1-H) | WEB-US-16.1 | — |
-| [ ] | M4-A2 | Denied requests show *Denied* with the permission required; drift corrections show *Drift corrected* with the object | WEB-US-16.2 | M4-A1 |
-| [ ] | M4-A3 | *Download CSV*: `ListAdminAuditEvents` with `Accept: text/csv` for the same filters | WEB-US-16.3 | M4-A1 |
-| [ ] | M4-A4 | e2e, axe, visual S5 (`05`) | WEB-US-42.1 (part), WEB-US-42.2 (part) | M4-A1..A3 |
+| [x] | M4-A1 | Filters by team, actor, action, outcome (allowed, denied) and time range, sent as API query parameters (`AuditFilters` from M1-H) | WEB-US-16.1 | — |
+| [x] | M4-A2 | Denied requests show *Denied* with the permission required; drift corrections show *Drift corrected* with the object | WEB-US-16.2 | M4-A1 |
+| [x] | M4-A3 | *Download CSV*: `ListAdminAuditEvents` with `Accept: text/csv` for the same filters | WEB-US-16.3 | M4-A1 |
+| [x] | M4-A4 | e2e, axe, visual S5 (`05`) | WEB-US-42.1 (part), WEB-US-42.2 (part) | M4-A1..A3 |
 
 ### M4-W · Team AWS account access (S6)
 

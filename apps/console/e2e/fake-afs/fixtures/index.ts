@@ -1,5 +1,6 @@
 // Shared list: one fixture module per area, added by the area stream.
 import type { SeedUser } from "../users.js";
+import { adminAuditFixtures } from "./admin-audit.js";
 import { adminCatalogsFixtures, resetAdminCatalogs } from "./admin-catalogs.js";
 import { adminExternalSystemsFixtures } from "./admin-externalSystems.js";
 import { adminModelsFixtures, resetAdminModels } from "./admin-models.js";
@@ -31,6 +32,8 @@ export interface FixtureResponse {
   status: number;
   body?: unknown;
   headers?: Record<string, string>;
+  /** The body served instead of JSON when the request's `Accept` includes `text/csv` (CSV operations). */
+  csv?: string;
 }
 
 /** A canned answer for one operation. The body is validated against the pinned OpenAPI. */
@@ -59,6 +62,7 @@ export const fixtureModules: readonly (readonly Fixture[])[] = [
   adminModelsFixtures,
   reportsFixtures,
   notificationsFixtures,
+  adminAuditFixtures,
 ];
 
 /** Stateful fixture modules register a reset here; the server calls them on `/__reset`. */

@@ -244,6 +244,13 @@ export class FakeAfs {
         errorBody("InternalError", `Fixture violates the contract: ${problems.join("; ")}`),
       );
 
+    if (resp.csv !== undefined && (req.headers.get("accept") ?? "").includes("text/csv")) {
+      record(route.operationId, principal, resp.status);
+      return new Response(resp.csv, {
+        status: resp.status,
+        headers: { "content-type": "text/csv", ...base },
+      });
+    }
     const headers: Record<string, string> = { ...resp.headers };
     const version = (resp.body as { version?: unknown } | undefined)?.version;
     if (req.method === "GET" && typeof version === "number") headers.etag = `"${version}"`;

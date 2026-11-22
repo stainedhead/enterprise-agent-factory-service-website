@@ -1,5 +1,6 @@
 import type { AfsClient } from "@afs/sdk";
 import type { ClockPort } from "../application/ports/auth.js";
+import { AdminAuditUseCases } from "../application/usecases/adminAudit/AdminAuditUseCases.js";
 import {
   AdminAgentTemplatesUseCases,
   AdminStorageClassesUseCases,
@@ -30,11 +31,11 @@ import {
   SettingsUseCases,
 } from "../application/usecases/settings/SettingsUseCases.js";
 import { TeamsUseCases } from "../application/usecases/teams/TeamsUseCases.js";
+import { SdkAdminAudit } from "../infrastructure/sdk/adminAudit.js";
 import {
   SdkAdminAgentTemplates,
   SdkAdminStorageClasses,
 } from "../infrastructure/sdk/adminCatalogs.js";
-
 import { SdkAdminModels, SdkAdminPricing } from "../infrastructure/sdk/adminModels.js";
 import { SdkAgents } from "../infrastructure/sdk/agents.js";
 import { SdkBudgets } from "../infrastructure/sdk/budgets.js";
@@ -103,6 +104,7 @@ export function buildServices(
     teams: new TeamsUseCases(teamsPort, clock),
     adminModels: new AdminModelsUseCases(adminModelsPort, clock),
     adminPricing: new AdminPricingUseCases(new SdkAdminPricing(client), adminModelsPort, clock),
+    adminAudit: new AdminAuditUseCases(new SdkAdminAudit(client)),
     notifications: new NotificationsUseCases(new SdkNotifications(client), {
       setTimeout: (fn, ms) => globalThis.setTimeout(fn, ms),
     }),

@@ -1,5 +1,6 @@
 // The use cases a screen may call, built once in main/wiring.ts (architecture §3.2: one line per area).
 import { createContext, useContext } from "react";
+import type { AdminAuditUseCases } from "../application/usecases/adminAudit/AdminAuditUseCases.js";
 import type {
   AdminAgentTemplatesUseCases,
   AdminStorageClassesUseCases,
@@ -43,6 +44,7 @@ export interface AppServices {
   readonly adminPricing: AdminPricingUseCases;
   readonly budgets: BudgetsUseCases;
   readonly reports: ReportsUseCases;
+  readonly adminAudit: AdminAuditUseCases;
   readonly notifications: NotificationsUseCases;
   readonly secrets: SecretsUseCases;
   readonly history: HistoryUseCases;
