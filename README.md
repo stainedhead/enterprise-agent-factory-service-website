@@ -9,8 +9,29 @@ TypeScript for the Enterprise Agent Factory Service, as a Bun workspace:
 Part of [enterprise-agent-factory-service](https://github.com/stainedhead/enterprise-agent-factory-service);
 the console screens by role are in its initial PRD.
 
-**Status:** scaffolded. The SDK has its base client and error mapping; the console wires one use case
-(API health) through every layer, with a test that enforces the dependency rule.
+**Status:** feature complete. The API contract is pinned to `-restapi` `main` at `d887609` (no release tag yet);
+moving the pin to a tag is a `contract:update --ref <tag>` and a regenerate.
+
+## What is here
+
+- **`@afs/sdk`** 0.3.0, published to GitHub Packages as **`@stainedhead/afs-sdk`**. Generated from the pinned
+  contract: 182 operations in 41 resource modules, async-iterator pagination, `If-Match` and `Idempotency-Key`
+  handling, retries, `AfsError`, `waitFor` and typed reports (`createReports`). Zero runtime dependencies.
+- **The console**: 33 screens for service admins, team admins, team viewers and the security operator, covering
+  teams, members and API keys, agents, secrets and configuration, external systems, budgets and usage, models and
+  pricing, reports, notifications and log delivery, audit and history, cost allocation tags, AWS access,
+  export and import, ephemeral teams with pools, work orders and swarm templates. Accessibility (axe on every
+  screen), keyboard flows, a secret sentinel, CSP and performance run in the Playwright suite.
+- **Deploy artifacts** in `apps/console/deploy/`: runtime `config.json` schema, security headers and cache behaviors.
+
+## Documentation
+
+- [Getting started](user-docs/getting-started.md)
+- [Configuration reference](user-docs/configuration.md) (runtime `config.json`, deploy headers, SDK options)
+- [Using the console](user-docs/console.md) and [console examples](user-docs/console-examples.md)
+- [Installing the SDK](user-docs/sdk.md) and [SDK examples](user-docs/sdk-examples.md)
+- Design: [docs/product-summary.md](docs/product-summary.md), [docs/product-details.md](docs/product-details.md),
+  [docs/technical-details.md](docs/technical-details.md), [docs/architectural-decision-record.md](docs/architectural-decision-record.md)
 
 ## Toolchain
 
@@ -19,7 +40,6 @@ Bun 1.4 (runtime and package manager; Node.js 22+ as fallback), TypeScript 7.0, 
 ```bash
 bun install
 bun run gate                           # lint, typecheck, test, build
-cp apps/console/.env.example apps/console/.env.local
 bun run --filter @afs/console dev      # http://localhost:5173
 ```
 

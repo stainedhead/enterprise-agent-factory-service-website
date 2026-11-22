@@ -1,0 +1,23 @@
+{
+  "behaviors": [
+    {
+      "pathPattern": "/assets/*",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "note": "Hashed file names; safe to cache for a year"
+    },
+    {
+      "pathPattern": "/index.html",
+      "cacheControl": "no-cache"
+    },
+    {
+      "pathPattern": "/config.json",
+      "cacheControl": "no-cache",
+      "note": "Environment-specific; fetched with cache: no-store at boot"
+    }
+  ],
+  "spaFallback": {
+    "statusCodes": [403, 404],
+    "responsePagePath": "/index.html",
+    "responseCode": 200
+  }
+}

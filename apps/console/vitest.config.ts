@@ -1,0 +1,63 @@
+import react from "@vitejs/plugin-react";
+import { defaultClientConditions } from "vite";
+import { defineConfig } from "vitest/config";
+
+export default defineConfig({
+  plugins: [react()],
+  resolve: { conditions: ["source", ...defaultClientConditions] },
+  test: {
+    environment: "happy-dom",
+    include: [
+      "src/**/*.test.{ts,tsx}",
+      "deploy/**/*.test.ts",
+      "tools/**/*.test.ts",
+      "e2e/**/*.test.ts",
+    ],
+    setupFiles: ["./test/setup.ts"],
+    coverage: {
+      provider: "v8",
+      include: ["src/domain/**", "src/application/**"],
+      // Only type-only port files are excluded (guarded by src/application/ports/coverage-exclusion.test.ts).
+      // A port file with a runtime export (auth, config, preferences) counts toward the thresholds.
+      exclude: [
+        "**/*.test.ts",
+        "**/*.test.tsx",
+        "src/application/ports/adminApiKeys.ts",
+        "src/application/ports/adminAudit.ts",
+        "src/application/ports/adminCatalogs.ts",
+        "src/application/ports/adminCostTagStatus.ts",
+        "src/application/ports/adminExports.ts",
+        "src/application/ports/adminExternalSystems.ts",
+        "src/application/ports/adminModels.ts",
+        "src/application/ports/adminNotificationChannels.ts",
+        "src/application/ports/adminOrgAccounts.ts",
+        "src/application/ports/adminSecurityOperators.ts",
+        "src/application/ports/adminServiceTags.ts",
+        "src/application/ports/agents.ts",
+        "src/application/ports/budgets.ts",
+        "src/application/ports/configValues.ts",
+        "src/application/ports/dashboard.ts",
+        "src/application/ports/externalSystems.ts",
+        "src/application/ports/history.ts",
+        "src/application/ports/identity.ts",
+        "src/application/ports/logDestinations.ts",
+        "src/application/ports/me.ts",
+        "src/application/ports/members.ts",
+        "src/application/ports/notifications.ts",
+        "src/application/ports/overview.ts",
+        "src/application/ports/pools.ts",
+        "src/application/ports/reportSchedules.ts",
+        "src/application/ports/reports.ts",
+        "src/application/ports/secrets.ts",
+        "src/application/ports/settings.ts",
+        "src/application/ports/swarmTemplates.ts",
+        "src/application/ports/tags.ts",
+        "src/application/ports/teamDirectory.ts",
+        "src/application/ports/teams.ts",
+        "src/application/ports/telemetry.ts",
+        "src/application/ports/workOrders.ts",
+      ],
+      thresholds: { lines: 90, branches: 90, functions: 90, statements: 90 },
+    },
+  },
+});

@@ -1,0 +1,64 @@
+.chart {
+  --s0: #0b63c5;
+  --s1: #b4470a;
+  --s2: #0e7a5f;
+  --s3: #8a3fd1;
+  --s4: #b32d6a;
+  --s5: #5f6b7a;
+  --grid: #d1d5db;
+  --axis: #5f6b7a;
+  --ink: #0f141a;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .chart {
+    --s0: #5aa5ff;
+    --s1: #f08a4b;
+    --s2: #3fc9a2;
+    --s3: #c39bff;
+    --s4: #ff7fb0;
+    --s5: #a9b4c2;
+    --grid: #3a4552;
+    --axis: #a9b4c2;
+    --ink: #f2f4f6;
+  }
+}
+.svg {
+  width: 100%;
+  height: auto;
+  max-height: 320px;
+  display: block;
+}
+.series:focus-visible {
+  outline: 2px solid var(--axis);
+  outline-offset: 2px;
+}
+.grid {
+  stroke: var(--grid);
+  stroke-width: 1;
+}
+.tick {
+  fill: var(--axis);
+  font-size: 11px;
+}
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  list-style: none;
+  padding: 0;
+  margin: 8px 0;
+}
+.swatch {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-right: 6px;
+  vertical-align: -1px;
+  border-radius: 2px;
+}
+.tableWrap {
+  overflow-x: auto;
+}
+.empty {
+  color: var(--muted, #5f6b7a);
+}

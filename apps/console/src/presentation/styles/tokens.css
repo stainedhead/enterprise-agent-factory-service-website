@@ -1,0 +1,42 @@
+/* Design tokens from the mockup CSS (root docs/ui/source), research.md §5. */
+:root {
+  --nav: #0f141a;
+  --nav2: #161d26;
+  --text: #0f141a;
+  --muted: #5f6b7a;
+  --placeholder: #5f6b7a;
+  --line: #d1d5db;
+  --soft: #e9ebed;
+  --bg: #ffffff;
+  --page: #f9fafb;
+  --link: #006ce0;
+  --blue: #006ce0;
+  --blue-d: #004a9e;
+  --green: #00802f;
+  --red: #db0000;
+  --amber: #855900;
+  --info-bg: #f0fbff;
+  --info-line: #006ce0;
+  --warn-bg: #fffef0;
+  --warn-line: #855900;
+  --err-bg: #fff5f5;
+  --ok-bg: #f2fcf3;
+  --purple: #7300e5;
+  --disabled: #9aa5b1;
+  --pill-admin: #ffb84d;
+  --pill-ta: #9ccaff;
+  --pill-tv: #d1d5db;
+  --pill-so: #ffb3b6;
+  --pill-admin-line: #ff9900;
+  --pill-ta-line: #5fa8ff;
+  --pill-tv-line: #9aa5b1;
+  --pill-so-line: #ff5d64;
+  --header-h: 40px;
+  --side-w: 232px;
+  --font: "Open Sans", "Helvetica Neue", Arial, sans-serif;
+  --mono: "DejaVu Sans Mono", Menlo, monospace;
+  --fs: 14px;
+  --radius-card: 16px;
+  --radius-pill: 20px;
+  --focus: 2px solid #006ce0;
+}

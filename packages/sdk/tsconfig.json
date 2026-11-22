@@ -2,7 +2,7 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "lib": ["es2023", "dom"],
-    "types": []
+    "types": ["node"]
   },
-  "include": ["src"]
+  "include": ["src", "tools", "test", "vitest.config.ts"]
 }

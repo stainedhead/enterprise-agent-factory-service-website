@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AFS console runtime configuration (/config.json)",
+  "type": "object",
+  "required": ["apiUrl", "environmentName", "redirectUri"],
+  "properties": {
+    "apiUrl": { "type": "string", "format": "uri", "pattern": "^https?://" },
+    "environmentName": { "type": "string", "minLength": 1 },
+    "redirectUri": { "type": "string", "format": "uri" },
+    "providersFallback": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "kind", "name", "issuerUrl", "consoleClientId", "isDefault"],
+        "properties": {
+          "id": { "type": "string" },
+          "kind": { "type": "string" },
+          "name": { "type": "string" },
+          "issuerUrl": { "type": "string", "format": "uri" },
+          "consoleClientId": { "type": "string" },
+          "isDefault": { "type": "boolean" }
+        }
+      }
+    },
+    "telemetryUrl": { "type": "string", "format": "uri" },
+    "idleTimeoutMinutes": { "type": "integer", "minimum": 5, "maximum": 720, "default": 60 }
+  },
+  "additionalProperties": true
+}

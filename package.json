@@ -11,10 +11,15 @@
     "build": "bun run --filter '@afs/sdk' build && bun run --filter '@afs/console' build",
     "typecheck": "bun run --filter '*' typecheck",
     "test": "bun run --filter '*' test",
-    "lint": "biome check .",
+    "lint": "biome check --error-on-warnings .",
     "format": "biome check --write .",
     "audit": "bun audit --prod --audit-level=high",
-    "gate": "bun run lint && bun run typecheck && bun run test && bun run build"
+    "gate": "bun install --frozen-lockfile && bun run contract:check && bun run codegen:check && bun run lint && bun run typecheck && bun run test:cover && bun run build && bun run size && bun run tsdoc",
+    "contract:check": "bun run --filter '@afs/sdk' contract:check",
+    "test:cover": "bun run --filter '*' test:cover",
+    "codegen:check": "bun run --filter '@afs/sdk' codegen:check",
+    "size": "bun run --filter '@afs/sdk' size && bun run --filter '@afs/console' size",
+    "tsdoc": "bun run --filter '@afs/sdk' tsdoc"
   },
   "devDependencies": {
     "@biomejs/biome": "2.6.8",

@@ -1,0 +1,1 @@
+afs teams update-team --team-id team_1 --isolation-tier dedicated --may-add-external-systems false --viewer-kubectl true

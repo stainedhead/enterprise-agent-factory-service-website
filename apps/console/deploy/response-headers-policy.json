@@ -1,0 +1,15 @@
+{
+  "name": "afs-console-security-headers",
+  "description": "Response headers for the console distribution. Replace the <placeholders> from the environment's config.json; the platform Terraform consumes this file.",
+  "placeholders": {
+    "<apiUrl>": "config.apiUrl origin",
+    "<issuers>": "space-separated origins of every sign-in provider issuer (providersFallback and ListSignInProviders)",
+    "<telemetryUrl>": "config.telemetryUrl origin, omitted when telemetry is off"
+  },
+  "headers": {
+    "Content-Security-Policy": "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self' <apiUrl> <issuers> <telemetryUrl>; frame-src 'self' <issuers>; frame-ancestors 'self'; object-src 'none'; base-uri 'self'; form-action 'self'",
+    "Strict-Transport-Security": "max-age=63072000; includeSubDomains; preload",
+    "Referrer-Policy": "no-referrer",
+    "X-Content-Type-Options": "nosniff"
+  }
+}

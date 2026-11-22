@@ -1,0 +1,171 @@
+{
+  "S1": {
+    "status": "pending",
+    "snapshots": ["01-admin-dashboard"],
+    "mockup": "01-admin-dashboard.png"
+  },
+  "S2": {
+    "status": "pending",
+    "snapshots": ["02-admin-teams"],
+    "mockup": "02-admin-teams.png"
+  },
+  "S3": {
+    "status": "pending",
+    "snapshots": ["03-admin-create-team"],
+    "mockup": "03-admin-create-team.png"
+  },
+  "S4": {
+    "status": "pending",
+    "snapshots": ["04-admin-models"],
+    "mockup": "04-admin-models.png"
+  },
+  "S5": {
+    "status": "pending",
+    "snapshots": ["05-admin-audit"],
+    "mockup": "05-admin-audit.png"
+  },
+  "S6": {
+    "status": "pending",
+    "snapshots": ["18-admin-team-aws-accounts"],
+    "mockup": "18-admin-team-aws-accounts.png"
+  },
+  "S7": {
+    "status": "pending",
+    "snapshots": ["19-external-systems-catalog"],
+    "mockup": "19-admin-external-systems.png"
+  },
+  "S8": {
+    "status": "pending",
+    "snapshots": ["22-service-reports"],
+    "mockup": "22-admin-reports.png"
+  },
+  "S9": {
+    "status": "pending",
+    "snapshots": ["25-admin-cost-tags"],
+    "mockup": "25-admin-cost-tags.png"
+  },
+  "S10": {
+    "status": "pending",
+    "snapshots": [
+      "10a-admin-settings",
+      "10b-admin-identity-providers",
+      "22-settings-storage-classes",
+      "23-settings-agent-templates",
+      "29-admin-notification-channels",
+      "33-settings-service-api-keys",
+      "34-settings-security-operators"
+    ]
+  },
+  "S11": {
+    "status": "pending",
+    "snapshots": ["28-admin-export-import"]
+  },
+  "T1": {
+    "status": "pending",
+    "snapshots": ["06-team-overview"],
+    "mockup": "06-ta-team-overview.png"
+  },
+  "T2": {
+    "status": "pending",
+    "snapshots": ["07-team-agents"],
+    "mockup": "07-ta-agents.png"
+  },
+  "T3": {
+    "status": "pending",
+    "snapshots": ["08-create-agent"],
+    "mockup": "08-ta-create-agent.png"
+  },
+  "T4": {
+    "status": "pending",
+    "snapshots": ["09-team-secrets"],
+    "mockup": "09-ta-secrets.png"
+  },
+  "T5": {
+    "status": "pending",
+    "snapshots": ["10-team-budget"],
+    "mockup": "10-ta-budget.png"
+  },
+  "T6": {
+    "status": "pending",
+    "snapshots": ["11-team-members"],
+    "mockup": "11-ta-members.png"
+  },
+  "T7": {
+    "status": "pending",
+    "snapshots": ["16-configuration"],
+    "mockup": "16-ta-config-values.png"
+  },
+  "T8": {
+    "status": "pending",
+    "snapshots": ["17-ta-agent-aws-access"],
+    "mockup": "17-ta-agent-aws-access.png"
+  },
+  "T9": {
+    "status": "pending",
+    "snapshots": ["20-team-external-systems"],
+    "mockup": "20-ta-external-systems.png"
+  },
+  "T10": {
+    "status": "pending",
+    "snapshots": ["21-agent-external-systems"],
+    "mockup": "21-ta-agent-external-systems.png"
+  },
+  "T11": {
+    "status": "pending",
+    "snapshots": ["23-team-reports"],
+    "mockup": "23-ta-team-reports.png"
+  },
+  "T12": {
+    "status": "pending",
+    "snapshots": ["24-agent-report"],
+    "mockup": "24-ta-agent-report.png"
+  },
+  "T13": {
+    "status": "pending",
+    "snapshots": ["26-ta-team-tags"],
+    "mockup": "26-ta-team-tags.png"
+  },
+  "T14": {
+    "status": "pending",
+    "snapshots": ["27-ta-log-delivery", "25-team-notifications"]
+  },
+  "T15": {
+    "status": "pending",
+    "snapshots": ["15a-team-audit", "15b-team-revisions"]
+  },
+  "V1": {
+    "status": "pending",
+    "snapshots": ["12-viewer-overview"],
+    "mockup": "12-tv-team-overview.png"
+  },
+  "V2": {
+    "status": "pending",
+    "snapshots": ["13-viewer-secrets"],
+    "mockup": "13-tv-secrets.png"
+  },
+  "P2": {
+    "status": "pending",
+    "snapshots": ["14-admin-ephemeral-team"],
+    "mockup": "14-admin-ephemeral-team.png"
+  },
+  "P3": {
+    "status": "pending",
+    "snapshots": ["15-admin-work-orders"],
+    "mockup": "15-admin-work-orders.png"
+  },
+  "P4": {
+    "status": "pending",
+    "snapshots": ["27-ta-swarm-pools"],
+    "mockup": "27-ta-swarm-pools.png"
+  },
+  "P5": {
+    "status": "pending",
+    "snapshots": ["28-admin-swarm-templates"],
+    "mockup": "28-admin-swarm-templates.png"
+  },
+  "P6": {
+    "status": "pending",
+    "snapshots": ["29-sec-work-order-detail"],
+    "mockup": "29-sec-work-order-detail.png"
+  }
+}

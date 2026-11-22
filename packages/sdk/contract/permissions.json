@@ -1,0 +1,722 @@
+{
+  "roles": [
+    "team_viewer",
+    "team_admin",
+    "service_admin",
+    "security_operator"
+  ],
+  "permissions": [
+    {
+      "name": "teams:read",
+      "grants": [
+        {
+          "role": "team_viewer"
+        },
+        {
+          "role": "team_admin"
+        },
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "A team role sees only its bound teams"
+    },
+    {
+      "name": "teams:write",
+      "grants": [
+        {
+          "role": "team_admin"
+        },
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "Display name, description, owner, sign-in provider"
+    },
+    {
+      "name": "teams:suspend",
+      "grants": [
+        {
+          "role": "team_admin"
+        },
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "Suspend and resume"
+    },
+    {
+      "name": "teams:create",
+      "grants": [
+        {
+          "role": "service_admin"
+        }
+      ]
+    },
+    {
+      "name": "teams:delete",
+      "grants": [
+        {
+          "role": "service_admin"
+        }
+      ]
+    },
+    {
+      "name": "teams:set-guardrails",
+      "grants": [
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "Ceiling, ceiling override, quotas, isolation tier, `viewerKubectl`, models, `mayManageAwsAccounts`, `mayAddExternalSystems`, and `onExhaust: notify` on a budget"
+    },
+    {
+      "name": "teams:set-aws-accounts",
+      "grants": [
+        {
+          "role": "team_admin",
+          "condition": "mayManageAwsAccounts"
+        },
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "Checked by the API and again by the database"
+    },
+    {
+      "name": "teams:read-directory",
+      "grants": [
+        {
+          "role": "service_admin"
+        },
+        {
+          "role": "security_operator"
+        }
+      ],
+      "notes": "Team id, slug and display name only (D38, D56)"
+    },
+    {
+      "name": "members:read",
+      "grants": [
+        {
+          "role": "team_viewer"
+        },
+        {
+          "role": "team_admin"
+        },
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "Team-admins cannot grant `service_admin` or `security_operator`"
+    },
+    {
+      "name": "members:write",
+      "grants": [
+        {
+          "role": "team_admin"
+        },
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "Team-admins cannot grant `service_admin` or `security_operator`"
+    },
+    {
+      "name": "api-keys:read",
+      "grants": [
+        {
+          "role": "team_admin"
+        },
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "Viewers do not see API keys (D50)"
+    },
+    {
+      "name": "api-keys:write",
+      "grants": [
+        {
+          "role": "team_admin"
+        },
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "Viewers do not see API keys (D50)"
+    },
+    {
+      "name": "agents:read",
+      "grants": [
+        {
+          "role": "team_viewer"
+        },
+        {
+          "role": "team_admin"
+        },
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "Write covers pause, resume, restart, snapshot"
+    },
+    {
+      "name": "agents:write",
+      "grants": [
+        {
+          "role": "team_admin"
+        },
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "Write covers pause, resume, restart, snapshot"
+    },
+    {
+      "name": "secrets:read-metadata",
+      "grants": [
+        {
+          "role": "team_viewer"
+        },
+        {
+          "role": "team_admin"
+        },
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "No permission reads a value"
+    },
+    {
+      "name": "secrets:write",
+      "grants": [
+        {
+          "role": "team_admin"
+        },
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "No permission reads a value"
+    },
+    {
+      "name": "config:read",
+      "grants": [
+        {
+          "role": "team_viewer"
+        },
+        {
+          "role": "team_admin"
+        },
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "Namespace and agent configuration values"
+    },
+    {
+      "name": "config:write",
+      "grants": [
+        {
+          "role": "team_admin"
+        },
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "Namespace and agent configuration values"
+    },
+    {
+      "name": "identities:read",
+      "grants": [
+        {
+          "role": "team_viewer"
+        },
+        {
+          "role": "team_admin"
+        },
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "Agent IAM identity, role links, external identities"
+    },
+    {
+      "name": "identities:write",
+      "grants": [
+        {
+          "role": "team_admin"
+        },
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "Agent IAM identity, role links, external identities"
+    },
+    {
+      "name": "external-systems:read",
+      "grants": [
+        {
+          "role": "team_viewer"
+        },
+        {
+          "role": "team_admin"
+        },
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "Team and agent switches; declare when `mayAddExternalSystems`"
+    },
+    {
+      "name": "external-systems:write",
+      "grants": [
+        {
+          "role": "team_admin"
+        },
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "Team and agent switches; declare when `mayAddExternalSystems`"
+    },
+    {
+      "name": "budgets:read",
+      "grants": [
+        {
+          "role": "team_viewer"
+        },
+        {
+          "role": "team_admin"
+        },
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "Amount ≤ effective ceiling; `onExhaust: notify` needs `teams:set-guardrails` (D33)"
+    },
+    {
+      "name": "budgets:write",
+      "grants": [
+        {
+          "role": "team_admin"
+        },
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "Amount ≤ effective ceiling; `onExhaust: notify` needs `teams:set-guardrails` (D33)"
+    },
+    {
+      "name": "usage:read",
+      "grants": [
+        {
+          "role": "team_viewer"
+        },
+        {
+          "role": "team_admin"
+        },
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "Usage, costs, reconciliation"
+    },
+    {
+      "name": "reports:read",
+      "grants": [
+        {
+          "role": "team_viewer"
+        },
+        {
+          "role": "team_admin"
+        },
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "Run team and agent reports, CSV; own teams"
+    },
+    {
+      "name": "reports:schedule",
+      "grants": [
+        {
+          "role": "team_admin"
+        },
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "Create, update, delete report schedules (D23)"
+    },
+    {
+      "name": "tags:read",
+      "grants": [
+        {
+          "role": "team_viewer"
+        },
+        {
+          "role": "team_admin"
+        },
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "Team tags and required values"
+    },
+    {
+      "name": "tags:write",
+      "grants": [
+        {
+          "role": "team_admin"
+        },
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "Team tags and required values"
+    },
+    {
+      "name": "logs:read",
+      "grants": [
+        {
+          "role": "team_viewer"
+        },
+        {
+          "role": "team_admin"
+        },
+        {
+          "role": "service_admin"
+        }
+      ]
+    },
+    {
+      "name": "logs:write",
+      "grants": [
+        {
+          "role": "team_admin"
+        },
+        {
+          "role": "service_admin"
+        }
+      ]
+    },
+    {
+      "name": "notifications:read",
+      "grants": [
+        {
+          "role": "team_viewer"
+        },
+        {
+          "role": "team_admin"
+        },
+        {
+          "role": "service_admin"
+        }
+      ]
+    },
+    {
+      "name": "notifications:write",
+      "grants": [
+        {
+          "role": "team_admin"
+        },
+        {
+          "role": "service_admin"
+        }
+      ]
+    },
+    {
+      "name": "audit:read",
+      "grants": [
+        {
+          "role": "team_viewer"
+        },
+        {
+          "role": "team_admin"
+        },
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "Own teams"
+    },
+    {
+      "name": "revisions:read",
+      "grants": [
+        {
+          "role": "team_viewer"
+        },
+        {
+          "role": "team_admin"
+        },
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "Own teams"
+    },
+    {
+      "name": "revisions:restore",
+      "grants": [
+        {
+          "role": "team_admin"
+        },
+        {
+          "role": "service_admin"
+        }
+      ]
+    },
+    {
+      "name": "models:read",
+      "grants": [
+        {
+          "role": "team_viewer"
+        },
+        {
+          "role": "team_admin"
+        },
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "Enabled models, storage classes, agent templates"
+    },
+    {
+      "name": "admin:settings",
+      "grants": [
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "Service level"
+    },
+    {
+      "name": "admin:models",
+      "grants": [
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "Service level"
+    },
+    {
+      "name": "admin:pricing",
+      "grants": [
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "Service level"
+    },
+    {
+      "name": "admin:identity-providers",
+      "grants": [
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "Service level"
+    },
+    {
+      "name": "admin:service-tags",
+      "grants": [
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "Service level"
+    },
+    {
+      "name": "admin:external-systems",
+      "grants": [
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "Service level"
+    },
+    {
+      "name": "admin:storage-classes",
+      "grants": [
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "Service level"
+    },
+    {
+      "name": "admin:agent-templates",
+      "grants": [
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "Service level"
+    },
+    {
+      "name": "admin:accounts",
+      "grants": [
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "Service level"
+    },
+    {
+      "name": "admin:reports",
+      "grants": [
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "Service level"
+    },
+    {
+      "name": "admin:audit",
+      "grants": [
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "Service level"
+    },
+    {
+      "name": "admin:export",
+      "grants": [
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "Service level"
+    },
+    {
+      "name": "pools:read",
+      "grants": [
+        {
+          "role": "team_viewer"
+        },
+        {
+          "role": "team_admin"
+        },
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "Stages, pools, handoffs, pool secrets, config, external systems and role links; ephemeral teams only. Write covers scale, pause, resume"
+    },
+    {
+      "name": "pools:write",
+      "grants": [
+        {
+          "role": "team_admin"
+        },
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "Stages, pools, handoffs, pool secrets, config, external systems and role links; ephemeral teams only. Write covers scale, pause, resume"
+    },
+    {
+      "name": "teams:get-kubeconfig",
+      "grants": [
+        {
+          "role": "team_viewer",
+          "condition": "viewerKubectl"
+        },
+        {
+          "role": "team_admin",
+          "condition": "viewerKubectl"
+        },
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "Read-only kubeconfig for the namespace (ACC-5). Service admins turn it on with `teams:set-guardrails`"
+    },
+    {
+      "name": "work-orders:read",
+      "grants": [
+        {
+          "role": "team_viewer",
+          "condition": "assignedOrOwnRepos"
+        },
+        {
+          "role": "team_admin",
+          "condition": "assignedOrOwnRepos"
+        },
+        {
+          "role": "service_admin"
+        },
+        {
+          "role": "security_operator"
+        }
+      ]
+    },
+    {
+      "name": "work-orders:write",
+      "grants": [
+        {
+          "role": "service_admin"
+        },
+        {
+          "role": "security_operator"
+        }
+      ],
+      "notes": "Create, update, cancel"
+    },
+    {
+      "name": "work-orders:report",
+      "grants": [
+        {
+          "role": "team_admin",
+          "condition": "assignedTeam"
+        },
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "Update the status and PR of the assigned work order's repositories. Also held by the assigned team's workload principals (D29)"
+    },
+    {
+      "name": "swarm-templates:read",
+      "grants": [
+        {
+          "role": "service_admin"
+        },
+        {
+          "role": "security_operator"
+        }
+      ],
+      "notes": "List and describe templates (D37)"
+    },
+    {
+      "name": "admin:swarm-templates",
+      "grants": [
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "Create, update, enable, disable, delete templates; cost tag status"
+    },
+    {
+      "name": "admin:cost-tag-status",
+      "grants": [
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "Create, update, enable, disable, delete templates; cost tag status"
+    }
+  ],
+  "workload": {
+    "name": "work-orders:report",
+    "grants": [
+      {
+        "role": "workload",
+        "condition": "assignedTeam"
+      }
+    ]
+  }
+}

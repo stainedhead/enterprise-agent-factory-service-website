@@ -1,6 +1,6 @@
 {
   "name": "@afs/sdk",
-  "version": "0.0.1",
+  "version": "0.3.0",
   "description": "TypeScript accelerator SDK for the Agent Factory Service REST API",
   "type": "module",
   "main": "./dist/index.js",
@@ -9,8 +9,10 @@
     ".": {
       "source": "./src/index.ts",
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
-    }
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
   },
   "files": [
     "dist"
@@ -19,6 +21,26 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:cover": "vitest run --coverage",
+    "contract:check": "bun tools/contract-sync.ts check",
+    "contract:update": "bun tools/contract-sync.ts update",
+    "codegen": "bun tools/codegen/index.ts",
+    "codegen:check": "bun tools/codegen/index.ts --check",
+    "size": "bun tools/size-check.ts",
+    "tsdoc": "bun tools/tsdoc-check.ts",
+    "test:node": "vitest run",
+    "test:bun": "bun --bun vitest run --pool=threads",
+    "test:browser": "vitest run --config vitest.browser.config.ts"
+  },
+  "devDependencies": {
+    "@types/node": "24.19.2",
+    "@vitest/browser": "5.1.1",
+    "@vitest/browser-playwright": "5.1.1",
+    "@vitest/coverage-v8": "5.1.1",
+    "happy-dom": "21.0.4",
+    "playwright": "1.63.0",
+    "vite": "8.3.8",
+    "yaml": "2.9.1"
   }
 }

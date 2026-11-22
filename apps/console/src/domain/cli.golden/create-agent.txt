@@ -1,0 +1,1 @@
+afs agents create-agent --team-id team_1 --model-id claude-sonnet --name reviewer --template default
