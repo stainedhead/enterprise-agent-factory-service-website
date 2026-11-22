@@ -42,10 +42,10 @@
 | M1 Teams & access | 10 (+ exit) | 46 | 46 |
 | M2 Agents & secrets | 7 (+ exit) | 41 | 41 |
 | M3 Spend control | 6 (+ exit) | 24 | 24 |
-| M4 Production readiness | 8 (+ exit) | 34 | 33 |
+| M4 Production readiness | 8 (+ exit) | 34 | 34 |
 | M5 Budgeted workloads and swarms | 4 (+ exit) | 19 | 0 |
 | M6 CVE remediation and completion | 6 (+ exit) | 26 | 0 |
-| **Total** | **51** | **259** | **214** |
+| **Total** | **51** | **259** | **215** |
 
 ## External dependencies and contract questions
 
@@ -630,7 +630,7 @@ Owns: area files: `admin-notificationChannels`; `presentation/screens/s10-settin
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M4-X1 | Merge; gate and e2e green; viewer no-mutation e2e over M4 team screens; re-pin check; status, dashboard | WEB-US-36.1 (part) | all M4 |
+| [x] | M4-X1 | Merge; gate and e2e green; viewer no-mutation e2e over M4 team screens; re-pin check; status, dashboard | WEB-US-36.1 (part) | all M4 |
 
 ---
 

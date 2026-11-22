@@ -1699,7 +1699,7 @@ components:
     DecidePriceProposalRequest:
       properties:
         note:
-          maxLength: 1000
+          maxLength: 500
           type: string
       type: object
     DeclareExternalSystemRequest:
@@ -2903,6 +2903,7 @@ components:
           $ref: '#/components/schemas/Timestamp'
           readOnly: true
         id:
+          pattern: ^mpp_[0-9A-HJKMNP-TV-Z]{26}$
           readOnly: true
           type: string
         inputUsdPerMtok:
@@ -2910,6 +2911,7 @@ components:
         modelId:
           type: string
         note:
+          maxLength: 500
           type:
             - string
             - "null"
@@ -2924,6 +2926,7 @@ components:
           readOnly: true
           type: string
         version:
+          description: Derived from the status, not a row counter. 1 while the proposal is pending, 2 once it is approved, rejected or superseded. A proposal changes only once, so clients never need to send it (the approve and reject operations take no If-Match).
           readOnly: true
           type: integer
       required:
@@ -3289,7 +3292,7 @@ components:
           $ref: '#/components/schemas/Timestamp'
           readOnly: true
         version:
-          description: Optimistic-concurrency version; ETag is "<version>"
+          description: Optimistic-concurrency version; ETag is "<version>". The scheduled-report runner updates the row each time a schedule runs, which raises the version, so an ETag read before a run is stale after it (412 PreconditionFailed). Read the schedule again from ListReportSchedules and retry the update or delete.
           minimum: 1
           readOnly: true
           type: integer
@@ -6489,7 +6492,7 @@ paths:
                     decidedBy: null
                     effectiveFrom: "2026-12-01T00:00:00Z"
                     fetchedAt: "2026-11-21T18:00:00Z"
-                    id: "1042"
+                    id: mpp_01JD2Q3R4S5T6V7W8X9Y0Z0042
                     inputUsdPerMtok: "3.00"
                     modelId: anthropic.claude-sonnet-4-5
                     note: null
@@ -6536,8 +6539,8 @@ paths:
           name: proposalId
           required: true
           schema:
-            example: "1042"
-            pattern: ^[0-9]+$
+            example: mpp_01JD2Q3R4S5T6V7W8X9Y0Z0042
+            pattern: ^mpp_[0-9A-HJKMNP-TV-Z]{26}$
             type: string
         - $ref: '#/components/parameters/XRequestId'
         - $ref: '#/components/parameters/IdempotencyKey'
@@ -6560,7 +6563,7 @@ paths:
                 decidedBy: usr_01JD2Q3R4S5T6V7W8X9Y0Z0001
                 effectiveFrom: "2026-12-01T00:00:00Z"
                 fetchedAt: "2026-11-21T18:00:00Z"
-                id: "1042"
+                id: mpp_01JD2Q3R4S5T6V7W8X9Y0Z0042
                 inputUsdPerMtok: "3.00"
                 modelId: anthropic.claude-sonnet-4-5
                 note: Matches the AWS price list
@@ -6616,8 +6619,8 @@ paths:
           name: proposalId
           required: true
           schema:
-            example: "1042"
-            pattern: ^[0-9]+$
+            example: mpp_01JD2Q3R4S5T6V7W8X9Y0Z0042
+            pattern: ^mpp_[0-9A-HJKMNP-TV-Z]{26}$
             type: string
         - $ref: '#/components/parameters/XRequestId'
         - $ref: '#/components/parameters/IdempotencyKey'
@@ -6640,7 +6643,7 @@ paths:
                 decidedBy: usr_01JD2Q3R4S5T6V7W8X9Y0Z0001
                 effectiveFrom: "2026-12-01T00:00:00Z"
                 fetchedAt: "2026-11-21T18:00:00Z"
-                id: "1042"
+                id: mpp_01JD2Q3R4S5T6V7W8X9Y0Z0042
                 inputUsdPerMtok: "3.00"
                 modelId: anthropic.claude-sonnet-4-5
                 note: Waiting for the contract rate

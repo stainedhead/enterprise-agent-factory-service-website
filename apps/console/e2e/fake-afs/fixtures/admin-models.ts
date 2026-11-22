@@ -43,7 +43,7 @@ const seedPrices = (): Map<string, Json[]> =>
 
 const seedProposals = (): Json[] => [
   {
-    id: "prop_01JD2Q3R4S5T6V7W8X9Y0Z0001",
+    id: "mpp_01JD2Q3R4S5T6V7W8X9Y0Z0001",
     modelId: "anthropic.claude-haiku-4",
     effectiveFrom: "2026-12-01T00:00:00Z",
     fetchedAt: "2026-11-21T02:00:00Z",

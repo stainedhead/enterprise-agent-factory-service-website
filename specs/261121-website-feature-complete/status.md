@@ -19,7 +19,7 @@
 | 2 | Research and data modeling | Complete | research.md, data-dictionary.md |
 | 3 | Architecture and planning | Complete | architecture.md, plan.md |
 | 4 | Task breakdown | Complete | tasks.md: 51 streams, 259 tasks |
-| 5 | Implementation (M0–M6) | In Progress | Step 3, M0 complete (69/69), M1 46/46 |
+| 5 | Implementation (M0–M6) | In Progress | Step 3, M0 to M4 complete (215/259 tasks) |
 | 6 | Completion and archival | Not Started | |
 
 ## Phase 0 checklist
@@ -36,7 +36,7 @@
 | M1 Teams & access | In Progress | 46 / 46 |
 | M2 Agents & secrets | Complete | 41 / 41 |
 | M3 Spend control | Complete | 24 / 24 |
-| M4 Production readiness | In Progress | 33 / 34 |
+| M4 Production readiness | Complete | 34 / 34 |
 | M5 Budgeted workloads and swarms | Not Started | 0 / 19 |
 | M6 CVE remediation and completion | Not Started | 0 / 26 |
 
@@ -47,6 +47,8 @@ none blocks M0.
 
 ## Recent activity
 
+- 2026-11-22: M4-X1 done: gate green (963 console and 275 SDK tests, console coverage 98.6% statements, domain 98.7%), chromium e2e 191/191 (one S7 spec made poll-safe), viewer no-mutation e2e over the M4 team screens, upstream re-pinned (DV-49). M4 34/34.
+- 2026-11-22: M4 M4-X1 done (34/34).
 - 2026-11-22: M4 M4-N1, M4-N2 done (33/34).
 - 2026-11-22: M4 M4-S1, M4-S2, M4-S3, M4-S4 done (31/34).
 - 2026-11-22: M4 M4-E1, M4-E2, M4-E3 done (27/34).

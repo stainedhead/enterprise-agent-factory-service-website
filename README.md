@@ -15,7 +15,9 @@ dashboard, teams and create team, team overview (viewer version included), membe
 settings and identity providers, team history (activity, audit and config revisions), agents and the
 agent panel, create agent, secrets, configuration values, external systems (team, agent and service catalog),
 storage classes and agent templates, team budget and usage, the model catalog and pricing, reports (team, agent and
-service, with cost reconciliation) and notification channels. See
+service, with cost reconciliation, and scheduling a report to a channel), team and service notification channels, the
+service audit log, team AWS accounts and agent AWS access (cross-account roles with trust policies, external
+identities), cost allocation tags and team tags, log delivery, export and import, and restoring a config revision. See
 [user-docs/console.md](user-docs/console.md). The remaining screens arrive milestone by milestone.
 
 ## Toolchain

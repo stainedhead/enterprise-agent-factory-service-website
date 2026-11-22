@@ -50,9 +50,9 @@ test.describe("S7 external systems catalog", () => {
     await expect(page.getByRole("cell", { name: "Datadog", exact: true })).toBeVisible();
     const sw = page.getByRole("switch", { name: /may declare systems/ }).first();
     await sw.click();
-    await expect(
-      (await requestsWhere((r) => r.operationId === "UpdateTeam")).length,
-    ).toBeGreaterThan(0);
+    await expect
+      .poll(async () => (await requestsWhere((r) => r.operationId === "UpdateTeam")).length)
+      .toBeGreaterThan(0);
   });
 
   test("team admins do not get the catalog", async ({ page, signInAs }) => {

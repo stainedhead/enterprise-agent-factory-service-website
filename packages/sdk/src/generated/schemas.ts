@@ -1069,6 +1069,7 @@ export interface PriceProposal {
   note?: string | null;
   outputUsdPerMtok: Money;
   readonly status: "pending" | "approved" | "rejected" | "superseded" | (string & {});
+  /** Derived from the status, not a row counter. 1 while the proposal is pending, 2 once it is approved, rejected or superseded. A proposal changes only once, so clients never need to send it (the approve and reject operations take no If-Match). */
   readonly version?: number;
 }
 
@@ -1238,7 +1239,7 @@ export interface ReportSchedule {
   query: ReportQuery;
   report: "usage" | "costs" | "activity" | "traffic" | (string & {});
   readonly updatedAt?: Timestamp;
-  /** Optimistic-concurrency version; ETag is "<version>" */
+  /** Optimistic-concurrency version; ETag is "<version>". The scheduled-report runner updates the row each time a schedule runs, which raises the version, so an ETag read before a run is stale after it (412 PreconditionFailed). Read the schedule again from ListReportSchedules and retry the update or delete. */
   readonly version: number;
 }
 
