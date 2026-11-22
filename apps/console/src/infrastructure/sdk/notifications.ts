@@ -20,7 +20,7 @@ const wrap = async <T>(f: () => Promise<T>): Promise<T> => {
 
 type Wire = Awaited<ReturnType<ReturnType<typeof notificationChannels>["get"]>>;
 
-const toRecord = (c: Wire): ChannelRecord => ({
+export const toChannelRecord = (c: Wire): ChannelRecord => ({
   id: c.id,
   name: c.name,
   kind: c.kind,
@@ -49,18 +49,18 @@ export class SdkNotifications implements NotificationsPort {
         maxResults: 100,
         ...sig(signal),
       }))
-        out.push(toRecord(c));
+        out.push(toChannelRecord(c));
       return out;
     });
   }
   get(teamId: string, id: string, signal?: AbortSignal): Promise<ChannelRecord> {
     return wrap(async () =>
-      toRecord(await notificationChannels(this.client).get(teamId, id, sig(signal))),
+      toChannelRecord(await notificationChannels(this.client).get(teamId, id, sig(signal))),
     );
   }
   create(teamId: string, input: ChannelInput): Promise<ChannelRecord> {
     return wrap(async () =>
-      toRecord(
+      toChannelRecord(
         await notificationChannels(this.client).create(teamId, {
           name: input.name,
           kind: input.kind,
@@ -78,7 +78,7 @@ export class SdkNotifications implements NotificationsPort {
     patch: ChannelPatch,
   ): Promise<ChannelRecord> {
     return wrap(async () =>
-      toRecord(
+      toChannelRecord(
         await notificationChannels(this.client).update(teamId, ref, {
           ...(patch.name !== undefined && { name: patch.name }),
           ...(patch.enabled !== undefined && { enabled: patch.enabled }),

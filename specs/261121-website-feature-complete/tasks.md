@@ -42,10 +42,10 @@
 | M1 Teams & access | 10 (+ exit) | 46 | 46 |
 | M2 Agents & secrets | 7 (+ exit) | 41 | 41 |
 | M3 Spend control | 6 (+ exit) | 24 | 24 |
-| M4 Production readiness | 8 (+ exit) | 34 | 31 |
+| M4 Production readiness | 8 (+ exit) | 34 | 33 |
 | M5 Budgeted workloads and swarms | 4 (+ exit) | 19 | 0 |
 | M6 CVE remediation and completion | 6 (+ exit) | 26 | 0 |
-| **Total** | **51** | **259** | **212** |
+| **Total** | **51** | **259** | **214** |
 
 ## External dependencies and contract questions
 
@@ -623,8 +623,8 @@ Owns: area files: `admin-notificationChannels`; `presentation/screens/s10-settin
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M4-N1 | Add, edit, delete the service's email, Slack, webhook and Jira channels; deleting the channel named in `work_orders.notification_channel_id` shows the API's `409` | WEB-US-20.7, WEB-16 | — |
-| [ ] | M4-N2 | e2e, axe, visual (S2 pattern) | WEB-US-42.1 (part), WEB-US-42.2 (part) | M4-N1 |
+| [x] | M4-N1 | Add, edit, delete the service's email, Slack, webhook and Jira channels; deleting the channel named in `work_orders.notification_channel_id` shows the API's `409` | WEB-US-20.7, WEB-16 | — |
+| [x] | M4-N2 | e2e, axe, visual (S2 pattern) | WEB-US-42.1 (part), WEB-US-42.2 (part) | M4-N1 |
 
 ### M4-X · Exit
 

@@ -5,6 +5,10 @@ import { adminCatalogsFixtures, resetAdminCatalogs } from "./admin-catalogs.js";
 import { adminExportsFixtures, resetAdminExports } from "./admin-exports.js";
 import { adminExternalSystemsFixtures } from "./admin-externalSystems.js";
 import { adminModelsFixtures, resetAdminModels } from "./admin-models.js";
+import {
+  adminNotificationChannelsFixtures,
+  resetAdminNotificationChannels,
+} from "./admin-notificationChannels.js";
 import { adminOrgAccountsFixtures } from "./admin-orgAccounts.js";
 import { adminServiceTagsFixtures, resetAdminServiceTags } from "./admin-serviceTags.js";
 import { agentsFixtures, resetAgents } from "./agents.js";
@@ -75,6 +79,7 @@ export const fixtureModules: readonly (readonly Fixture[])[] = [
   logDestinationsFixtures,
   adminExportsFixtures,
   reportSchedulesFixtures,
+  adminNotificationChannelsFixtures,
 ];
 
 /** Stateful fixture modules register a reset here; the server calls them on `/__reset`. */
@@ -97,4 +102,5 @@ export const fixtureResets: readonly (() => void)[] = [
   resetAdminExports,
   resetHistory,
   resetReportSchedules,
+  resetAdminNotificationChannels,
 ];

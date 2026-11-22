@@ -10,6 +10,7 @@ import type {
   AdminModelsUseCases,
   AdminPricingUseCases,
 } from "../application/usecases/adminModels/AdminModelsUseCases.js";
+import type { AdminNotificationChannelsUseCases } from "../application/usecases/adminNotificationChannels/AdminNotificationChannelsUseCases.js";
 import type { AdminOrgAccountsUseCases } from "../application/usecases/adminOrgAccounts/AdminOrgAccountsUseCases.js";
 import type { AdminServiceTagsUseCases } from "../application/usecases/adminServiceTags/AdminServiceTagsUseCases.js";
 import type { AgentsUseCases } from "../application/usecases/agents/AgentsUseCases.js";
@@ -58,6 +59,7 @@ export interface AppServices {
   readonly adminAudit: AdminAuditUseCases;
   readonly adminExports: AdminExportsUseCases;
   readonly reportSchedules: ReportSchedulesUseCases;
+  readonly adminNotificationChannels: AdminNotificationChannelsUseCases;
   readonly logDestinations: LogDestinationsUseCases;
   readonly notifications: NotificationsUseCases;
   readonly secrets: SecretsUseCases;

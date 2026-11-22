@@ -182,6 +182,12 @@ On the history *Config revisions* tab, select one revision and choose *Restore* 
 change and which bindings no longer resolve and are skipped. *Apply restore* asks to confirm; the restore becomes a new
 revision. Viewers can view and compare revisions but cannot restore.
 
+## Service notification channels (`/settings/notification-channels`, service admins)
+
+The service's own email, Slack, webhook and Jira channels, with their events and delivery status. Add, edit, enable,
+disable and delete them. A channel's credential is a reference to a secret, never a value. Deleting the channel that
+work orders name is refused by the API; disable it instead.
+
 ## Troubleshooting
 
 - *Page not found* for a page you expect: you may not hold the role it needs, or the team is not yours.

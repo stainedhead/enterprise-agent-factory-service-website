@@ -40,7 +40,7 @@ export function parseEvents(text: string): string[] {
   ];
 }
 
-function check(i: ChannelInput): AppError | undefined {
+export function checkChannel(i: ChannelInput): AppError | undefined {
   if (!i.name.trim()) return invalid("name", "Enter a name");
   if (i.eventTypes.length === 0)
     return invalid("eventTypes", "Choose at least one event, for example budget.*");
@@ -73,7 +73,7 @@ export class NotificationsUseCases {
     return this.port.list(teamId, signal);
   }
   create(teamId: string, input: ChannelInput) {
-    const bad = check(input);
+    const bad = checkChannel(input);
     return bad ? Promise.reject(bad) : this.port.create(teamId, input);
   }
   update(teamId: string, channel: ChannelRecord, patch: ChannelPatch) {
