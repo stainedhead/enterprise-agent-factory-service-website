@@ -30,7 +30,7 @@ lines, so merges stay hunk-disjoint.
 
 | Stream | Findings | Tasks done | Merged | Notes |
 |---|---|---|---|---|
-| A: SDK | FR-007..FR-011 | 0/6 | no | |
+| A: SDK | FR-007..FR-011 | 6/6 | no | Gate green on wf/a |
 | E: Quality and edges | FR-016..FR-020 | 0/9 | no | |
 | C: Error routing | FR-002, FR-003 (query layer), FR-015 | 0/7 | no | |
 | B: Session, auth, hosting | FR-001, FR-003 (wiring), FR-005, FR-006, FR-012..FR-014, FR-004 (sign-out) | 0/10 | no | |
@@ -42,6 +42,8 @@ lines, so merges stay hunk-disjoint.
 (coordinator: one line per merge with the commit and the gate result)
 
 ## Stream A log
+
+- 2026-11-22: A-1..A-5 done test-first (FR-007..FR-011); A-6 stream exit: gate green, public surface unchanged. Decisions in implementation-notes.md "Stream A".
 
 ## Stream B log
 

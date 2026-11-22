@@ -90,4 +90,39 @@ describe("secret hygiene (M0-C9)", () => {
     expect((replay as { secretKey?: string }).secretKey).toBeUndefined();
     expect(metaOf(replay)?.idempotentReplayed).toBe(true);
   });
+  it("redacts a 1-character secret value that an error message echoes (FR-010)", async () => {
+    const f = fakeFetch().on("POST /v1/teams/t/secrets", {
+      status: 400,
+      body: {
+        code: "ValidationError",
+        message: "value Q is too short",
+        requestId: "r",
+        details: { echoed: "Q" },
+      },
+    });
+    const afs = createAfs({
+      endpoint: "https://x",
+      fetch: f.fetch,
+      auth: apiKey("afsk_k"),
+      retry: { maxRetries: 0 },
+    });
+    const e = await afs.secrets.create("t", { name: "n", value: "Q" } as never).catch((x) => x);
+    const dump = JSON.stringify(e.toJSON()) + e.message; // the stack holds file names, not values
+    expect(dump).not.toContain("Q");
+    expect(e.message).toContain("[redacted]");
+  });
+  it("sends an empty secret value unchanged (nothing to redact)", async () => {
+    const f = fakeFetch().on("POST /v1/teams/t/secrets", {
+      status: 400,
+      body: { code: "ValidationError", message: "value required", requestId: "r", details: {} },
+    });
+    const afs = createAfs({
+      endpoint: "https://x",
+      fetch: f.fetch,
+      auth: apiKey("afsk_k"),
+      retry: { maxRetries: 0 },
+    });
+    const e = await afs.secrets.create("t", { name: "n", value: "" } as never).catch((x) => x);
+    expect(e.message).toBe("value required");
+  });
 });

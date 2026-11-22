@@ -10,7 +10,7 @@
 
 | Stream | Done | Total |
 |---|---|---|
-| A | 0 | 6 |
+| A | 6 | 6 |
 | E | 0 | 9 |
 | C | 0 | 7 |
 | B | 0 | 10 |
@@ -60,12 +60,12 @@
 
 | Done | ID | Task | AC | Depends |
 |---|---|---|---|---|
-| [ ] | A-1 | Red: `transport.test.ts` cases with a synthetic POST `OperationDef` (`idempotent: false`) that gets exactly one attempt on a network error, a PATCH case, and a no-key `idempotency_in_progress` case. Green: compute retry eligibility in `client.ts` from the method and the presence of the `Idempotency-Key` header (GET, PUT, DELETE, keyed POST), including the `idempotency_in_progress` branch | FR-007 AC | none |
-| [ ] | A-2 | Red: `transport.test.ts` cases for `200 text/html` and a truncated JSON body. Green: `client.ts` parse failure rejects with `AfsError` (`InternalError`, `status` the HTTP status, `requestId` from `X-Request-Id`, message with no body text over 200 characters) | FR-008 AC | none |
-| [ ] | A-3 | Red: table-driven `errors.test.ts` over every mapped status plus one unmapped. Green: add `409 -> Conflict` and explicit `500 -> InternalError` to `STATUS_CODES`; `isConflict` true for a non-JSON 409 | FR-009 AC | none |
-| [ ] | A-4 | Red: `hygiene.test.ts` case with a 1-character secret value that an error message echoes. Green: redact every non-empty secret field value (drop the `length > 3` filter) or refuse with a `TypeError` that does not contain the value; record the choice in the Stream A notes | FR-010 AC | none |
-| [ ] | A-5 | Red: `wait.test.ts` stale-`Failed` and stale-`Degraded` cases (`observedGeneration < generation` keeps polling until the timeout). Green: `wait.ts` ends on `Failed`/`Degraded` only when `observedGeneration >= generation` | FR-011 AC | none |
-| [ ] | A-6 | Stream exit: `bun run gate` (includes `size` and `tsdoc`), public surface unchanged, notes and `status.md` row updated, tasks ticked | Goal 3 | A-1..A-5 |
+| [x] | A-1 | Red: `transport.test.ts` cases with a synthetic POST `OperationDef` (`idempotent: false`) that gets exactly one attempt on a network error, a PATCH case, and a no-key `idempotency_in_progress` case. Green: compute retry eligibility in `client.ts` from the method and the presence of the `Idempotency-Key` header (GET, PUT, DELETE, keyed POST), including the `idempotency_in_progress` branch | FR-007 AC | none |
+| [x] | A-2 | Red: `transport.test.ts` cases for `200 text/html` and a truncated JSON body. Green: `client.ts` parse failure rejects with `AfsError` (`InternalError`, `status` the HTTP status, `requestId` from `X-Request-Id`, message with no body text over 200 characters) | FR-008 AC | none |
+| [x] | A-3 | Red: table-driven `errors.test.ts` over every mapped status plus one unmapped. Green: add `409 -> Conflict` and explicit `500 -> InternalError` to `STATUS_CODES`; `isConflict` true for a non-JSON 409 | FR-009 AC | none |
+| [x] | A-4 | Red: `hygiene.test.ts` case with a 1-character secret value that an error message echoes. Green: redact every non-empty secret field value (drop the `length > 3` filter) or refuse with a `TypeError` that does not contain the value; record the choice in the Stream A notes | FR-010 AC | none |
+| [x] | A-5 | Red: `wait.test.ts` stale-`Failed` and stale-`Degraded` cases (`observedGeneration < generation` keeps polling until the timeout). Green: `wait.ts` ends on `Failed`/`Degraded` only when `observedGeneration >= generation` | FR-011 AC | none |
+| [x] | A-6 | Stream exit: `bun run gate` (includes `size` and `tsdoc`), public surface unchanged, notes and `status.md` row updated, tasks ticked | Goal 3 | A-1..A-5 |
 
 ## Stream E: Quality and edges
 

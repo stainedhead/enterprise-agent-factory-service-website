@@ -98,9 +98,11 @@ const STATUS_CODES: Record<number, AfsErrorCode> = {
   401: "Unauthenticated",
   403: "AccessDenied",
   404: "NotFound",
+  409: "Conflict",
   412: "PreconditionFailed",
   428: "PreconditionRequired",
   429: "Throttled",
+  500: "InternalError",
   503: "Unavailable",
 };
 
