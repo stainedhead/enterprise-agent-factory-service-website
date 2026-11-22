@@ -51,3 +51,54 @@ No chart library, no CSS-in-JS, no ESLint or Prettier, no npm or pnpm lockfile.
   providers and history. An area that is not wired makes `useService` throw, and M6-X1 checks none remains.
 - Fixtures of the fake AFS API live in `apps/console/e2e/fake-afs/fixtures/<area>.ts`; stateful ones register
   a reset in `fixtures/index.ts`. Every fixture is validated against the pinned OpenAPI.
+
+## Final state (steps 3 and 4, 2026-11-22)
+
+### Packages
+
+- `@afs/sdk` 0.3.0 (workspace name). Published as `@stainedhead/afs-sdk` by `.github/workflows/release-sdk.yml`
+  on a tag `sdk-v*` or manual dispatch (ADR-010). Layout: `src/core` (transport, auth, retry, idempotency,
+  concurrency, pagination, errors), `src/generated` (never hand-edited), `src/resources` (`waitFor`, reports),
+  `tools/` (contract-sync, codegen, size-check, tsdoc-check).
+- `@afs/console`: Vite 8 bundle, React 19, TanStack Query for server state (in `presentation` only), React
+  Router, `oauth4webapi` for OIDC code + PKCE. CSS modules; no CSS-in-JS and no chart library.
+
+### Contract and code generation
+
+`packages/sdk/contract/` holds the byte snapshot (`openapi.yaml`, `permissions.json`, `operations.json`) and
+`contract.lock.json` (source, ref, commit, sha256, `contractVersion`). `contract:check` runs first in the gate.
+`codegen` writes `packages/sdk/src/generated/` and `apps/console/src/domain/generated/cliOperations.ts` (the
+`afs` command shown on create forms); `codegen:check` covers both. The snapshot moved with the `-restapi`
+branch at M2, M3, M4 and M5 (DV-34, DV-40, DV-49, DV-56) and is pinned to `549a2f2`. M6-U1 moves it to a
+release tag (DV-62).
+
+### Console runtime configuration
+
+One build serves every environment. `/config.json` is fetched with `cache: "no-store"` at boot and validated by
+`parseConfig`; the schema is `apps/console/deploy/config.schema.json`. Keys: `apiUrl`, `environmentName`,
+`redirectUri` (required), `providersFallback`, `telemetryUrl`, `idleTimeoutMinutes` (5 to 720, default 60).
+There are no per-environment `VITE_*` variables. Reference: [user-docs/configuration.md](../user-docs/configuration.md).
+
+### Deploy artifacts (consumed by the platform Terraform)
+
+`apps/console/deploy/response-headers-policy.json` (CSP with `script-src 'self'`, HSTS, `Referrer-Policy`,
+`X-Content-Type-Options`; placeholders for the API, issuer and telemetry origins),
+`cache-behaviors.json` (`/assets/*` immutable for a year; `/index.html` and `/config.json` `no-cache`; SPA
+fallback of 403 and 404 to `/index.html` with 200), `config.schema.json`. `build-output.test.ts` checks the
+build against them.
+
+### State and storage
+
+Tokens are in memory only. Non-secret form drafts go to `sessionStorage` (`afs.drafts`) across the top-level
+re-authentication redirect and are removed at boot (DV-9). Secret values are never drafted.
+
+### Tests
+
+Vitest (Bun runs it with `--pool=threads`, DV-8) with an unmocked `fetch` that throws; SDK contract replay and a
+Chromium run; Playwright e2e and visual baselines against `e2e/fake-afs` and a fake IdP (ADR-008, ADR-009).
+`architecture.test.ts` enforces the dependency rule and the wiring test fails if any area is not wired (M6-X1).
+
+### Console areas
+
+All areas are wired in `main/wiring.ts`; `NotBuiltYet` and `notImplementedPort` no longer exist. Per-screen
+decisions and deviations are recorded as DV-1 to DV-62 in the spec's `implementation-notes.md`.

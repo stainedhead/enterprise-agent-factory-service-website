@@ -20,7 +20,7 @@
 | 3 | Architecture and planning | Complete | architecture.md, plan.md |
 | 4 | Task breakdown | Complete | tasks.md: 51 streams, 259 tasks |
 | 5 | Implementation (M0–M6) | In Progress | Step 3: M0 to M5 complete, M6 25/26; M6-U1 (contract re-pin to the `-restapi` tag, CQ-1) waits for the `-restapi` merge |
-| 6 | Completion and archival | Not Started | |
+| 6 | Completion and archival | Not Started | Step 4 (documentation and user docs) complete 2026-11-22; docs/, README.md and user-docs/ reflect the built product; M6-U1 still open |
 
 ## Phase 0 checklist
 
@@ -47,6 +47,7 @@ none blocks M0.
 
 ## Recent activity
 
+- 2026-11-22: Step 4 done: product-summary, product-details, technical-details, ADR-011..013, README and user-docs (getting-started, configuration, SDK and console examples); gate green.
 - 2026-11-22: M6 M6-X1 done (25/26).
 - 2026-11-22: M6 M6-Q1, M6-Q2, M6-Q3, M6-Q4, M6-Q5, M6-Q6, M6-Q7 done (24/26).
 - 2026-11-22: M6 M6-K1, M6-K2, M6-K3 done (17/26).

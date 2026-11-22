@@ -88,3 +88,32 @@ Decisions local to this repository. Cross-repo decisions live in the root reposi
 - Consequences: provenance attestations are not requested because GitHub Packages does not accept them; add
   `--provenance` with `id-token: write` if the registry gains support. The package is restricted to readers of
   the repository's organization, so consumers need a token with `read:packages`.
+
+## ADR-011 Runtime configuration, one build for every environment (D43)
+
+- Status: Accepted
+- Context: the same console bundle is promoted across environments behind a CDN.
+- Decision: the console reads `/config.json` at boot (`cache: "no-store"`), validated by `parseConfig` against
+  `apps/console/deploy/config.schema.json`. No `VITE_*` per-environment variables. The security headers and cache
+  behaviors are data files in `apps/console/deploy/` that the platform Terraform consumes.
+- Consequences: a bad or missing config fails fast with a readable error page; a change of API origin or issuer
+  needs the headers policy placeholders updated with it (user-docs/configuration.md).
+
+## ADR-012 Tokens in memory, drafts in sessionStorage
+
+- Status: Accepted
+- Decision: OIDC tokens are never persisted (`oauth4webapi` has no storage). Non-secret form drafts are kept in
+  `sessionStorage` only to survive a re-authentication redirect and are removed at boot; secret values are never
+  drafted (DV-9). A polite live region reports mutation outcomes (DV-61).
+- Consequences: a reload signs the user in again through the IdP; the secret sentinel e2e test fails if a secret
+  value reaches storage, a URL or a log.
+
+## ADR-013 Contract pinned to a branch commit until `-restapi` tags a release (M6-U1)
+
+- Status: Accepted, follow-up open
+- Context: `-restapi` has no release tag (CQ-1) and its feature branch is still moving (DV-62).
+- Decision: re-pin deliberately at each milestone exit (DV-34, DV-40, DV-49, DV-56); stay on `549a2f2` for now.
+  M6-U1 re-pins with `contract:update --ref <tag>`, regenerates, validates typed swarm template secrets in
+  `parseSpec` and updates the fixtures, after `-restapi` merges to `main` and tags.
+- Consequences: the SDK and console may lag small upstream contract edits; `contract:check` guarantees the pin is
+  what the generated code was built from.
