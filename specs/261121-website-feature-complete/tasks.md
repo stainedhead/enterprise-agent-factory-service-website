@@ -43,9 +43,9 @@
 | M2 Agents & secrets | 7 (+ exit) | 41 | 41 |
 | M3 Spend control | 6 (+ exit) | 24 | 24 |
 | M4 Production readiness | 8 (+ exit) | 34 | 34 |
-| M5 Budgeted workloads and swarms | 4 (+ exit) | 19 | 18 |
+| M5 Budgeted workloads and swarms | 4 (+ exit) | 19 | 19 |
 | M6 CVE remediation and completion | 6 (+ exit) | 26 | 0 |
-| **Total** | **51** | **259** | **233** |
+| **Total** | **51** | **259** | **234** |
 
 ## External dependencies and contract questions
 
@@ -689,7 +689,7 @@ Owns: area files: `admin-costTagStatus`; `presentation/screens/s9-cost-tags/stat
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M5-X1 | Merge; gate and e2e green; viewer no-mutation e2e over P4 and T1 kubeconfig; re-pin check; status, dashboard | WEB-US-36.1 (part) | all M5 |
+| [x] | M5-X1 | Merge; gate and e2e green; viewer no-mutation e2e over P4 and T1 kubeconfig; re-pin check; status, dashboard | WEB-US-36.1 (part) | all M5 |
 
 ---
 

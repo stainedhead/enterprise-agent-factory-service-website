@@ -663,7 +663,8 @@ export interface ExternalSystem {
   category: "dev_tools" | "collaboration" | "email" | "cloud" | "identity" | "llm" | "other" | (string & {});
   readonly createdAt?: Timestamp;
   description?: string;
-  readonly disabledAt?: "service" | "team" | "agent" | (string & {}) | null;
+  /** The level whose switch has the system off; pool applies to the pool views only. */
+  readonly disabledAt?: "service" | "team" | "agent" | "pool" | (string & {}) | null;
   docsUrl?: string;
   enabled: boolean;
   endpoints: string[];
@@ -1239,7 +1240,7 @@ export interface ReportSchedule {
   query: ReportQuery;
   report: "usage" | "costs" | "activity" | "traffic" | (string & {});
   readonly updatedAt?: Timestamp;
-  /** Optimistic-concurrency version; ETag is "<version>". The scheduled-report runner updates the row each time a schedule runs, which raises the version, so an ETag read before a run is stale after it (412 PreconditionFailed). Read the schedule again from ListReportSchedules and retry the update or delete. */
+  /** Optimistic-concurrency version; ETag is "<version>". A scheduled run records lastRunAt, lastStatus and lastError without changing the version. */
   readonly version: number;
 }
 

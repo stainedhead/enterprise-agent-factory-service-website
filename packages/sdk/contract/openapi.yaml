@@ -1532,8 +1532,8 @@ components:
         name:
           $ref: '#/components/schemas/Name'
         position:
-          maximum: 100
-          minimum: 0
+          maximum: 50
+          minimum: 1
           type: integer
       required:
         - name
@@ -1934,10 +1934,12 @@ components:
         description:
           type: string
         disabledAt:
+          description: The level whose switch has the system off; pool applies to the pool views only.
           enum:
             - service
             - team
             - agent
+            - pool
             - null
           readOnly: true
           type:
@@ -3292,7 +3294,7 @@ components:
           $ref: '#/components/schemas/Timestamp'
           readOnly: true
         version:
-          description: Optimistic-concurrency version; ETag is "<version>". The scheduled-report runner updates the row each time a schedule runs, which raises the version, so an ETag read before a run is stale after it (412 PreconditionFailed). Read the schedule again from ListReportSchedules and retry the update or delete.
+          description: Optimistic-concurrency version; ETag is "<version>". A scheduled run records lastRunAt, lastStatus and lastError without changing the version.
           minimum: 1
           readOnly: true
           type: integer
@@ -3965,8 +3967,8 @@ components:
         name:
           $ref: '#/components/schemas/Name'
         position:
-          maximum: 100
-          minimum: 0
+          maximum: 50
+          minimum: 1
           type: integer
         updatedAt:
           $ref: '#/components/schemas/Timestamp'
@@ -4640,8 +4642,8 @@ components:
         description:
           type: string
         position:
-          maximum: 100
-          minimum: 0
+          maximum: 50
+          minimum: 1
           type: integer
       type: object
     UpdateSwarmTemplateRequest:
@@ -15133,7 +15135,7 @@ paths:
                 category: dev_tools
                 createdAt: "2026-11-21T18:00:00Z"
                 description: Source hosting
-                disabledAt: agent
+                disabledAt: pool
                 docsUrl: https://docs.github.com
                 enabled: true
                 endpoints:
@@ -15816,6 +15818,7 @@ paths:
       x-afs-sdk: pools.getStatus()
   /v1/teams/{teamId}/pools/{poolId}:pause:
     post:
+      description: Sets the pool's state to paused, which stops its workers (desired workers 0) and keeps the configured worker count. Emits `pool.updated` (the contract has no pause event). Pausing a paused pool changes nothing and emits nothing.
       operationId: PausePool
       parameters:
         - $ref: '#/components/parameters/TeamId'
@@ -15902,6 +15905,7 @@ paths:
       x-afs-sdk: pools.pause()
   /v1/teams/{teamId}/pools/{poolId}:resume:
     post:
+      description: Sets the pool's state to enabled, which restores the configured worker count. Emits `pool.updated` (the contract has no resume event). Resuming an enabled pool changes nothing and emits nothing.
       operationId: ResumePool
       parameters:
         - $ref: '#/components/parameters/TeamId'
