@@ -110,6 +110,36 @@ describe("S9 service tags (M4-G1)", () => {
   });
 });
 
+describe("S9 spend by tag tag-keys failure (FR-019)", () => {
+  it("shows an inline alert with the request id while the report stays usable, and Retry re-runs the query", async () => {
+    const tags = fakeServiceTagsPort();
+    tags.list.mockRejectedValue(
+      new AppError({ kind: "validation", message: "tags broken", requestId: "req_svc_tags" }),
+    );
+    const { reports } = open({ tags });
+    const title = await screen.findByText("Tag keys could not be loaded");
+    const alert = title.closest('[role="alert"]') as HTMLElement;
+    expect(alert.textContent).toContain("req_svc_tags");
+    expect(await screen.findByLabelText("Group by")).toBeTruthy();
+    await waitFor(() => expect(reports.run).toHaveBeenCalled());
+    const before = tags.list.mock.calls.length;
+    tags.list.mockResolvedValue([]);
+    await userEvent.click(within(alert).getByRole("button", { name: "Retry" }));
+    await waitFor(() => expect(tags.list.mock.calls.length).toBeGreaterThan(before));
+    await waitFor(() => expect(screen.queryByText("Tag keys could not be loaded")).toBeNull());
+  });
+  it("shows no inline alert when the API denies access", async () => {
+    const tags = fakeServiceTagsPort();
+    tags.list.mockRejectedValue(
+      new AppError({ kind: "access-denied", message: "no", requestId: "req_403" }),
+    );
+    open({ tags });
+    await waitFor(() => expect(tags.list).toHaveBeenCalled());
+    await screen.findByLabelText("Group by");
+    expect(screen.queryByText("Tag keys could not be loaded")).toBeNull();
+  });
+});
+
 describe("S9 spend by tag (M4-G2)", () => {
   it("offers the service tag keys to group the cost report by", async () => {
     const { reports } = open();

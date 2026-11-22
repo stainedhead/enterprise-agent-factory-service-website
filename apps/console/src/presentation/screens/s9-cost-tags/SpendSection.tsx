@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { queryKey } from "../../query/keys.js";
 import { useService } from "../../services.js";
 import { ReportPanel } from "../t11-reports/ReportPanel.js";
+import { SecondaryQueryAlert } from "../t11-reports/ReportSection.js";
 
 /**
  * Spend grouped by any tag key (WEB-US-19.2): the service cost report with the service tag keys offered in *Group
@@ -15,13 +16,20 @@ export function SpendSection() {
   });
   const keys = (list.data ?? []).map((t) => t.key);
   return (
-    <ReportPanel
-      scope={{ level: "service" }}
-      kind="costs"
-      title="Spend by tag"
-      groupBy={["team", "day", "model"]}
-      defaultGroupBy={["team"]}
-      tagKeys={keys}
-    />
+    <>
+      <SecondaryQueryAlert
+        title="Tag keys could not be loaded"
+        error={list.error}
+        onRetry={() => void list.refetch()}
+      />
+      <ReportPanel
+        scope={{ level: "service" }}
+        kind="costs"
+        title="Spend by tag"
+        groupBy={["team", "day", "model"]}
+        defaultGroupBy={["team"]}
+        tagKeys={keys}
+      />
+    </>
   );
 }
