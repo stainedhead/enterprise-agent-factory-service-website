@@ -113,6 +113,7 @@ architectural ones into ADRs (`docs/architectural-decision-record.md`, ADR-005 o
 | DV-20 | A new API key's expiry is computed at submit as now + N days, minus one minute when N is 90, so the API's "at most 90 days ahead" holds despite clock skew (M1-M2). | M1-M2 |
 | DV-21 | S1 sums each live team's `maxBudgetUsd` as "the sum of budgets" (as S2 does) and takes month-to-date spend from the usage report grouped by team, rather than reading each team's `GetBudget` (N calls). *Reverted drift* is a `DriftCorrected=True` condition changed within 24 h on the team or one of its agents. | M1-D1, M1-D2 |
 | DV-22 | S10 section ids follow the navigation (`general` for *Settings*, `identity-providers`); the section is read from the path because the navigation items are literal routes (`/settings/general`) with no `:section` parameter. *Delete* for identity providers is not offered: *Disable* is the removal path the PRD names. | M1-N1, M1-N3 |
+| DV-23 | The audit CSV e2e intercepts the `text/csv` request in the spec (`context.route`, no real API) because the fake AFS server answers JSON only; the unit and SDK tests cover the CSV path. Revision diffs read both revisions with `GetRevision` (the list omits the snapshot) and show snapshots as key-sorted JSON through `DiffView`. | M1-H1, M1-H2 |
 
 ## 5. Lessons learned
 

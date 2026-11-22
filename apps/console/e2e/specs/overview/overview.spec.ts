@@ -18,7 +18,7 @@ test.describe("T1 team overview", () => {
       page.getByText("arn:aws:iam::000000000000:role/afs-payments-shared"),
     ).toBeVisible();
     await expect(page.getByText("Paused")).toBeVisible();
-    await expect(page.getByText(/teams\.suspend/)).toBeVisible();
+    await expect(page.getByText(/teams\.suspend/).first()).toBeVisible();
     await expect(page.getByText("Patch openssl in payments services")).toBeVisible();
     await expectAxeClean(page);
   });

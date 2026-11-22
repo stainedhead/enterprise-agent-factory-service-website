@@ -2,6 +2,7 @@
 import type { SeedUser } from "../users.js";
 import { coreFixtures } from "./core.js";
 import { dashboardFixtures } from "./dashboard.js";
+import { historyFixtures } from "./history.js";
 import { membersFixtures, resetMembers } from "./members.js";
 import { overviewFixtures, resetOverview } from "./overview.js";
 import { resetSettings, settingsFixtures } from "./settings.js";
@@ -37,6 +38,7 @@ export const fixtureModules: readonly (readonly Fixture[])[] = [
   membersFixtures,
   dashboardFixtures,
   settingsFixtures,
+  historyFixtures,
 ];
 
 /** Stateful fixture modules register a reset here; the server calls them on `/__reset`. */

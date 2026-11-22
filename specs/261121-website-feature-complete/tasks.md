@@ -39,13 +39,13 @@
 | Milestone | Streams | Tasks | Done |
 |---|---|---|---|
 | M0 Foundations | 10 (+ exit) | 69 | 69 |
-| M1 Teams & access | 10 (+ exit) | 46 | 42 |
+| M1 Teams & access | 10 (+ exit) | 46 | 45 |
 | M2 Agents & secrets | 7 (+ exit) | 41 | 0 |
 | M3 Spend control | 6 (+ exit) | 24 | 0 |
 | M4 Production readiness | 8 (+ exit) | 34 | 0 |
 | M5 Budgeted workloads and swarms | 4 (+ exit) | 19 | 0 |
 | M6 CVE remediation and completion | 6 (+ exit) | 26 | 0 |
-| **Total** | **51** | **259** | **111** |
+| **Total** | **51** | **259** | **114** |
 
 ## External dependencies and contract questions
 
@@ -334,9 +334,9 @@ Owns: area files: `audit`, `revisions`; `presentation/screens/t15-history/` (pag
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M1-H1 | *Activity & audit*: actor, action, resource, outcome, request id; S5 filters (`AuditFilters`, reused by S5) as query parameters; *Download CSV* via `ListAuditEvents.asCsv()` | WEB-US-35.1, WEB-22 | M1-Q1 |
-| [ ] | M1-H2 | *Config revisions*: revisions per resource with author and time; selecting two shows a `DiffView` | WEB-US-35.2, WEB-22 | M1-Q1 |
-| [ ] | M1-H3 | e2e, axe, visual (S2 pattern; approval pending OQ-W1) | WEB-US-42.1 (part), WEB-US-42.2 (part) | M1-H1, M1-H2 |
+| [x] | M1-H1 | *Activity & audit*: actor, action, resource, outcome, request id; S5 filters (`AuditFilters`, reused by S5) as query parameters; *Download CSV* via `ListAuditEvents.asCsv()` | WEB-US-35.1, WEB-22 | M1-Q1 |
+| [x] | M1-H2 | *Config revisions*: revisions per resource with author and time; selecting two shows a `DiffView` | WEB-US-35.2, WEB-22 | M1-Q1 |
+| [x] | M1-H3 | e2e, axe, visual (S2 pattern; approval pending OQ-W1) | WEB-US-42.1 (part), WEB-US-42.2 (part) | M1-H1, M1-H2 |
 
 ### M1-X · Exit
 

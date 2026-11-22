@@ -1,6 +1,7 @@
 import type { AfsClient } from "@afs/sdk";
 import type { ClockPort } from "../application/ports/auth.js";
 import { DashboardUseCases } from "../application/usecases/dashboard/DashboardUseCases.js";
+import { HistoryUseCases } from "../application/usecases/history/HistoryUseCases.js";
 import {
   ApiKeysUseCases,
   MembersUseCases,
@@ -13,6 +14,7 @@ import {
 } from "../application/usecases/settings/SettingsUseCases.js";
 import { TeamsUseCases } from "../application/usecases/teams/TeamsUseCases.js";
 import { SdkDashboard } from "../infrastructure/sdk/dashboard.js";
+import { SdkAudit, SdkRevisions } from "../infrastructure/sdk/history.js";
 import { SdkApiKeys, SdkMembers } from "../infrastructure/sdk/members.js";
 import { SdkOverview, SdkWorkOrders } from "../infrastructure/sdk/overview.js";
 import { SdkIdentityProviders, SdkSettings } from "../infrastructure/sdk/settings.js";
@@ -57,6 +59,7 @@ export function buildServices(
     teams: new TeamsUseCases(teamsPort, clock),
     settings: new SettingsUseCases(new SdkSettings(client)),
     identityProviders: new IdentityProvidersUseCases(new SdkIdentityProviders(client)),
+    history: new HistoryUseCases(new SdkAudit(client), new SdkRevisions(client)),
     members: new MembersUseCases(new SdkMembers(client)),
     apiKeys: new ApiKeysUseCases(new SdkApiKeys(client), clock),
     overview: new OverviewUseCases(overviewPort, new SdkWorkOrders(client)),

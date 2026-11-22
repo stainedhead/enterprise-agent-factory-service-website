@@ -79,36 +79,6 @@ export const overviewFixtures: readonly Fixture[] = [
   },
   {
     method: "GET",
-    path: "/v1/teams/{teamId}/audit-events",
-    response: ({ params, query }) =>
-      only(params.teamId) ?? {
-        status: 200,
-        body: {
-          items: [
-            {
-              id: 2,
-              occurredAt: "2026-11-21T17:30:00Z",
-              actorType: "user",
-              actorId: "usr_svc-admin",
-              action: "teams.suspend",
-              outcome: "allowed",
-              resourceKind: "team",
-              resourceId: params.teamId,
-            },
-            {
-              id: 1,
-              occurredAt: "2026-11-21T09:00:00Z",
-              actorType: "user",
-              actorId: "usr_team-admin",
-              action: "agents.create",
-              outcome: "allowed",
-            },
-          ].slice(0, Number(query.get("maxResults") ?? 50)),
-        },
-      },
-  },
-  {
-    method: "GET",
     path: "/v1/teams/{teamId}/work-orders",
     response: ({ params }) =>
       only(params.teamId) ?? {
