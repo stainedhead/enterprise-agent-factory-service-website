@@ -204,6 +204,13 @@ owns the "Coordinator" section. Do not edit another stream's section.
 - **CQ-2** stays open: `ApiKey` still has no `version`, so the `If-Match: "1"` interim stays. **CQ-3** is
   confirmed: `IfMatchPut` reads "Required when the resource exists (428 otherwise); omit when the PUT creates it".
 
+- **Baselines regenerated on the CI image (DV).** The committed chromium baselines were made with this sandbox's
+  fonts and differed from the GitHub runner by 2 to 3% of pixels (tolerance stays 0.5%). The `e2e` job now runs in
+  `mcr.microsoft.com/playwright:v1.63.0-noble`, and a head commit containing `[regen-baselines]` makes it run the
+  chromium `visual:` specs with `--update-snapshots` and commit only the snapshot PNGs back (GITHUB_TOKEN,
+  `contents: write`; bot pushes do not trigger workflows, so no loop). Done once (bot commit `1734171`). Baselines
+  remain `pending` in `e2e/visual/approvals.json` until the owner approves them against the mockups.
+
 ## Deferred findings
 
 (none yet; a deferral needs a written reason here)

@@ -72,6 +72,8 @@ Decisions local to this repository. Cross-repo decisions live in the root reposi
 - Status: Accepted (draft)
 - Decision: 1440 x 900 at device scale 2 (2880 x 1800, the mockups' size), `maxDiffPixelRatio` 0.005; baselines
   start `pending` in `e2e/visual/approvals.json`; `bun run e2e:report` builds a side-by-side HTML report.
+  Baselines are generated in the CI image `mcr.microsoft.com/playwright:v1.63.0-noble`: a head commit containing
+  `[regen-baselines]` regenerates and commits them from the `e2e` job.
 
 ## ADR-010 Publish the SDK to GitHub Packages as @stainedhead/afs-sdk (J, M2-R1)
 
