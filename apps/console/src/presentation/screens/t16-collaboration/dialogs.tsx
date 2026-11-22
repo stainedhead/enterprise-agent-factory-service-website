@@ -91,10 +91,10 @@ export function EditEndpointsDialog({
       {!review ? (
         <>
           <p>
-            <Switch label="Web UI" checked={webUi} onChange={setWebUi} />
+            <Switch label="Web UI" showLabel checked={webUi} onChange={setWebUi} />
           </p>
           <p>
-            <Switch label="REST API" checked={restApi} onChange={setRestApi} />
+            <Switch label="REST API" showLabel checked={restApi} onChange={setRestApi} />
           </p>
           <fieldset>
             <legend>Registration mode</legend>
