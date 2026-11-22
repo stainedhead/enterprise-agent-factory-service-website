@@ -32,6 +32,7 @@ const toRecord = (s: Wire): SecretRecord => ({
   scope: s.scope,
   description: s.description,
   agentId: s.agentId,
+  managedBy: s.managedBy,
   poolId: s.poolId,
   externalSystemId: s.externalSystemId,
   boundTo: s.boundTo ?? [],

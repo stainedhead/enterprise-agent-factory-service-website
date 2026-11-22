@@ -1,12 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Link, useParams } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
 import { isAppError } from "../../../application/errors.js";
 import type { CollaborationRecord } from "../../../application/ports/collaboration.js";
 import { isAgentMissing } from "../../../application/usecases/collaboration/CollaborationUseCases.js";
-import type { Surface } from "../../../domain/collaboration.js";
+import { reasonText, type Surface } from "../../../domain/collaboration.js";
 import { can } from "../../../domain/me.js";
-import { Alert, Breadcrumbs, Card, PageHeader } from "../../components/index.js";
+import { Alert, Breadcrumbs, Button, Card, PageHeader } from "../../components/index.js";
 import { useTeamWriteGate } from "../../hooks/useTeamWriteGate.js";
 import { ConflictAlert } from "../../query/ConflictAlert.js";
 import { usePolledQuery } from "../../query/usePolledQuery.js";
@@ -25,6 +25,7 @@ export default function CollaborationPage({ viewer = false }: { viewer?: boolean
   const collab = useService("collaboration");
   const me = useMe();
   const qc = useQueryClient();
+  const navigate = useNavigate();
   const write = useTeamWriteGate(teamId);
   const manageReason = viewer ? "Requires team-admin" : write.reasonFor("collaboration:manage");
   const canAccess = can(me, "collaboration:access", teamId);
@@ -34,6 +35,7 @@ export default function CollaborationPage({ viewer = false }: { viewer?: boolean
     phasesOf: (d) => [d.phase],
   });
   const [stale, setStale] = useState(false);
+  const [saved, setSaved] = useState(false);
   const put = useMutation({
     mutationFn: (v: { surface: Surface; on: boolean }) => {
       const cur = q.data as CollaborationRecord;
@@ -44,6 +46,7 @@ export default function CollaborationPage({ viewer = false }: { viewer?: boolean
     },
     onSuccess: (r) => {
       setStale(false);
+      setSaved(true);
       qc.setQueryData(collabKey(teamId), r);
     },
     onError: (e) => setStale(isAppError(e) && e.kind === "stale"),
@@ -54,8 +57,9 @@ export default function CollaborationPage({ viewer = false }: { viewer?: boolean
     void qc.invalidateQueries({ queryKey: collabKey(teamId) });
   };
 
-  const missing = isAgentMissing(q.error);
-  const err = isAppError(put.error) ? put.error : undefined;
+  const missing = isAgentMissing(q.error) || isAgentMissing(put.error);
+  const err = isAppError(put.error) && !missing ? put.error : undefined;
+  const fieldReasons = err?.kind === "validation" ? Object.values(err.fields).map(reasonText) : [];
 
   return (
     <div>
@@ -75,10 +79,22 @@ export default function CollaborationPage({ viewer = false }: { viewer?: boolean
       />
       {q.isPending && <p role="status">Loading collaboration…</p>}
       {missing && (
-        <Alert kind="info" title="This team has no collaboration agent yet">
-          A team-admin creates one from <Link to={`/t/${teamId}/agents/new`}>Create agent</Link>{" "}
-          with the collaboration role.
-        </Alert>
+        <Card>
+          <h2>This team has no collaboration agent</h2>
+          <p>
+            Each team can have one collaboration agent that runs Paperclip: a board, chat and roster
+            for its people and agents.
+          </p>
+          <Button
+            variant="primary"
+            {...(write.reasonFor("agents:write")
+              ? { disabledReason: write.reasonFor("agents:write") as string }
+              : {})}
+            onClick={() => navigate(`/t/${teamId}/agents/new?role=collaboration`)}
+          >
+            Create collaboration agent
+          </Button>
+        </Card>
       )}
       {q.isError && !missing && (
         <Alert
@@ -89,16 +105,28 @@ export default function CollaborationPage({ viewer = false }: { viewer?: boolean
           {isAppError(q.error) ? q.error.message : "The request failed"}
         </Alert>
       )}
+      {saved && !put.isPending && !put.isError && (
+        <Alert kind="success" title="Saved">
+          Takes effect within a minute.
+        </Alert>
+      )}
       {stale && <ConflictAlert onReload={reload} requestId={err?.requestId} />}
       {err && !stale && !err.isAccessDenied && (
         <Alert kind="error" title="The change was not saved" requestId={err.requestId}>
           {err.message}
+          {fieldReasons.length > 0 && (
+            <ul>
+              {fieldReasons.map((r) => (
+                <li key={r}>{r}</li>
+              ))}
+            </ul>
+          )}
         </Alert>
       )}
       {q.data && (
         <>
           <Card>
-            <StatusPanel record={q.data} />
+            <StatusPanel teamId={teamId} record={q.data} />
           </Card>
           <Card>
             <EndpointsPanel

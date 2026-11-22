@@ -13,6 +13,8 @@ export interface SecretRecord {
   readonly scope: string;
   readonly description?: string | undefined;
   readonly agentId?: string | undefined;
+  /** `user` (or absent) for the team's own secrets; `afs` and `paperclip` are managed and read-only (WEB-US-54). */
+  readonly managedBy?: string | undefined;
   readonly poolId?: string | undefined;
   readonly externalSystemId?: string | null | undefined;
   /** Ids of the agents (or pools) the secret is bound to. */

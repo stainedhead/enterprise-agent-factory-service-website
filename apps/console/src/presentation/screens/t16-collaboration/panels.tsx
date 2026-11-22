@@ -13,6 +13,7 @@ import {
   type Surface,
   shortId,
   surfaceSwitch,
+  surfaceView,
 } from "../../../domain/collaboration.js";
 import { putCollaborationCli } from "../../../domain/collaborationCli.js";
 import {
@@ -31,7 +32,7 @@ import { useService } from "../../services.js";
 import { managedSecretsKey, recentAccessKey } from "./keys.js";
 
 /** The phase and the four conditions (WEB-US-44); `UnmanagedPaperclipAgents` is inverted. */
-export function StatusPanel({ record }: { record: CollaborationRecord }) {
+export function StatusPanel({ teamId, record }: { teamId: string; record: CollaborationRecord }) {
   return (
     <section aria-label="Status">
       <h2>Status</h2>
@@ -40,10 +41,48 @@ export function StatusPanel({ record }: { record: CollaborationRecord }) {
           {
             label: "Collaboration agent",
             value: (
-              <StatusIndicator
-                view={{ word: record.phase, dot: record.phase === "Ready" ? "green" : "amber" }}
-              />
+              <>
+                <Link to={`/t/${teamId}/agents/${record.agentId}`}>{record.agentId}</Link>{" "}
+                <Badge>Collaboration</Badge>
+              </>
             ),
+          },
+          {
+            label: "Phase",
+            value: (
+              <>
+                <StatusIndicator
+                  view={{ word: record.phase, dot: record.phase === "Ready" ? "green" : "amber" }}
+                />{" "}
+                gen {record.generation} / {record.observedGeneration}
+                {record.observedGeneration < record.generation ? (
+                  <span> Change not applied yet</span>
+                ) : null}
+              </>
+            ),
+          },
+          {
+            label: "Hostname",
+            value: record.hostname ? (
+              <>
+                <code>{record.hostname}</code>{" "}
+                <CopyButton text={record.hostname} label="Copy hostname" />
+              </>
+            ) : (
+              <>— Not configured</>
+            ),
+          },
+          {
+            label: "Registration",
+            value: record.registrationMode === "managed" ? "Managed" : "Manual",
+          },
+          {
+            label: "Web UI",
+            value: <StatusIndicator view={surfaceView(record.effective.webUi)} />,
+          },
+          {
+            label: "REST API",
+            value: <StatusIndicator view={surfaceView(record.effective.restApi)} />,
           },
           ...CONDITION_TYPES.map((t) => {
             const c = record.conditions.find((x) => x.type === t);
@@ -141,6 +180,9 @@ export function EndpointsPanel({
     phase: record.phase,
     canAccess,
   });
+  // turning a surface on asks first; turning it off is applied at once (WP-D4)
+  const change = (surface: Surface, on: boolean) =>
+    on ? setAsking({ surface, on }) : onSwitch(surface, on);
   const cmd = putCollaborationCli(teamId, {
     webUiEnabled: asking?.surface === "webUi" ? asking.on : record.webUiEnabled,
     restApiEnabled: asking?.surface === "restApi" ? asking.on : record.restApiEnabled,
@@ -159,7 +201,7 @@ export function EndpointsPanel({
         url={record.webUiUrl}
         manageReason={manageReason}
         busy={busy}
-        onChange={(on) => setAsking({ surface: "webUi", on })}
+        onChange={(on) => change("webUi", on)}
       />
       <SurfaceRow
         label="REST API"
@@ -169,7 +211,7 @@ export function EndpointsPanel({
         url={record.restApiUrl}
         manageReason={manageReason}
         busy={busy}
-        onChange={(on) => setAsking({ surface: "restApi", on })}
+        onChange={(on) => change("restApi", on)}
       />
       {record.effective.reasons.length > 0 && (
         <ul aria-label="Why a surface is off">
@@ -185,17 +227,17 @@ export function EndpointsPanel({
       <span hidden>{renderCli(cmd)}</span>
       {asking && (
         <ConfirmDialog
-          title={`${asking.on ? "Turn on" : "Turn off"} the ${asking.surface === "webUi" ? "web UI" : "REST API"}`}
-          confirmLabel={asking.on ? "Turn on" : "Turn off"}
+          title={`Turn on the ${asking.surface === "webUi" ? "web UI" : "REST API"}`}
+          confirmLabel="Turn on"
           onCancel={() => setAsking(undefined)}
           onConfirm={() => {
             onSwitch(asking.surface, asking.on);
             setAsking(undefined);
           }}
         >
-          {asking.on
-            ? "People with access to this team can reach it over the internet."
-            : "People will no longer reach it over the internet."}
+          Turning this on makes {asking.surface === "webUi" ? "Web UI" : "REST API"} reachable from
+          the internet for people with an AFS role on this team. Every request is signed in and
+          checked by AFS.
           <CliPreview command={cmd} />
         </ConfirmDialog>
       )}

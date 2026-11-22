@@ -21,6 +21,10 @@ export interface BindingRow {
 
 /** Everything the T3 form holds. */
 export interface CreateAgentDraft {
+  /** `worker` when absent. Set on create, never changed (WEB-US-45). */
+  readonly role?: "worker" | "collaboration";
+  /** Worker only: the *Connect to Paperclip* switch; not sent when undefined (the team has no collaboration agent). */
+  readonly connect?: boolean;
   readonly name: string;
   readonly template: string;
   readonly image: string;
@@ -126,12 +130,16 @@ export class CreateAgentUseCases {
       delivery: b.delivery,
       target: b.target.trim(),
     }));
+    const collab = d.role === "collaboration";
+    const schedule = collab && d.snapshotSchedule === "off" ? "daily" : d.snapshotSchedule;
     const agent = await this.agents.create(teamId, {
+      ...(collab && { role: "collaboration" as const }),
+      ...(!collab && d.connect !== undefined && { collaboration: { connect: d.connect } }),
       name: d.name.trim(),
       template: d.template,
       image: d.image.trim(),
       modelId: d.modelId,
-      iamIdentity: d.iamIdentity,
+      iamIdentity: collab ? "dedicated" : d.iamIdentity,
       ...(d.persona.trim() && { description: d.persona.trim() }),
       ...((d.cpu || d.memory) && {
         resources: { ...(d.cpu && { cpu: d.cpu }), ...(d.memory && { memory: d.memory }) },
@@ -140,9 +148,8 @@ export class CreateAgentUseCases {
         sizeGiB: Number(d.sizeGiB),
         ...(d.storageClass && { storageClass: d.storageClass }),
         onDelete: d.onDelete,
-        snapshotSchedule: d.snapshotSchedule,
-        ...(d.snapshotSchedule !== "off" &&
-          d.snapshotRetain && { snapshotRetain: Number(d.snapshotRetain) }),
+        snapshotSchedule: schedule,
+        ...(schedule !== "off" && d.snapshotRetain && { snapshotRetain: Number(d.snapshotRetain) }),
       },
       ...(bindings.length > 0 && { secretBindings: bindings }),
     });

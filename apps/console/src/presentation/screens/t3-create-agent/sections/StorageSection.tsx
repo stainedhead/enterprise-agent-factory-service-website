@@ -19,7 +19,8 @@ export function StorageSection({
   set,
   errors,
   classes,
-}: SectionProps & { classes: readonly StorageClassRecord[] }) {
+  noOff = false,
+}: SectionProps & { classes: readonly StorageClassRecord[]; noOff?: boolean }) {
   return (
     <Card title="Persistent storage">
       <FormField
@@ -59,7 +60,7 @@ export function StorageSection({
       <FormField label="Snapshot backups" error={errors["volume.snapshotSchedule"]}>
         <SelectInput
           value={draft.snapshotSchedule}
-          options={SCHEDULE}
+          options={noOff ? SCHEDULE.filter((o) => o.value !== "off") : SCHEDULE}
           onChange={(e) => set({ snapshotSchedule: e.target.value })}
         />
       </FormField>
