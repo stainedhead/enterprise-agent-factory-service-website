@@ -50,6 +50,7 @@ none blocks M0.
 - 2026-11-22: M2 M2-X1 done (41/41).
 - 2026-11-22: M2 M2-G1, M2-G2, M2-G3, M2-G4 done (40/41).
 - 2026-11-22: M2 M2-F1, M2-F2, M2-F3, M2-F4, M2-F5 done (36/41).
+- 2026-11-22: M2 M2-R1 done (release job for @stainedhead/afs-sdk, extra task from J; M2 41/41 plus R1).
 - 2026-11-22: M2 M2-E1, M2-E2, M2-E3, M2-E4 done (31/41).
 - 2026-11-22: M2 M2-V1, M2-V2, M2-V3, M2-V4, M2-V5 done (27/41).
 - 2026-11-22: M2 M2-S1, M2-S2, M2-S3, M2-S4, M2-S5, M2-S6, M2-S7 done (22/41).

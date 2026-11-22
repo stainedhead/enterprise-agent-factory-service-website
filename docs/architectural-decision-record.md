@@ -72,3 +72,19 @@ Decisions local to this repository. Cross-repo decisions live in the root reposi
 - Status: Accepted (draft)
 - Decision: 1440 x 900 at device scale 2 (2880 x 1800, the mockups' size), `maxDiffPixelRatio` 0.005; baselines
   start `pending` in `e2e/visual/approvals.json`; `bun run e2e:report` builds a side-by-side HTML report.
+
+## ADR-010 Publish the SDK to GitHub Packages as @stainedhead/afs-sdk (J, M2-R1)
+
+- Status: Accepted
+- Context: the SDK has to be installable by other repositories and pipelines. GitHub Packages (npm registry
+  `https://npm.pkg.github.com`) only accepts a package whose scope equals the repository owner.
+- Decision: `.github/workflows/release-sdk.yml` publishes `@stainedhead/afs-sdk` on a tag `sdk-v*` or by manual
+  dispatch, with `permissions: contents: read, packages: write` and the job's `GITHUB_TOKEN` (no stored
+  secret). It runs the gate and the build, then `packages/sdk/tools/prepare-publish.ts` writes a temporary copy
+  of the package with the published name, the version taken from the tag, `publishConfig`, `repository` and
+  `files`, and publishes that copy; the workspace package stays `@afs/sdk` so imports and the console do not
+  change. Pull requests touching the SDK run `npm publish --dry-run` against the same copy. Consumers keep the
+  `@afs/sdk` import name with an npm alias, `"@afs/sdk": "npm:@stainedhead/afs-sdk@^0"` (user-docs/sdk.md).
+- Consequences: provenance attestations are not requested because GitHub Packages does not accept them; add
+  `--provenance` with `id-token: write` if the registry gains support. The package is restricted to readers of
+  the repository's organization, so consumers need a token with `read:packages`.

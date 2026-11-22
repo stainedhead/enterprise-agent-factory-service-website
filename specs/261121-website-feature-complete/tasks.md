@@ -450,6 +450,7 @@ Owns: area files: `admin-storageClasses`, `admin-agentTemplates`; `presentation/
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
 | [x] | M2-X1 | Merge; gate and e2e green; viewer no-mutation e2e over every M1–M2 team screen; sentinel e2e over every M1–M2 secret flow; re-pin check; status, dashboard | WEB-US-36.1 (part), WEB-US-11.1 (part) | all M2 |
+| [x] | M2-R1 | Release job: `.github/workflows/release-sdk.yml` publishes `@afs/sdk` to GitHub Packages as `@stainedhead/afs-sdk` on tag `sdk-v*` and `workflow_dispatch` (gate, build, temp manifest with name, version, `publishConfig`, `repository`, `files`; `GITHUB_TOKEN`, `packages: write`); PR dry run; consumption docs with `.npmrc` and the `@afs/sdk` npm alias; ADR-010 (J decision) | SDK-1 (part) | M2-X1 |
 
 ---
 

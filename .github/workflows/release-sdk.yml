@@ -1,0 +1,55 @@
+name: Release SDK
+
+# Publishes @afs/sdk to GitHub Packages as @stainedhead/afs-sdk (ADR-010). GitHub Packages needs the npm scope to
+# match the owner, so the name is set in a temporary copy of the package; the workspace keeps `@afs/sdk`.
+# A pull request touching the SDK only runs `npm publish --dry-run`.
+on:
+  push:
+    tags: ["sdk-v*"]
+  pull_request:
+    paths: ["packages/sdk/**", ".github/workflows/release-sdk.yml"]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to publish, for example 0.3.0 (defaults to packages/sdk/package.json)"
+        required: false
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          package-manager-cache: false
+          registry-url: https://npm.pkg.github.com
+          scope: "@stainedhead"
+      - name: Gate
+        run: bun run gate
+      - name: Build
+        run: bun run --filter '@afs/sdk' build
+      - name: Prepare the package for the registry
+        env:
+          REF_NAME: ${{ github.ref_type == 'tag' && github.ref_name || github.event.inputs.version || '' }}
+        run: bun packages/sdk/tools/prepare-publish.ts "$RUNNER_TEMP/sdk-publish" ${REF_NAME:+"$REF_NAME"}
+      - name: Dry run
+        if: github.event_name == 'pull_request'
+        working-directory: ${{ runner.temp }}/sdk-publish
+        run: npm publish --dry-run
+      # GitHub Packages does not accept npm provenance attestations, so --provenance is not used.
+      - name: Publish
+        if: github.event_name != 'pull_request'
+        working-directory: ${{ runner.temp }}/sdk-publish
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
