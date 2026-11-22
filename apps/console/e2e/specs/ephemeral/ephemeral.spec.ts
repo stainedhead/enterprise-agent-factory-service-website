@@ -30,9 +30,6 @@ test.describe("P2 ephemeral team", () => {
     await page.getByLabel("Expected daily cost (USD)").fill("60.00");
     await expect(page.getByRole("region", { name: "Estimate" })).toContainText("34 days");
     await expectAxeClean(page);
-    await expectVisual(page, "14-admin-ephemeral-team", {
-      mask: ["input[type=date]", "[aria-label=Estimate]"],
-    });
     await next.click();
     await page.getByLabel("Admin email").fill("lead@example.test");
     await page.getByRole("button", { name: "Review" }).click();
@@ -47,6 +44,24 @@ test.describe("P2 ephemeral team", () => {
       budget: { amountUsd: "2000.00", period: "lifetime" },
     });
     expect(sent.expiresAt).toMatch(/T00:00:00Z$/);
+  });
+
+  test("visual: P2 ephemeral team budget step", async ({ page, signInAs }) => {
+    await signInAs("svc-admin", "/teams/new");
+    await page.getByLabel("Display name").fill("POC summarizer");
+    await page.getByLabel("Slug").fill("poc-summarizer");
+    await page.getByLabel("Kind").selectOption("ephemeral");
+    await page.getByLabel("Tag: environment").selectOption("dev");
+    await page.getByRole("button", { name: "Next" }).click();
+    await page.getByLabel(/Claude Sonnet/).check();
+    await page.getByRole("button", { name: "Next" }).click();
+    await page.getByLabel("Lifetime budget (USD)").fill("2000.00");
+    await page.getByLabel("Expires").fill(inDays(30));
+    await page.getByLabel("Expected daily cost (USD)").fill("60.00");
+    await expect(page.getByRole("region", { name: "Estimate" })).toContainText("34 days");
+    await expectVisual(page, "14-admin-ephemeral-team", {
+      mask: ["input[type=date]", "[aria-label=Estimate]"],
+    });
   });
 
   test("an expiry beyond the service maximum is refused", async ({ page, signInAs }) => {

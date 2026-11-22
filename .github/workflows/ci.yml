@@ -77,3 +77,4 @@ jobs:
           path: |
             apps/console/playwright-report
             apps/console/e2e/visual/report
+            apps/console/test-results
