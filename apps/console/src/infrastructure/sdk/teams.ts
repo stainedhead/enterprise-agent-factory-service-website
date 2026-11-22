@@ -122,6 +122,9 @@ export class SdkTeams implements TeamsPort {
           ...(p.mayManageAwsAccounts !== undefined && {
             mayManageAwsAccounts: p.mayManageAwsAccounts,
           }),
+          ...(p.allowedAwsAccounts !== undefined && {
+            allowedAwsAccounts: [...p.allowedAwsAccounts],
+          }),
           ...(p.quotas !== undefined && { quotas: { ...p.quotas } }),
         },
       ),

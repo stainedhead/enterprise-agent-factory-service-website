@@ -9,6 +9,7 @@ import {
   AdminModelsUseCases,
   AdminPricingUseCases,
 } from "../application/usecases/adminModels/AdminModelsUseCases.js";
+import { AdminOrgAccountsUseCases } from "../application/usecases/adminOrgAccounts/AdminOrgAccountsUseCases.js";
 import { AgentsUseCases } from "../application/usecases/agents/AgentsUseCases.js";
 import { CreateAgentUseCases } from "../application/usecases/agents-create/CreateAgentUseCases.js";
 import { BudgetsUseCases } from "../application/usecases/budgets/BudgetsUseCases.js";
@@ -37,6 +38,7 @@ import {
   SdkAdminStorageClasses,
 } from "../infrastructure/sdk/adminCatalogs.js";
 import { SdkAdminModels, SdkAdminPricing } from "../infrastructure/sdk/adminModels.js";
+import { SdkAdminOrgAccounts } from "../infrastructure/sdk/adminOrgAccounts.js";
 import { SdkAgents } from "../infrastructure/sdk/agents.js";
 import { SdkBudgets } from "../infrastructure/sdk/budgets.js";
 import { SdkConfig } from "../infrastructure/sdk/config.js";
@@ -104,6 +106,7 @@ export function buildServices(
     teams: new TeamsUseCases(teamsPort, clock),
     adminModels: new AdminModelsUseCases(adminModelsPort, clock),
     adminPricing: new AdminPricingUseCases(new SdkAdminPricing(client), adminModelsPort, clock),
+    adminOrgAccounts: new AdminOrgAccountsUseCases(new SdkAdminOrgAccounts(client)),
     adminAudit: new AdminAuditUseCases(new SdkAdminAudit(client)),
     notifications: new NotificationsUseCases(new SdkNotifications(client), {
       setTimeout: (fn, ms) => globalThis.setTimeout(fn, ms),

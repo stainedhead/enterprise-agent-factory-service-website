@@ -9,6 +9,7 @@ import type {
   AdminModelsUseCases,
   AdminPricingUseCases,
 } from "../application/usecases/adminModels/AdminModelsUseCases.js";
+import type { AdminOrgAccountsUseCases } from "../application/usecases/adminOrgAccounts/AdminOrgAccountsUseCases.js";
 import type { AgentsUseCases } from "../application/usecases/agents/AgentsUseCases.js";
 import type { CreateAgentUseCases } from "../application/usecases/agents-create/CreateAgentUseCases.js";
 import type { BudgetsUseCases } from "../application/usecases/budgets/BudgetsUseCases.js";
@@ -44,6 +45,7 @@ export interface AppServices {
   readonly adminPricing: AdminPricingUseCases;
   readonly budgets: BudgetsUseCases;
   readonly reports: ReportsUseCases;
+  readonly adminOrgAccounts: AdminOrgAccountsUseCases;
   readonly adminAudit: AdminAuditUseCases;
   readonly notifications: NotificationsUseCases;
   readonly secrets: SecretsUseCases;

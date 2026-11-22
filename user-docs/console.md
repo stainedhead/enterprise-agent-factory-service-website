@@ -128,6 +128,14 @@ the filters are in the address, so a filtered view can be shared. A denied reque
 needed, and a correction the reconciler made shows *Drift corrected* with the object. *Download CSV* returns the same
 filters as a file.
 
+## Team AWS accounts (`/teams/<team>/admin`, *AWS accounts* tab, service admins)
+
+The account filter is a list of glob patterns over account ids and names (`*` matches any run, `?` one character; `*` alone
+allows every account). Below it, the organization accounts the filter allows are listed with the pattern that matched and
+the number of agent links to each. A change that narrows the filter first lists the accounts it removes and how many agent
+links will be disabled, and asks you to confirm. *Team manages its own accounts* is changed by service admins only; when it
+is on, the team's admins can edit the filter themselves, otherwise they see it read-only with "Requires service admin".
+
 ## Troubleshooting
 
 - *Page not found* for a page you expect: you may not hold the role it needs, or the team is not yours.

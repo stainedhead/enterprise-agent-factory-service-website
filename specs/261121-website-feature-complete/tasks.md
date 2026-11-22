@@ -42,10 +42,10 @@
 | M1 Teams & access | 10 (+ exit) | 46 | 46 |
 | M2 Agents & secrets | 7 (+ exit) | 41 | 41 |
 | M3 Spend control | 6 (+ exit) | 24 | 24 |
-| M4 Production readiness | 8 (+ exit) | 34 | 4 |
+| M4 Production readiness | 8 (+ exit) | 34 | 8 |
 | M5 Budgeted workloads and swarms | 4 (+ exit) | 19 | 0 |
 | M6 CVE remediation and completion | 6 (+ exit) | 26 | 0 |
-| **Total** | **51** | **259** | **185** |
+| **Total** | **51** | **259** | **189** |
 
 ## External dependencies and contract questions
 
@@ -554,10 +554,10 @@ Owns: area files: `admin-orgAccounts`; `presentation/screens/team-admin/tabs/aws
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M4-W1 | Filter of glob patterns over account ids and names; matching organization accounts with the pattern that matched and agent link count per account | WEB-US-17.1 | — |
-| [ ] | M4-W2 | A narrowing change: *Save* first shows which links will be disabled and asks to confirm | WEB-US-17.2 | M4-W1 |
-| [ ] | M4-W3 | *Team manages its own accounts* switch editable by service admins only; the filter editable exactly when `teams:set-aws-accounts` is in the team's `permissions[]`, else read-only "Requires service admin"; forced call's `403` shown | WEB-US-17.3, WEB-US-8.2 | M4-W1 |
-| [ ] | M4-W4 | e2e, axe, visual S6 (`18`) | WEB-US-42.1 (part), WEB-US-42.2 (part) | M4-W1..W3 |
+| [x] | M4-W1 | Filter of glob patterns over account ids and names; matching organization accounts with the pattern that matched and agent link count per account | WEB-US-17.1 | — |
+| [x] | M4-W2 | A narrowing change: *Save* first shows which links will be disabled and asks to confirm | WEB-US-17.2 | M4-W1 |
+| [x] | M4-W3 | *Team manages its own accounts* switch editable by service admins only; the filter editable exactly when `teams:set-aws-accounts` is in the team's `permissions[]`, else read-only "Requires service admin"; forced call's `403` shown | WEB-US-17.3, WEB-US-8.2 | M4-W1 |
+| [x] | M4-W4 | e2e, axe, visual S6 (`18`) | WEB-US-42.1 (part), WEB-US-42.2 (part) | M4-W1..W3 |
 
 ### M4-G · Cost allocation tags (S9) and team tags (T13)
 

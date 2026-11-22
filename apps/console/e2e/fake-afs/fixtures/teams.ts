@@ -1,4 +1,4 @@
-import { team as coreTeam, TEAMS } from "./core.js";
+import { team as coreTeam, TEAMS, teamGrants } from "./core.js";
 import type { Fixture, FixtureContext } from "./index.js";
 
 type Json = Record<string, unknown>;
@@ -22,6 +22,7 @@ let teams = new Map<string, Entry>();
 let seq = 0;
 
 function seed(): void {
+  teamGrants.awsAccounts = false;
   teams = new Map();
   seq = 0;
   TEAMS.forEach((t, i) => {
@@ -34,6 +35,8 @@ function seed(): void {
         maxBudgetUsd: i === 0 ? "5000.00" : "8000.00",
         // the first team may declare its own external systems (T9 e2e); the second may not
         mayAddExternalSystems: i === 0,
+        // the first team may use the organization's payments accounts (S6, M4-W)
+        allowedAwsAccounts: i === 0 ? ["*-payments"] : [],
       },
     });
   });
@@ -110,10 +113,28 @@ export const teamsFixtures: readonly Fixture[] = [
   {
     method: "PATCH",
     path: "/v1/teams/{teamId}",
-    response: ({ params, body }) => {
+    response: ({ params, body, principal }) => {
       const e = teams.get(params.teamId ?? "");
       if (!e) return notFound(params.teamId ?? "");
       const patch = { ...(body as Json) };
+      const needs =
+        principal?.id !== "svc-admin"
+          ? patch.mayManageAwsAccounts !== undefined
+            ? "teams:set-guardrails"
+            : patch.allowedAwsAccounts !== undefined && !teamGrants.awsAccounts
+              ? "teams:set-aws-accounts"
+              : undefined
+          : undefined;
+      if (needs)
+        return {
+          status: 403,
+          body: {
+            code: "AccessDenied",
+            message: `Requires ${needs}`,
+            requestId: "req_fake_403",
+            details: { requiredPermission: needs },
+          },
+        };
       delete patch.ceilingOverrideReason;
       const next: Json = { ...e.body, ...patch, version: Number(e.body.version) + 1 };
       if (patch.ceilingOverrideUsd) next.effectiveCeilingUsd = patch.ceilingOverrideUsd;
@@ -137,6 +158,8 @@ export const teamsFixtures: readonly Fixture[] = [
           },
         };
       e.body = next;
+      if (params.teamId === TEAMS[0].id)
+        teamGrants.awsAccounts = next.mayManageAwsAccounts === true;
       return { status: 200, body: next };
     },
   },

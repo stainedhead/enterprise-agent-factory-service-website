@@ -94,6 +94,8 @@ export interface UpdateTeamInput {
   readonly viewerKubectl?: boolean;
   readonly mayAddExternalSystems?: boolean;
   readonly mayManageAwsAccounts?: boolean;
+  /** Glob patterns over account ids and names (`teams:set-aws-accounts`). */
+  readonly allowedAwsAccounts?: readonly string[];
   readonly quotas?: QuotasRecord;
 }
 
