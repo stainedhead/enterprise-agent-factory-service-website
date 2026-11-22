@@ -3,9 +3,9 @@
 | | |
 |---|---|
 | **Source** | Step 5 (code and design review) of `implm-frm-prd` on branch `feat/website-feature-complete` at `cdc14f7` |
-| **Spec reviewed against** | `specs/261121-website-feature-complete/` (spec.md, tasks.md, implementation-notes.md WD-1..WD-n, DV-1..DV-62, CQ-1..CQ-26) and `AGENTS.md` |
+| **Spec reviewed against** | `specs/archive/261121-website-feature-complete/` (spec.md, tasks.md, implementation-notes.md WD-1..WD-n, DV-1..DV-62, CQ-1..CQ-26) and `AGENTS.md` |
 | **Reviewed** | 2026-11-22 by the step 5 review agent (J authorized running without questions) |
-| **Status** | Reviewed by step 6 (`review-prd`), section 9. Ready for `create-spec` (step 8) |
+| **Status** | Reviewed by step 6 (`review-prd`), section 9. Moved into this spec by `create-spec` (step 8) |
 | **Scope** | `packages/sdk` (`@afs/sdk`) and `apps/console` (`@afs/console`). No other repository changes |
 
 ## 1. Executive summary

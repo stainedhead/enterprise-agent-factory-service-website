@@ -4,9 +4,10 @@
 |---|---|
 | **Feature** | website-feature-complete |
 | **Created** | 2026-11-21 |
-| **Spec** | `specs/261121-website-feature-complete/` |
+| **Spec** | `specs/archive/261121-website-feature-complete/` |
 | **Branch** | `feat/website-feature-complete` |
 | **Dashboard** | [website-feature-complete-status.md](website-feature-complete-status.md) |
+| **Archived** | 2026-11-22 to `specs/archive/261121-website-feature-complete/` (step 7); M6-U1 open, carried as U-1 in the review spec `specs/261122-website-feature-complete-auto-review/` |
 
 **MANDATORY:** update this file after every task and every phase.
 
@@ -20,7 +21,7 @@
 | 3 | Architecture and planning | Complete | architecture.md, plan.md |
 | 4 | Task breakdown | Complete | tasks.md: 51 streams, 259 tasks |
 | 5 | Implementation (M0–M6) | In Progress | Step 3: M0 to M5 complete, M6 25/26; M6-U1 (contract re-pin to the `-restapi` tag, CQ-1) waits for the `-restapi` merge |
-| 6 | Completion and archival | Not Started | Step 4 (documentation and user docs) complete 2026-11-22; docs/, README.md and user-docs/ reflect the built product; M6-U1 still open |
+| 6 | Completion and archival | Not Started | Step 4 (documentation and user docs) complete 2026-11-22; docs/, README.md and user-docs/ reflect the built product; M6-U1 still open (carried as U-1 in `specs/261122-website-feature-complete-auto-review/tasks.md`) |
 
 ## Phase 0 checklist
 

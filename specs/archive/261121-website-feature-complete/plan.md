@@ -14,7 +14,7 @@
   `tasks.md` and updates `status.md` and the dashboard. Worker agents run on `claude-sonnet-4-6`
   (implm-frm-prd); the milestone agent reviews each stream's diff against its *Owns* line before merging.
 - **TDD per task.** Red (the task's AC tests fail for the right reason), green, refactor; `bun run gate`
-  green before each commit. Commits reference `specs/261121-website-feature-complete` and the task ids.
+  green before each commit. Commits reference `specs/archive/261121-website-feature-complete` and the task ids.
 - **Generated before hand-written.** The SDK is generated from the pinned snapshot; screens never call
   the SDK, only use cases; use cases are tested with in-memory fake ports, SDK adapters with a fake
   `fetch`, screens with component tests on fake use cases, and flows with Playwright on the fake API.

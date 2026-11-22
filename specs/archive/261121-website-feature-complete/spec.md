@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Spec** | `specs/261121-website-feature-complete/` (created 2026-11-21 by `create-spec`, step 1 of `implm-frm-prd`) |
+| **Spec** | `specs/archive/261121-website-feature-complete/` (created 2026-11-21 by `create-spec`, step 1 of `implm-frm-prd`) |
 | **Source PRD** | [`enterprise-agent-factory-service-website-PRD.md`](enterprise-agent-factory-service-website-PRD.md) (moved here; the repo root keeps a stub that points to it) |
 | **Branch** | `feat/website-feature-complete` |
 | **Scope** | Feature complete: every requirement of PRD §3 (SDK-1..11, WEB-1..22) and every criterion of the 42 stories in §5 (182 criteria). Milestones M0–M6 are build order only; all are in scope |
@@ -330,7 +330,7 @@ Milestones match root §9 and PRD §10; tasks.md has the streams.
 
 ## 14. References
 
-- Source PRD: [`specs/261121-website-feature-complete/enterprise-agent-factory-service-website-PRD.md`](enterprise-agent-factory-service-website-PRD.md)
+- Source PRD: [`specs/archive/261121-website-feature-complete/enterprise-agent-factory-service-website-PRD.md`](enterprise-agent-factory-service-website-PRD.md)
 - Root PRD: `enterprise-agent-factory-service/enterprise-agent-factory-service-initial-PRD.md` (§4, §5, §6.14, §9, §10.1)
 - API contract: `enterprise-agent-factory-service/docs/contracts/api-contract.md`
 - OpenAPI: `enterprise-agent-factory-service-restapi/api/openapi.yaml` (branch `feat/restapi-feature-complete`), contract extract `api/contract/*.json`
