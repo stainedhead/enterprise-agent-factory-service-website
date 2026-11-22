@@ -47,6 +47,29 @@ describe("waitFor (M1-K1)", () => {
     });
   });
 
+  it("keeps polling past a stale Failed until the reconciler catches up (FR-011)", async () => {
+    const c = clock();
+    const seq = [st("Failed", 3, 2), st("Reconciling", 3, 3), st("Ready", 3, 3)];
+    const get = vi.fn(async () => seq.shift() as WaitStatus);
+    const r = await waitFor(get, { ...c });
+    expect(get).toHaveBeenCalledTimes(3);
+    expect(r.status.phase).toBe("Ready");
+  });
+
+  it("keeps polling past a stale Degraded and times out with the last status", async () => {
+    const c = clock();
+    await expect(
+      waitFor(async () => st("Degraded", 3, 2), { ...c, timeoutMs: 20_000 }),
+    ).rejects.toMatchObject({ reason: "timeout", status: { status: { phase: "Degraded" } } });
+  });
+
+  it("rejects on a current Failed (observedGeneration >= generation)", async () => {
+    const c = clock();
+    await expect(waitFor(async () => st("Failed", 3, 3), { ...c })).rejects.toMatchObject({
+      reason: "failed",
+    });
+  });
+
   it("rejects on Degraded unless targeted", async () => {
     const c = clock();
     await expect(waitFor(async () => st("Degraded"), { ...c })).rejects.toMatchObject({

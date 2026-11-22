@@ -79,4 +79,35 @@ describe("AfsError (M0-C2)", () => {
       details: { requiredPermission: "teams:write" },
     });
   });
+  describe("non-JSON bodies map by status (FR-009)", () => {
+    const MAPPED = [
+      [400, "ValidationError"],
+      [401, "Unauthenticated"],
+      [403, "AccessDenied"],
+      [404, "NotFound"],
+      [409, "Conflict"],
+      [412, "PreconditionFailed"],
+      [428, "PreconditionRequired"],
+      [429, "Throttled"],
+      [500, "InternalError"],
+      [503, "Unavailable"],
+      [418, "InternalError"],
+    ] as const;
+    for (const [status, code] of MAPPED) {
+      it(`${status} with an HTML body is ${code}`, async () => {
+        const e = await fail(status, {
+          text: "<html>gateway</html>",
+          headers: { "X-Request-Id": "req_n" },
+        });
+        expect(e.code).toBe(code);
+        expect(e.status).toBe(status);
+        expect(e.requestId).toBe("req_n");
+      });
+    }
+    it("isConflict is true for a non-JSON 409", async () => {
+      const e = await fail(409, { text: "conflict from proxy" });
+      expect(e.isConflict).toBe(true);
+      expect(e.isInternalError).toBe(false);
+    });
+  });
 });

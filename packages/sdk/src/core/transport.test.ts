@@ -1,7 +1,10 @@
-import { describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createAfs } from "../generated/index.js";
+import { operations } from "../generated/operations.js";
 import { fakeFetch } from "../testing/fakeFetch.js";
 import { apiKey } from "./auth.js";
+import { AfsClient } from "./client.js";
+import { AfsError } from "./errors.js";
 import { metaOf } from "./types.js";
 
 const team = { id: "team_1", slug: "pay", version: 3, displayName: "Pay" };
@@ -161,5 +164,134 @@ describe("contract version (M0-C8)", () => {
     });
     await client(f, { onContractMismatch: (m: unknown) => seen.push(m) }).teams.get("t");
     expect(seen).toEqual([]);
+  });
+});
+
+describe("retry eligibility by method and key (FR-007)", () => {
+  const base = {
+    path: "/v1/synthetic",
+    pathParams: [],
+    query: [],
+    body: false,
+    success: [200],
+    list: false,
+    csv: false,
+    yaml: false,
+    ifMatch: "none",
+    secretFields: [],
+  } as const;
+  const synthetic = {
+    SyntheticPostNoKey: { ...base, method: "POST", idempotent: false },
+    SyntheticPostKeyed: { ...base, method: "POST", idempotent: true },
+    SyntheticPatch: { ...base, method: "PATCH", idempotent: false },
+    SyntheticPut: { ...base, method: "PUT", idempotent: false },
+  };
+  const table = operations as unknown as Record<string, unknown>;
+  beforeAll(() => {
+    for (const [k, v] of Object.entries(synthetic)) table[k] = v;
+  });
+  afterAll(() => {
+    for (const k of Object.keys(synthetic)) delete table[k];
+  });
+
+  const raw = (f: ReturnType<typeof fakeFetch>) =>
+    new AfsClient({
+      endpoint: "https://afs.test",
+      fetch: f.fetch,
+      auth: apiKey("afsk_test"),
+      retry: { sleep: async () => {} },
+    });
+  const networkThenOk = (method: string) =>
+    fakeFetch().on(`${method} /v1/synthetic`, [new Error("boom"), { body: { ok: true } }]);
+  const inProgress = {
+    status: 409,
+    body: {
+      code: "Conflict",
+      message: "m",
+      requestId: "r",
+      details: { reason: "idempotency_in_progress" },
+    },
+  };
+
+  it("makes exactly one attempt for a POST without an Idempotency-Key on a network error", async () => {
+    const f = networkThenOk("POST");
+    await expect(raw(f).call("SyntheticPostNoKey" as never)).rejects.toMatchObject({
+      code: "NetworkError",
+    });
+    expect(f.requests).toHaveLength(1);
+    expect(f.requests[0]?.headers.has("Idempotency-Key")).toBe(false);
+  });
+  it("makes exactly one attempt for a PATCH on a network error", async () => {
+    const f = networkThenOk("PATCH");
+    await expect(raw(f).call("SyntheticPatch" as never)).rejects.toMatchObject({
+      code: "NetworkError",
+    });
+    expect(f.requests).toHaveLength(1);
+  });
+  it("retries a keyed POST and a PUT on a network error", async () => {
+    const post = networkThenOk("POST");
+    await raw(post).call("SyntheticPostKeyed" as never);
+    expect(post.requests).toHaveLength(2);
+    expect(post.requests[1]?.headers.get("Idempotency-Key")).toBe(
+      post.requests[0]?.headers.get("Idempotency-Key"),
+    );
+    const put = networkThenOk("PUT");
+    await raw(put).call("SyntheticPut" as never);
+    expect(put.requests).toHaveLength(2);
+  });
+  it("does not retry idempotency_in_progress without an Idempotency-Key", async () => {
+    const f = fakeFetch().on("POST /v1/synthetic", [inProgress, { body: { ok: true } }]);
+    await expect(raw(f).call("SyntheticPostNoKey" as never)).rejects.toMatchObject({
+      status: 409,
+    });
+    expect(f.requests).toHaveLength(1);
+  });
+  it("retries idempotency_in_progress for a keyed POST", async () => {
+    const f = fakeFetch().on("POST /v1/synthetic", [inProgress, { body: { ok: true } }]);
+    await raw(f).call("SyntheticPostKeyed" as never);
+    expect(f.requests).toHaveLength(2);
+  });
+  it("does not retry idempotency_in_progress for a PATCH", async () => {
+    const f = fakeFetch().on("PATCH /v1/synthetic", [inProgress, { body: { ok: true } }]);
+    await expect(raw(f).call("SyntheticPatch" as never)).rejects.toMatchObject({ status: 409 });
+    expect(f.requests).toHaveLength(1);
+  });
+});
+
+describe("non-JSON success bodies (FR-008)", () => {
+  const get = (reply: object) => {
+    const f = fakeFetch().on("GET /v1/teams/t", reply as never);
+    return client(f).teams.get("t");
+  };
+  it("rejects 200 text/html with an AfsError carrying the request id and a short message", async () => {
+    const e = await get({
+      text: `<html>${"proxy page ".repeat(100)}</html>`,
+      headers: { "Content-Type": "application/json", "X-Request-Id": "req_p" },
+    }).catch((x) => x);
+    expect(e).toBeInstanceOf(AfsError);
+    expect(e).toMatchObject({ code: "InternalError", status: 200, requestId: "req_p" });
+    expect(e.message.length).toBeLessThanOrEqual(200);
+  });
+  it("rejects a 200 text/html body served with an HTML content type", async () => {
+    const e = await get({
+      text: "<html>login</html>",
+      headers: { "Content-Type": "text/html", "X-Request-Id": "req_q" },
+    }).then(
+      (v) => v,
+      (x) => x,
+    );
+    // text/* is passed through as text for YAML-like bodies, so a JSON operation must still refuse it
+    expect(e).toBeInstanceOf(AfsError);
+    expect(e).toMatchObject({ code: "InternalError", status: 200, requestId: "req_q" });
+  });
+  it("rejects a truncated JSON body without echoing it", async () => {
+    const e = await get({
+      text: '{"id":"team_1","displayName":"Pa',
+      headers: { "Content-Type": "application/json", "X-Request-Id": "req_t" },
+    }).catch((x) => x);
+    expect(e).toBeInstanceOf(AfsError);
+    expect(e).toMatchObject({ code: "InternalError", status: 200, requestId: "req_t" });
+    expect(e.message).not.toContain("displayName");
+    expect(e.message.length).toBeLessThanOrEqual(200);
   });
 });

@@ -59,6 +59,27 @@ function idFrom(v: string | Versioned, param: string): string {
   throw new TypeError(`Cannot derive {${param}} from the versioned value`);
 }
 
+/** Parses a 2xx JSON body; a body that is not JSON (proxy page, truncation) becomes an AfsError, never the text. */
+function parseJsonBody(text: string, meta: ResponseMeta): unknown {
+  try {
+    return JSON.parse(text) as unknown;
+  } catch {
+    throw new AfsError({
+      status: meta.status,
+      code: "InternalError",
+      message: "The response body was not valid JSON",
+      requestId: meta.requestId,
+    });
+  }
+}
+
+const SAFE_TO_REPEAT = new Set(["GET", "PUT", "DELETE"]);
+
+/** SDK-6: network errors and `idempotency_in_progress` repeat only GET, PUT, DELETE and POST with an `Idempotency-Key`. */
+function isRetryable(method: OperationDef["method"], headers: Record<string, string>): boolean {
+  return SAFE_TO_REPEAT.has(method) || (method === "POST" && "Idempotency-Key" in headers);
+}
+
 function define(target: object, meta: ResponseMeta): void {
   Object.defineProperty(target, "meta", { value: meta, enumerable: false, configurable: true });
 }
@@ -101,9 +122,9 @@ export class AfsClient {
     const m: ResponseMeta = applied === undefined ? meta : { ...meta, appliedToVersion: applied };
     if (res.status === 204) return undefined as T;
     const ct = res.headers.get("Content-Type") ?? "";
-    if (def.yaml || ct.includes("yaml") || ct.includes("text/")) return (await res.text()) as T;
+    if (def.yaml || ct.includes("yaml")) return (await res.text()) as T;
     const text = await res.text();
-    const body = text ? (JSON.parse(text) as unknown) : undefined;
+    const body = text ? parseJsonBody(text, meta) : undefined;
     if (body && typeof body === "object") define(body, m);
     return body as T;
   }
@@ -293,7 +314,7 @@ export class AfsClient {
     const url = this.#url(def, path, opts);
     const scrub = def.secretFields
       .map((f) => (args.body as Record<string, unknown> | undefined)?.[f])
-      .filter((v): v is string => typeof v === "string" && v.length > 3);
+      .filter((v): v is string => typeof v === "string" && v.length > 0);
     const sent = await this.#attempts(operationId, def, url, headers, body, opts.signal, scrub);
     return { sent, applied: cond.applied };
   }
@@ -317,6 +338,7 @@ export class AfsClient {
     let forceRefresh = false;
     let attempt = 0;
     const secrets: string[] = [...scrub];
+    const retryable = isRetryable(def.method, headers);
     for (;;) {
       attempt++;
       if (signal?.aborted) throw abortError();
@@ -343,8 +365,7 @@ export class AfsClient {
         });
       } catch (e) {
         if (signal?.aborted || (e instanceof Error && e.name === "AbortError")) throw e;
-        const safe = def.method !== "PATCH";
-        if (!safe || retries >= r.maxRetries) {
+        if (!retryable || retries >= r.maxRetries) {
           throw new AfsNetworkError(
             e instanceof Error ? e.message.slice(0, 200) : "Network error",
             headers["X-Request-Id"],
@@ -382,7 +403,7 @@ export class AfsClient {
         continue;
       }
       const inProgress = res.status === 409 && err.details.reason === "idempotency_in_progress";
-      const transient = res.status === 429 || res.status === 503 || inProgress;
+      const transient = res.status === 429 || res.status === 503 || (inProgress && retryable);
       if (!transient || retries >= r.maxRetries) throw err;
       let delay: number;
       if (err.retryAfterSeconds !== undefined || inProgress) {

@@ -61,7 +61,8 @@ const defaultSleep = (ms: number, signal?: AbortSignal): Promise<void> =>
 /**
  * Polls a resource's status until it reaches a target phase (every 5 s for two minutes, then every
  * 30 s). Resolves with the status once the phase is in `until` and `observedGeneration >= generation`.
- * Rejects with a {@link WaitError} on `Failed`, on `Degraded` unless targeted, on `timeoutMs` and on abort.
+ * Rejects with a {@link WaitError} on `Failed`, on `Degraded` unless targeted (both only once
+ * `observedGeneration >= generation`, so a stale status keeps the wait going), on `timeoutMs` and on abort.
  */
 export async function waitFor(target: WaitTarget, opts: WaitOptions = {}): Promise<WaitStatus> {
   const until = opts.until ?? ["Ready"];
@@ -79,9 +80,10 @@ export async function waitFor(target: WaitTarget, opts: WaitOptions = {}): Promi
     const phase = last.status.phase;
     const applied = last.status.observedGeneration >= last.generation;
     if (until.includes(phase) && applied) return last;
-    if (phase === "Failed" && !until.includes("Failed"))
+    // A Failed or Degraded status older than the latest change is stale: keep waiting for the reconciler.
+    if (phase === "Failed" && applied && !until.includes("Failed"))
       throw new WaitError("failed", "The resource reached Failed", last);
-    if (phase === "Degraded" && !until.includes("Degraded"))
+    if (phase === "Degraded" && applied && !until.includes("Degraded"))
       throw new WaitError("degraded", "The resource is Degraded", last);
     const elapsed = now() - start;
     if (elapsed >= timeoutMs)

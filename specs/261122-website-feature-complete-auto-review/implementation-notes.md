@@ -20,6 +20,24 @@ owns the "Coordinator" section. Do not edit another stream's section.
 
 ## Stream A (SDK)
 
+- **RF-A1 (FR-007).** Network-error retry and the `idempotency_in_progress` retry now share one predicate in
+  `client.ts`, `isRetryable(method, headers)`: GET, PUT, DELETE, or POST carrying an `Idempotency-Key`
+  header. PATCH and a POST without a key get one attempt. 429 and 503 retries are unchanged (the server
+  refused the request, so it did not run). Tests use synthetic `OperationDef`s registered on the
+  `operations` table for the duration of the suite.
+- **RF-A2 (FR-008).** A 2xx body that is not JSON rejects with `AfsError` (`InternalError`, `status` the HTTP
+  status, `requestId` from the response metadata, fixed message with no body text). The old
+  `ct.includes("text/")` pass-through is removed: only `def.yaml` or a `yaml` content type returns text, so a
+  `200 text/html` proxy page on a JSON operation is refused instead of returned as a string. CSV does not go
+  through `call`.
+- **RF-A3 (FR-009).** `409 -> Conflict` and `500 -> InternalError` added to `STATUS_CODES`.
+- **RF-A4 (FR-010).** Chose redaction over refusal: every non-empty secret field value is scrubbed from error
+  messages and details (the `length > 3` filter is gone). A short value may over-redact a message, which is
+  the safe direction; refusing would break legitimate short secrets. Empty strings are skipped.
+- **RF-A5 (FR-011).** `waitFor` ends on `Failed`/`Degraded` only when `observedGeneration >= generation`; a
+  stale one keeps polling until the timeout (the `WaitError` then reports `timeout` with the last status).
+- Public surface unchanged. No dependency, generated file or contract change.
+
 ## Stream B (session, auth, hosting)
 
 ## Stream C (error routing)
