@@ -6,7 +6,15 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": ["**", "!**/dist", "!**/coverage", "!**/src/generated", "!**/contract", "!**/*.md"]
+    "includes": [
+      "**",
+      "!**/dist",
+      "!**/coverage",
+      "!**/src/generated",
+      "!**/domain/generated",
+      "!**/contract",
+      "!**/*.md"
+    ]
   },
   "formatter": {
     "enabled": true,

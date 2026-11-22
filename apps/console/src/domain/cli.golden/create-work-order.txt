@@ -1,0 +1,1 @@
+afs work-orders create-work-order --repos '[{"host":"github.com","repo":"acme/api"}]' --severity high --sla-due-at 2026-12-01T00:00:00Z --template-id swt_1 --title 'Patch CVE-2026-0001'

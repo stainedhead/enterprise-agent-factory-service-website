@@ -39,13 +39,13 @@
 | Milestone | Streams | Tasks | Done |
 |---|---|---|---|
 | M0 Foundations | 10 (+ exit) | 69 | 69 |
-| M1 Teams & access | 10 (+ exit) | 46 | 7 |
+| M1 Teams & access | 10 (+ exit) | 46 | 10 |
 | M2 Agents & secrets | 7 (+ exit) | 41 | 0 |
 | M3 Spend control | 6 (+ exit) | 24 | 0 |
 | M4 Production readiness | 8 (+ exit) | 34 | 0 |
 | M5 Budgeted workloads and swarms | 4 (+ exit) | 19 | 0 |
 | M6 CVE remediation and completion | 6 (+ exit) | 26 | 0 |
-| **Total** | **51** | **259** | **76** |
+| **Total** | **51** | **259** | **79** |
 
 ## External dependencies and contract questions
 
@@ -243,9 +243,9 @@ Owns: `packages/sdk/tools/codegen/emit-cli-table.ts`, `domain/generated/cliOpera
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M1-L1 | Emit a CLI table (operationId → `x-afs-cli` service and operation, flag name per path/query/body field in kebab-case, list and JSON fields, secret fields) into `domain/generated/`; part of `codegen:check` | WEB-6, WD-17 | — |
-| [ ] | M1-L2 | `CliCommand` builder and `render()`: `--kebab-case` flags, space-separated lists, JSON for objects, shell quoting; secret fields render `file://<path>` placeholders (create-secret → `--secret-value file://<path>`), never the value | WEB-US-11.4, WEB-6 | M1-L1 |
-| [ ] | M1-L3 | Golden previews for every create form and action that shows a CLI command (CreateTeam, AddMember, CreateApiKey, CreateAgent, CreateSecret, CreatePool, ScalePool, CreateWorkOrder `--repos` forms, UpdateTeam guardrails) | WEB-US-14.1 (part), WEB-US-26.7 (part), WEB-6 | M1-L2 |
+| [x] | M1-L1 | Emit a CLI table (operationId → `x-afs-cli` service and operation, flag name per path/query/body field in kebab-case, list and JSON fields, secret fields) into `domain/generated/`; part of `codegen:check` | WEB-6, WD-17 | — |
+| [x] | M1-L2 | `CliCommand` builder and `render()`: `--kebab-case` flags, space-separated lists, JSON for objects, shell quoting; secret fields render `file://<path>` placeholders (create-secret → `--secret-value file://<path>`), never the value | WEB-US-11.4, WEB-6 | M1-L1 |
+| [x] | M1-L3 | Golden previews for every create form and action that shows a CLI command (CreateTeam, AddMember, CreateApiKey, CreateAgent, CreateSecret, CreatePool, ScalePool, CreateWorkOrder `--repos` forms, UpdateTeam guardrails) | WEB-US-14.1 (part), WEB-US-26.7 (part), WEB-6 | M1-L2 |
 
 ### M1-K · SDK `waitFor`
 

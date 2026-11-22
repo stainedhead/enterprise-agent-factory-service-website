@@ -1,0 +1,1 @@
+afs teams create-team --cost-center CC-100 --display-name Payments --first-admin '{"email":"lead@example.com"}' --kind persistent --max-budget-usd 5000.00 --models claude-sonnet claude-haiku

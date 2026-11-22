@@ -1,0 +1,1 @@
+afs api-keys create-api-key --team-id team_1 --expires-at 2026-12-22T00:00:00Z --name ci --role team_viewer

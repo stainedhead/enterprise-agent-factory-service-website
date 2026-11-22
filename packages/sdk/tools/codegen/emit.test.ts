@@ -71,3 +71,19 @@ describe("codegen:check (M0-G5)", () => {
     expect(readFileSync(join(CONTRACT_DIR, "openapi.yaml"), "utf8")).toContain("openapi: 3.1.0");
   });
 });
+
+import { emitCliTable, kebab } from "./emit-cli-table.js";
+
+describe("CLI table emitter (M1-L1)", () => {
+  it("kebab-cases field names, keeping GiB as one word", () => {
+    expect(kebab("teamId")).toBe("team-id");
+    expect(kebab("maxBudgetUsd")).toBe("max-budget-usd");
+    expect(kebab("scratchSizeGiB")).toBe("scratch-size-gib");
+  });
+  it("lists every CLI operation and none of the non-CLI ones", () => {
+    const text = emitCliTable(c);
+    expect(text).toContain("CreateTeam:");
+    const cli = c.operations.filter((o) => o.cli && !o.cli.startsWith("none"));
+    expect([...text.matchAll(/^ {2}\w+: \{"service"/gm)].length).toBe(cli.length);
+  });
+});

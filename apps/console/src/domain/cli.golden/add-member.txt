@@ -1,0 +1,1 @@
+afs members add-member --team-id team_1 --email dev@example.com --role team_viewer --subject-type user

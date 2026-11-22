@@ -1,0 +1,1 @@
+afs pools create-pool --team-id team_1 --name swarm --scratch-size-gib 20 --workers 4

@@ -11,11 +11,32 @@ import {
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { CONTRACT_DIR } from "../contract-sync.js";
-import { emitters } from "./emitters.js";
+import { consoleEmitters, emitters } from "./emitters.js";
 import { loadContract } from "./loader.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 export const GENERATED_DIR = join(here, "..", "..", "src", "generated");
+
+/** The console's generated domain files (M1-L1): the CLI table. */
+export const CONSOLE_GENERATED_DIR = join(
+  here,
+  "..",
+  "..",
+  "..",
+  "..",
+  "apps",
+  "console",
+  "src",
+  "domain",
+  "generated",
+);
+
+export function generateConsole(contractDir: string = CONTRACT_DIR): Record<string, string> {
+  const c = loadContract(contractDir);
+  const files: Record<string, string> = {};
+  for (const emit of Object.values(consoleEmitters)) Object.assign(files, emit(c));
+  return files;
+}
 
 export function generate(contractDir: string = CONTRACT_DIR): Record<string, string> {
   const c = loadContract(contractDir);
@@ -60,8 +81,12 @@ export function writeGenerated(files: Record<string, string>, dir: string = GENE
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const files = generate();
+  const consoleFiles = generateConsole();
   if (process.argv.includes("--check")) {
-    const d = diffGenerated(files);
+    const d = [
+      ...diffGenerated(files),
+      ...diffGenerated(consoleFiles, CONSOLE_GENERATED_DIR).map((x) => `console ${x}`),
+    ];
     if (d.length > 0) {
       console.error(`codegen:check failed (run bun run codegen)\n${d.join("\n")}`);
       process.exit(1);
@@ -69,6 +94,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     console.log("codegen:check ok");
   } else {
     writeGenerated(files);
-    console.log(`generated ${Object.keys(files).length} files`);
+    writeGenerated(consoleFiles, CONSOLE_GENERATED_DIR);
+    console.log(`generated ${Object.keys(files).length + Object.keys(consoleFiles).length} files`);
   }
 }

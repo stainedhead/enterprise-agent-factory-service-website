@@ -19,7 +19,10 @@ const FORBIDDEN: Record<string, RegExp[]> = {
   presentation: [/\/infrastructure\//, /\/main\//, /^@afs\/sdk/, /^oauth4webapi/],
 };
 
-const BROWSER_GLOBALS = /\b(window|document|fetch|localStorage|sessionStorage|indexedDB)\b/;
+// A hyphen is not an identifier character: a kebab-case flag such as "context-window" (generated CLI
+// table) is data, not a reference to the global.
+const BROWSER_GLOBALS =
+  /(?<![\w-])(window|document|fetch|localStorage|sessionStorage|indexedDB)(?![\w-])/;
 const STORAGE_APIS = /\b(localStorage|sessionStorage|indexedDB)\b/;
 
 function files(dir: string): string[] {
@@ -83,6 +86,15 @@ describe("browser API rules", () => {
 });
 
 describe("the rules themselves (red cases)", () => {
+  it("a kebab-case string containing a global's name is not a violation, a reference is", () => {
+    expect(
+      browserApiViolations("domain", "/x/src/domain/a.ts", 'const f = "context-window";'),
+    ).toEqual([]);
+    expect(
+      browserApiViolations("domain", "/x/src/domain/a.ts", "const w = window.innerWidth;"),
+    ).toHaveLength(1);
+    expect(browserApiViolations("domain", "/x/src/domain/a.ts", "fetch(url)")).toHaveLength(1);
+  });
   const f = (p: string) => join(SRC, p);
   it("presentation importing oauth4webapi is a violation", () => {
     expect(
