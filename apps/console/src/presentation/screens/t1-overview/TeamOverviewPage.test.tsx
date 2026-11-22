@@ -3,7 +3,6 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { AppError } from "../../../application/errors.js";
 import type { OverviewPort } from "../../../application/ports/overview.js";
-import type { WorkOrdersPort } from "../../../application/ports/workOrders.js";
 import { OverviewUseCases } from "../../../application/usecases/overview/OverviewUseCases.js";
 import type { Me } from "../../../domain/me.js";
 import { TEAM_ADMIN, VIEWER } from "../../testing/harness.js";
@@ -58,7 +57,7 @@ function overviewPorts() {
       },
     ]),
   };
-  const wo: WorkOrdersPort = {
+  const wo = {
     listForTeam: vi.fn(async () => ({
       items: [
         {

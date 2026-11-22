@@ -292,6 +292,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
 export const EXTRA_ROUTES: readonly { route: string; screen: ScreenId }[] = [
   { route: "/teams/new", screen: "S3" },
   { route: "/teams/:teamId/admin", screen: "S2" },
+  { route: "/work-orders/new", screen: "P3" },
   { route: "/work-orders/:id", screen: "P6" },
   { route: "/reports", screen: "S8" },
   { route: "/settings/:section", screen: "S10" },

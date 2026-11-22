@@ -70,13 +70,18 @@ test.describe("shell per seeded user", () => {
     await box.fill("p");
     await box.fill("pl");
     await box.fill("pla");
-    await expect(page.getByRole("listbox").getByRole("option", { name: "Platform" })).toBeVisible();
+    await expect(
+      page.getByRole("group", { name: "Teams" }).getByRole("option", { name: "Platform" }),
+    ).toBeVisible();
     await box.press("Enter");
     await expect(page).toHaveURL(new RegExp(`/t/${TEAMS[1].id}$`));
     const calls = await requestsWhere(() => true);
     const ops = new Set(calls.map((c) => c.operationId));
-    expect([...ops].every((o) => ["ListTeams", "GetMe"].includes(o ?? ""))).toBe(true);
+    expect([...ops].every((o) => ["ListTeams", "ListWorkOrders", "GetMe"].includes(o ?? ""))).toBe(
+      true,
+    );
     expect(calls.filter((c) => c.operationId === "ListTeams").length).toBe(1);
+    expect(calls.filter((c) => c.operationId === "ListWorkOrders").length).toBe(1);
     expect(await mutatingCount()).toBe(0);
   });
 

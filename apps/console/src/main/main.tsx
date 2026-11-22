@@ -7,7 +7,11 @@ import { createBrowserRouter, RouterProvider } from "react-router";
 import { AppError, isAppError } from "../application/errors.js";
 import { ConfigError } from "../application/ports/config.js";
 import type { MePort } from "../application/ports/me.js";
-import { BuildSearchIndex, teamsSource } from "../application/usecases/BuildSearchIndex.js";
+import {
+  BuildSearchIndex,
+  teamsSource,
+  workOrdersSource,
+} from "../application/usecases/BuildSearchIndex.js";
 import { ContractNotice } from "../application/usecases/ContractNotice.js";
 import { GetMe } from "../application/usecases/GetMe.js";
 import { Boot } from "../application/usecases/session/Boot.js";
@@ -128,7 +132,7 @@ async function start(): Promise<void> {
     config,
     getMe,
     contractNotice,
-    searchIndex: new BuildSearchIndex(new SdkSearch(client), [teamsSource]),
+    searchIndex: new BuildSearchIndex(new SdkSearch(client), [teamsSource, workOrdersSource]),
     signOut,
   };
 

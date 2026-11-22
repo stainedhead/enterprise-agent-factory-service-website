@@ -10,7 +10,7 @@ export interface CliCommand {
   ])[];
 }
 
-const SAFE = /^[A-Za-z0-9_./:=@+-]+$/;
+const SAFE = /^[A-Za-z0-9_./:=@+,-]+$/;
 const quote = (v: string): string =>
   SAFE.test(v) || v === "file://<path>" ? v : `'${v.replace(/'/g, "'\\''")}'`;
 

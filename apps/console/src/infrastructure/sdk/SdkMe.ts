@@ -1,4 +1,4 @@
-import { type AfsClient, me, teams } from "@afs/sdk";
+import { type AfsClient, me, teams, workOrders } from "@afs/sdk";
 import type { MePort, SearchPort } from "../../application/ports/me.js";
 import type { Me } from "../../domain/me.js";
 import { PERMISSIONS, type Permission } from "../../domain/permission.js";
@@ -52,6 +52,17 @@ export class SdkSearch implements SearchPort {
         out.push({ teamId: t.id, label: t.displayName });
       }
       return out;
+    } catch (e) {
+      throw toAppError(e);
+    }
+  }
+
+  async listWorkOrders(signal?: AbortSignal) {
+    try {
+      const page = await workOrders(this.client)
+        .list(signal ? { signal, maxResults: 100 } : { maxResults: 100 })
+        .first();
+      return page.items.map((w) => ({ id: w.id, title: w.title, cveId: w.cveId }));
     } catch (e) {
       throw toAppError(e);
     }

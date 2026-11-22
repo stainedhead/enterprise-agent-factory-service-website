@@ -220,6 +220,12 @@ Service admins see a *Tag status* card on the cost allocation tags page: for eac
 
 A security operator signs in to a reduced console: the header shows *Security operator*, the navigation has only *Work orders* and *Swarm templates*, and you land on *Work orders*. Team pages and service-admin pages are not found for this role.
 
+## Work orders
+
+*Work orders* (service admins and security operators) lists work orders, most severe first, with filters for status, severity, SLA state and team. *Create work order* takes a CVE, severity, SLA due date, an enabled swarm template, an optional spend cap and the repositories, written `host/owner/repo`. Each repository can name an owning team, a contact email, both, or neither (the owner then comes from the teams' repository configuration). If the service finds a repository with several possible owners or none, the form pre-fills the candidates and marks the repository that needs one. A second work order for a CVE that is already open is refused, and the form links the open one.
+
+A work order's page shows its SLA, the remediation team and spend against the cap, and one row per repository with its status, pull request and notifications sent. Cancelling asks for a reason. Team admins and viewers of an owning team can open it read-only and see only their own repositories. The form shows the equivalent `afs work-orders create-work-order` command.
+
 ## Troubleshooting
 
 - *Page not found* for a page you expect: you may not hold the role it needs, or the team is not yours.

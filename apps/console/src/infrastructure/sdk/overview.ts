@@ -1,11 +1,10 @@
-import { type AfsClient, agents, audit, budgets, workOrders } from "@afs/sdk";
+import { type AfsClient, agents, audit, budgets } from "@afs/sdk";
 import type {
   ActivityRecord,
   AgentSummary,
   BudgetRecord,
   OverviewPort,
 } from "../../application/ports/overview.js";
-import type { WorkOrderRecord, WorkOrdersPort } from "../../application/ports/workOrders.js";
 import { toAppError } from "./errors.js";
 
 const sig = (signal?: AbortSignal) => (signal ? { signal } : {});
@@ -53,19 +52,5 @@ export class SdkOverview implements OverviewPort {
             .first()
         ).items,
     );
-  }
-}
-
-/** Team work orders (read-only). */
-export class SdkWorkOrders implements WorkOrdersPort {
-  constructor(private readonly client: AfsClient) {}
-
-  listForTeam(teamId: string, q: { maxResults: number; signal?: AbortSignal }) {
-    return wrap(async () => {
-      const page = await workOrders(this.client)
-        .listForTeam(teamId, { maxResults: q.maxResults, ...sig(q.signal) })
-        .first();
-      return { items: page.items as WorkOrderRecord[], nextToken: page.nextToken };
-    });
   }
 }

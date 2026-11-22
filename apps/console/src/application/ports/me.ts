@@ -8,4 +8,8 @@ export interface MePort {
 /** The directory the header search and the team switcher list from (list calls only). */
 export interface SearchPort {
   listTeams(signal?: AbortSignal): Promise<readonly { teamId: string; label: string }[]>;
+  /** Work orders for the search index (`ListWorkOrders`, first page). */
+  listWorkOrders(
+    signal?: AbortSignal,
+  ): Promise<readonly { id: string; title: string; cveId?: string | null | undefined }[]>;
 }

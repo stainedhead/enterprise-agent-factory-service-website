@@ -6,7 +6,7 @@ import type {
   BudgetRecord,
   OverviewPort,
 } from "../../ports/overview.js";
-import type { WorkOrderRecord, WorkOrdersPort } from "../../ports/workOrders.js";
+import type { TeamWorkOrdersPort, WorkOrderRecord } from "../../ports/workOrders.js";
 
 export interface AgentHealth {
   readonly total: number;
@@ -27,7 +27,7 @@ export interface BudgetBurn {
 export class OverviewUseCases {
   constructor(
     private readonly port: OverviewPort,
-    private readonly workOrders: WorkOrdersPort,
+    private readonly workOrders: TeamWorkOrdersPort,
   ) {}
 
   async budgetBurn(teamId: string, signal?: AbortSignal): Promise<BudgetBurn> {

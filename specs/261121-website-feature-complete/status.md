@@ -38,7 +38,7 @@
 | M3 Spend control | Complete | 24 / 24 |
 | M4 Production readiness | Complete | 34 / 34 |
 | M5 Budgeted workloads and swarms | Complete | 19 / 19 |
-| M6 CVE remediation and completion | In Progress | 2 / 26 |
+| M6 CVE remediation and completion | In Progress | 11 / 26 |
 
 ## Blockers
 
@@ -47,6 +47,7 @@ none blocks M0.
 
 ## Recent activity
 
+- 2026-11-22: M6 M6-W1, M6-W2, M6-W3, M6-W4, M6-W5, M6-W6, M6-W7, M6-W8, M6-W9 done (11/26).
 - 2026-11-22: M6 M6-O1, M6-O2 done (2/26).
 - 2026-11-22: M5 M5-X1 done (19/19).
 - 2026-11-22: M5 M5-T1, M5-T2 done (18/19).

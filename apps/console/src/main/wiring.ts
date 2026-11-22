@@ -39,8 +39,11 @@ import {
   IdentityProvidersUseCases,
   SettingsUseCases,
 } from "../application/usecases/settings/SettingsUseCases.js";
+import { SwarmTemplatesUseCases } from "../application/usecases/swarmTemplates/SwarmTemplatesUseCases.js";
 import { TagsUseCases } from "../application/usecases/tags/TagsUseCases.js";
+import { TeamDirectoryUseCases } from "../application/usecases/teamDirectory/TeamDirectoryUseCases.js";
 import { TeamsUseCases } from "../application/usecases/teams/TeamsUseCases.js";
+import { WorkOrdersUseCases } from "../application/usecases/workOrders/WorkOrdersUseCases.js";
 import { SdkAdminAudit } from "../infrastructure/sdk/adminAudit.js";
 import {
   SdkAdminAgentTemplates,
@@ -65,14 +68,17 @@ import { SdkIdentity } from "../infrastructure/sdk/identity.js";
 import { SdkLogDestinations } from "../infrastructure/sdk/logDestinations.js";
 import { SdkApiKeys, SdkMembers } from "../infrastructure/sdk/members.js";
 import { SdkNotifications } from "../infrastructure/sdk/notifications.js";
-import { SdkOverview, SdkWorkOrders } from "../infrastructure/sdk/overview.js";
+import { SdkOverview } from "../infrastructure/sdk/overview.js";
 import { SdkPools } from "../infrastructure/sdk/pools.js";
 import { SdkReportSchedules } from "../infrastructure/sdk/reportSchedules.js";
 import { SdkReports } from "../infrastructure/sdk/reports.js";
 import { SdkSecrets } from "../infrastructure/sdk/secrets.js";
 import { SdkIdentityProviders, SdkSettings } from "../infrastructure/sdk/settings.js";
+import { SdkSwarmTemplates } from "../infrastructure/sdk/swarmTemplates.js";
 import { SdkTags } from "../infrastructure/sdk/tags.js";
+import { SdkTeamDirectory } from "../infrastructure/sdk/teamDirectory.js";
 import { SdkTeams } from "../infrastructure/sdk/teams.js";
+import { SdkWorkOrders } from "../infrastructure/sdk/workOrders.js";
 import type { AppServices } from "../presentation/services.js";
 
 // Shared list (architecture.md §3.2): one line per port. Unbuilt areas get notImplementedPort, which
@@ -109,6 +115,7 @@ export function buildServices(
   const teamsPort = new SdkTeams(client);
   const adminModelsPort = new SdkAdminModels(client);
   const overviewPort = new SdkOverview(client);
+  const workOrdersPort = new SdkWorkOrders(client);
   const agentsUseCases = new AgentsUseCases(new SdkAgents(client));
   const configValues = new ConfigUseCases(new SdkConfig(client));
   return {
@@ -149,7 +156,10 @@ export function buildServices(
     history: new HistoryUseCases(new SdkAudit(client), new SdkRevisions(client)),
     members: new MembersUseCases(new SdkMembers(client)),
     apiKeys: new ApiKeysUseCases(new SdkApiKeys(client), clock),
-    overview: new OverviewUseCases(overviewPort, new SdkWorkOrders(client)),
+    overview: new OverviewUseCases(overviewPort, workOrdersPort),
+    workOrders: new WorkOrdersUseCases(workOrdersPort),
+    teamDirectory: new TeamDirectoryUseCases(new SdkTeamDirectory(client)),
+    swarmTemplates: new SwarmTemplatesUseCases(new SdkSwarmTemplates(client)),
     dashboard: new DashboardUseCases(teamsPort, overviewPort, new SdkDashboard(client), clock),
   };
 }

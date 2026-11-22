@@ -29,7 +29,9 @@ import { reportSchedulesFixtures, resetReportSchedules } from "./reportSchedules
 import { reportsFixtures } from "./reports.js";
 import { resetSecrets, secretsFixtures } from "./secrets.js";
 import { resetSettings, settingsFixtures } from "./settings.js";
+import { resetSwarmTemplates, swarmTemplatesFixtures } from "./swarmTemplates.js";
 import { resetTeams, teamsFixtures } from "./teams.js";
+import { resetWorkOrders, workOrdersFixtures } from "./workOrders.js";
 
 export interface FixtureContext {
   readonly principal: SeedUser | undefined;
@@ -80,6 +82,8 @@ export const fixtureModules: readonly (readonly Fixture[])[] = [
   adminOrgAccountsFixtures,
   adminServiceTagsFixtures,
   adminCostTagStatusFixtures,
+  workOrdersFixtures,
+  swarmTemplatesFixtures,
   identityFixtures,
   logDestinationsFixtures,
   adminExportsFixtures,
@@ -110,4 +114,6 @@ export const fixtureResets: readonly (() => void)[] = [
   resetReportSchedules,
   resetAdminNotificationChannels,
   resetPools,
+  resetWorkOrders,
+  resetSwarmTemplates,
 ];

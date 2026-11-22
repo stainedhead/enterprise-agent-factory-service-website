@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import type { Me } from "../../domain/me.js";
 import { AppError, isAppError } from "../errors.js";
-import { BuildSearchIndex, teamsSource } from "./BuildSearchIndex.js";
+import { BuildSearchIndex, teamsSource, workOrdersSource } from "./BuildSearchIndex.js";
 import { ContractNotice } from "./ContractNotice.js";
 import { GetMe, ME_STALE_MS } from "./GetMe.js";
 
@@ -99,7 +99,10 @@ describe("ContractNotice", () => {
 
 describe("BuildSearchIndex", () => {
   it("builds team entries from the list call and skips a failing source", async () => {
-    const port = { listTeams: vi.fn(async () => [{ teamId: "team_1", label: "Alpha" }]) };
+    const port = {
+      listTeams: vi.fn(async () => [{ teamId: "team_1", label: "Alpha" }]),
+      listWorkOrders: vi.fn(async () => []),
+    };
     const bad = {
       type: "agent" as const,
       load: async () => {
@@ -119,5 +122,37 @@ describe("AppError", () => {
     expect(e.isAccessDenied).toBe(true);
     expect(isAppError(e)).toBe(true);
     expect(isAppError(new Error("x"))).toBe(false);
+  });
+});
+
+describe("work orders search source (M6-W8)", () => {
+  const port = {
+    listTeams: vi.fn(async () => []),
+    listWorkOrders: vi.fn(async () => [
+      { id: "wo_1", title: "OpenSSL RCE", cveId: "CVE-2026-1234" },
+      { id: "wo_2", title: "Rotate keys", cveId: null },
+    ]),
+  };
+  const svc = { serviceAdmin: true, securityOperator: false } as unknown as Me;
+  const team = { serviceAdmin: false, securityOperator: false } as unknown as Me;
+
+  it("indexes work orders by CVE id or title, with the detail route", async () => {
+    const idx = await new BuildSearchIndex(port, [workOrdersSource]).execute(undefined, svc);
+    expect(idx).toEqual([
+      {
+        type: "work-order",
+        id: "CVE-2026-1234",
+        label: "CVE-2026-1234 OpenSSL RCE",
+        route: "/work-orders/wo_1",
+      },
+      { type: "work-order", id: "wo_2", label: "Rotate keys", route: "/work-orders/wo_2" },
+    ]);
+  });
+  it("sends no request for a team caller", async () => {
+    port.listWorkOrders.mockClear();
+    expect(await new BuildSearchIndex(port, [workOrdersSource]).execute(undefined, team)).toEqual(
+      [],
+    );
+    expect(port.listWorkOrders).not.toHaveBeenCalled();
   });
 });

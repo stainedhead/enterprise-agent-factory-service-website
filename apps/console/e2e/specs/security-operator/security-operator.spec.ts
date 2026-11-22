@@ -14,6 +14,7 @@ test.describe("Security operator console", () => {
     await signInAs("sec-op");
     await expect(page.getByRole("banner").getByText("Security operator")).toBeVisible();
     await expect(page).toHaveURL(/\/work-orders$/);
+    await expect(page.getByRole("heading", { name: "Work orders" })).toBeVisible();
     const links = nav(page).getByRole("link");
     await expect(links).toHaveCount(2);
     await expect(links.nth(0)).toHaveText("Work orders");

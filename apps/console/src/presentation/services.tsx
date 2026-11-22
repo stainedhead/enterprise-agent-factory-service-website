@@ -39,8 +39,11 @@ import type {
   IdentityProvidersUseCases,
   SettingsUseCases,
 } from "../application/usecases/settings/SettingsUseCases.js";
+import type { SwarmTemplatesUseCases } from "../application/usecases/swarmTemplates/SwarmTemplatesUseCases.js";
 import type { TagsUseCases } from "../application/usecases/tags/TagsUseCases.js";
+import type { TeamDirectoryUseCases } from "../application/usecases/teamDirectory/TeamDirectoryUseCases.js";
 import type { TeamsUseCases } from "../application/usecases/teams/TeamsUseCases.js";
+import type { WorkOrdersUseCases } from "../application/usecases/workOrders/WorkOrdersUseCases.js";
 
 export interface AppServices {
   readonly agents: AgentsUseCases;
@@ -56,6 +59,9 @@ export interface AppServices {
   readonly reports: ReportsUseCases;
   readonly identity: IdentityUseCases;
   readonly adminCostTagStatus: AdminCostTagStatusUseCases;
+  readonly workOrders: WorkOrdersUseCases;
+  readonly teamDirectory: TeamDirectoryUseCases;
+  readonly swarmTemplates: SwarmTemplatesUseCases;
   readonly adminServiceTags: AdminServiceTagsUseCases;
   readonly tags: TagsUseCases;
   readonly adminOrgAccounts: AdminOrgAccountsUseCases;

@@ -2,7 +2,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import type { SearchEntry, SearchGroup, SearchType } from "../../domain/search.js";
 import { filterSearch, MIN_QUERY } from "../../domain/search.js";
-import { useShell } from "./ShellContext.js";
+import { useMe, useShell } from "./ShellContext.js";
 import s from "./shell.module.css";
 
 const TITLES: Record<SearchType, string> = {
@@ -15,6 +15,7 @@ const TITLES: Record<SearchType, string> = {
 /** Header search: `/` focuses it; matches are filtered locally from list calls; Enter opens (D44). */
 export function HeaderSearch() {
   const { searchIndex } = useShell();
+  const me = useMe();
   const navigate = useNavigate();
   const [q, setQ] = useState("");
   const [index, setIndex] = useState<readonly SearchEntry[] | undefined>();
@@ -45,8 +46,8 @@ export function HeaderSearch() {
   useEffect(() => {
     if (q.trim().length < MIN_QUERY || index || loading.current) return;
     loading.current = true;
-    void searchIndex.execute().then(setIndex);
-  }, [q, index, searchIndex]);
+    void searchIndex.execute(undefined, me).then(setIndex);
+  }, [q, index, searchIndex, me]);
 
   const groups: SearchGroup[] = index ? filterSearch(index, q) : [];
   const flat = groups.flatMap((g) => g.entries);

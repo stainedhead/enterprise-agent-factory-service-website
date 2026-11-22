@@ -407,7 +407,7 @@ function OverviewTab({ teamId }: { teamId: string }) {
                     header: "Title",
                     alwaysVisible: true,
                     sortValue: (w) => w.title,
-                    cell: (w) => w.title,
+                    cell: (w) => <Link to={`/work-orders/${w.id}`}>{w.title}</Link>,
                   },
                   {
                     id: "severity",

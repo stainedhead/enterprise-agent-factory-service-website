@@ -44,8 +44,8 @@
 | M3 Spend control | 6 (+ exit) | 24 | 24 |
 | M4 Production readiness | 8 (+ exit) | 34 | 34 |
 | M5 Budgeted workloads and swarms | 4 (+ exit) | 19 | 19 |
-| M6 CVE remediation and completion | 6 (+ exit) | 26 | 2 |
-| **Total** | **51** | **259** | **236** |
+| M6 CVE remediation and completion | 6 (+ exit) | 26 | 11 |
+| **Total** | **51** | **259** | **245** |
 
 ## External dependencies and contract questions
 
@@ -714,15 +714,15 @@ Owns: area files: `workOrders` (extends `application/ports/workOrders.ts`), `tea
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M6-W1 | Ports, adapters, use cases: list, create, get, update, cancel, repos list/update, `ListTeamDirectory`, `ListSwarmTemplates` | WEB-13 | — |
-| [ ] | M6-W2 | P3 list filtered by status, severity, SLA state and team, showing team names from `ListTeamDirectory` | WEB-US-40.1 | M6-W1 |
-| [ ] | M6-W3 | *Create work order*: CVE, severity, SLA, template (enabled only), cap, repositories each with an owner picker: team from `ListTeamDirectory` by slug or name, email, both, or none (resolved by `afs-api` from teams' `AFS_OWNED_REPOS`; explicit owner wins) | WEB-US-40.2, WEB-13, D38 | M6-W1 |
-| [ ] | M6-W4 | Owner pre-fill: `400` with `details.ambiguousRepos` pre-fills each listed repo's picker with the candidates; `details.unownedRepos` highlights repos needing an owner; after create each repo shows *team configuration* or *explicit* (`ownerSource`); CLI preview `--repos host/owner/repo` and `--repos host/owner/repo=team_…,ops@example.com` | WEB-US-40.3, WEB-6, D38 | M6-W3, M1-L3 |
-| [ ] | M6-W5 | A second work order for an open CVE shows the API's `409` with a link to the existing one | WEB-US-40.4 | M6-W3 |
-| [ ] | M6-W6 | P6 detail: SLA state, remediation team with spend against cap, one row per repository with status, PR link and notifications sent; *Cancel* asks for a reason | WEB-US-40.5 | M6-W1 |
-| [ ] | M6-W7 | Team-admin or viewer of an owning team: read-only with only their repositories' rows; a work order with no link to their teams → not-found (API `404`) | WEB-US-40.6 | M6-W6 |
-| [ ] | M6-W8 | Header search source for work orders (security operators) | WEB-US-8.8 (part) | M6-W2 |
-| [ ] | M6-W9 | e2e, axe, visual P3 (`15`) and P6 (`29`) | WEB-US-42.1 (part), WEB-US-42.2 (part) | M6-W2..W8 |
+| [x] | M6-W1 | Ports, adapters, use cases: list, create, get, update, cancel, repos list/update, `ListTeamDirectory`, `ListSwarmTemplates` | WEB-13 | — |
+| [x] | M6-W2 | P3 list filtered by status, severity, SLA state and team, showing team names from `ListTeamDirectory` | WEB-US-40.1 | M6-W1 |
+| [x] | M6-W3 | *Create work order*: CVE, severity, SLA, template (enabled only), cap, repositories each with an owner picker: team from `ListTeamDirectory` by slug or name, email, both, or none (resolved by `afs-api` from teams' `AFS_OWNED_REPOS`; explicit owner wins) | WEB-US-40.2, WEB-13, D38 | M6-W1 |
+| [x] | M6-W4 | Owner pre-fill: `400` with `details.ambiguousRepos` pre-fills each listed repo's picker with the candidates; `details.unownedRepos` highlights repos needing an owner; after create each repo shows *team configuration* or *explicit* (`ownerSource`); CLI preview `--repos host/owner/repo` and `--repos host/owner/repo=team_…,ops@example.com` | WEB-US-40.3, WEB-6, D38 | M6-W3, M1-L3 |
+| [x] | M6-W5 | A second work order for an open CVE shows the API's `409` with a link to the existing one | WEB-US-40.4 | M6-W3 |
+| [x] | M6-W6 | P6 detail: SLA state, remediation team with spend against cap, one row per repository with status, PR link and notifications sent; *Cancel* asks for a reason | WEB-US-40.5 | M6-W1 |
+| [x] | M6-W7 | Team-admin or viewer of an owning team: read-only with only their repositories' rows; a work order with no link to their teams → not-found (API `404`) | WEB-US-40.6 | M6-W6 |
+| [x] | M6-W8 | Header search source for work orders (security operators) | WEB-US-8.8 (part) | M6-W2 |
+| [x] | M6-W9 | e2e, axe, visual P3 (`15`) and P6 (`29`) | WEB-US-42.1 (part), WEB-US-42.2 (part) | M6-W2..W8 |
 
 ### M6-T · Swarm templates (P5)
 

@@ -86,7 +86,10 @@ export function renderApp(opts: {
         { teamId: "team_2", label: "Beta" },
       ],
   );
-  const search: SearchPort = { listTeams: listTeams as unknown as SearchPort["listTeams"] };
+  const search: SearchPort = {
+    listTeams: listTeams as unknown as SearchPort["listTeams"],
+    listWorkOrders: async () => [],
+  };
   const meGet = vi.fn(async () => {
     if (opts.me instanceof Error) throw opts.me;
     return opts.me;
