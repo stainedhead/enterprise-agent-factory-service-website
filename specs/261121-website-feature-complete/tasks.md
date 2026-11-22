@@ -39,13 +39,13 @@
 | Milestone | Streams | Tasks | Done |
 |---|---|---|---|
 | M0 Foundations | 10 (+ exit) | 69 | 69 |
-| M1 Teams & access | 10 (+ exit) | 46 | 21 |
+| M1 Teams & access | 10 (+ exit) | 46 | 28 |
 | M2 Agents & secrets | 7 (+ exit) | 41 | 0 |
 | M3 Spend control | 6 (+ exit) | 24 | 0 |
 | M4 Production readiness | 8 (+ exit) | 34 | 0 |
 | M5 Budgeted workloads and swarms | 4 (+ exit) | 19 | 0 |
 | M6 CVE remediation and completion | 6 (+ exit) | 26 | 0 |
-| **Total** | **51** | **259** | **90** |
+| **Total** | **51** | **259** | **97** |
 
 ## External dependencies and contract questions
 
@@ -285,13 +285,13 @@ Owns: area files: `overview`; `presentation/screens/t1-overview/` (incl. shared 
 
 | ✓ | ID | Task | AC / Req | Depends |
 |---|---|---|---|---|
-| [ ] | M1-O1 | T1: namespace, cluster, IAM role ARN (copy), cost center, phase with conditions (type, status, reason, message, time), budget burn, agent health counts, recent activity; polled status | WEB-US-24.1, WEB-US-9.1 (part) | M1-T1, M1-Q2 |
-| [ ] | M1-O2 | *Models* tab (`/t/:teamId/models`): team's enabled models; edit only for service admins (`PutTeamModels`) | WEB-US-24.2 | M1-O1 |
-| [ ] | M1-O3 | *Work orders* card (`ListTeamWorkOrders`), read-only | WEB-US-24.3 | M1-O1 |
-| [ ] | M1-O4 | Suspended team: `TeamLayout` banner on every team page; `useTeamWriteGate` disables every mutating control except *Resume* and *Delete* with "Team is suspended"; a racing `409 team_suspended` shown as that message | WEB-US-24.4, WEB-US-24.6 | M1-O1 |
-| [ ] | M1-O5 | *Actions* *Suspend*/*Resume*; *Edit* display name, description, owner and sign-in provider (enabled providers), with `useVersionedForm` | WEB-US-24.5 | M1-O1, M1-Q5 |
-| [ ] | M1-O6 | V1 for viewers: information banner; *Edit*, *Actions*, *Create agent* disabled with "Requires team-admin" | WEB-US-36.1 (part) | M1-O1 |
-| [ ] | M1-O7 | e2e T1 and V1, axe, visual T1 (`06`) and V1 (`12`) | WEB-US-42.1 (part), WEB-US-42.2 (part) | M1-O2..O6 |
+| [x] | M1-O1 | T1: namespace, cluster, IAM role ARN (copy), cost center, phase with conditions (type, status, reason, message, time), budget burn, agent health counts, recent activity; polled status | WEB-US-24.1, WEB-US-9.1 (part) | M1-T1, M1-Q2 |
+| [x] | M1-O2 | *Models* tab (`/t/:teamId?tab=models`, DV-18): team's enabled models; edit only for service admins (`PutTeamModels`) | WEB-US-24.2 | M1-O1 |
+| [x] | M1-O3 | *Work orders* card (`ListTeamWorkOrders`), read-only | WEB-US-24.3 | M1-O1 |
+| [x] | M1-O4 | Suspended team: `TeamLayout` banner on every team page; `useTeamWriteGate` disables every mutating control except *Resume* and *Delete* with "Team is suspended"; a racing `409 team_suspended` shown as that message | WEB-US-24.4, WEB-US-24.6 | M1-O1 |
+| [x] | M1-O5 | *Actions* *Suspend*/*Resume*; *Edit* display name, description, owner and sign-in provider (enabled providers), with `useVersionedForm` | WEB-US-24.5 | M1-O1, M1-Q5 |
+| [x] | M1-O6 | V1 for viewers: information banner; *Edit*, *Actions*, *Create agent* disabled with "Requires team-admin" | WEB-US-36.1 (part) | M1-O1 |
+| [x] | M1-O7 | e2e T1 and V1, axe, visual T1 (`06`) and V1 (`12`) | WEB-US-42.1 (part), WEB-US-42.2 (part) | M1-O2..O6 |
 
 ### M1-M · Members and API keys (T6)
 

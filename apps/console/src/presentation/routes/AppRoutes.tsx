@@ -22,6 +22,7 @@ import { MeGate } from "../shell/MeGate.js";
 import { NotFoundPage } from "../shell/pages.js";
 import { useMe } from "../shell/ShellContext.js";
 import s from "../shell/shell.module.css";
+import { TeamLayout } from "../shell/TeamLayout.js";
 import { registry } from "./registry.js";
 
 /** The team in the URL, only for the `/t/:teamId/...` routes. */
@@ -44,7 +45,13 @@ function Shell() {
         <AccessDeniedAlert />
         <GlobalBanners />
         <Suspense fallback={<p role="status">Loading…</p>}>
-          <Outlet />
+          {teamId ? (
+            <TeamLayout teamId={teamId}>
+              <Outlet />
+            </TeamLayout>
+          ) : (
+            <Outlet />
+          )}
         </Suspense>
       </main>
     </div>

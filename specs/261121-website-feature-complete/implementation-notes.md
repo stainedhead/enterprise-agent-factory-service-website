@@ -62,6 +62,7 @@ architectural ones into ADRs (`docs/architectural-decision-record.md`, ADR-005 o
 | CQ-6 | root (J) / `-restapi` | OQ-W8: what the agent *Logs* tab should show | Open; interim WD-29 |
 | CQ-7 | platform, IdP admins | Dev environment, seeded users, IdP SPA registrations, CloudFront and `config.json` per environment | Open; `e2e:dev` only |
 | CQ-8 | `-restapi` | `Team` and the service reports carry no agent count, so the S2 *Agents* column and the S1 agent total cannot be filled from one call | Open; S2 shows "—" (hover says why); S1 counts from the same source once available |
+| CQ-9 | `Team` has no cluster name or IAM role ARN. T1 shows the cluster as "—" and takes the ARN from a `team_shared` agent's `iamRoleArn` (shown once such an agent exists). Needs a team-level field in the API. | M1-O1 |
 
 ## 3. Edge cases and solutions (seeded at spec time; extend during implementation)
 
@@ -104,6 +105,8 @@ architectural ones into ADRs (`docs/architectural-decision-record.md`, ADR-005 o
 | DV-15 | `codegen` writes a second target, `apps/console/src/domain/generated/cliOperations.ts`, from `consoleEmitters` (`emitters.ts`); `codegen:check` covers both. `scratchSizeGiB` becomes `--scratch-size-gib`; only credentials in `SECRET_FIELDS` are CLI secrets (a write-only `ceilingOverrideReason` is an ordinary flag); a secret `value` renders `--secret-value file://<path>` | M1-L1 |
 | DV-16 | The fake AFS server tracks resource versions from every response (single resources and list items) so `If-Match` is judged against what the console saw; fixture modules may register a reset in `fixtureResets`; the seeded service admin now holds every permission in `servicePermissions` (the contract says "all for service admins") | M1-T9 |
 | DV-17 | `/teams/:teamId/admin` and `/teams/new` have no navigation item, so the route guard cannot hide them; their screen entry points (`s2-teams/index.tsx`, `s3-create-team/index.tsx`) render the not-found page for anyone but a service admin | M1-T4 |
+| DV-18 | The *Models* tab is `/t/:teamId?tab=models`, not `/t/:teamId/models` (M1-O2): routes are generated from `navigation.ts` items and a nav item for a tab would add a menu entry; a sub-route would be a 404. | M1-O2 |
+| DV-19 | `useTeamWriteGate` and `TeamLayout` read the team through the shared `teamKey` query, enabled only for service admins and callers bound to the team; `renderApp` (shell tests) now provides empty team and overview services via `shellScreenServices` because `/t/:id` renders the real T1. | M1-O4 |
 
 ## 5. Lessons learned
 

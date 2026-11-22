@@ -146,12 +146,10 @@ export class SdkTeams implements TeamsPort {
   }
   putModels(ref: TeamRef, modelIds: readonly string[]): Promise<readonly ModelRecord[]> {
     return wrap(async () =>
-      (
-        await teams(this.client).models.put(
-          { id: ref.id, version: ref.version },
-          { modelIds: [...modelIds] },
-        )
-      ).items.map(modelRecord),
+      // the models list has no version of its own: the SDK reads the current one first
+      (await teams(this.client).models.put(ref.id, { modelIds: [...modelIds] })).items.map(
+        modelRecord,
+      ),
     );
   }
   tags(id: string, signal?: AbortSignal): Promise<TeamTagsRecord> {

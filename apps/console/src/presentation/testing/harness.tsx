@@ -14,8 +14,10 @@ import { PERMISSIONS, type Permission } from "../../domain/permission.js";
 import { AuthContext, type AuthServices } from "../auth/AuthContext.js";
 import { createQueryClient } from "../query/createQueryClient.js";
 import { appRoutes } from "../routes/AppRoutes.js";
+import { ServicesContext } from "../services.js";
 import { AccessDeniedProvider, createAccessDeniedBus } from "../shell/AccessDeniedProvider.js";
 import { ShellContext, type ShellServices } from "../shell/ShellContext.js";
+import { shellScreenServices } from "./teams.js";
 
 const readPerms: Permission[] = PERMISSIONS.filter((p) => p.endsWith(":read"));
 export const teamViewerPerms = readPerms;
@@ -127,7 +129,9 @@ export function renderApp(opts: {
       <AuthContext.Provider value={auth}>
         <ShellContext.Provider value={shell}>
           <AccessDeniedProvider bus={bus}>
-            <RouterProvider router={router} />
+            <ServicesContext.Provider value={shellScreenServices()}>
+              <RouterProvider router={router} />
+            </ServicesContext.Provider>
           </AccessDeniedProvider>
         </ShellContext.Provider>
       </AuthContext.Provider>

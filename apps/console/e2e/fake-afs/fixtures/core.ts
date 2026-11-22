@@ -42,6 +42,9 @@ export const team = (t: { id: string; slug: string; displayName: string }) => ({
 const teamPerms = {
   team_admin: [
     "teams:read",
+    "teams:write",
+    "teams:suspend",
+    "work-orders:read",
     "agents:read",
     "agents:write",
     "members:read",
@@ -50,7 +53,14 @@ const teamPerms = {
     "revisions:read",
     "audit:read",
   ],
-  team_viewer: ["teams:read", "agents:read", "members:read", "budgets:read", "revisions:read"],
+  team_viewer: [
+    "teams:read",
+    "work-orders:read",
+    "agents:read",
+    "members:read",
+    "budgets:read",
+    "revisions:read",
+  ],
 };
 
 /** Identity, providers, teams and health: what the shell needs (M0). */

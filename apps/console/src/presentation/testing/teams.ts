@@ -1,9 +1,12 @@
 import { type Mock, vi } from "vitest";
+import type { OverviewPort } from "../../application/ports/overview.js";
 import type { TeamRecord, TeamsPort } from "../../application/ports/teams.js";
+import { OverviewUseCases } from "../../application/usecases/overview/OverviewUseCases.js";
 import { ListProviders } from "../../application/usecases/session/ListProviders.js";
 import { TeamsUseCases } from "../../application/usecases/teams/TeamsUseCases.js";
 import type { Me } from "../../domain/me.js";
 import { PERMISSIONS, type Permission } from "../../domain/permission.js";
+import type { AppServices } from "../services.js";
 
 export const status = (phase = "Ready", observed = 1) => ({
   phase,
@@ -87,3 +90,24 @@ export const serviceAdminWith = (perms: readonly Permission[]): Me => ({
 });
 
 export const ALL_PERMS: readonly Permission[] = PERMISSIONS;
+
+/** Empty-but-working services for tests that render the real routes but are not about a screen's data. */
+export function shellScreenServices(): Partial<AppServices> {
+  const overview: OverviewPort = {
+    budget: async () => ({
+      amountUsd: "0.00",
+      spentUsd: "0.00",
+      reservedUsd: "0.00",
+      period: "monthly",
+      onExhaust: "block",
+      thresholds: [],
+      version: 1,
+    }),
+    agents: async () => [],
+    recentActivity: async () => [],
+  };
+  return {
+    ...teamsServices(fakeTeamsPort()),
+    overview: new OverviewUseCases(overview, { listForTeam: async () => ({ items: [] }) }),
+  };
+}

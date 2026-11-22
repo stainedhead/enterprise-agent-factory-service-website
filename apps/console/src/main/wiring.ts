@@ -1,7 +1,9 @@
 import type { AfsClient } from "@afs/sdk";
 import type { ClockPort } from "../application/ports/auth.js";
+import { OverviewUseCases } from "../application/usecases/overview/OverviewUseCases.js";
 import type { ListProviders } from "../application/usecases/session/ListProviders.js";
 import { TeamsUseCases } from "../application/usecases/teams/TeamsUseCases.js";
+import { SdkOverview, SdkWorkOrders } from "../infrastructure/sdk/overview.js";
 import { SdkTeams } from "../infrastructure/sdk/teams.js";
 import type { AppServices } from "../presentation/services.js";
 
@@ -39,5 +41,6 @@ export function buildServices(
   return {
     signInProviders: shared.listProviders,
     teams: new TeamsUseCases(new SdkTeams(client), clock),
+    overview: new OverviewUseCases(new SdkOverview(client), new SdkWorkOrders(client)),
   };
 }
