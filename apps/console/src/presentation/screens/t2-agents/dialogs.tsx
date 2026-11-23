@@ -3,12 +3,14 @@ import { useState } from "react";
 import { type AppError, isAppError } from "../../../application/errors.js";
 import type { AgentRecord, UpdateAgentInput } from "../../../application/ports/agents.js";
 import { isTemplateRetired } from "../../../application/usecases/agents/AgentsUseCases.js";
+import { type ModelsSpec, toModelsBody } from "../../../domain/modelAccess.js";
 import {
   Alert,
   Button,
   ConfirmDialog,
   FormField,
   Modal,
+  ModelsControl,
   SelectInput,
   TextInput,
 } from "../../components/index.js";
@@ -130,16 +132,20 @@ interface EditDraft {
   description: string;
   template: string;
   image: string;
-  modelId: string;
+  models: ModelsSpec;
   cpu: string;
   memory: string;
 }
 
 const toDraft = (a: AgentRecord): EditDraft => ({
   description: a.description ?? "",
-  template: a.template,
-  image: a.image,
-  modelId: a.modelId,
+  template: a.template ?? "",
+  image: a.image ?? "",
+  models: {
+    access: a.models.access,
+    modelIds: a.models.modelIds,
+    defaultModelId: a.models.defaultModelId,
+  },
   cpu: a.resources?.cpu ?? "",
   memory: a.resources?.memory ?? "",
 });
@@ -150,9 +156,15 @@ export function changedFields(a: AgentRecord, d: EditDraft): UpdateAgentInput {
     -readonly [K in keyof UpdateAgentInput]: UpdateAgentInput[K];
   } = {};
   if (d.description !== (a.description ?? "")) out.description = d.description;
-  if (d.template !== a.template) out.template = d.template;
-  if (d.image.trim() !== a.image) out.image = d.image.trim();
-  if (d.modelId !== a.modelId) out.modelId = d.modelId;
+  if (a.template !== null && d.template !== a.template) out.template = d.template;
+  if (a.image !== null && d.image.trim() !== a.image) out.image = d.image.trim();
+  if (
+    d.models.access !== a.models.access ||
+    d.models.defaultModelId !== a.models.defaultModelId ||
+    (d.models.access === "selected" &&
+      d.models.modelIds.join("\n") !== a.models.modelIds.join("\n"))
+  )
+    out.models = toModelsBody(d.models);
   if (d.cpu !== (a.resources?.cpu ?? "") || d.memory !== (a.resources?.memory ?? ""))
     out.resources = { ...(d.cpu && { cpu: d.cpu }), ...(d.memory && { memory: d.memory }) };
   return out;
@@ -191,7 +203,11 @@ export function EditAgentDialog({
   const d = form.draft;
   const set = (p: Partial<EditDraft>) => form.setDraft({ ...d, ...p });
   const changed = Object.keys(changedFields(agent, d)).length > 0;
-  const needsNew = retired && d.template === agent.template && d.image.trim() === agent.image;
+  const needsNew =
+    retired &&
+    agent.template !== null &&
+    d.template === agent.template &&
+    d.image.trim() === agent.image;
   const err = isAppError(form.error) ? form.error : undefined;
   const tpl = (templates.data ?? []).filter((t) => t.enabled || t.name === agent.template);
   const selected = tpl.find((t) => t.name === d.template);
@@ -237,47 +253,49 @@ export function EditAgentDialog({
       <FormField label="Description" error={form.fieldErrors.description}>
         <TextInput value={d.description} onChange={(e) => set({ description: e.target.value })} />
       </FormField>
-      <FormField label="Template" error={form.fieldErrors.template}>
-        <SelectInput
-          value={d.template}
-          options={tpl.map((t) => ({
-            value: t.name,
-            label: t.enabled ? t.name : `${t.name} (retired)`,
-          }))}
-          onChange={(e) => {
-            const t = tpl.find((x) => x.name === e.target.value);
-            set({ template: e.target.value, ...(t && { image: t.currentDigest }) });
-          }}
-        />
-      </FormField>
-      <FormField
-        label="Image"
-        hint="Pinned by digest. Tags are not accepted."
-        error={form.fieldErrors.image}
-      >
-        <TextInput
-          list="edit-agent-digests"
-          value={d.image}
-          onChange={(e) => set({ image: e.target.value })}
-        />
-      </FormField>
+      {agent.template !== null && (
+        <FormField label="Template" error={form.fieldErrors.template}>
+          <SelectInput
+            value={d.template}
+            options={tpl.map((t) => ({
+              value: t.name,
+              label: t.enabled ? t.name : `${t.name} (retired)`,
+            }))}
+            onChange={(e) => {
+              const t = tpl.find((x) => x.name === e.target.value);
+              set({ template: e.target.value, ...(t && { image: t.currentDigest }) });
+            }}
+          />
+        </FormField>
+      )}
+      {agent.image !== null && (
+        <FormField
+          label="Image"
+          hint="Pinned by digest. Tags are not accepted."
+          error={form.fieldErrors.image}
+        >
+          <TextInput
+            list="edit-agent-digests"
+            value={d.image}
+            onChange={(e) => set({ image: e.target.value })}
+          />
+        </FormField>
+      )}
       <datalist id="edit-agent-digests">
         {(selected?.allowedDigests ?? []).map((x) => (
           <option key={x} value={x} />
         ))}
       </datalist>
-      <FormField label="Model" error={form.fieldErrors.modelId}>
-        <SelectInput
-          value={d.modelId}
-          options={[
-            ...(models.data ?? []).map((m) => ({ value: m.id, label: m.displayName })),
-            ...((models.data ?? []).some((m) => m.id === d.modelId)
-              ? []
-              : [{ value: d.modelId, label: d.modelId }]),
-          ]}
-          onChange={(e) => set({ modelId: e.target.value })}
-        />
-      </FormField>
+      <ModelsControl
+        label="Models"
+        value={d.models}
+        allowed={models.data ?? []}
+        errors={{
+          models: form.fieldErrors["models.modelIds"],
+          defaultModelId: form.fieldErrors["models.defaultModelId"],
+        }}
+        onChange={(models) => set({ models })}
+      />
       <FormField label="CPU" error={form.fieldErrors["resources.cpu"]}>
         <TextInput value={d.cpu} onChange={(e) => set({ cpu: e.target.value })} />
       </FormField>

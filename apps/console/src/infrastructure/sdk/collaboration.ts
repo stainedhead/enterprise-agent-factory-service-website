@@ -1,23 +1,11 @@
-import {
-  type AfsClient,
-  adminCollaborationEndpoints,
-  type CollaborationEndpoint,
-  createCollaboration,
-  createReports,
-  secrets,
-} from "@afs/sdk";
+import { type AfsClient, createCollaboration, createReports, secrets } from "@afs/sdk";
 import type {
   AccessReport,
   CollaborationPort,
-  CollaborationRecord,
-  EndpointRecord,
-  EndpointsPage,
-  EndpointsQuery,
   LinkRecord,
   LinksPage,
   LinksQuery,
   ManagedSecretsPage,
-  PutCollaborationInput,
   RotateResult,
 } from "../../application/ports/collaboration.js";
 import type { AccessRow } from "../../domain/collaboration.js";
@@ -32,35 +20,7 @@ const wrap = async <T>(f: () => Promise<T>): Promise<T> => {
   }
 };
 
-type Wire = Awaited<ReturnType<ReturnType<typeof createCollaboration>["get"]>>;
 type WireLink = Awaited<ReturnType<ReturnType<typeof createCollaboration>["connectAgent"]>>;
-
-const toRecord = (c: Wire): CollaborationRecord => ({
-  teamId: c.teamId,
-  agentId: c.agentId,
-  version: c.version,
-  generation: c.generation,
-  hostname: c.hostname,
-  webUiEnabled: c.webUiEnabled,
-  restApiEnabled: c.restApiEnabled,
-  webUiUrl: c.webUiUrl,
-  restApiUrl: c.restApiUrl,
-  registrationMode: c.registrationMode,
-  effective: {
-    webUi: c.effective.webUi,
-    restApi: c.effective.restApi,
-    reasons: c.effective.reasons,
-  },
-  phase: c.status.phase,
-  observedGeneration: c.status.observedGeneration,
-  conditions: (c.status.conditions ?? []).map((x) => ({
-    type: x.type,
-    status: x.status,
-    reason: x.reason,
-    message: x.message,
-  })),
-  unmanagedPaperclipAgents: c.unmanagedPaperclipAgents,
-});
 
 const toLink = (l: WireLink): LinkRecord => ({
   agentId: l.agentId,
@@ -68,55 +28,19 @@ const toLink = (l: WireLink): LinkRecord => ({
   connect: l.connect,
   linkState: l.linkState,
   paperclipAgentId: l.paperclipAgentId,
+  toolAgentId: l.toolAgentId,
   lastSyncedAt: l.lastSyncedAt,
   lastError: l.lastError,
   version: l.version,
 });
 
-const toEndpoint = (e: CollaborationEndpoint): EndpointRecord => ({
-  teamId: e.teamId,
-  slug: e.slug,
-  hostname: e.hostname,
-  webUi: e.effective.webUi,
-  restApi: e.effective.restApi,
-  phase: e.phase,
-  teamState: e.teamState,
-  mayExposeCollaboration: e.mayExposeCollaboration,
-  lastAccessAt: e.lastAccessAt,
-});
-
-/** `collaboration.*`, `secrets.list({managedBy})`, the collaboration report and `admin.collaborationEndpoints` mapped to {@link CollaborationPort}. */
+/** `collaboration.*`, `secrets.list({managedBy})`, the collaboration report and mapped to {@link CollaborationPort}. */
 export class SdkCollaboration implements CollaborationPort {
   readonly #collab;
   readonly #reports;
   constructor(private readonly client: AfsClient) {
     this.#collab = createCollaboration(client);
     this.#reports = createReports(client);
-  }
-
-  get(teamId: string, signal?: AbortSignal): Promise<CollaborationRecord> {
-    return wrap(async () => toRecord(await this.#collab.get(teamId, sig(signal))));
-  }
-
-  put(
-    teamId: string,
-    ref: { version: number },
-    input: PutCollaborationInput,
-  ): Promise<CollaborationRecord> {
-    return wrap(async () =>
-      toRecord(
-        await this.#collab.put(
-          { id: teamId, version: ref.version },
-          {
-            webUiEnabled: input.webUiEnabled,
-            restApiEnabled: input.restApiEnabled,
-            ...(input.registrationMode !== undefined && {
-              registrationMode: input.registrationMode,
-            }),
-          },
-        ),
-      ),
-    );
   }
 
   listLinks(teamId: string, query: LinksQuery, signal?: AbortSignal): Promise<LinksPage> {
@@ -198,26 +122,4 @@ export class SdkCollaboration implements CollaborationPort {
       };
     });
   }
-
-  listEndpoints(query: EndpointsQuery, signal?: AbortSignal): Promise<EndpointsPage> {
-    return wrap(async () => {
-      const p = await adminCollaborationEndpoints(this.client)
-        .list({ ...endpointOptions(query), ...sig(signal) })
-        .first();
-      return { items: p.items.map(toEndpoint), nextToken: p.nextToken };
-    });
-  }
-
-  endpointsCsv(query: EndpointsQuery): Promise<string> {
-    return wrap(() =>
-      adminCollaborationEndpoints(this.client).list(endpointOptions(query)).asCsv(),
-    );
-  }
 }
-
-const endpointOptions = (q: EndpointsQuery) => ({
-  ...(q.teamId && { teamId: q.teamId }),
-  ...(q.state && { state: q.state }),
-  ...(q.maxResults !== undefined && { maxResults: q.maxResults }),
-  ...(q.nextToken && { nextToken: q.nextToken }),
-});

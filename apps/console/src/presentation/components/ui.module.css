@@ -328,8 +328,13 @@
   color: var(--blue);
   border-color: var(--blue);
 }
-.badgePurple {
-  color: var(--purple);
+.badgeTeal {
+  color: var(--teal);
+  border-color: var(--teal);
+}
+.badgeOrch {
+  color: #fff;
+  background: var(--purple);
   border-color: var(--purple);
 }
 .badgeAmber {
@@ -391,4 +396,70 @@
 }
 .switch input[aria-disabled="true"] {
   cursor: not-allowed;
+}
+
+/* orchestration (OR-D11): purple and the diamond are reserved for the orchestration agent */
+.orchCard {
+  border: 1px solid var(--purple);
+  border-left-width: 4px;
+  background: var(--orch-bg);
+  padding: 12px 16px;
+  border-radius: 4px;
+}
+/* the tinted card lowers contrast; the darker blue keeps 4.5:1 (WCAG 2.2 AA) */
+.orchCard .blue,
+.orchCard a {
+  color: var(--blue-d);
+  text-decoration: underline;
+}
+.orchMark {
+  color: var(--purple);
+  font-weight: 700;
+}
+.segmented {
+  display: inline-flex;
+  border: 1px solid var(--border, #aab7b8);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.segmented label {
+  padding: 4px 12px;
+  cursor: pointer;
+  border-right: 1px solid var(--border, #aab7b8);
+}
+.segmented label:last-child {
+  border-right: 0;
+}
+.segmented input {
+  position: absolute;
+  opacity: 0;
+}
+.segmented label:has(input:checked) {
+  background: var(--purple);
+  color: #fff;
+}
+.segmented label:has(input:focus-visible) {
+  outline: 2px solid var(--focus, #0972d3);
+  outline-offset: -2px;
+}
+.segmented label[aria-disabled="true"] {
+  cursor: not-allowed;
+  color: var(--muted, #5f6b7a);
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0;
+  margin: 8px 0;
+  list-style: none;
+}
+.chip {
+  border: 1px solid var(--border, #aab7b8);
+  border-radius: 12px;
+  padding: 2px 8px;
+}
+.chipDropped {
+  text-decoration: line-through;
+  color: var(--muted, #5f6b7a);
 }

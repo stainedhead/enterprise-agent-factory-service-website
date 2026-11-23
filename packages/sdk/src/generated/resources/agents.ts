@@ -7,7 +7,7 @@ import type { Agent, AgentIdentity, CreateAgentIdentityRequest, CreateAgentReque
 export function agents(core: AfsClient) {
   return {
     /** List agents (requires `agents:read`). GET /v1/teams/{teamId}/agents */
-    list(teamId: string, opts?: CallOptions & { role?: "worker" | "collaboration" | (string & {}); maxResults?: number; nextToken?: string }): Paginated<Agent> {
+    list(teamId: string, opts?: CallOptions & { role?: "worker" | "orchestration" | "collaboration" | (string & {}); maxResults?: number; nextToken?: string }): Paginated<Agent> {
       return core.paginate<Agent>("ListAgents", { path: [teamId] }, opts);
     },
     /** Create agent (requires `agents:write`). POST /v1/teams/{teamId}/agents */

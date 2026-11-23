@@ -143,6 +143,22 @@ describe("csv (M0-C11)", () => {
   });
 });
 
+describe("page extras", () => {
+  it("keeps other top-level body fields of a list page in extras", async () => {
+    const f = fakeFetch().on("GET /v1/admin/orchestration-endpoints", {
+      body: { items: [], migration: { state: "complete" } },
+    });
+    const page = await client(f).admin.orchestrationEndpoints.list().first();
+    expect(page.extras).toEqual({ migration: { state: "complete" } });
+    expect(page.items).toEqual([]);
+  });
+  it("leaves extras unset when the page has only items", async () => {
+    const f = fakeFetch().on("GET /v1/teams/t/costs", { body: { items: [] } });
+    const page = await client(f).usage.listCosts("t").first();
+    expect(page.extras).toBeUndefined();
+  });
+});
+
 describe("contract version (M0-C8)", () => {
   it("calls onContractMismatch once when the server is newer", async () => {
     const seen: unknown[] = [];

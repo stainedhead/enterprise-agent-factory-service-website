@@ -1,34 +1,6 @@
 import { type Mock, vi } from "vitest";
-import type {
-  CollaborationPort,
-  CollaborationRecord,
-  LinkRecord,
-} from "../../application/ports/collaboration.js";
+import type { CollaborationPort, LinkRecord } from "../../application/ports/collaboration.js";
 import { CollaborationUseCases } from "../../application/usecases/collaboration/CollaborationUseCases.js";
-
-export const aCollaboration = (over: Partial<CollaborationRecord> = {}): CollaborationRecord => ({
-  teamId: "team_1",
-  agentId: "agt_collab",
-  version: 3,
-  generation: 4,
-  hostname: "alpha.collab.example.test",
-  webUiEnabled: true,
-  restApiEnabled: false,
-  webUiUrl: "https://alpha.collab.example.test/",
-  restApiUrl: null,
-  registrationMode: "manual",
-  effective: { webUi: true, restApi: false, reasons: [] },
-  phase: "Ready",
-  observedGeneration: 4,
-  conditions: [
-    { type: "EndpointReady", status: "True" },
-    { type: "PaperclipReady", status: "True" },
-    { type: "RegistrationHealthy", status: "True" },
-    { type: "UnmanagedPaperclipAgents", status: "False" },
-  ],
-  unmanagedPaperclipAgents: [],
-  ...over,
-});
 
 export const aLink = (over: Partial<LinkRecord> = {}): LinkRecord => ({
   agentId: "agt_1",
@@ -46,14 +18,6 @@ export function fakeCollaborationPort(
   over: Partial<CollaborationPort> = {},
 ): FakeCollaborationPort {
   return {
-    get: vi.fn(async () => aCollaboration()),
-    put: vi.fn(async (_t, _r, i) =>
-      aCollaboration({
-        version: 4,
-        webUiEnabled: i.webUiEnabled,
-        restApiEnabled: i.restApiEnabled,
-      }),
-    ),
     listLinks: vi.fn(async () => ({
       items: [
         aLink(),
@@ -80,7 +44,7 @@ export function fakeCollaborationPort(
           id: `sec_${by}`,
           name: by === "afs" ? "paperclip-tool-action-signing-secret" : "paperclip-agent-key",
           managedBy: by,
-          agentId: "agt_collab",
+          agentId: "agt_orch",
           lastChangedAt: "2026-11-20T10:00:00Z",
         },
         { id: `sec_other_${by}`, name: "elsewhere", managedBy: by, agentId: "agt_other" },
@@ -108,8 +72,6 @@ export function fakeCollaborationPort(
         },
       ],
     })),
-    listEndpoints: vi.fn(async () => ({ items: [] })),
-    endpointsCsv: vi.fn(async () => "team,hostname\n"),
     ...over,
   } as unknown as FakeCollaborationPort;
 }

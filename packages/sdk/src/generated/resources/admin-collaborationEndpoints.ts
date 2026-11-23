@@ -6,7 +6,8 @@ import type { CollaborationEndpoint } from "../schemas.js";
 /** Operations of the `admin.collaborationEndpoints` namespace. */
 export function adminCollaborationEndpoints(core: AfsClient) {
   return {
-    /** List collaboration endpoints (requires `admin:settings`). GET /v1/admin/collaboration-endpoints */
+    /** List collaboration endpoints (requires `admin:settings`). GET /v1/admin/collaboration-endpoints
+     * @deprecated Kept until 2.0.0; see the API contract for the successor operation. */
     list(opts?: CallOptions & { teamId?: string; state?: "Ready" | "Degraded" | "Failed" | "Pending" | (string & {}); maxResults?: number; nextToken?: string }): PaginatedCsv<CollaborationEndpoint> {
       return core.paginate<CollaborationEndpoint>("ListCollaborationEndpoints", { path: [] }, opts);
     },

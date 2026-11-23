@@ -21,7 +21,9 @@
   --warn-line: #855900;
   --err-bg: #fff5f5;
   --ok-bg: #f2fcf3;
-  --purple: #7300e5;
+  --purple: #7300e5; /* orchestration accent only (OR-D11) */
+  --orch-bg: #f6efff;
+  --teal: #00675e;
   --disabled: #9aa5b1;
   --pill-admin: #ffb84d;
   --pill-ta: #9ccaff;

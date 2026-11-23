@@ -33,7 +33,7 @@ describe("fields on existing resources (SDK-13)", () => {
     expect(f.requests[0]?.body).toMatchObject({ role: "collaboration", iamIdentity: "dedicated" });
     for await (const _ of afs.agents.list("t", { role: "collaboration" })) void _;
     expect(f.requests[1]?.query.get("role")).toBe("collaboration");
-    expectTypeOf<UpdateAgentRequest>().not.toHaveProperty("role");
+    expectTypeOf<UpdateAgentRequest>().toHaveProperty("role");
     const a: Agent["collaboration"] = {
       connect: true,
       linkState: "linked",

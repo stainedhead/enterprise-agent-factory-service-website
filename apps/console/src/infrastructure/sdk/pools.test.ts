@@ -83,7 +83,7 @@ describe("SdkPools (M5-P1): the 26 operations", () => {
       name: "triage",
       template: "hermes-dev",
       image: "x",
-      modelId: "m",
+      models: { access: "all", modelIds: [], defaultModelId: "m" },
       workers: 3,
       stageId: "stg_1",
       resources: { cpu: "2", memory: undefined },

@@ -1,4 +1,4 @@
-import { EXTRA_ROUTES, NAV_ITEMS, type NavItem, SYSTEM_ROUTES } from "./navigation.js";
+import { EXTRA_ROUTES, NAV_ITEMS, type NavItem, REDIRECTS, SYSTEM_ROUTES } from "./navigation.js";
 import type { ScreenId } from "./screens.js";
 
 const stripQuery = (route: string) => route.split("?")[0] as string;
@@ -9,6 +9,8 @@ export interface RouteDef {
   readonly screen: ScreenId;
   /** The navigation item this route belongs to, when it is one. */
   readonly item?: NavItem;
+  /** Set on an old route: the path (with the same `:params`) it moves to. */
+  readonly redirect?: string;
 }
 
 /** Every console route (navigation items first, then extras), one entry per path. */
@@ -26,7 +28,17 @@ export function routeTable(): RouteDef[] {
     seen.add(e.route);
     out.push({ path: e.route, screen: e.screen });
   }
+  for (const r of REDIRECTS) {
+    if (seen.has(r.from)) continue;
+    seen.add(r.from);
+    out.push({ path: r.from, screen: "T17", redirect: r.to });
+  }
   return out;
+}
+
+/** The target of an old route with its params filled in, or `undefined` when `def` does not redirect. */
+export function redirectTarget(def: RouteDef, params: Record<string, string>): string | undefined {
+  return def.redirect?.replace(/:(\w+)/g, (_, k: string) => encodeURIComponent(params[k] ?? ""));
 }
 
 export { SYSTEM_ROUTES };

@@ -26,3 +26,36 @@ export const FieldReason = {
   ProviderWithoutCollabClient: "provider_without_collab_client",
   AgentNotReady: "collaboration_agent_not_ready",
 } as const;
+
+/** `details.reason` values of the orchestration contract (API contract 4.4d, 1.1.0). */
+export const OrchestrationReason = {
+  /** 404 or 409: a 1.0.1 team the backfill has not reached has no orchestration agent yet. */
+  AgentPending: "orchestration_agent_pending",
+  /** 409 on DeleteAgent: the orchestration agent is deleted only with its team. */
+  AgentRequired: "orchestration_agent_required",
+  /** 400: name, role, template, image, IAM identity or snapshot-off on the orchestration agent. */
+  FieldFixed: "orchestration_field_fixed",
+  /** 400 on CreateAgent: a role other than worker. */
+  RoleReserved: "role_reserved",
+  /** 400 on CreateAgent or CreatePool: the name `orchestrator`. */
+  NameReserved: "name_reserved",
+  /** 400: a surface above the team's limit. */
+  ExposureAboveLimit: "exposure_above_limit",
+  /** 400: any level other than off for a surface the tool lacks. */
+  SurfaceNotSupported: "surface_not_supported_by_tool",
+  /** 409: a tool change is already running. */
+  ToolChangeInProgress: "tool_change_in_progress",
+  /** 400: the tool is not enabled. */
+  ToolNotEnabled: "tool_not_enabled",
+  /** 400: the team already uses the tool. */
+  ToolUnchanged: "tool_unchanged",
+} as const;
+
+/** `details.reason` values of model access (MOD-5, MOD-7). */
+export const ModelReason = {
+  NotEnabledForService: "model_not_enabled_for_service",
+  NotEnabledForTeam: "model_not_enabled_for_team",
+  NotEnabledForAgent: "model_not_enabled_for_agent",
+  NotPriced: "model_not_priced",
+  IdsNotAllowedForAll: "model_ids_not_allowed_for_all",
+} as const;

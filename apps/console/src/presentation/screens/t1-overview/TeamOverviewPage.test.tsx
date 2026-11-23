@@ -5,8 +5,12 @@ import { AppError } from "../../../application/errors.js";
 import type { OverviewPort } from "../../../application/ports/overview.js";
 import { OverviewUseCases } from "../../../application/usecases/overview/OverviewUseCases.js";
 import type { Me } from "../../../domain/me.js";
-import { collaborationServices, fakeCollaborationPort } from "../../testing/collaboration.js";
 import { TEAM_ADMIN, VIEWER } from "../../testing/harness.js";
+import {
+  aBuzzOrchestration,
+  fakeOrchestrationPort,
+  orchestrationServices,
+} from "../../testing/orchestration.js";
 import { renderScreen } from "../../testing/screen.js";
 import {
   ALL_PERMS,
@@ -82,7 +86,7 @@ function open(
     path?: string;
     teams?: ReturnType<typeof fakeTeamsPort>;
     ov?: ReturnType<typeof overviewPorts>;
-    collab?: ReturnType<typeof fakeCollaborationPort>;
+    collab?: ReturnType<typeof fakeOrchestrationPort>;
   } = {},
 ) {
   const teams = o.teams ?? fakeTeamsPort();
@@ -93,7 +97,7 @@ function open(
     services: {
       ...teamsServices(teams),
       overview: ov.overview,
-      ...(o.collab ? collaborationServices(o.collab) : {}),
+      ...(o.collab ? orchestrationServices(o.collab) : {}),
     },
     path: o.path ?? "/t/team_1",
     route: "/t/:teamId/*",
@@ -203,18 +207,33 @@ describe("T1 team overview (M1-O1..O3)", () => {
   });
 
   it("Models tab lists models; only a service admin may edit them", async () => {
+    const m1 = {
+      id: "m1",
+      displayName: "Model One",
+      provider: "p",
+      enabled: true,
+      priceState: "approved",
+    };
     const teams = fakeTeamsPort({
-      models: vi.fn(async () => [
-        { id: "m1", displayName: "Model One", provider: "p", enabled: true },
-      ]),
+      teamModels: vi.fn(async () => ({
+        access: "selected" as const,
+        modelIds: ["m1"],
+        items: [m1],
+      })),
+      catalogModels: vi.fn(async () => [m1]),
     });
     open({ teams, path: "/t/team_1?tab=models" });
     expect(await screen.findByText("Model One")).toBeTruthy();
     await userEvent.click(screen.getByRole("button", { name: "Edit models" }));
     await userEvent.click(await screen.findByRole("checkbox", { name: "Model One" }));
+    await userEvent.click(screen.getByRole("radio", { name: "All models the service enables" }));
+    expect(screen.getAllByText(/afs teams put-team-models/).length).toBeGreaterThan(0);
     await userEvent.click(screen.getByRole("button", { name: "Save models" }));
     await waitFor(() =>
-      expect(teams.putModels).toHaveBeenCalledWith({ id: "team_1", version: 3 }, []),
+      expect(teams.putTeamModels).toHaveBeenCalledWith(
+        { id: "team_1", version: 3 },
+        { access: "all" },
+      ),
     );
   });
 
@@ -251,52 +270,51 @@ describe("V1 viewer overview (M1-O4)", () => {
   });
 });
 
-describe("T1 and V1 collaboration tile (WEB-US-53)", () => {
-  it("collaboration tile shows the hostname, the surfaces, the phase and Open Paperclip", async () => {
-    open({ collab: fakeCollaborationPort() });
-    expect(await screen.findByText("alpha.collab.example.test")).toBeTruthy();
-    expect(screen.getByRole("link", { name: "Open Paperclip" }).getAttribute("href")).toContain(
+describe("T1 and V1 orchestration card (WEB-US-53, ORC-21)", () => {
+  it("shows the tool, the surfaces, the limit, the phase and Open <tool>", async () => {
+    open({ collab: fakeOrchestrationPort() });
+    expect(await screen.findByText("Paperclip AI")).toBeTruthy();
+    expect(screen.getByRole("link", { name: "Open Paperclip AI" }).getAttribute("href")).toContain(
       "alpha.collab",
     );
-    expect(screen.getByRole("link", { name: "Manage collaboration" })).toBeTruthy();
+    expect(screen.getByRole("link", { name: "Manage orchestration" })).toBeTruthy();
+    expect(screen.getByText("Endpoint limit")).toBeTruthy();
   });
-  it("tile empty state offers create to a team-admin", async () => {
-    const collab = fakeCollaborationPort({
+  it("Buzz shows N/A for both surfaces", async () => {
+    open({ collab: fakeOrchestrationPort({ get: async () => aBuzzOrchestration() }) });
+    expect((await screen.findAllByText(/N\/A for Buzz/)).length).toBe(2);
+    expect(screen.getByRole("link", { name: "Open Buzz" }).getAttribute("aria-disabled")).toBe(
+      "true",
+    );
+  });
+  it("a team the backfill has not reached says the agent is being created", async () => {
+    const collab = fakeOrchestrationPort({
       get: async () => {
         throw new AppError({
           kind: "not-found",
           message: "none",
-          reason: "collaboration_agent_missing",
+          reason: "orchestration_agent_pending",
         });
       },
     });
     open({ collab });
-    expect(await screen.findByRole("link", { name: "Create collaboration agent" })).toBeTruthy();
+    expect(await screen.findByText("Orchestration agent being created.")).toBeTruthy();
   });
-  it("tile empty state links a viewer to the page", async () => {
-    const collab = fakeCollaborationPort({
-      get: async () => {
-        throw new AppError({
-          kind: "not-found",
-          message: "none",
-          reason: "collaboration_agent_missing",
-        });
-      },
-    });
-    open({ collab, me: VIEWER, viewer: true });
-    expect(await screen.findByRole("link", { name: "Open collaboration" })).toBeTruthy();
+  it("a viewer sees the same card with a link to the page", async () => {
+    open({ collab: fakeOrchestrationPort(), me: VIEWER, viewer: true });
+    expect(await screen.findByRole("link", { name: "Manage orchestration" })).toBeTruthy();
   });
   it("a failing call shows the card's own error", async () => {
-    const collab = fakeCollaborationPort({
+    const collab = fakeOrchestrationPort({
       get: async () => {
         throw new AppError({ kind: "unavailable", message: "down" });
       },
     });
     open({ collab });
-    expect(await screen.findByText("Collaboration could not be loaded")).toBeTruthy();
+    expect(await screen.findByText("Orchestration could not be loaded")).toBeTruthy();
   });
-  it("tile hidden without collaboration:read, and nothing is requested", async () => {
-    const collab = fakeCollaborationPort();
+  it("card hidden without collaboration:read, and nothing is requested", async () => {
+    const collab = fakeOrchestrationPort();
     open({
       collab,
       me: {
@@ -307,7 +325,7 @@ describe("T1 and V1 collaboration tile (WEB-US-53)", () => {
       },
     });
     expect(await screen.findByRole("heading", { name: /^Alpha/ })).toBeTruthy();
-    expect(screen.queryByText("Collaboration")).toBeNull();
+    expect(screen.queryByText("Orchestration")).toBeNull();
     expect(collab.get).not.toHaveBeenCalled();
   });
 });

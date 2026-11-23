@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
 import { isAppError } from "../../../application/errors.js";
@@ -6,6 +6,7 @@ import type { TeamRecord } from "../../../application/ports/teams.js";
 import { overrideActive, type TeamRow } from "../../../application/usecases/teams/TeamsUseCases.js";
 import { label } from "../../../domain/labels.js";
 import { format, percent } from "../../../domain/money.js";
+import { exposureLabel, exposureView, toolLabel } from "../../../domain/orchestration.js";
 import { type PhaseView, statusView, teamStateView } from "../../../domain/status.js";
 import { formatLocal, utcTitle } from "../../../domain/time.js";
 import {
@@ -24,7 +25,7 @@ import {
 import { gate } from "../../hooks/gate.js";
 import { areaKey, queryKey } from "../../query/keys.js";
 import { usePolledQuery } from "../../query/usePolledQuery.js";
-import { useService } from "../../services.js";
+import { useOptionalService, useService } from "../../services.js";
 import { useMe } from "../../shell/ShellContext.js";
 import { TeamActionDialogs, type TeamDialog } from "./TeamActionDialogs.js";
 
@@ -74,7 +75,38 @@ export function TeamsPage() {
     phasesOf: (d) => d.rows.map((r) => watched(r.team)),
   });
 
-  const rows = list.data?.rows ?? [];
+  // the orchestration columns come from the service-wide endpoints list, joined by team id (one request per page)
+  const orchSvc = useOptionalService("orchestration");
+  const endpoints = useQuery({
+    queryKey: queryKey({ area: "orchestration", resource: "endpoints", id: "teams-page" }),
+    queryFn: ({ signal }) =>
+      orchSvc
+        ? orchSvc.listEndpoints({ maxResults: 200 }, signal)
+        : Promise.reject(new Error("no orchestration service")),
+    enabled: orchSvc !== undefined,
+    retry: false,
+  });
+  const orchOf = (teamId: string) => {
+    const mine = (endpoints.data?.items ?? []).filter((e) => e.teamId === teamId);
+    const ui = mine.find((e) => e.surface === "webUi");
+    const api = mine.find((e) => e.surface === "webApi");
+    const first = ui ?? api;
+    return {
+      tool: first?.tool,
+      phase: first?.phase,
+      webUi: ui?.effective,
+      webApi: api?.effective,
+    };
+  };
+  const toolFilter = params.get("tool") ?? "";
+  const exposureFilter = params.get("exposure") ?? "";
+  const allRows = list.data?.rows ?? [];
+  const rows = allRows.filter((r) => {
+    const o = orchOf(r.team.id);
+    if (toolFilter && o.tool !== toolFilter) return false;
+    if (exposureFilter && o.webUi !== exposureFilter && o.webApi !== exposureFilter) return false;
+    return true;
+  });
   const nextToken = list.data?.nextToken;
   const team = rows.find((r) => r.team.id === selected[0])?.team;
   const refresh = () => qc.invalidateQueries({ queryKey: areaKey("teams") });
@@ -97,7 +129,7 @@ export function TeamsPage() {
     },
   });
 
-  const filter = (name: "kind" | "state", value: string) => {
+  const filter = (name: "kind" | "state" | "tool" | "exposure", value: string) => {
     const next = new URLSearchParams(params);
     if (value) next.set(name, value);
     else next.delete(name);
@@ -130,7 +162,7 @@ export function TeamsPage() {
       header: "Kind",
       sortValue: (r) => r.team.kind,
       cell: (r) => (
-        <Badge tone={r.team.kind === "ephemeral" ? "purple" : "blue"}>
+        <Badge tone={r.team.kind === "ephemeral" ? "teal" : "blue"}>
           {label("teamKind", r.team.kind)}
         </Badge>
       ),
@@ -180,12 +212,46 @@ export function TeamsPage() {
       cell: (r) => r.team.costCenter ?? "—",
     },
     {
-      id: "mayExpose",
-      header: "May publish collaboration",
-      defaultHidden: true,
-      sortValue: (r) => (r.team.mayExposeCollaboration === false ? 0 : 1),
-      text: (r) => (r.team.mayExposeCollaboration === false ? "No" : "Yes"),
-      cell: (r) => (r.team.mayExposeCollaboration === false ? "No" : "Yes"),
+      id: "tool",
+      header: "Collaboration tool",
+      sortValue: (r) => orchOf(r.team.id).tool ?? "",
+      text: (r) => orchOf(r.team.id).tool ?? "",
+      cell: (r) => {
+        const t = orchOf(r.team.id).tool;
+        return t ? toolLabel(t) : "—";
+      },
+    },
+    {
+      id: "orchPhase",
+      header: "Orchestration phase",
+      sortValue: (r) => orchOf(r.team.id).phase ?? "",
+      text: (r) => orchOf(r.team.id).phase ?? "",
+      cell: (r) => orchOf(r.team.id).phase ?? "—",
+    },
+    {
+      id: "webUi",
+      header: "Web UI",
+      text: (r) => orchOf(r.team.id).webUi ?? "",
+      cell: (r) => {
+        const v = orchOf(r.team.id).webUi;
+        return v ? <StatusIndicator view={exposureView(v)} /> : "—";
+      },
+    },
+    {
+      id: "webApi",
+      header: "Web API",
+      text: (r) => orchOf(r.team.id).webApi ?? "",
+      cell: (r) => {
+        const v = orchOf(r.team.id).webApi;
+        return v ? <StatusIndicator view={exposureView(v)} /> : "—";
+      },
+    },
+    {
+      id: "limit",
+      header: "Endpoint limit",
+      sortValue: (r) => r.team.maxCollaborationExposure ?? "",
+      text: (r) => exposureLabel(r.team.maxCollaborationExposure ?? "private"),
+      cell: (r) => exposureLabel(r.team.maxCollaborationExposure ?? "private"),
     },
     {
       id: "expires",
@@ -256,6 +322,12 @@ export function TeamsPage() {
                   disabledReason: need("teams:set-guardrails"),
                 },
                 {
+                  id: "limit",
+                  label: "Set endpoint limit",
+                  onSelect: () => open("limit"),
+                  disabledReason: need("teams:set-guardrails"),
+                },
+                {
                   id: "raise",
                   label: "Raise ceiling temporarily",
                   onSelect: () => open("raise"),
@@ -302,6 +374,23 @@ export function TeamsPage() {
             { value: "persistent", label: "Persistent" },
             { value: "ephemeral", label: "Ephemeral" },
           ]}
+        />
+        <SelectInput
+          aria-label="Collaboration tool"
+          value={toolFilter}
+          onChange={(e) => filter("tool", e.target.value)}
+          placeholder="Any tool"
+          options={[
+            { value: "paperclip", label: toolLabel("paperclip") },
+            { value: "buzz", label: toolLabel("buzz") },
+          ]}
+        />
+        <SelectInput
+          aria-label="Exposure"
+          value={exposureFilter}
+          onChange={(e) => filter("exposure", e.target.value)}
+          placeholder="Any exposure"
+          options={["private", "public"].map((v) => ({ value: v, label: exposureLabel(v) }))}
         />
         <SelectInput
           aria-label="State"

@@ -5,6 +5,7 @@ import type {
   ModelRecord,
   PriceRecord,
   ProposalRecord,
+  ServiceModelAccessRecord,
 } from "../../application/ports/adminModels.js";
 import { toAppError } from "./errors.js";
 
@@ -27,6 +28,28 @@ export class SdkAdminModels implements AdminModelsPort {
   constructor(private readonly client: AfsClient) {}
   models(signal?: AbortSignal): Promise<readonly ModelRecord[]> {
     return wrap(() => all(adminModels(this.client).list({ maxResults: 100, ...sig(signal) })));
+  }
+  putServiceAccess(access: "all" | "selected"): Promise<ServiceModelAccessRecord> {
+    return wrap(async () => {
+      const r = await adminModels(this.client).putServiceAccess({ access });
+      return {
+        access: r.access === "selected" ? "selected" : "all",
+        enabledModels: r.enabledModels,
+        callableModels: r.callableModels,
+        version: r.version,
+      };
+    });
+  }
+  setEnabled(
+    ref: { id: string; version?: number | undefined },
+    enabled: boolean,
+  ): Promise<ModelRecord> {
+    return wrap(() =>
+      adminModels(this.client).update(
+        ref.version === undefined ? ref.id : { id: ref.id, version: ref.version },
+        { enabled },
+      ),
+    );
   }
   prices(modelId: string, signal?: AbortSignal): Promise<readonly PriceRecord[]> {
     return wrap(() =>

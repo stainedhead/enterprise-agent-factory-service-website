@@ -3,7 +3,12 @@ export { type AuthProvider, apiKey, bearer, type TokenSupplier } from "./core/au
 export { AfsClient, type AfsClientOptions } from "./core/client.js";
 export { AfsError, type AfsErrorCode, type AfsErrorInit, AfsNetworkError } from "./core/errors.js";
 export { money } from "./core/money.js";
-export { CollaborationReason, FieldReason } from "./core/reasons.js";
+export {
+  CollaborationReason,
+  FieldReason,
+  ModelReason,
+  OrchestrationReason,
+} from "./core/reasons.js";
 export type {
   CallOptions,
   ContractMismatch,
@@ -22,6 +27,12 @@ export {
   type CollaborationEndpointUrl,
   createCollaboration,
 } from "./resources/collaboration.js";
+export {
+  createOrchestration,
+  type EndpointUrl,
+  endpointUrls,
+  type OrchestrationEndpointUrls,
+} from "./resources/orchestration.js";
 export {
   type CollaborationReportRow,
   createReports,

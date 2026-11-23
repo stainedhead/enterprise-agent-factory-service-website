@@ -3,12 +3,8 @@ import { useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router";
 import { isAppError } from "../../../application/errors.js";
 import type { SecretRecord } from "../../../application/ports/secrets.js";
-import {
-  MASTER_KEY,
-  MASTER_KEY_TEXT,
-  managedByLabel,
-  managedRefusalText,
-} from "../../../domain/collaboration.js";
+import { MASTER_KEY, MASTER_KEY_TEXT, managedRefusalText } from "../../../domain/collaboration.js";
+import { managedByLabel } from "../../../domain/orchestration.js";
 import { formatLocal } from "../../../domain/time.js";
 import {
   Alert,

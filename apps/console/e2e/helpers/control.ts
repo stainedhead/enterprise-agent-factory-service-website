@@ -32,7 +32,8 @@ export const control = {
   async collab(patch: {
     baseDomain?: string | null;
     publicEndpoints?: boolean;
-    mayExpose?: boolean;
+    privateEndpoints?: boolean;
+    limit?: "off" | "private" | "public";
     providerHasCollabClient?: boolean;
     phase?: string;
     registrationMode?: "manual" | "managed";

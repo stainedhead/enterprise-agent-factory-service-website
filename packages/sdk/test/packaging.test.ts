@@ -35,7 +35,7 @@ describe("size budgets (M0-P2)", () => {
   it("core stays within 25 KB gzip and every module within 3 KB", async () => {
     const { core, modules } = await measure();
     expect(core).toBeLessThanOrEqual(CORE_LIMIT);
-    expect(Object.keys(modules)).toHaveLength(43);
+    expect(Object.keys(modules)).toHaveLength(45);
     for (const [name, size] of Object.entries(modules))
       expect(size, name).toBeLessThanOrEqual(MODULE_LIMIT);
   }, 60_000);

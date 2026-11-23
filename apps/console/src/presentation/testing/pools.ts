@@ -25,7 +25,12 @@ export const aPool = (over: Partial<PoolRecord> = {}): PoolRecord => ({
   name: "triage-workers",
   template: "hermes-dev",
   image: "ghcr.io/acme/hermes-dev@sha256:4b1e",
-  modelId: "claude-sonnet",
+  models: {
+    access: "selected",
+    modelIds: ["claude-sonnet"],
+    defaultModelId: "claude-sonnet",
+    effectiveModelIds: ["claude-sonnet"],
+  },
   workers: 4,
   stageId: "stg_1",
   state: "enabled",

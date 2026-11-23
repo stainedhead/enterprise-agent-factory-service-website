@@ -4,6 +4,7 @@ export interface RawPage<T> {
   items: T[];
   nextToken?: string;
   meta: ResponseMeta;
+  extras?: Readonly<Record<string, unknown>>;
 }
 
 /** Builds a lazy {@link Paginated} over `fetchPage`; one request per page. */

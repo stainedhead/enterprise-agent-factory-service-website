@@ -66,22 +66,30 @@ const csv = await reports.team("team_01...", "usage", { range: "7d" }).asCsv();
 
 Rows carry the API's measure names; `asCsv()` returns the CSV exactly as the API sends it.
 
-## Team collaboration (Paperclip)
+## Team orchestration
 
 ```ts
-import { createCollaboration, createReports } from "@stainedhead/afs-sdk";
+import { createOrchestration, createReports } from "@stainedhead/afs-sdk";
 
-const collab = createCollaboration(afsClient);
-const { webUi, restApi, hostname } = await collab.endpointUrl("team_01...");
-// a URL is returned only for a surface that is effective; otherwise null
+const orch = createOrchestration(afsClient);
+const o = await orch.get("team_01...");
+const { webUi, webApi } = orch.endpointUrls(o);
+// a URL only for a surface that is effective; otherwise null with the first reason (for example "team_limit")
+await orch.put({ id: o.teamId, version: o.version }, {
+  webUi: { exposure: "private" },
+  webApi: { exposure: "off" },
+});
+await orch.changeTool(o.teamId, { tool: "buzz" });
 const rows = await createReports(afsClient).team("team_01...", "collaboration", {
   range: "7d",
   groupBy: ["person"],
 });
 ```
 
-The SDK never calls Paperclip itself and never takes a Paperclip key. The `collaboration` report is usage only
-and cannot be scheduled. `AfsError.isSecretDetected` is true when the API refused a request because it held a secret.
+The SDK never calls the tool itself and never takes a tool key. The `collaboration` report is usage only and cannot be
+scheduled. `AfsError.isSecretDetected` is true when the API refused a request because it held a secret.
+Service admins list every team's endpoints with `admin.orchestrationEndpoints.list(...)`; the first page's
+`extras.migration` reports the 1.1.0 backfill.
 
 ## Handle errors
 

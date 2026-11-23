@@ -1,5 +1,5 @@
-import { RESERVED_NAME_TEXT, reservedSecretName } from "../../../domain/collaboration.js";
 import { isValidName } from "../../../domain/names.js";
+import { RESERVED_NAME_TEXT, reservedSecretName } from "../../../domain/orchestration.js";
 import { AppError } from "../../errors.js";
 import type {
   CreateSecretInput,

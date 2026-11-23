@@ -1,18 +1,24 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router";
 import { isAppError } from "../../../application/errors.js";
 import {
   type AgentRow,
   agentPhases,
   isTemplateRetired,
+  splitAgents,
 } from "../../../application/usecases/agents/AgentsUseCases.js";
 import { linkStateView, NOT_CONNECTED } from "../../../domain/collaboration.js";
+import { modelsColumn } from "../../../domain/modelAccess.js";
 import { format } from "../../../domain/money.js";
+import { RUNTIME_TEXT } from "../../../domain/orchestration.js";
 import { agentView } from "../../../domain/status.js";
 import {
   Badge,
   Breadcrumbs,
   Button,
   Card,
+  OrchestrationCard,
+  OrchestrationMark,
   PageHeader,
   SelectInput,
   StatusIndicator,
@@ -24,12 +30,9 @@ import { useService } from "../../services.js";
 import { AgentPanel } from "./AgentPanel.js";
 import { agentsKey } from "./keys.js";
 
-const paperclipView = (a: AgentRow) =>
-  a.role === "collaboration"
-    ? { word: "—", dot: "grey" as const }
-    : a.collaboration?.connect
-      ? linkStateView(a.collaboration.linkState)
-      : NOT_CONNECTED;
+/** The worker's link to the collaboration tool, as the *Collaboration* column and its filter read it. */
+const linkView = (a: AgentRow) =>
+  a.collaboration?.connect ? linkStateView(a.collaboration.linkState) : NOT_CONNECTED;
 
 const noun = (n: number) => `${n} ${n === 1 ? "secret" : "secrets"}`;
 
@@ -45,10 +48,19 @@ export function AgentsPage() {
     phasesOf: agentPhases,
   });
   const [params, setParams] = useSearchParams();
-  const roleFilter = params.get("role") ?? "";
+  const linkFilter = params.get("collaboration") ?? "";
   const all = list.data ?? [];
-  const rows = roleFilter ? all.filter((a) => (a.role ?? "worker") === roleFilter) : all;
+  const { orchestration, workers } = splitAgents(all);
+  const rows = linkFilter
+    ? workers.filter((a) => (linkFilter === "connected") === Boolean(a.collaboration?.connect))
+    : workers;
   const selected = all.find((a) => a.id === agentId);
+  const qc = useQueryClient();
+  const act = useMutation({
+    mutationFn: (fn: () => Promise<unknown>) => fn(),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: agentsKey(teamId) }),
+  });
+  const reason = write.reasonFor("agents:write");
 
   return (
     <div>
@@ -61,7 +73,7 @@ export function AgentsPage() {
         renderLink={(c) => <Link to={c.to ?? "/"}>{c.label}</Link>}
       />
       <PageHeader
-        title={`Agents (${rows.length})`}
+        title={`Agents (${workers.length})`}
         description="Containerized agents in this team's namespace. Model calls go through the metering gateway."
         infoHref="/docs/agents"
         actions={
@@ -74,21 +86,55 @@ export function AgentsPage() {
           </Button>
         }
       />
-      <Card>
+      {orchestration && (
+        <OrchestrationCard label="Orchestration agent">
+          <h2 style={{ margin: 0 }}>
+            <OrchestrationMark />{" "}
+            <Link to={`/t/${teamId}/orchestration`}>{orchestration.name}</Link>{" "}
+            <Badge tone="orchestration">Orchestration</Badge>
+          </h2>
+          <p>
+            <StatusIndicator view={agentView(orchestration)} /> · {RUNTIME_TEXT} ·{" "}
+            {modelsColumn(orchestration.models)}
+          </p>
+          <Button
+            disabledReason={reason}
+            onClick={() => act.mutate(() => agents.restart(teamId, orchestration.id))}
+          >
+            Restart
+          </Button>{" "}
+          <Button
+            disabledReason={reason}
+            onClick={() =>
+              act.mutate(() =>
+                orchestration.paused
+                  ? agents.resume(teamId, orchestration.id)
+                  : agents.pause(teamId, orchestration.id),
+              )
+            }
+          >
+            {orchestration.paused ? "Resume" : "Pause"}
+          </Button>{" "}
+          <Button variant="primary" onClick={() => navigate(`/t/${teamId}/orchestration`)}>
+            Manage orchestration
+          </Button>
+        </OrchestrationCard>
+      )}
+      <Card title="Team agents">
         <div>
-          Role{" "}
+          Collaboration{" "}
           <SelectInput
-            aria-label="Role"
-            value={roleFilter}
-            placeholder="All roles"
+            aria-label="Collaboration"
+            value={linkFilter}
+            placeholder="Any collaboration state"
             options={[
-              { value: "worker", label: "Worker" },
-              { value: "collaboration", label: "Collaboration" },
+              { value: "connected", label: "Connected" },
+              { value: "not-connected", label: "Not connected" },
             ]}
             onChange={(e) => {
               const next = new URLSearchParams(params);
-              if (e.target.value) next.set("role", e.target.value);
-              else next.delete("role");
+              if (e.target.value) next.set("collaboration", e.target.value);
+              else next.delete("collaboration");
               setParams(next, { replace: true });
             }}
           />
@@ -114,12 +160,7 @@ export function AgentsPage() {
               header: "Name",
               alwaysVisible: true,
               sortValue: (a) => a.name,
-              cell: (a) => (
-                <>
-                  <Link to={`/t/${teamId}/agents/${a.id}`}>{a.name}</Link>{" "}
-                  {a.role === "collaboration" && <Badge tone="blue">Collaboration</Badge>}
-                </>
-              ),
+              cell: (a) => <Link to={`/t/${teamId}/agents/${a.id}`}>{a.name}</Link>,
             },
             {
               id: "status",
@@ -129,22 +170,26 @@ export function AgentsPage() {
               cell: (a) => <StatusIndicator view={agentView(a)} />,
             },
             {
-              id: "paperclip",
-              header: "Paperclip",
-              sortValue: (a) => paperclipView(a).word,
-              text: (a) => paperclipView(a).word,
-              cell: (a) =>
-                a.role === "collaboration" ? "—" : <StatusIndicator view={paperclipView(a)} />,
+              id: "collaboration",
+              header: "Collaboration",
+              sortValue: (a) => linkView(a).word,
+              text: (a) => linkView(a).word,
+              cell: (a) => <StatusIndicator view={linkView(a)} />,
             },
-            { id: "model", header: "Model", sortValue: (a) => a.modelId, cell: (a) => a.modelId },
+            {
+              id: "model",
+              header: "Model",
+              sortValue: (a) => a.models.defaultModelId,
+              cell: (a) => modelsColumn(a.models),
+            },
             {
               id: "template",
               header: "Template",
-              sortValue: (a) => a.template,
+              sortValue: (a) => a.template ?? "",
               cell: (a) => (
                 <>
-                  {a.template}{" "}
-                  {isTemplateRetired(a) && <Badge tone="purple">Template retired</Badge>}
+                  {a.template ?? "—"}{" "}
+                  {isTemplateRetired(a) && <Badge tone="teal">Template retired</Badge>}
                 </>
               ),
             },

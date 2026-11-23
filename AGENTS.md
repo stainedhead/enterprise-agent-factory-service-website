@@ -19,8 +19,7 @@ requirements and **the console UI design by role** are in that root's
 contract live in [enterprise-agent-factory-service-restapi](https://github.com/stainedhead/enterprise-agent-factory-service-restapi)
 (`api/openapi.yaml`).
 
-Status: scaffolded. The SDK has a base client and error mapping; the console has one use case
-(API health) wired through every layer.
+Status: feature complete, release 1.1.0 (team orchestration agent and model access; contract 1.4.0 pinned to `-restapi` `f8b4404`).
 
 ## Toolchain
 

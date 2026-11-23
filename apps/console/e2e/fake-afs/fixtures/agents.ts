@@ -1,6 +1,5 @@
 import {
   addLink,
-  createCollaborationFor,
   HUB_AGENT_ID,
   hasCollaboration,
   linkOf,
@@ -9,7 +8,7 @@ import {
 } from "./collaboration.js";
 import { TEAMS } from "./core.js";
 import type { Fixture, FixtureContext, FixtureResponse } from "./index.js";
-import { addBootSecrets, bindSecret } from "./secrets.js";
+import { bindSecret } from "./secrets.js";
 
 type Json = Record<string, unknown>;
 
@@ -92,7 +91,7 @@ const seedAgents = (): Json[] => [
   {
     id: HUB_AGENT_ID,
     name: "paperclip-hub",
-    role: "collaboration",
+    role: "orchestration",
     template: "paperclip-hub",
     image: digestOf("paperclip", "7c"),
     modelId: "anthropic.claude-sonnet-4-5",
@@ -163,7 +162,12 @@ export const agentsOf = (teamId: string): Json[] => {
 const decorate = (teamId: string, a: Json): Json => {
   const role = (a.role as string | undefined) ?? "worker";
   const link = role === "worker" ? linkOf(teamId, String(a.id)) : undefined;
-  return { ...a, role, ...(link ? { collaboration: link } : {}) };
+  const models = (a.models as Json | undefined) ?? {
+    access: "all",
+    defaultModelId: String(a.modelId ?? "anthropic.claude-sonnet-4-5"),
+    effectiveModelIds: ["anthropic.claude-sonnet-4-5", "anthropic.claude-haiku-4-5"],
+  };
+  return { ...a, role, models, ...(link ? { collaboration: link } : {}) };
 };
 
 const notFound = (what: string): FixtureResponse => ({
@@ -201,7 +205,7 @@ const action =
     if (!cur) return notFound("Agent");
     const upd = patch(cur);
     list[i] = upd;
-    return { status, body: upd };
+    return { status, body: decorate(ctx.params.teamId ?? "", upd) };
   };
 
 export const TEMPLATES: Json[] = [
@@ -284,20 +288,7 @@ export const agentsFixtures: readonly Fixture[] = [
       const list = agentsOf(params.teamId ?? "");
       if (list.some((a) => a.name === b.name))
         return invalid("name", "An agent with this name exists");
-      const role = b.role === "collaboration" ? "collaboration" : "worker";
-      if (
-        role === "collaboration" &&
-        (hasCollaboration(params.teamId ?? "") || list.some((x) => x.role === "collaboration"))
-      )
-        return {
-          status: 409,
-          body: {
-            code: "Conflict",
-            message: "This team already has a collaboration agent",
-            requestId: "req_fake_collab_exists",
-            details: { reason: "collaboration_agent_exists" },
-          },
-        };
+      const role = "worker";
       seq += 1;
       const a: Json = {
         ...b,
@@ -316,14 +307,9 @@ export const agentsFixtures: readonly Fixture[] = [
       for (const sb of (a.secretBindings as { secretId: string }[]) ?? [])
         bindSecret(params.teamId ?? "", sb.secretId, String(a.id));
       delete a.collaboration;
-      if (role === "collaboration") {
-        createCollaborationFor(params.teamId ?? "", String(a.id));
-        addBootSecrets(params.teamId ?? "", String(a.id));
-      } else {
-        const connect = (b.collaboration as { connect?: boolean } | undefined)?.connect === true;
-        if (hasCollaboration(params.teamId ?? ""))
-          addLink(params.teamId ?? "", String(a.id), String(a.name), connect);
-      }
+      const connect = (b.collaboration as { connect?: boolean } | undefined)?.connect === true;
+      if (hasCollaboration(params.teamId ?? ""))
+        addLink(params.teamId ?? "", String(a.id), String(a.name), connect);
       return { status: 201, body: decorate(params.teamId ?? "", a) };
     },
   },
@@ -363,7 +349,7 @@ export const agentsFixtures: readonly Fixture[] = [
         },
       });
       list[i] = upd;
-      return { status: 200, body: upd };
+      return { status: 200, body: decorate(ctx.params.teamId ?? "", upd) };
     },
   },
   {
@@ -371,7 +357,7 @@ export const agentsFixtures: readonly Fixture[] = [
     path: "/v1/teams/{teamId}/agents/{agentId}",
     response: (ctx) => {
       const { cur } = find(ctx);
-      if (cur?.role === "collaboration") removeCollaborationFor(ctx.params.teamId ?? "");
+      if (cur?.role === "orchestration") removeCollaborationFor(ctx.params.teamId ?? "");
       return action((a) => next(a, { status: ok("Deleting") }), 202)(ctx);
     },
   },

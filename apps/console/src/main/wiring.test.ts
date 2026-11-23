@@ -14,6 +14,7 @@ import { buildServices } from "./wiring.js";
 const AREAS: Record<keyof AppServices, true> = {
   agents: true,
   collaboration: true,
+  orchestration: true,
   configValues: true,
   createAgent: true,
   externalSystems: true,

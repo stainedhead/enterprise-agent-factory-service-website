@@ -1,29 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 import { AppError } from "../../errors.js";
-import type {
-  CollaborationPort,
-  CollaborationRecord,
-  LinkRecord,
-} from "../../ports/collaboration.js";
-import { AGENT_MISSING, CollaborationUseCases, isAgentMissing } from "./CollaborationUseCases.js";
+import type { CollaborationPort, LinkRecord } from "../../ports/collaboration.js";
+import { CollaborationUseCases } from "./CollaborationUseCases.js";
 
-const aCollaboration = (): CollaborationRecord => ({
-  teamId: "team_1",
-  agentId: "agt_collab",
-  version: 3,
-  generation: 4,
-  hostname: "alpha.collab.example.test",
-  webUiEnabled: true,
-  restApiEnabled: false,
-  webUiUrl: null,
-  restApiUrl: null,
-  registrationMode: "manual",
-  effective: { webUi: true, restApi: false, reasons: [] },
-  phase: "Ready",
-  observedGeneration: 4,
-  conditions: [],
-  unmanagedPaperclipAgents: [],
-});
 const aLink = (over: Partial<LinkRecord> = {}): LinkRecord => ({
   agentId: "agt_1",
   agentName: "reviewer-bot",
@@ -34,8 +13,6 @@ const aLink = (over: Partial<LinkRecord> = {}): LinkRecord => ({
 });
 const fakeCollaborationPort = (over: Partial<CollaborationPort> = {}) =>
   ({
-    get: vi.fn(async () => aCollaboration()),
-    put: vi.fn(async () => aCollaboration()),
     listLinks: vi.fn(async () => ({ items: [aLink()] })),
     connect: vi.fn(async (_t: string, a: string) => aLink({ agentId: a })),
     disconnect: vi.fn(async (_t: string, a: string) => aLink({ agentId: a })),
@@ -66,17 +43,12 @@ const fakeCollaborationPort = (over: Partial<CollaborationPort> = {}) =>
         },
       ],
     })),
-    listEndpoints: vi.fn(async () => ({ items: [] })),
-    endpointsCsv: vi.fn(async () => "team,hostname\n"),
     ...over,
   }) as unknown as CollaborationPort & {
-    put: ReturnType<typeof vi.fn>;
     connect: ReturnType<typeof vi.fn>;
     disconnect: ReturnType<typeof vi.fn>;
-    get: ReturnType<typeof vi.fn>;
     listLinks: ReturnType<typeof vi.fn>;
     rotateKeys: ReturnType<typeof vi.fn>;
-    listEndpoints: ReturnType<typeof vi.fn>;
   };
 
 const make = (over: Partial<CollaborationPort> = {}) => {
@@ -85,26 +57,9 @@ const make = (over: Partial<CollaborationPort> = {}) => {
 };
 
 describe("CollaborationUseCases", () => {
-  it("put sends both switches with the version read", async () => {
+  it("listLinks passes through", async () => {
     const { port, uc } = make();
-    await uc.put("team_1", aCollaboration(), { webUiEnabled: false, restApiEnabled: true });
-    expect(port.put).toHaveBeenCalledWith(
-      "team_1",
-      { version: 3 },
-      { webUiEnabled: false, restApiEnabled: true },
-    );
-  });
-  it("empty state on collaboration_agent_missing", () => {
-    const e = new AppError({ kind: "not-found", message: "x", reason: AGENT_MISSING });
-    expect(isAgentMissing(e)).toBe(true);
-    expect(isAgentMissing(new AppError({ kind: "not-found", message: "x" }))).toBe(false);
-    expect(isAgentMissing(new Error("x"))).toBe(false);
-  });
-  it("get and listLinks pass through", async () => {
-    const { port, uc } = make();
-    await uc.get("team_1");
     await uc.listLinks("team_1");
-    expect(port.get).toHaveBeenCalled();
     expect(port.listLinks).toHaveBeenCalledWith("team_1", {}, undefined);
   });
   it("connect trims the Paperclip id and drops an empty one", async () => {
@@ -156,11 +111,5 @@ describe("CollaborationUseCases", () => {
     const r = await make().uc.recentAccess("team_1");
     expect(r).toMatchObject({ signIns: 5, people: 2, denied: 1 });
     expect(r.top[0]).toMatchObject({ id: "usr_1", requests: 15, serviceAdminEntry: true });
-  });
-  it("lists endpoints and the csv", async () => {
-    const { port, uc } = make();
-    await uc.listEndpoints({});
-    expect(await uc.endpointsCsv({})).toContain("team");
-    expect(port.listEndpoints).toHaveBeenCalled();
   });
 });

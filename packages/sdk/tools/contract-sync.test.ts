@@ -58,9 +58,9 @@ describe("contract:update", () => {
 });
 
 describe("pinned snapshot (SDK-16)", () => {
-  it("pins v1.3.1 with the team_collaborator role and the five collaboration permissions", () => {
+  it("pins v1.4.0 with the team_collaborator role and the five collaboration permissions", () => {
     const lock = JSON.parse(readFileSync(join(CONTRACT_DIR, "contract.lock.json"), "utf8"));
-    expect(lock.contractVersion).toBe("1.3.1");
+    expect(lock.contractVersion).toBe("1.4.0");
     expect(lock.commit).toMatch(/^[0-9a-f]{40}$/);
     const perms = JSON.parse(readFileSync(join(CONTRACT_DIR, "permissions.json"), "utf8")) as {
       roles: string[];

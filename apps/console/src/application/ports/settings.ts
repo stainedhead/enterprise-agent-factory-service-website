@@ -2,7 +2,7 @@
 // `ListIdentityProviders`, `GetIdentityProvider`, `CreateIdentityProvider`, `UpdateIdentityProvider`,
 // `DeleteIdentityProvider`.
 
-export type SettingType = "string" | "boolean" | "integer" | "array";
+export type SettingType = "string" | "boolean" | "integer" | "array" | "object";
 
 export interface SettingRecord {
   readonly key: string;

@@ -7,6 +7,7 @@ import {
   usage,
 } from "@afs/sdk";
 import type {
+  AgentModelsRecord,
   AgentRecord,
   AgentRef,
   AgentRole,
@@ -49,10 +50,29 @@ const body = (i: CreateAgentInput | UpdateAgentInput) =>
     secretBindings: i.secretBindings ? i.secretBindings.map((b) => ({ ...b })) : undefined,
   }) as never;
 
-const toAgent = (a: Awaited<ReturnType<ReturnType<typeof agents>["get"]>>): AgentRecord => ({
-  ...a,
-  secretBindings: a.secretBindings ?? [],
+type WireAgent = Awaited<ReturnType<ReturnType<typeof agents>["get"]>>;
+
+/** `models` of the wire; a 1.0.1 agent that only has `modelId` reads as `all` with that default. */
+export const toModels = (
+  m: WireAgent["models"] | undefined,
+  modelId?: string,
+): AgentModelsRecord => ({
+  access: m?.access === "selected" ? "selected" : "all",
+  modelIds: m?.modelIds ?? [],
+  defaultModelId: m?.defaultModelId ?? modelId ?? "",
+  ...(m?.effectiveModelIds && { effectiveModelIds: m.effectiveModelIds }),
 });
+
+const toAgent = (a: WireAgent): AgentRecord => {
+  const { modelId, models, image, template, ...rest } = a;
+  return {
+    ...rest,
+    template: template ?? null,
+    image: image ?? null,
+    models: toModels(models, modelId),
+    secretBindings: a.secretBindings ?? [],
+  };
+};
 
 /** `agents.*` calls mapped to {@link AgentsPort}. */
 export class SdkAgents implements AgentsPort {

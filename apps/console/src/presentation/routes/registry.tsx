@@ -40,7 +40,10 @@ export const registry: Record<Exclude<ScreenId, "AUTH" | "NOT_FOUND">, ScreenCom
   T6: lazy(() => import("../screens/t6-members/index.js")),
   T15: lazy(() => import("../screens/t15-history/index.js")),
   T1: lazy(() => import("../screens/t1-overview/index.js")),
-  T16: lazy(() => import("../screens/t16-collaboration/index.js")),
-  V3: lazy(() => import("../screens/t16-collaboration/viewer.js")),
+  // T17 (orchestration) and T18 (its agent configuration tab) are one page; V4 is its read-only variant
+  T17: lazy(() => import("../screens/t17-orchestration/index.js")),
+  T18: lazy(() => import("../screens/t17-orchestration/index.js")),
+  V4: lazy(() => import("../screens/t17-orchestration/viewer.js")),
+  S12: lazy(() => import("../screens/s12-orchestration/index.js")),
   V1: lazy(() => import("../screens/t1-overview/viewer.js")),
 };

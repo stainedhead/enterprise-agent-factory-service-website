@@ -23,7 +23,7 @@ export interface ResourcesRecord {
   readonly memory?: string | undefined;
 }
 
-/** A worker agent's connection to the team's Paperclip (absent on the collaboration agent). */
+/** A worker agent's connection to the team's collaboration tool (absent on the orchestration agent). */
 export interface AgentCollaborationRecord {
   readonly connect: boolean;
   readonly linkState: string;
@@ -32,18 +32,37 @@ export interface AgentCollaborationRecord {
   readonly lastError?: string | null | undefined;
 }
 
-export type AgentRole = "worker" | "collaboration";
+/** `collaboration` is how a 1.0.1 API read the orchestration agent; 1.1.0 sends `orchestration`. */
+export type AgentRole = "worker" | "orchestration";
+
+/** `models` of an agent or pool (MOD-3); `effectiveModelIds` is what the agent may call now. */
+export interface AgentModelsRecord {
+  readonly access: "all" | "selected";
+  readonly modelIds: readonly string[];
+  readonly defaultModelId: string;
+  readonly effectiveModelIds?: readonly string[] | undefined;
+}
+
+/** `models` as sent on create and update: the selection is omitted for `all`. */
+export interface ModelsInput {
+  readonly access: "all" | "selected";
+  readonly modelIds?: readonly string[] | undefined;
+  readonly defaultModelId: string;
+}
 
 export interface AgentRecord {
   readonly id: string;
   /** `worker` when the API sent no role. */
   readonly role?: string | undefined;
+  /** `orchestration` on the orchestration agent only (ORC-6). */
+  readonly runtime?: string | undefined;
   readonly collaboration?: AgentCollaborationRecord | undefined;
   readonly name: string;
   readonly description?: string | undefined;
-  readonly template: string;
-  readonly image: string;
-  readonly modelId: string;
+  /** `null` on the orchestration agent for callers who are not service admins (ORC-6). */
+  readonly template: string | null;
+  readonly image: string | null;
+  readonly models: AgentModelsRecord;
   readonly paused: boolean;
   readonly generation: number;
   readonly version: number;
@@ -59,8 +78,6 @@ export interface AgentRecord {
 }
 
 export interface CreateAgentInput {
-  /** Set on create, immutable (WEB-US-53). */
-  readonly role?: AgentRole | undefined;
   readonly collaboration?:
     | { readonly connect?: boolean | undefined; readonly paperclipAgentId?: string | undefined }
     | undefined;
@@ -68,7 +85,7 @@ export interface CreateAgentInput {
   readonly description?: string | undefined;
   readonly template: string;
   readonly image: string;
-  readonly modelId: string;
+  readonly models: ModelsInput;
   readonly iamIdentity?: string | undefined;
   readonly resources?: ResourcesRecord | undefined;
   readonly secretBindings?: readonly SecretBindingRecord[] | undefined;
@@ -79,7 +96,7 @@ export interface UpdateAgentInput {
   readonly description?: string | undefined;
   readonly template?: string | undefined;
   readonly image?: string | undefined;
-  readonly modelId?: string | undefined;
+  readonly models?: ModelsInput | undefined;
   readonly iamIdentity?: string | undefined;
   readonly resources?: ResourcesRecord | undefined;
   readonly secretBindings?: readonly SecretBindingRecord[] | undefined;

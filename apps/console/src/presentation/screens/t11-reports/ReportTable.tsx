@@ -82,14 +82,14 @@ function cell(key: string, row: ReportRowRecord, teamId: string | undefined): Re
   if (key === "agent" && teamId)
     return <Link to={`/t/${teamId}/reports/agents/${String(v)}`}>{String(v)}</Link>;
   if (key === "serviceAdminEntry")
-    return v === true ? <Badge tone="purple">Service admin entry</Badge> : "—";
+    return v === true ? <Badge tone="teal">Service admin entry</Badge> : "—";
   if (key === "surface") return SURFACE[String(v)] ?? String(v);
   if (key === "reason")
     return String(v)
       .replace(/_/g, " ")
       .replace(/^./, (c) => c.toUpperCase());
   if (key === "person" || key === "principal") return personText(v);
-  if (key === "unmetered") return v === true ? <Badge tone="purple">Unmetered</Badge> : "—";
+  if (key === "unmetered") return v === true ? <Badge tone="teal">Unmetered</Badge> : "—";
   if (key.startsWith("utilization")) {
     const p = utilizationPct(row);
     return p === undefined ? "—" : `${p}%`;

@@ -4,6 +4,8 @@ import {
   EXTRA_ROUTES,
   NAV_ITEMS,
   type NavItem,
+  ORCHESTRATION_TABS,
+  REDIRECTS,
   routeFor,
   screenFor,
   visibleItems,
@@ -44,7 +46,7 @@ const ids = (items: readonly { id: string }[]) => items.map((i) => i.id);
 
 describe("navigation (M0-D4)", () => {
   it("has every IA item of PRD §4.1", () => {
-    expect(NAV_ITEMS).toHaveLength(31);
+    expect(NAV_ITEMS).toHaveLength(32);
     const groups = new Set(NAV_ITEMS.map((i) => i.group));
     expect([...groups]).toEqual([
       "Service",
@@ -115,23 +117,25 @@ describe("navigation (M0-D4)", () => {
   });
 });
 
-describe("collaboration item (WEB-US-53)", () => {
-  const item = NAV_ITEMS.find((i) => i.id === "collaboration") as NavItem;
-  it("sits between Agents and Members & access in the Team group, with T16 and V3", () => {
+describe("orchestration items (WEB-US-47, ORC-20)", () => {
+  const item = NAV_ITEMS.find((i) => i.id === "orchestration") as NavItem;
+  it("sits right after Overview in the Team group, with T17 and V4, and replaces Collaboration", () => {
     const teamIds = ids(NAV_ITEMS.filter((i) => i.group === "Team"));
-    expect(teamIds.indexOf("collaboration")).toBe(teamIds.indexOf("agents") + 1);
-    expect(item.route).toBe("/t/:teamId/collaboration");
-    expect(item.screen).toBe("T16");
-    expect(item.viewerScreen).toBe("V3");
+    expect(teamIds.indexOf("orchestration")).toBe(teamIds.indexOf("overview") + 1);
+    expect(teamIds).not.toContain("collaboration");
+    expect(item.label).toBe("Orchestration");
+    expect(item.route).toBe("/t/:teamId/orchestration");
+    expect(item.screen).toBe("T17");
+    expect(item.viewerScreen).toBe("V4");
   });
-  it("shows for every team role and picks V3 without collaboration:manage", () => {
+  it("shows for every team role and picks V4 without collaboration:manage", () => {
     for (const me of [admin, viewer, collaborator])
-      expect(ids(visibleItems(me, team))).toContain("collaboration");
-    expect(screenFor(item, admin, "team_a")).toBe("T16");
-    expect(screenFor(item, viewer, "team_a")).toBe("V3");
-    expect(screenFor(item, collaborator, "team_a")).toBe("V3");
+      expect(ids(visibleItems(me, team))).toContain("orchestration");
+    expect(screenFor(item, admin, "team_a")).toBe("T17");
+    expect(screenFor(item, viewer, "team_a")).toBe("V4");
+    expect(screenFor(item, collaborator, "team_a")).toBe("V4");
   });
-  it("has no item without collaboration:read (an API older than v1.3.0) and for security operators", () => {
+  it("has no item without collaboration:read and none for security operators", () => {
     const old = mk({
       teams: [
         {
@@ -142,8 +146,31 @@ describe("collaboration item (WEB-US-53)", () => {
         },
       ],
     });
-    expect(ids(visibleItems(old, team))).not.toContain("collaboration");
-    expect(ids(visibleItems(sec))).not.toContain("collaboration");
-    expect(ids(visibleItems(sec, team))).not.toContain("collaboration");
+    expect(ids(visibleItems(old, team))).not.toContain("orchestration");
+    expect(ids(visibleItems(sec))).not.toContain("orchestration-service");
+    expect(ids(visibleItems(sec, team))).not.toContain("orchestration");
+  });
+  it("the service page is S12 under Platform for service admins only (denied for team roles)", () => {
+    const s12 = NAV_ITEMS.find((i) => i.id === "orchestration-service") as NavItem;
+    expect(s12.group).toBe("Platform");
+    expect(s12.screen).toBe("S12");
+    expect(s12.route).toBe("/orchestration");
+    expect(ids(visibleItems(svc))).toContain("orchestration-service");
+    expect(ids(visibleItems(admin))).not.toContain("orchestration-service");
+    expect(ids(visibleItems(admin, team))).not.toContain("orchestration-service");
+  });
+  it("redirects the 1.0.1 collaboration route and names the tab routes", () => {
+    expect(REDIRECTS).toContainEqual({
+      from: "/t/:teamId/collaboration",
+      to: "/t/:teamId/orchestration",
+    });
+    expect(EXTRA_ROUTES.map((r) => r.route)).toContain("/t/:teamId/orchestration/:tab");
+    expect(ORCHESTRATION_TABS.map((t) => t.id)).toEqual([
+      "collaboration",
+      "config",
+      "usage",
+      "logs",
+      "revisions",
+    ]);
   });
 });

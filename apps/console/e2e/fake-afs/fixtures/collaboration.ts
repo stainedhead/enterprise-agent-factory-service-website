@@ -1,4 +1,4 @@
-// Paperclip collaboration (API contract v1.3.1 §4.4b): the team collaboration resource, its links to worker
+// Team orchestration (API contract v1.4.0 §4.4d): the orchestration resource, its tool change, its links to worker
 // agents, key rotation and the service-wide endpoint list. The fake holds no Paperclip content and no key.
 import { TEAMS } from "./core.js";
 import type { Fixture, FixtureContext, FixtureResponse } from "./index.js";
@@ -23,10 +23,15 @@ export const BOOT_SECRET_NAMES = [
   "paperclip-secrets-master-key",
 ] as const;
 
+type Level = "off" | "private" | "public";
+const RANK: Record<Level, number> = { off: 0, private: 1, public: 2 };
+
 export interface CollabControl {
   baseDomain: string | null;
   publicEndpoints: boolean;
-  mayExpose: boolean;
+  privateEndpoints: boolean;
+  /** The team's `maxCollaborationExposure` set by the service admin. */
+  limit: Level;
   providerHasCollabClient: boolean;
   phase: string;
   registrationMode: "manual" | "managed";
@@ -36,8 +41,9 @@ export interface CollabControl {
 interface Collab {
   teamId: string;
   agentId: string;
-  webUi: boolean;
-  restApi: boolean;
+  tool: "paperclip" | "buzz";
+  webUi: Level;
+  webApi: Level;
   version: number;
   generation: number;
   observed: number;
@@ -61,7 +67,8 @@ interface Link {
 const defaults = (): CollabControl => ({
   baseDomain: "collab.example.com",
   publicEndpoints: true,
-  mayExpose: true,
+  privateEndpoints: true,
+  limit: "public",
   providerHasCollabClient: true,
   phase: "Ready",
   registrationMode: "manual",
@@ -82,8 +89,9 @@ const seed = (): void => {
       {
         teamId: TEAMS[0].id,
         agentId: HUB_AGENT_ID,
-        webUi: true,
-        restApi: false,
+        tool: "paperclip",
+        webUi: "private",
+        webApi: "off",
         version: 4,
         generation: 6,
         observed: 6,
@@ -148,20 +156,6 @@ const teamSlug = (teamId: string): string => TEAMS.find((t) => t.id === teamId)?
 /** Called by CreateTeam's fake for a slug whose hostname is held; and by the agent fixture on a collaboration create. */
 export const hasCollaboration = (teamId: string): boolean => collabs.has(teamId);
 
-/** Creates the collaboration resource for a team (called when a collaboration agent is created). */
-export const createCollaborationFor = (teamId: string, agentId: string): void => {
-  collabs.set(teamId, {
-    teamId,
-    agentId,
-    webUi: true,
-    restApi: false,
-    version: 1,
-    generation: 1,
-    observed: 0,
-    settleIn: 2,
-    unmanaged: [],
-  });
-};
 export const removeCollaborationFor = (teamId: string): void => {
   collabs.delete(teamId);
   links.delete(teamId);
@@ -204,8 +198,8 @@ const err = (status: number, code: string, message: string, details?: Json): Fix
   body: { code, message, requestId: `req_fake_${code.toLowerCase()}`, ...(details && { details }) },
 });
 const missing = (): FixtureResponse =>
-  err(404, "NotFound", "This team has no collaboration agent", {
-    reason: "collaboration_agent_missing",
+  err(404, "NotFound", "This team has no orchestration agent", {
+    reason: "orchestration_agent_pending",
   });
 const suspended = (): FixtureResponse =>
   err(409, "Conflict", "Team is suspended", { reason: "team_suspended" });
@@ -216,19 +210,40 @@ const denied = (ctx: FixtureContext): FixtureResponse | undefined =>
       })
     : undefined;
 
-const reasonsFor = (c: Collab) => {
-  const reasons: string[] = [];
-  if (!ctl.mayExpose) reasons.push("team_not_allowed");
-  if (!ctl.publicEndpoints) reasons.push("service_endpoints_off");
-  if (ctl.baseDomain === null) reasons.push("base_domain_unset");
-  const surfaces = reasons.length === 0;
-  if (surfaces && c.webUi && !ctl.providerHasCollabClient)
+type Reason =
+  | "tool_not_supported"
+  | "team_limit"
+  | "service_switch_public"
+  | "service_switch_private"
+  | "base_domain_unset"
+  | "provider_without_collab_client";
+
+/** The effective level of one surface and why it is lower than the stored exposure. */
+const lower = (c: Collab, surface: "webUi" | "webApi"): { effective: Level; reasons: Reason[] } => {
+  const reasons: Reason[] = [];
+  if (c.tool === "buzz") return { effective: "off", reasons: ["tool_not_supported"] };
+  let e: Level = c[surface];
+  if (RANK[e] > RANK[ctl.limit]) {
+    e = ctl.limit;
+    reasons.push("team_limit");
+  }
+  if (e === "public" && !ctl.publicEndpoints) {
+    e = "private";
+    reasons.push("service_switch_public");
+  }
+  if (e === "private" && !ctl.privateEndpoints) {
+    e = "off";
+    reasons.push("service_switch_private");
+  }
+  if (e !== "off" && ctl.baseDomain === null) {
+    e = "off";
+    reasons.push("base_domain_unset");
+  }
+  if (surface === "webUi" && e !== "off" && !ctl.providerHasCollabClient) {
+    e = "off";
     reasons.push("provider_without_collab_client");
-  return {
-    reasons,
-    webUi: c.webUi && surfaces && ctl.providerHasCollabClient,
-    restApi: c.restApi && surfaces,
-  };
+  }
+  return { effective: e, reasons };
 };
 
 const hostnameOf = (teamId: string): string | null =>
@@ -244,26 +259,42 @@ const condition = (type: string, status: string, reason: string, message: string
   lastTransitionTime: ts,
 });
 
+const surfaceView = (c: Collab, surface: "webUi" | "webApi", path: string): Json => {
+  const { effective, reasons } = lower(c, surface);
+  const host = effective === "off" ? null : hostnameOf(c.teamId);
+  return {
+    supported: c.tool !== "buzz",
+    exposure: c.tool === "buzz" ? "off" : c[surface],
+    effective,
+    reasons,
+    hostname: host,
+    url: host ? `https://${host}${path}` : null,
+  };
+};
+
 const view = (c: Collab): Json => {
-  const e = reasonsFor(c);
-  const host = hostnameOf(c.teamId);
+  const ui = lower(c, "webUi").effective;
+  const api = lower(c, "webApi").effective;
+  const serving = ui !== "off" || api !== "off";
   const ready = phaseOf(c) === "Ready";
   return {
     teamId: c.teamId,
     agentId: c.agentId,
+    agentName: "orchestrator",
     version: c.version,
     generation: c.generation,
     createdAt: ts,
     createdBy: "usr_01JD2Q3R4S5T6V7W8X9Y0Z0001",
     updatedAt: ts,
-    hostname: host,
-    webUiEnabled: c.webUi,
-    restApiEnabled: c.restApi,
-    webUiUrl: host ? `https://${host}/` : null,
-    restApiUrl: host ? `https://${host}/api` : null,
+    phase: phaseOf(c),
+    tool: c.tool,
+    toolVersion: c.tool === "paperclip" ? "2026.11.2" : "0.9.0",
+    limit: ctl.limit,
     registrationMode: ctl.registrationMode,
-    effective: { webUi: e.webUi, restApi: e.restApi, reasons: e.reasons },
-    unmanagedPaperclipAgents: c.unmanaged,
+    webUi: surfaceView(c, "webUi", "/"),
+    webApi: surfaceView(c, "webApi", "/api"),
+    connectedAgents: (links.get(c.teamId) ?? []).filter((k) => k.connect).length,
+    unmanagedToolAgents: c.unmanaged,
     status: {
       phase: phaseOf(c),
       observedGeneration: c.observed,
@@ -271,22 +302,22 @@ const view = (c: Collab): Json => {
       conditions: [
         condition(
           "EndpointReady",
-          e.webUi || e.restApi ? "True" : "False",
-          e.webUi || e.restApi ? "Ready" : "NoSurface",
-          e.webUi || e.restApi ? "Endpoint is serving" : "No public surface is served",
+          serving ? "True" : "False",
+          serving ? "Ready" : "NoSurface",
+          serving ? "Endpoint is serving" : "No surface is served",
         ),
         condition(
-          "PaperclipReady",
+          "ToolReady",
           ready ? "True" : "False",
           ready ? "Ready" : "NotReady",
-          ready ? "Paperclip is up" : "Waiting",
+          ready ? "The tool is up" : "Waiting",
         ),
         condition("RegistrationHealthy", "True", "Ready", "Agents register as configured"),
         condition(
-          "UnmanagedPaperclipAgents",
+          "UnmanagedToolAgents",
           c.unmanaged.length > 0 ? "True" : "False",
           c.unmanaged.length > 0 ? "Found" : "None",
-          c.unmanaged.length > 0 ? "Paperclip has agents AFS does not manage" : "None found",
+          c.unmanaged.length > 0 ? "The tool has agents AFS does not manage" : "None found",
         ),
       ],
     },
@@ -325,27 +356,33 @@ const linkView = (k: Link): Json => ({
 });
 
 const endpointRows = (): Json[] =>
-  [...collabs.values()].map((c) => {
-    const e = reasonsFor(c);
-    return {
-      teamId: c.teamId,
-      slug: teamSlug(c.teamId),
-      agentId: c.agentId,
-      hostname: hostnameOf(c.teamId),
-      webUiEnabled: c.webUi,
-      restApiEnabled: c.restApi,
-      effective: { webUi: e.webUi, restApi: e.restApi },
-      phase: phaseOf(c),
-      teamState: ctl.teamState,
-      mayExposeCollaboration: ctl.mayExpose,
-      lastAccessAt: "2026-11-22T09:30:00Z",
-    };
-  });
+  [...collabs.values()].flatMap((c) =>
+    (["webUi", "webApi"] as const)
+      .filter((surface) => c[surface] !== "off")
+      .map((surface) => {
+        const e = lower(c, surface);
+        return {
+          teamId: c.teamId,
+          slug: teamSlug(c.teamId),
+          teamState: ctl.teamState,
+          agentId: c.agentId,
+          tool: c.tool,
+          surface,
+          exposure: c[surface],
+          effective: e.effective,
+          reasons: e.reasons,
+          limit: ctl.limit,
+          hostname: e.effective === "off" ? null : hostnameOf(c.teamId),
+          phase: phaseOf(c),
+          lastAccessAt: "2026-11-22T09:30:00Z",
+        };
+      }),
+  );
 
 export const collaborationFixtures: readonly Fixture[] = [
   {
     method: "GET",
-    path: "/v1/teams/{teamId}/collaboration",
+    path: "/v1/teams/{teamId}/orchestration",
     response: ({ params }) => {
       const c = collabs.get(params.teamId ?? "");
       if (!c) return missing();
@@ -356,7 +393,7 @@ export const collaborationFixtures: readonly Fixture[] = [
   },
   {
     method: "PUT",
-    path: "/v1/teams/{teamId}/collaboration",
+    path: "/v1/teams/{teamId}/orchestration",
     response: (ctx) => {
       const d = denied(ctx);
       if (d) return d;
@@ -364,43 +401,31 @@ export const collaborationFixtures: readonly Fixture[] = [
       if (!c) return missing();
       if (ctl.teamState === "suspended") return suspended();
       const b = ctx.body as {
-        webUiEnabled?: boolean;
-        restApiEnabled?: boolean;
+        webUi?: { exposure?: Level };
+        webApi?: { exposure?: Level };
         registrationMode?: string;
       };
-      const turnsOn = (
-        field: "webUiEnabled" | "restApiEnabled",
-        cur: boolean,
-      ): FixtureResponse | undefined => {
-        if (b[field] !== true || cur) return undefined;
-        if (ctl.baseDomain === null)
+      for (const surface of ["webUi", "webApi"] as const) {
+        const want = b[surface]?.exposure;
+        if (want && RANK[want] > RANK[ctl.limit])
           return invalidField(
-            field,
+            `${surface}.exposure`,
+            "exposure_above_team_limit",
+            `The team may expose at most ${ctl.limit}`,
+          );
+        if (want === "public" && ctl.baseDomain === null)
+          return invalidField(
+            `${surface}.exposure`,
             "collab_base_domain_unset",
-            "Public collaboration is not configured for the service",
+            "Collaboration is not configured for the service",
           );
-        if (!ctl.publicEndpoints)
+        if (want && want !== "off" && c.tool === "buzz")
           return invalidField(
-            field,
-            "collab_public_endpoints_off",
-            "Public collaboration is off for the service",
+            `${surface}.exposure`,
+            "tool_not_supported",
+            "This tool has no web surface",
           );
-        if (!ctl.mayExpose)
-          return invalidField(
-            field,
-            "collaboration_not_allowed_for_team",
-            "Not allowed for this team by the service",
-          );
-        if (field === "webUiEnabled" && !ctl.providerHasCollabClient)
-          return invalidField(
-            field,
-            "provider_without_collab_client",
-            "Your sign-in provider has no collaboration client",
-          );
-        return undefined;
-      };
-      const bad = turnsOn("webUiEnabled", c.webUi) ?? turnsOn("restApiEnabled", c.restApi);
-      if (bad) return bad;
+      }
       if (
         b.registrationMode === "managed" &&
         ctl.registrationMode !== "managed" &&
@@ -409,15 +434,36 @@ export const collaborationFixtures: readonly Fixture[] = [
         return invalidField(
           "registrationMode",
           "collaboration_agent_not_ready",
-          "The collaboration agent must be Ready",
+          "The orchestration agent must be Ready",
         );
       if (b.registrationMode) ctl.registrationMode = b.registrationMode as "manual" | "managed";
-      c.webUi = b.webUiEnabled ?? c.webUi;
-      c.restApi = b.restApiEnabled ?? c.restApi;
+      c.webUi = b.webUi?.exposure ?? c.webUi;
+      c.webApi = b.webApi?.exposure ?? c.webApi;
       c.version += 1;
       c.generation += 1;
       c.settleIn = 2;
       return { status: 200, body: view(c) };
+    },
+  },
+  {
+    method: "POST",
+    path: "/v1/teams/{teamId}/orchestration:change-tool",
+    response: (ctx) => {
+      const d = denied(ctx);
+      if (d) return d;
+      const c = collabs.get(ctx.params.teamId ?? "");
+      if (!c) return missing();
+      if (ctl.teamState === "suspended") return suspended();
+      const tool = (ctx.body as { tool?: "paperclip" | "buzz" }).tool ?? c.tool;
+      c.tool = tool;
+      if (tool === "buzz") {
+        c.webUi = "off";
+        c.webApi = "off";
+      }
+      c.version += 1;
+      c.generation += 1;
+      c.settleIn = 2;
+      return { status: 202, body: view(c) };
     },
   },
   {
@@ -530,20 +576,31 @@ export const collaborationFixtures: readonly Fixture[] = [
   },
   {
     method: "GET",
-    path: "/v1/admin/collaboration-endpoints",
+    path: "/v1/admin/orchestration-endpoints",
     response: ({ query }) => {
       let rows = endpointRows();
       const teamId = query.get("teamId");
       const state = query.get("state");
       if (teamId) rows = rows.filter((r) => r.teamId === teamId);
       if (state) rows = rows.filter((r) => r.phase === state);
-      const csv = `team,hostname,webUi,restApi,state\r\n${rows
-        .map((r) => {
-          const e = r.effective as { webUi: boolean; restApi: boolean };
-          return `${r.slug},${r.hostname ?? ""},${e.webUi},${e.restApi},${r.phase}`;
-        })
+      const tool = query.get("tool");
+      const exposure = query.get("exposure");
+      if (tool) rows = rows.filter((r) => r.tool === tool);
+      if (exposure) rows = rows.filter((r) => r.exposure === exposure);
+      const csv = `team,tool,surface,exposure,effective,hostname,state\r\n${rows
+        .map(
+          (r) =>
+            `${r.slug},${r.tool},${r.surface},${r.exposure},${r.effective},${r.hostname ?? ""},${r.phase}`,
+        )
         .join("\r\n")}\r\n`;
-      return { status: 200, body: paged(rows, query), csv };
+      const migration = {
+        state: "complete",
+        teamsTotal: TEAMS.length,
+        teamsWithOrchestration: collabs.size,
+        teamsPending: 0,
+        blocked: [],
+      };
+      return { status: 200, body: { ...paged(rows, query), migration }, csv };
     },
   },
 ];

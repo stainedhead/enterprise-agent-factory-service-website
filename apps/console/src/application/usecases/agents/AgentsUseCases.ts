@@ -1,3 +1,4 @@
+import { isOrchestrationRole } from "../../../domain/orchestration.js";
 import { AppError } from "../../errors.js";
 import type {
   AgentRecord,
@@ -36,12 +37,12 @@ export class AgentsUseCases {
     return agents.map((a) => ({ ...a, costUsd: costs ? (costs[a.id] ?? "0.00") : undefined }));
   }
 
-  /** The team's collaboration agent, or `undefined` when it has none (T3 role step, WEB-US-45). */
-  async collaborationAgent(teamId: string, signal?: AbortSignal): Promise<AgentRecord | undefined> {
-    return (await this.port.list(teamId, signal, { role: "collaboration" }))[0];
+  /** The team's orchestration agent, or `undefined` before the 1.1.0 backfill reached the team (ORC-1). */
+  async orchestrationAgent(teamId: string, signal?: AbortSignal): Promise<AgentRecord | undefined> {
+    return (await this.port.list(teamId, signal, { role: "orchestration" }))[0];
   }
 
-  /** The team's worker agents (the ones that can connect to Paperclip). */
+  /** The team's worker agents (the ones that can connect to the collaboration tool). */
   workers(teamId: string, signal?: AbortSignal): Promise<readonly AgentRecord[]> {
     return this.port.list(teamId, signal, { role: "worker" });
   }
@@ -134,6 +135,14 @@ export class AgentsUseCases {
 /** Every status phase an agent list shows, for the one polling decision of the page (WD-21). */
 export const agentPhases = (agents: readonly AgentRecord[]): string[] =>
   agents.map((a) => (a.paused ? "Ready" : a.status.phase));
+
+/** The orchestration agent among a team's agents, and the workers (ORC-21: the card and the table are apart). */
+export function splitAgents<T extends Pick<AgentRecord, "role">>(
+  agents: readonly T[],
+): { orchestration: T | undefined; workers: T[] } {
+  const isOrch = (a: T) => isOrchestrationRole(a.role);
+  return { orchestration: agents.find(isOrch), workers: agents.filter((a) => !isOrch(a)) };
+}
 
 /** `TemplateRetired=True` on the agent's status (WEB-US-22.3). */
 export const isTemplateRetired = (a: Pick<AgentRecord, "status">): boolean =>

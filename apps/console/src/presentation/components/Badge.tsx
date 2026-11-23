@@ -3,7 +3,8 @@ import s from "./ui.module.css";
 
 const TONE = {
   blue: s.badgeBlue,
-  purple: s.badgePurple,
+  teal: s.badgeTeal,
+  orchestration: s.badgeOrch,
   grey: s.badgeGrey,
   amber: s.badgeAmber,
 } as const;

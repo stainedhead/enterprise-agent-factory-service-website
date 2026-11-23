@@ -65,7 +65,10 @@ function emitMethod(o: OperationIR, c: Contract, indent: string): string {
     kind === "paged" || kind === "pagedCsv" ? "paginate" : kind === "report" ? "report" : "call";
   const generic = fn === "call" || fn === "report" ? `<${type}>` : `<${type}>`;
   const docText = `${o.summary}${o.permission ? ` (requires \`${o.permission}\`)` : ""}. ${o.method} ${o.path}`;
-  return `${indent}/** ${docText.replace(/\*\//g, "*\\/")} */\n${indent}${o.sdk.method}(${params.join(", ")}): ${ret} {\n${indent}  return core.${fn}${generic}(${JSON.stringify(o.operationId)}, ${args}, opts);\n${indent}},`;
+  const dep = o.deprecated
+    ? `\n${indent} * @deprecated Kept until 2.0.0; see the API contract for the successor operation.`
+    : "";
+  return `${indent}/** ${docText.replace(/\*\//g, "*\\/")}${dep} */\n${indent}${o.sdk.method}(${params.join(", ")}): ${ret} {\n${indent}  return core.${fn}${generic}(${JSON.stringify(o.operationId)}, ${args}, opts);\n${indent}},`;
 }
 
 function emitTree(n: TreeNode, c: Contract, indent: string): string {

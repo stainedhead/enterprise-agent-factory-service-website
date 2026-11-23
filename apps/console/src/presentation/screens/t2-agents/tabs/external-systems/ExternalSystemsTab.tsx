@@ -50,7 +50,7 @@ export function ExternalSystemsTab({ teamId, agent }: PanelTabProps) {
             text: (s) => s.name,
             cell: (s) => (
               <>
-                {s.name} {s.unmetered && <Badge tone="purple">Unmetered</Badge>}
+                {s.name} {s.unmetered && <Badge tone="teal">Unmetered</Badge>}
               </>
             ),
           },

@@ -11,6 +11,7 @@ import { adminIdentityProviders } from "./resources/admin-identityProviders.js";
 import { adminImports } from "./resources/admin-imports.js";
 import { adminModels } from "./resources/admin-models.js";
 import { adminNotificationChannels } from "./resources/admin-notificationChannels.js";
+import { adminOrchestrationEndpoints } from "./resources/admin-orchestrationEndpoints.js";
 import { adminOrgAccounts } from "./resources/admin-orgAccounts.js";
 import { adminPriceProposals } from "./resources/admin-priceProposals.js";
 import { adminPrices } from "./resources/admin-prices.js";
@@ -34,6 +35,7 @@ import { me } from "./resources/me.js";
 import { members } from "./resources/members.js";
 import { models } from "./resources/models.js";
 import { notificationChannels } from "./resources/notificationChannels.js";
+import { orchestration } from "./resources/orchestration.js";
 import { pools } from "./resources/pools.js";
 import { reports } from "./resources/reports.js";
 import { revisions } from "./resources/revisions.js";
@@ -57,6 +59,7 @@ export { adminIdentityProviders } from "./resources/admin-identityProviders.js";
 export { adminImports } from "./resources/admin-imports.js";
 export { adminModels } from "./resources/admin-models.js";
 export { adminNotificationChannels } from "./resources/admin-notificationChannels.js";
+export { adminOrchestrationEndpoints } from "./resources/admin-orchestrationEndpoints.js";
 export { adminOrgAccounts } from "./resources/admin-orgAccounts.js";
 export { adminPriceProposals } from "./resources/admin-priceProposals.js";
 export { adminPrices } from "./resources/admin-prices.js";
@@ -80,6 +83,7 @@ export { me } from "./resources/me.js";
 export { members } from "./resources/members.js";
 export { models } from "./resources/models.js";
 export { notificationChannels } from "./resources/notificationChannels.js";
+export { orchestration } from "./resources/orchestration.js";
 export { pools } from "./resources/pools.js";
 export { reports } from "./resources/reports.js";
 export { revisions } from "./resources/revisions.js";
@@ -110,6 +114,7 @@ export function createAfs(options: AfsClientOptions) {
     members: members(core),
     models: models(core),
     notificationChannels: notificationChannels(core),
+    orchestration: orchestration(core),
     pools: pools(core),
     reports: reports(core),
     revisions: revisions(core),
@@ -131,6 +136,7 @@ export function createAfs(options: AfsClientOptions) {
       imports: adminImports(core),
       models: adminModels(core),
       notificationChannels: adminNotificationChannels(core),
+      orchestrationEndpoints: adminOrchestrationEndpoints(core),
       orgAccounts: adminOrgAccounts(core),
       priceProposals: adminPriceProposals(core),
       prices: adminPrices(core),

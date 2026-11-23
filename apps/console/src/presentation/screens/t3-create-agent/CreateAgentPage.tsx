@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
-import { Link, useNavigate, useParams, useSearchParams } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
 import { isAppError } from "../../../application/errors.js";
 import {
   type CreateAgentDraft,
@@ -8,6 +8,8 @@ import {
   validateDraft,
 } from "../../../application/usecases/agents-create/CreateAgentUseCases.js";
 import { boolFlag, buildCli } from "../../../domain/cli.js";
+import { modelFlags } from "../../../domain/modelAccess.js";
+import { toolLabel } from "../../../domain/orchestration.js";
 import {
   Alert,
   Breadcrumbs,
@@ -20,25 +22,25 @@ import {
 import { useDraft } from "../../hooks/useDraft.js";
 import { useTeamWriteGate } from "../../hooks/useTeamWriteGate.js";
 import { queryKey } from "../../query/keys.js";
-import { useService } from "../../services.js";
+import { useOptionalService, useService } from "../../services.js";
 import { agentsKey } from "../t2-agents/keys.js";
-import { collabKey } from "../t16-collaboration/keys.js";
+import { orchKey } from "../t17-orchestration/keys.js";
 import { AgentSection } from "./sections/AgentSection.js";
 import { ConfigSection } from "./sections/ConfigSection.js";
 import { HelpPanel } from "./sections/HelpPanel.js";
 import { IdentitySection } from "./sections/IdentitySection.js";
 import { ModelResourcesSection } from "./sections/ModelResourcesSection.js";
-import { RoleSection } from "./sections/RoleSection.js";
 import { SecretsSection } from "./sections/SecretsSection.js";
 import { StorageSection } from "./sections/StorageSection.js";
 
 const EMPTY: CreateAgentDraft = {
-  role: "worker",
   name: "",
   template: "",
   image: "",
   persona: "",
-  modelId: "",
+  modelAccess: "all",
+  modelIds: [],
+  defaultModelId: "",
   cpu: "",
   memory: "",
   sizeGiB: "20",
@@ -63,13 +65,11 @@ export function cliFor(teamId: string, d: CreateAgentDraft) {
         };
   const base = buildCli("CreateAgent", {
     teamId,
-    role: d.role === "collaboration" ? "collaboration" : undefined,
     name: d.name || "<name>",
     template: d.template || "<template>",
     image: d.image || "<image>",
-    modelId: d.modelId || "<model>",
     description: d.persona,
-    iamIdentity: d.role === "collaboration" ? "dedicated" : d.iamIdentity,
+    iamIdentity: d.iamIdentity,
     resources: Object.keys(resources).length > 0 ? resources : undefined,
     volume: {
       ...(d.sizeGiB && { sizeGiB: Number(d.sizeGiB) }),
@@ -86,17 +86,27 @@ export function cliFor(teamId: string, d: CreateAgentDraft) {
           }))
         : undefined,
   });
-  // `--collaboration-connect` / `--no-collaboration-connect` for a worker of a team that has Paperclip
-  return d.role !== "collaboration" && d.connect !== undefined
-    ? { ...base, args: [...base.args, boolFlag("collaboration-connect", d.connect)] }
-    : base;
+  // `--models all | <id> ...` and `--default-model-id` (MOD-8), then `--collaboration-connect` when the team has a tool
+  const withModels = {
+    ...base,
+    args: [
+      ...base.args,
+      ...modelFlags({
+        access: d.modelAccess,
+        modelIds: d.modelIds,
+        defaultModelId: d.defaultModelId || "<model>",
+      }),
+    ],
+  };
+  return d.connect !== undefined
+    ? { ...withModels, args: [...withModels.args, boolFlag("collaboration-connect", d.connect)] }
+    : withModels;
 }
 
 /** T3 (WEB-US-26): create an agent; sections hold their own fields and the side panel shows the CLI command. */
 export function CreateAgentPage() {
   const { teamId = "" } = useParams();
   const navigate = useNavigate();
-  const [params] = useSearchParams();
   const agents = useService("agents");
   const teams = useService("teams");
   const secrets = useService("secrets");
@@ -110,11 +120,7 @@ export function CreateAgentPage() {
     setValue: setDraft,
     restored,
     discard,
-  } = useDraft<CreateAgentDraft>(`t3-create-agent:${teamId}`, {
-    ...EMPTY,
-    role: params.get("role") === "collaboration" ? "collaboration" : "worker",
-  });
-  const [raced, setRaced] = useState(false);
+  } = useDraft<CreateAgentDraft>(`t3-create-agent:${teamId}`, EMPTY);
   const [errors, setErrors] = useState<DraftErrors>({});
   const [unmapped, setUnmapped] = useState<string[]>([]);
 
@@ -122,21 +128,17 @@ export function CreateAgentPage() {
     queryKey: queryKey({ area: "agents", resource: "templates" }),
     queryFn: ({ signal }) => agents.templates(signal),
   });
-  const paperclipTemplates = useQuery({
-    queryKey: queryKey({ area: "agents", resource: "templates", id: "paperclip" }),
-    queryFn: ({ signal }) => agents.templates(signal, { capability: "paperclip" }),
+  const orch = useOptionalService("orchestration");
+  const tool = useQuery({
+    queryKey: orchKey(teamId),
+    queryFn: ({ signal }) =>
+      orch ? orch.get(teamId, signal) : Promise.reject(new Error("no orchestration service")),
+    enabled: orch !== undefined,
+    retry: false,
   });
-  const existing = useQuery({
-    queryKey: queryKey({ area: "agents", teamId, resource: "collaboration-agent" }),
-    queryFn: ({ signal }) => agents.collaborationAgent(teamId, signal),
-  });
-  const role = draft.role ?? "worker";
-  const collab = role === "collaboration";
-  // collaboration lists only templates with the paperclip capability; a worker lists none of them
   const templates = {
-    data: collab
-      ? paperclipTemplates.data
-      : allTemplates.data?.filter((t) => !t.capabilities?.includes("paperclip")),
+    // a worker lists the service's worker templates; the orchestration runtime is never offered here (ORC-6)
+    data: allTemplates.data?.filter((t) => !t.capabilities?.includes("orchestration")),
   };
   const models = useQuery({
     queryKey: queryKey({ area: "teams", teamId, resource: "models" }),
@@ -158,38 +160,11 @@ export function CreateAgentPage() {
   });
 
   const set = (patch: Partial<CreateAgentDraft>) => setDraft((d) => ({ ...d, ...patch }));
-  const hasCollab = existing.data !== undefined;
-  const { connect: _drop, ...rest } = draft;
+  const hasTool = tool.data !== undefined;
+  const toolName = tool.data ? toolLabel(tool.data.tool) : "the collaboration tool";
   const effective: CreateAgentDraft = {
-    ...rest,
-    role,
-    ...(!collab && hasCollab && { connect: draft.connect ?? true }),
-    ...(collab && {
-      iamIdentity: "dedicated" as const,
-      snapshotSchedule: draft.snapshotSchedule === "off" ? "daily" : draft.snapshotSchedule,
-    }),
-  };
-  const onRole = (r: "worker" | "collaboration") => {
-    const list =
-      r === "collaboration"
-        ? paperclipTemplates.data
-        : allTemplates.data?.filter((t) => !t.capabilities?.includes("paperclip"));
-    const t = list?.find((x) => x.enabled);
-    set({
-      role: r,
-      template: t?.name ?? "",
-      image: t?.currentDigest ?? "",
-      cpu: t?.defaultResources?.cpu ?? "",
-      memory: t?.defaultResources?.memory ?? "",
-      ...(r === "collaboration"
-        ? {
-            iamIdentity: "dedicated",
-            snapshotSchedule: "daily",
-            snapshotRetain: "14",
-            onDelete: "snapshot_then_delete",
-          }
-        : { iamIdentity: "team_shared", snapshotRetain: "7" }),
-    });
+    ...draft,
+    ...(hasTool && { connect: draft.connect ?? true }),
   };
   const applyTemplate = (name: string) => {
     const t = (templates.data ?? []).find((x) => x.name === name);
@@ -211,18 +186,13 @@ export function CreateAgentPage() {
     const t = templates.data.find((x) => x.enabled);
     setDraft((d) => ({
       ...d,
-      ...(d.role === "collaboration" && {
-        iamIdentity: "dedicated" as const,
-        snapshotSchedule: "daily",
-        snapshotRetain: "14",
-      }),
       ...(t && {
         template: t.name,
         image: t.currentDigest,
         cpu: t.defaultResources?.cpu ?? "",
         memory: t.defaultResources?.memory ?? "",
       }),
-      modelId: models.data[0]?.id ?? "",
+      defaultModelId: d.defaultModelId || (models.data[0]?.id ?? ""),
       storageClass: classes.data.find((c) => c.enabled)?.name ?? "",
     }));
   }, [templates.data, models.data, classes.data, setDraft]);
@@ -237,11 +207,10 @@ export function CreateAgentPage() {
         setUnmapped(r.configFailures.map((f) => `${f.name}: ${f.message}`));
         return;
       }
-      void qc.invalidateQueries({ queryKey: collabKey(teamId) });
-      navigate(collab ? `/t/${teamId}/collaboration` : `/t/${teamId}/agents/${r.agent.id}`);
+      void qc.invalidateQueries({ queryKey: orchKey(teamId) });
+      navigate(`/t/${teamId}/agents/${r.agent.id}`);
     },
     onError: (e) => {
-      if (isAppError(e) && e.reason === "collaboration_agent_exists") setRaced(true);
       if (isAppError(e) && e.kind === "validation") {
         setErrors(e.fields);
         const known = new Set(Object.keys(validateDraft(draft)));
@@ -299,18 +268,6 @@ export function CreateAgentPage() {
             submit.mutate();
           }}
         >
-          <RoleSection
-            teamId={teamId}
-            role={role}
-            onRole={onRole}
-            existingId={existing.data?.id}
-            racedExisting={raced}
-          />
-          {collab && templates.data?.length === 0 && (
-            <Alert kind="warning" title="No Paperclip template is enabled">
-              Ask a service admin.
-            </Alert>
-          )}
           <AgentSection
             draft={draft}
             set={set}
@@ -324,31 +281,23 @@ export function CreateAgentPage() {
             errors={errors}
             models={models.data ?? []}
           />
-          <StorageSection
-            draft={draft}
-            set={set}
-            errors={errors}
-            classes={classes.data ?? []}
-            noOff={collab}
-          />
-          <IdentitySection draft={draft} set={set} errors={errors} lockedDedicated={collab} />
-          {!collab && (
-            <Card title="Paperclip">
-              <Switch
-                label="Connect to Paperclip"
-                showLabel
-                checked={effective.connect ?? false}
-                disabledReason={hasCollab ? undefined : "This team has no collaboration agent"}
-                describedBy="paperclip-connect-note"
-                onChange={(on) => set({ connect: on })}
-              />
-              <p id="paperclip-connect-note">
-                {hasCollab
-                  ? "The agent joins the team's Paperclip board and can read and update its issues."
-                  : "This team has no collaboration agent. Create one with the Collaboration (Paperclip) role first."}
-              </p>
-            </Card>
-          )}
+          <StorageSection draft={draft} set={set} errors={errors} classes={classes.data ?? []} />
+          <IdentitySection draft={draft} set={set} errors={errors} />
+          <Card title="Collaboration">
+            <Switch
+              label={`Connect to ${toolName}`}
+              showLabel
+              checked={effective.connect ?? false}
+              disabledReason={hasTool ? undefined : "This team has no orchestration agent yet"}
+              describedBy="collab-connect-note"
+              onChange={(on) => set({ connect: on })}
+            />
+            <p id="collab-connect-note">
+              {hasTool
+                ? `The agent joins the team's ${toolName} and can read and update its work. Change this later on the Orchestration page.`
+                : "This team's orchestration agent is not available yet, so the agent cannot connect."}
+            </p>
+          </Card>
           <HelpPanel />
           <ConfigSection
             draft={draft}
@@ -398,7 +347,11 @@ const FIELD_IDS = new Set([
   "name",
   "template",
   "image",
-  "modelId",
+  "models",
+  "models.access",
+  "models.modelIds",
+  "models.defaultModelId",
+  "defaultModelId",
   "description",
   "iamIdentity",
   "volume.sizeGiB",

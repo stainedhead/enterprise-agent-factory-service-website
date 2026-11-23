@@ -91,7 +91,7 @@ describe("page furniture (M0-U7)", () => {
           title="Payments"
           description="Payment agents"
           infoHref="/info"
-          actions={<Badge tone="purple">Ephemeral</Badge>}
+          actions={<Badge tone="teal">Ephemeral</Badge>}
         />
         <KeyValue
           items={[

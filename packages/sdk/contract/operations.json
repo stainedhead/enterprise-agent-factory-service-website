@@ -1011,6 +1011,64 @@
     "csv": true
   },
   {
+    "operationId": "GetTeamOrchestration",
+    "section": "4.4d",
+    "method": "GET",
+    "path": "/v1/teams/{teamId}/orchestration",
+    "permission": "collaboration:read",
+    "scope": "team",
+    "cli": "orchestration describe-orchestration",
+    "sdk": "orchestration.get()",
+    "screen": "T17, T18, V4, T1, T2",
+    "priority": "P0",
+    "csv": false
+  },
+  {
+    "operationId": "PutTeamOrchestration",
+    "section": "4.4d",
+    "method": "PUT",
+    "path": "/v1/teams/{teamId}/orchestration",
+    "permission": "collaboration:manage",
+    "scope": "team",
+    "cli": "orchestration put-orchestration",
+    "sdk": "orchestration.put()",
+    "screen": "T17",
+    "priority": "P0",
+    "csv": false
+  },
+  {
+    "operationId": "ChangeCollaborationTool",
+    "section": "4.4d",
+    "method": "POST",
+    "path": "/v1/teams/{teamId}/orchestration:change-tool",
+    "permission": "collaboration:manage",
+    "scope": "team",
+    "cli": "orchestration change-collaboration-tool",
+    "sdk": "orchestration.changeTool()",
+    "screen": "T17",
+    "priority": "P1 (O3)",
+    "csv": false
+  },
+  {
+    "operationId": "ListOrchestrationEndpoints",
+    "section": "4.4d",
+    "method": "GET",
+    "path": "/v1/admin/orchestration-endpoints",
+    "query": [
+      "exposure",
+      "tool",
+      "teamId",
+      "state"
+    ],
+    "permission": "admin:settings",
+    "scope": "service",
+    "cli": "admin list-orchestration-endpoints",
+    "sdk": "admin.orchestrationEndpoints.list()",
+    "screen": "S12",
+    "priority": "P0",
+    "csv": true
+  },
+  {
     "operationId": "ListAgentRoleLinks",
     "section": "4.5",
     "method": "GET",
@@ -1978,7 +2036,7 @@
     "screen": "S10",
     "priority": "P0",
     "csv": false,
-    "notes": "(every key of root PRD §6.13 with value, default and range, including the seven `collab.*` keys of the Paperclip PRD §6.9 (`collab.base_domain` unset reads `null`); the database-only keys `work_orders.cost_center` and `work_orders.owner_email` are not exposed, CD-8)"
+    "notes": "(every key of root PRD §6.13 with value, default and range, including the seven `collab.*` keys of the Paperclip PRD §6.9 (`PutSetting` accepts the same seven keys in its key enum: `collab.base_domain`, `collab.public_endpoints`, `collab.session_ttl_minutes`, `collab.max_body_mb`, `collab.content_scan`, `collab.allowed_source_cidrs`, `collab.denied_spike_threshold`) (`collab.base_domain` unset reads `null`); the database-only keys `work_orders.cost_center` and `work_orders.owner_email` are not exposed, CD-8)"
   },
   {
     "operationId": "PutSetting",
@@ -2167,7 +2225,7 @@
     "screen": "T3",
     "priority": "P0",
     "csv": false,
-    "notes": "(not *svc*: enabled models for any signed-in caller)"
+    "notes": "(not *svc*: models enabled for the service, for any signed-in caller; v1.4.0 adds `callable` and `priceState` per item)"
   },
   {
     "operationId": "ListAdminModels",
@@ -2207,7 +2265,22 @@
     "sdk": "admin.models.update()",
     "screen": "S4",
     "priority": "P0",
-    "csv": false
+    "csv": false,
+    "notes": "(v1.4.0: changing `enabled` while service access is `all` → `409`, `service_model_access_all`)"
+  },
+  {
+    "operationId": "PutServiceModelAccess",
+    "section": "4.11",
+    "method": "PUT",
+    "path": "/v1/admin/model-access",
+    "permission": "admin:models",
+    "scope": "service",
+    "cli": "admin put-service-model-access",
+    "sdk": "admin.models.putServiceAccess()",
+    "screen": "S4",
+    "priority": "P0",
+    "csv": false,
+    "notes": "`{access: all|selected}` → `{access, enabledModels, callableModels, version}` (v1.4.0, MOD-1; `If-Match` optional on the setting's version)"
   },
   {
     "operationId": "ListModelPrices",

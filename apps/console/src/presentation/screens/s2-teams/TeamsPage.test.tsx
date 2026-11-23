@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { AppError } from "../../../application/errors.js";
 import { SERVICE_ADMIN } from "../../testing/harness.js";
+import { fakeOrchestrationPort, orchestrationServices } from "../../testing/orchestration.js";
 import { renderScreen } from "../../testing/screen.js";
 import {
   ALL_PERMS,
@@ -16,9 +17,20 @@ import { TeamsPage } from "./TeamsPage.js";
 
 afterEach(() => vi.useRealTimers());
 
-const open = (port = fakeTeamsPort(), me = SERVICE_ADMIN, path = "/teams") => ({
+const open = (
+  port = fakeTeamsPort(),
+  me = SERVICE_ADMIN,
+  path = "/teams",
+  orch = fakeOrchestrationPort(),
+) => ({
   port,
-  ...renderScreen(<TeamsPage />, { me, services: teamsServices(port), path, route: "/teams" }),
+  orch,
+  ...renderScreen(<TeamsPage />, {
+    me,
+    services: { ...teamsServices(port), ...orchestrationServices(orch) },
+    path,
+    route: "/teams",
+  }),
 });
 
 async function selectRow(slug: string) {
@@ -305,5 +317,85 @@ describe("S2 states (M1-T4)", () => {
     open(port);
     expect(await screen.findByText("boom")).toBeTruthy();
     expect(screen.getByText(/Request id: req_list/)).toBeTruthy();
+  });
+});
+
+describe("S2 orchestration columns, filters and the endpoint limit (WEB-US-13, ORC-14)", () => {
+  const endpoint = (
+    teamId: string,
+    slug: string,
+    tool: string,
+    surface: string,
+    effective: string,
+  ) => ({
+    teamId,
+    slug,
+    teamState: "active",
+    agentId: "agt_o",
+    tool,
+    surface,
+    exposure: effective,
+    effective,
+    reasons: [],
+    limit: "private",
+    hostname: null,
+    phase: "Ready",
+  });
+  const twoTeams = () =>
+    fakeTeamsPort({
+      list: vi.fn(async () => ({
+        items: [aTeam(), aTeam({ id: "team_2", slug: "beta", maxCollaborationExposure: "public" })],
+      })),
+    });
+  const orch = () =>
+    fakeOrchestrationPort({
+      listEndpoints: vi.fn(async () => ({
+        items: [
+          endpoint("team_1", "alpha", "paperclip", "webUi", "private"),
+          endpoint("team_1", "alpha", "paperclip", "webApi", "off"),
+          endpoint("team_2", "beta", "buzz", "webUi", "off"),
+        ],
+      })),
+    });
+  it("joins the tool, phase and both surfaces and shows the limit", async () => {
+    open(twoTeams(), SERVICE_ADMIN, "/teams", orch());
+    const row = (await screen.findByText("alpha")).closest("tr") as HTMLElement;
+    await waitFor(() => expect(row.textContent).toContain("Paperclip AI"));
+    expect(row.textContent).toContain("Private");
+    expect(row.textContent).toContain("Ready");
+    const beta = screen.getByText("beta").closest("tr") as HTMLElement;
+    expect(beta.textContent).toContain("Buzz");
+    expect(beta.textContent).toContain("Public");
+  });
+  it("filters by tool and by exposure", async () => {
+    open(twoTeams(), SERVICE_ADMIN, "/teams", orch());
+    await screen.findByText("alpha");
+    await userEvent.selectOptions(screen.getByLabelText("Collaboration tool"), "buzz");
+    await waitFor(() => expect(screen.queryByText("alpha")).toBeNull());
+    expect(screen.getByText("beta")).toBeTruthy();
+    await userEvent.selectOptions(screen.getByLabelText("Collaboration tool"), "");
+    await userEvent.selectOptions(screen.getByLabelText("Exposure"), "private");
+    await waitFor(() => expect(screen.queryByText("beta")).toBeNull());
+    expect(screen.getByText("alpha")).toBeTruthy();
+  });
+  it("Set endpoint limit sends the new limit with the version and shows the command", async () => {
+    const port = twoTeams();
+    open(port, SERVICE_ADMIN, "/teams", orch());
+    await selectRow("alpha");
+    await menu("Set endpoint limit");
+    const d = await screen.findByRole("dialog");
+    await userEvent.click(within(d).getByRole("radio", { name: "Public" }));
+    expect(within(d).getAllByText(/--max-collaboration-exposure public/).length).toBeGreaterThan(0);
+    await userEvent.click(within(d).getByRole("button", { name: "Set limit" }));
+    await waitFor(() => expect(port.update).toHaveBeenCalled());
+    expect(port.update.mock.calls[0]?.[1]).toMatchObject({ maxCollaborationExposure: "public" });
+  });
+  it("Set endpoint limit is disabled without teams:set-guardrails", async () => {
+    open(twoTeams(), serviceAdminWith(ALL_PERMS.filter((p) => p !== "teams:set-guardrails")));
+    await selectRow("alpha");
+    await userEvent.click(screen.getByRole("button", { name: /Actions/ }));
+    expect(
+      screen.getByRole("menuitem", { name: "Set endpoint limit" }).getAttribute("aria-disabled"),
+    ).toBe("true");
   });
 });
