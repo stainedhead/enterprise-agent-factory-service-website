@@ -3,12 +3,14 @@ import { useState } from "react";
 import { isAppError } from "../../../../../application/errors.js";
 import { buildCli } from "../../../../../domain/cli.js";
 import { label } from "../../../../../domain/labels.js";
+import { exposureLabel, setLimitCli } from "../../../../../domain/orchestration.js";
 import {
   Alert,
   Button,
   Card,
   CliPreview,
   ConfirmDialog,
+  ExposureControl,
   FormField,
   SelectInput,
 } from "../../../../components/index.js";
@@ -17,13 +19,11 @@ import { useService } from "../../../../services.js";
 
 type Change =
   | { field: "isolationTier"; value: "shared" | "dedicated" }
-  | { field: "viewerKubectl"; value: boolean }
-  | { field: "mayExposeCollaboration"; value: boolean };
+  | { field: "viewerKubectl"; value: boolean };
 
 const WORDS: Record<Change["field"], string> = {
   isolationTier: "isolation tier",
   viewerKubectl: "viewer kubectl",
-  mayExposeCollaboration: "collaboration publishing",
 };
 
 /**
@@ -46,15 +46,20 @@ export function GuardrailsTab({ teamId }: { teamId: string }) {
     mutationFn: (c: Change) =>
       teams.update(
         { id: teamId, version: team.data?.version ?? 0 },
-        c.field === "isolationTier"
-          ? { isolationTier: c.value }
-          : c.field === "viewerKubectl"
-            ? { viewerKubectl: c.value }
-            : { mayExposeCollaboration: c.value },
+        c.field === "isolationTier" ? { isolationTier: c.value } : { viewerKubectl: c.value },
       ),
     onSettled: () => {
       setPending(undefined);
       setTier(undefined);
+      void qc.invalidateQueries({ queryKey: teamKey(teamId) });
+    },
+  });
+  const [limit, setLimit] = useState<string | undefined>();
+  const setEndpointLimit = useMutation({
+    mutationFn: (next: string) =>
+      teams.setEndpointLimit({ id: teamId, version: team.data?.version ?? 0 }, next),
+    onSettled: () => {
+      setLimit(undefined);
       void qc.invalidateQueries({ queryKey: teamKey(teamId) });
     },
   });
@@ -109,20 +114,13 @@ export function GuardrailsTab({ teamId }: { teamId: string }) {
         </Button>
       </p>
       <p>
-        May publish collaboration endpoints is{" "}
-        <strong>{t.mayExposeCollaboration === false ? "off" : "on"}</strong>.{" "}
+        Orchestration endpoint limit is{" "}
+        <strong>{exposureLabel(t.maxCollaborationExposure ?? "private")}</strong>.{" "}
         <Button
           disabledReason={reason}
-          onClick={() =>
-            setPending({
-              field: "mayExposeCollaboration",
-              value: t.mayExposeCollaboration === false,
-            })
-          }
+          onClick={() => setLimit(t.maxCollaborationExposure ?? "private")}
         >
-          {t.mayExposeCollaboration === false
-            ? "Allow collaboration endpoints"
-            : "Stop collaboration endpoints"}
+          Set endpoint limit
         </Button>
       </p>
       {reason && <p>{reason}: guardrails are set by service admins.</p>}
@@ -136,13 +134,9 @@ export function GuardrailsTab({ teamId }: { teamId: string }) {
           <p>
             {pending.field === "isolationTier"
               ? `Set the isolation tier to ${pending.value}. The reconciler moves the team's workloads accordingly.`
-              : pending.field === "mayExposeCollaboration"
-                ? pending.value
-                  ? "The team may switch on public access to its Paperclip."
-                  : "Both public surfaces stop within a minute. The team's choices are kept."
-                : pending.value
-                  ? "Viewers of this team can download a read-only kubeconfig."
-                  : "Viewers can no longer download a kubeconfig."}
+              : pending.value
+                ? "Viewers of this team can download a read-only kubeconfig."
+                : "Viewers can no longer download a kubeconfig."}
           </p>
           <CliPreview
             command={buildCli("UpdateTeam", {
@@ -150,6 +144,28 @@ export function GuardrailsTab({ teamId }: { teamId: string }) {
               [pending.field]: pending.value,
             })}
           />
+        </ConfirmDialog>
+      )}
+      {limit !== undefined && (
+        <ConfirmDialog
+          title="Set endpoint limit"
+          confirmLabel="Apply"
+          onCancel={() => setLimit(undefined)}
+          onConfirm={() => setEndpointLimit.mutate(limit)}
+        >
+          <p>
+            Lowering the limit lowers what is in effect within a minute and keeps the team's
+            choices.
+          </p>
+          <ExposureControl
+            label="Endpoint limit"
+            value={limit}
+            limit="public"
+            supported
+            tool="paperclip"
+            onChange={setLimit}
+          />
+          <CliPreview command={setLimitCli(teamId, limit)} />
         </ConfirmDialog>
       )}
     </Card>

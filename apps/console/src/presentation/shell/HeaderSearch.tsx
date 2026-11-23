@@ -10,6 +10,8 @@ const TITLES: Record<SearchType, string> = {
   agent: "Agents",
   pool: "Pools",
   "work-order": "Work orders",
+  orchestration: "Orchestration",
+  "model-access": "Model access",
 };
 
 /** Header search: `/` focuses it; matches are filtered locally from list calls; Enter opens (D44). */
