@@ -305,7 +305,7 @@ Viewers see the page with every control disabled ("Requires team-admin").
 
 ## Guardrails and kubeconfig
 
-Service admins can change a team's isolation tier and turn viewer kubectl on or off from the team's *Guardrails* tab; other roles see the controls disabled with a tooltip naming the role. Each change shows the equivalent `afs` command before you confirm. When viewer kubectl is on, team members with access see a *Kubernetes access* card on the team overview with a *Download kubeconfig* button.
+Service admins can change a team's isolation tier, turn viewer kubectl on or off and set the orchestration endpoint limit (Off, Private or Public) from the team's *Guardrails* tab; other roles see the controls disabled with a tooltip naming the role. Each change shows the equivalent `afs` command before you confirm. When viewer kubectl is on, team members with access see a *Kubernetes access* card on the team overview with a *Download kubeconfig* button.
 
 ## Tag status (cost allocation tags)
 

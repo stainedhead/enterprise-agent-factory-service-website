@@ -1,4 +1,10 @@
-export type SearchType = "team" | "agent" | "pool" | "work-order";
+export type SearchType =
+  | "team"
+  | "agent"
+  | "pool"
+  | "work-order"
+  | "orchestration"
+  | "model-access";
 
 export interface SearchEntry {
   readonly type: SearchType;
@@ -12,7 +18,14 @@ export interface SearchGroup {
   readonly entries: readonly SearchEntry[];
 }
 
-const ORDER: SearchType[] = ["team", "agent", "pool", "work-order"];
+const ORDER: SearchType[] = [
+  "team",
+  "agent",
+  "pool",
+  "work-order",
+  "orchestration",
+  "model-access",
+];
 export const MIN_QUERY = 2;
 export const MAX_RESULTS = 10;
 

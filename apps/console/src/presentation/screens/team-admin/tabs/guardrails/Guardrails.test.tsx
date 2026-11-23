@@ -143,22 +143,29 @@ describe("KubeconfigCard (M5-G3)", () => {
   });
 });
 
-describe("Collaboration guardrail (WEB-US-52)", () => {
-  it("set guardrails only for service admin", async () => {
-    const teams = open(serviceAdminWith(ALL_PERMS), aTeam({ mayExposeCollaboration: true }));
-    await userEvent.click(
-      await screen.findByRole("button", { name: "Stop collaboration endpoints" }),
-    );
+describe("Orchestration endpoint limit guardrail (ORC-14)", () => {
+  it("shows the limit and lets a service admin change it with the equivalent command", async () => {
+    const teams = open(serviceAdminWith(ALL_PERMS), aTeam({ maxCollaborationExposure: "private" }));
+    expect(await screen.findByText(/Orchestration endpoint limit is/)).toBeTruthy();
+    await userEvent.click(await screen.findByRole("button", { name: "Set endpoint limit" }));
     const d = await screen.findByRole("dialog");
-    expect(d.textContent).toContain("Both public surfaces stop within a minute");
-    expect(d.textContent).toContain("--may-expose-collaboration");
+    await userEvent.click(within(d).getByRole("radio", { name: "Public" }));
+    expect(d.textContent).toContain("--max-collaboration-exposure public");
     await userEvent.click(within(d).getByRole("button", { name: "Apply" }));
     await waitFor(() => expect(teams.update).toHaveBeenCalled());
-    expect(teams.update.mock.calls[0]?.[1]).toEqual({ mayExposeCollaboration: false });
+    expect(teams.update.mock.calls[0]?.[1]).toEqual({ maxCollaborationExposure: "public" });
   });
-  it("a team admin sees it disabled with the role needed", async () => {
+  it("lowering keeps the team's choices and says so", async () => {
+    open(serviceAdminWith(ALL_PERMS), aTeam({ maxCollaborationExposure: "public" }));
+    await userEvent.click(await screen.findByRole("button", { name: "Set endpoint limit" }));
+    const d = await screen.findByRole("dialog");
+    await userEvent.click(within(d).getByRole("radio", { name: "Off" }));
+    expect(d.textContent).toContain("keeps the team's choices");
+  });
+  it("a team admin sees it read-only with the role needed", async () => {
     open(REAL_TEAM_ADMIN);
-    const b = await screen.findByRole("button", { name: "Stop collaboration endpoints" });
+    const b = await screen.findByRole("button", { name: "Set endpoint limit" });
     expect(b.getAttribute("aria-disabled")).toBe("true");
+    expect(screen.queryByText(/mayExposeCollaboration|May publish collaboration/)).toBeNull();
   });
 });

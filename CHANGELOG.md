@@ -38,6 +38,18 @@ Team orchestration agent and model access (spec `specs/261123-orchestration-and-
 - The create-agent form has no *Role* step; the orchestration agent is created with the team.
 - Purple and the diamond mark identify orchestration only; other purple badges are teal.
 
+## [Unreleased]
+
+Completes 1.1.0 (spec `specs/261123-orchestration-and-model-access`). Console only; the SDK is unchanged.
+
+### Changed (console)
+
+- The team *Guardrails* tab shows the orchestration endpoint limit (`maxCollaborationExposure`) in place of the deprecated
+  *May publish collaboration endpoints* switch: service admins change it (the equivalent `afs` command is shown),
+  team admins see it read-only with the role needed.
+- Header search finds each team's orchestration agent and model access, and, for service admins, the orchestration
+  endpoints and service model access pages. No extra request is sent.
+
 ## [1.0.1] - 2026-11-22
 
 Paperclip team collaboration (spec `specs/archive/261122-paperclip-collaboration`). SDK tag: `sdk-v1.0.1`.

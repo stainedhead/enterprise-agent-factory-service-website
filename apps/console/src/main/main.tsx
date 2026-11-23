@@ -9,6 +9,7 @@ import { ConfigError } from "../application/ports/config.js";
 import type { MePort } from "../application/ports/me.js";
 import {
   BuildSearchIndex,
+  orchestrationSources,
   teamsSource,
   workOrdersSource,
 } from "../application/usecases/BuildSearchIndex.js";
@@ -138,7 +139,11 @@ async function start(): Promise<void> {
     config,
     getMe,
     contractNotice,
-    searchIndex: new BuildSearchIndex(new SdkSearch(client), [teamsSource, workOrdersSource]),
+    searchIndex: new BuildSearchIndex(new SdkSearch(client), [
+      teamsSource,
+      workOrdersSource,
+      ...orchestrationSources,
+    ]),
     signOut,
   };
 

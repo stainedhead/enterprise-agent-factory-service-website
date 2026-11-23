@@ -1,7 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
 import type { Me } from "../../domain/me.js";
 import { AppError, isAppError } from "../errors.js";
-import { BuildSearchIndex, teamsSource, workOrdersSource } from "./BuildSearchIndex.js";
+import {
+  BuildSearchIndex,
+  orchestrationSources,
+  teamsSource,
+  workOrdersSource,
+} from "./BuildSearchIndex.js";
 import { ContractNotice } from "./ContractNotice.js";
 import { GetMe, ME_STALE_MS } from "./GetMe.js";
 
@@ -154,5 +159,58 @@ describe("work orders search source (M6-W8)", () => {
       [],
     );
     expect(port.listWorkOrders).not.toHaveBeenCalled();
+  });
+});
+
+describe("orchestration and model access search sources", () => {
+  const port = {
+    listTeams: vi.fn(async () => [{ teamId: "team_1", label: "Alpha" }]),
+    listWorkOrders: vi.fn(async () => []),
+  };
+  const svc = { serviceAdmin: true, securityOperator: false } as unknown as Me;
+  const team = { serviceAdmin: false, securityOperator: false } as unknown as Me;
+  const build = () => new BuildSearchIndex(port, orchestrationSources);
+
+  it("indexes each team's orchestration agent and model access from the team list", async () => {
+    const idx = await build().execute(undefined, team);
+    expect(idx).toEqual([
+      {
+        type: "orchestration",
+        id: "team_1",
+        label: "Alpha orchestration agent",
+        route: "/t/team_1/orchestration",
+      },
+      {
+        type: "model-access",
+        id: "team_1",
+        label: "Alpha model access",
+        route: "/t/team_1/models",
+      },
+    ]);
+  });
+  it("adds the service endpoints and model access pages for a service admin only", async () => {
+    const admin = await build().execute(undefined, svc);
+    expect(admin).toContainEqual({
+      type: "orchestration",
+      id: "orchestration-endpoints",
+      label: "Orchestration endpoints",
+      route: "/orchestration",
+    });
+    expect(admin).toContainEqual({
+      type: "model-access",
+      id: "service-model-access",
+      label: "Service model access",
+      route: "/models",
+    });
+    const other = await build().execute(undefined, team);
+    expect(other.some((e) => e.route === "/orchestration" || e.route === "/models")).toBe(false);
+  });
+  it("sends no request beyond the list call, even beside the teams source", async () => {
+    port.listTeams.mockClear();
+    await new BuildSearchIndex(port, [teamsSource, ...orchestrationSources]).execute(
+      undefined,
+      svc,
+    );
+    expect(port.listTeams).toHaveBeenCalledTimes(1);
   });
 });

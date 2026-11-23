@@ -53,6 +53,11 @@ input field while the form is submitted.
 
 ![Architecture overview](docs/images/architecture-overview.svg)
 
+Every team has one orchestration agent (Paperclip AI or Buzz) and model access narrows from the service to the team to
+each agent; the console screens T17, T18, V4, S12 and S4 show and change it.
+
+![Orchestration agent and model access](docs/images/orchestration-agent.svg)
+
 ## Status
 
 Feature complete (1.1.0: team orchestration agent and model access). The API contract is pinned to `-restapi` commit `f8b4404` (contract 1.4.0, 194 operations);
