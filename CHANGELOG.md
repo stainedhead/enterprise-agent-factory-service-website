@@ -37,13 +37,6 @@ Team orchestration agent and model access (spec `specs/261123-orchestration-and-
 - T16 and V3 are replaced by T17, T18 and V4; S10 *Collaboration* by S12. Old routes redirect.
 - The create-agent form has no *Role* step; the orchestration agent is created with the team.
 - Purple and the diamond mark identify orchestration only; other purple badges are teal.
-
-## [Unreleased]
-
-Completes 1.1.0 (spec `specs/261123-orchestration-and-model-access`). Console only; the SDK is unchanged.
-
-### Changed (console)
-
 - The team *Guardrails* tab shows the orchestration endpoint limit (`maxCollaborationExposure`) in place of the deprecated
   *May publish collaboration endpoints* switch: service admins change it (the equivalent `afs` command is shown),
   team admins see it read-only with the role needed.
