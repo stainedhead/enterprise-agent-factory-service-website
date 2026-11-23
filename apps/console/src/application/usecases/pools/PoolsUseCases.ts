@@ -1,3 +1,4 @@
+import { toModelsBody } from "../../../domain/modelAccess.js";
 import { AppError } from "../../errors.js";
 import type { AgentsPort, AgentTemplateRecord } from "../../ports/agents.js";
 import type {
@@ -220,7 +221,11 @@ export class PoolsUseCases {
       name: d.name.trim(),
       template: d.template,
       image: d.image.trim(),
-      modelId: d.modelId,
+      models: toModelsBody({
+        access: d.modelAccess,
+        modelIds: d.modelIds,
+        defaultModelId: d.defaultModelId,
+      }),
       workers: Number(d.workers),
       scratchSizeGiB: Number(d.scratchSizeGiB),
       sharedVolume: d.sharedVolume,

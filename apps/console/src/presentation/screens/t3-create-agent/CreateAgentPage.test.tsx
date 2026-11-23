@@ -8,8 +8,9 @@ import { ConfigUseCases } from "../../../application/usecases/config/ConfigUseCa
 import { DraftStore } from "../../../application/usecases/session/DraftStore.js";
 import type { Me } from "../../../domain/me.js";
 import { draftIds, expectNoDraftLeft, withDrafts } from "../../hooks/useDraft.testing.js";
-import { agentsServices, anAgent, aTemplate, fakeAgentsPort } from "../../testing/agents.js";
+import { agentsServices, fakeAgentsPort } from "../../testing/agents.js";
 import { TEAM_ADMIN, VIEWER } from "../../testing/harness.js";
+import { fakeOrchestrationPort, orchestrationServices } from "../../testing/orchestration.js";
 import { renderScreen } from "../../testing/screen.js";
 import {
   aConfigValue,
@@ -31,6 +32,7 @@ function open(
     secrets?: ReturnType<typeof fakeSecretsPort>;
     drafts?: DraftStore;
     path?: string;
+    orch?: ReturnType<typeof fakeOrchestrationPort>;
   } = {},
 ) {
   const agents = o.agents ?? fakeAgentsPort();
@@ -56,6 +58,7 @@ function open(
     me: o.me ?? TEAM_ADMIN,
     services: {
       ...teamsServices(teams),
+      ...(o.orch ? orchestrationServices(o.orch) : {}),
       ...agentsServices(agents),
       ...secretsServices(secrets),
       ...configServices(config),
@@ -88,7 +91,9 @@ describe("T3 form (M2-C1)", () => {
       "ghcr.io/acme/hermes-dev@sha256:4b1e",
     );
     expect((screen.getByLabelText("CPU") as HTMLInputElement).value).toBe("2");
-    expect((screen.getByLabelText("Model") as HTMLSelectElement).value).toBe("claude-sonnet");
+    expect((screen.getByLabelText("Default model") as HTMLSelectElement).value).toBe(
+      "claude-sonnet",
+    );
     expect(screen.queryByLabelText(/replica/i)).toBeNull();
   });
 
@@ -96,10 +101,11 @@ describe("T3 form (M2-C1)", () => {
     open();
     await ready();
     expect(
-      within(screen.getByLabelText("Model"))
+      within(screen.getByLabelText("Default model"))
         .getAllByRole("option")
         .map((o) => o.textContent),
-    ).toEqual(["Choose a model", "Claude Sonnet"]);
+    ).toEqual(["Claude Sonnet"]);
+    expect(screen.getByText("All team models (1)")).toBeTruthy();
     expect(within(screen.getByLabelText("Storage class")).getAllByRole("option")).toHaveLength(1);
   });
 
@@ -119,7 +125,7 @@ describe("T3 form (M2-C1)", () => {
     expect(agents.create.mock.calls[0]?.[1]).toMatchObject({
       name: "security-patcher",
       template: "hermes-dev",
-      modelId: "claude-sonnet",
+      models: { access: "all", defaultModelId: "claude-sonnet" },
     });
   });
 
@@ -356,151 +362,87 @@ describe("T3 drafts (FR-004, D-2)", () => {
 });
 
 const sent = (a: ReturnType<typeof fakeAgentsPort>) =>
-  a.create.mock.calls[0]?.[1] as unknown as { collaboration?: unknown };
-const paperclipTpl = aTemplate({
-  name: "paperclip-hub",
-  capabilities: ["paperclip"],
-  currentDigest: "ghcr.io/acme/paperclip@sha256:aa",
-  allowedDigests: ["ghcr.io/acme/paperclip@sha256:aa"],
-});
-function rolePort(opts: { existing?: boolean; templates?: ReturnType<typeof aTemplate>[] } = {}) {
-  const all = [aTemplate(), paperclipTpl];
-  return fakeAgentsPort({
-    list: vi.fn(async (_t: string, _s?: AbortSignal, o?: { role?: string }) =>
-      o?.role === "collaboration" && opts.existing
-        ? [anAgent({ id: "agt_hub", role: "collaboration" })]
-        : [],
-    ) as never,
-    templates: vi.fn(async (_s?: AbortSignal, o?: { capability?: string }) =>
-      o?.capability === "paperclip" ? (opts.templates ?? [paperclipTpl]) : all,
-    ) as never,
-  });
-}
+  a.create.mock.calls[0]?.[1] as unknown as { collaboration?: unknown; role?: unknown };
 
-describe("T3 role step (WEB-US-45)", () => {
-  it("role step: worker by default, without paperclip templates", async () => {
-    open({ agents: rolePort() });
+describe("T3 models (WEB-US-26, MOD-3)", () => {
+  it("All is the default; Selected shows chips, a default model and the CLI flags", async () => {
+    const { agents } = open();
     await ready();
-    expect((screen.getByRole("radio", { name: "Worker" }) as HTMLInputElement).checked).toBe(true);
-    const options = within(screen.getByLabelText("Template"))
-      .getAllByRole("option")
-      .map((o) => o.textContent);
-    expect(options).not.toContain("paperclip-hub");
-  });
-  it("collaboration disabled when one exists", async () => {
-    open({ agents: rolePort({ existing: true }) });
-    await ready();
-    expect(await screen.findByText(/already has a collaboration agent/)).toBeTruthy();
-    const r = screen.getByRole("radio", { name: "Collaboration (Paperclip)" });
-    expect(r.getAttribute("aria-disabled")).toBe("true");
-    await userEvent.click(r);
-    expect((screen.getByRole("radio", { name: "Worker" }) as HTMLInputElement).checked).toBe(true);
-  });
-  it("only paperclip templates, dedicated identity forced, snapshot off not offered", async () => {
-    open({ agents: rolePort(), path: "/t/team_1/agents/new?role=collaboration" });
-    await waitFor(() =>
-      expect((screen.getByLabelText("Template") as HTMLSelectElement).value).toBe("paperclip-hub"),
-    );
-    const options = within(screen.getByLabelText("Template"))
-      .getAllByRole("option")
-      .map((o) => o.textContent);
-    expect(options).toEqual(["Choose a template", "paperclip-hub"]);
-    const iam = screen.getByLabelText("IAM identity") as HTMLSelectElement;
-    expect(iam.value).toBe("dedicated");
-    expect(iam.getAttribute("aria-disabled")).toBe("true");
-    const sched = screen.getByLabelText("Snapshot backups") as HTMLSelectElement;
-    expect(within(sched).queryByRole("option", { name: "Off" })).toBeNull();
-    expect(sched.value).toBe("daily");
-    expect((screen.getByLabelText("Snapshots to keep") as HTMLInputElement).value).toBe("14");
-    expect(screen.getByText(/Paperclip's data lives on this agent's volume/)).toBeTruthy();
-  });
-  it("says so when no Paperclip template is enabled", async () => {
-    open({ agents: rolePort({ templates: [] }), path: "/t/team_1/agents/new?role=collaboration" });
-    expect(await screen.findByText("No Paperclip template is enabled")).toBeTruthy();
-  });
-  it("cli for collaboration role, and the request carries the role", async () => {
-    const agents = rolePort();
-    open({ agents, path: "/t/team_1/agents/new?role=collaboration" });
-    await waitFor(() =>
-      expect((screen.getByLabelText("Template") as HTMLSelectElement).value).toBe("paperclip-hub"),
-    );
-    await userEvent.type(screen.getByLabelText("Name"), "paperclip-hub");
-    expect(screen.getAllByText(/--role collaboration/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/--models all/).length).toBeGreaterThan(0);
+    await userEvent.click(screen.getByRole("radio", { name: "Selected" }));
+    expect(screen.getByText("Selected, 0 of 1 team models")).toBeTruthy();
+    await userEvent.click(screen.getByRole("checkbox", { name: "Claude Sonnet" }));
+    expect(screen.getAllByText(/--models claude-sonnet/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/--default-model-id claude-sonnet/).length).toBeGreaterThan(0);
+    await userEvent.type(screen.getByLabelText("Name"), "worker-one");
     await userEvent.click(screen.getByRole("button", { name: "Create agent" }));
     await waitFor(() => expect(agents.create).toHaveBeenCalled());
-    const body = agents.create.mock.calls[0]?.[1] as unknown as Record<string, unknown>;
-    expect(body).toMatchObject({ role: "collaboration", iamIdentity: "dedicated" });
-    expect(body.collaboration).toBeUndefined();
-    expect((body.volume as Record<string, unknown>).snapshotRetain).toBe(14);
+    expect(agents.create.mock.calls[0]?.[1]).toMatchObject({
+      models: { access: "selected", modelIds: ["claude-sonnet"], defaultModelId: "claude-sonnet" },
+    });
   });
-  it("connect switch default on when the team has Paperclip, sent as collaboration.connect", async () => {
-    const agents = rolePort({ existing: true });
-    open({ agents });
+  it("Selected with nothing chosen names the field and sends nothing", async () => {
+    const { agents } = open();
     await ready();
-    const sw = await screen.findByRole("switch", { name: "Connect to Paperclip" });
+    await userEvent.click(screen.getByRole("radio", { name: "Selected" }));
+    await userEvent.type(screen.getByLabelText("Name"), "worker-one");
+    await userEvent.click(screen.getByRole("button", { name: "Create agent" }));
+    expect((await screen.findAllByText("Choose at least one model")).length).toBeGreaterThan(0);
+    expect(agents.create).not.toHaveBeenCalled();
+  });
+  it("has no role field: the orchestration agent is never created here", async () => {
+    open();
+    await ready();
+    expect(screen.queryByRole("radio", { name: /Collaboration \(Paperclip\)/ })).toBeNull();
+    expect(screen.queryByText("Role")).toBeNull();
+    expect(screen.queryByRole("option", { name: "paperclip-hub" })).toBeNull();
+  });
+});
+
+describe("T3 collaboration section (WEB-US-45)", () => {
+  it("Connect switch is on by default when the team has an orchestration agent, and is sent", async () => {
+    const agents = fakeAgentsPort();
+    open({ agents, orch: fakeOrchestrationPort() });
+    await ready();
+    const sw = await screen.findByRole("switch", { name: "Connect to Paperclip AI" });
     await waitFor(() => expect((sw as HTMLInputElement).checked).toBe(true));
-    expect(screen.getByText(/joins the team's Paperclip board/)).toBeTruthy();
     expect(screen.getAllByText(/--collaboration-connect/).length).toBeGreaterThan(0);
     await userEvent.type(screen.getByLabelText("Name"), "worker-one");
     await userEvent.click(screen.getByRole("button", { name: "Create agent" }));
     await waitFor(() => expect(agents.create).toHaveBeenCalled());
-    expect(sent(agents).collaboration).toEqual({
-      connect: true,
-    });
+    expect(sent(agents).collaboration).toEqual({ connect: true });
+    expect(sent(agents).role).toBeUndefined();
   });
-  it("connect switch is off and disabled without a collaboration agent", async () => {
-    const agents = rolePort();
+  it("can be switched off for one agent", async () => {
+    const agents = fakeAgentsPort();
+    open({ agents, orch: fakeOrchestrationPort() });
+    await ready();
+    const sw = await screen.findByRole("switch", { name: "Connect to Paperclip AI" });
+    await waitFor(() => expect((sw as HTMLInputElement).checked).toBe(true));
+    await userEvent.click(sw);
+    expect(screen.getAllByText(/--no-collaboration-connect/).length).toBeGreaterThan(0);
+  });
+  it("is off and disabled while the orchestration agent is not there yet", async () => {
+    const agents = fakeAgentsPort();
     open({ agents });
     await ready();
-    const sw = await screen.findByRole("switch", { name: "Connect to Paperclip" });
+    const sw = await screen.findByRole("switch", { name: "Connect to the collaboration tool" });
     expect(sw.getAttribute("aria-disabled")).toBe("true");
     expect((sw as HTMLInputElement).checked).toBe(false);
-    // the label and the reason are visible text, not only a tooltip
-    expect(screen.getByText("Connect to Paperclip", { selector: "label" })).toBeTruthy();
-    expect(
-      screen.getByText(/Create one with the Collaboration \(Paperclip\) role first/),
-    ).toBeTruthy();
+    expect(screen.getByText(/orchestration agent is not available yet/)).toBeTruthy();
     await userEvent.type(screen.getByLabelText("Name"), "worker-two");
     await userEvent.click(screen.getByRole("button", { name: "Create agent" }));
     await waitFor(() => expect(agents.create).toHaveBeenCalled());
     expect(sent(agents).collaboration).toBeUndefined();
   });
-  it("409 collaboration_agent_exists shows the same text on the step", async () => {
-    const agents = rolePort();
-    agents.create.mockRejectedValue(
-      new AppError({ kind: "conflict", message: "exists", reason: "collaboration_agent_exists" }),
-    );
-    open({ agents, path: "/t/team_1/agents/new?role=collaboration" });
-    await waitFor(() =>
-      expect((screen.getByLabelText("Template") as HTMLSelectElement).value).toBe("paperclip-hub"),
-    );
-    await userEvent.type(screen.getByLabelText("Name"), "paperclip-hub");
+  it("a 503 keeps the form", async () => {
+    const agents = fakeAgentsPort();
+    agents.create.mockRejectedValue(new AppError({ kind: "unavailable", message: "try later" }));
+    open({ agents });
+    await ready();
+    await userEvent.type(screen.getByLabelText("Name"), "worker-one");
     await userEvent.click(screen.getByRole("button", { name: "Create agent" }));
-    expect(await screen.findByText(/already has a collaboration agent/)).toBeTruthy();
-  });
-  it("503 keeps the form", async () => {
-    const agents = rolePort();
-    agents.create.mockRejectedValue(
-      new AppError({ kind: "unavailable", message: "Boot secrets could not be written" }),
-    );
-    open({ agents, path: "/t/team_1/agents/new?role=collaboration" });
-    await waitFor(() =>
-      expect((screen.getByLabelText("Template") as HTMLSelectElement).value).toBe("paperclip-hub"),
-    );
-    await userEvent.type(screen.getByLabelText("Name"), "paperclip-hub");
-    await userEvent.click(screen.getByRole("button", { name: "Create agent" }));
-    expect(await screen.findByText("Boot secrets could not be written")).toBeTruthy();
-    expect((screen.getByLabelText("Name") as HTMLInputElement).value).toBe("paperclip-hub");
-  });
-  it("switching to worker restores shared identity and offers worker templates", async () => {
-    open({ agents: rolePort(), path: "/t/team_1/agents/new?role=collaboration" });
-    await waitFor(() =>
-      expect((screen.getByLabelText("Template") as HTMLSelectElement).value).toBe("paperclip-hub"),
-    );
-    await userEvent.click(screen.getByRole("radio", { name: "Worker" }));
-    await waitFor(() =>
-      expect((screen.getByLabelText("Template") as HTMLSelectElement).value).toBe("hermes-dev"),
-    );
-    expect((screen.getByLabelText("IAM identity") as HTMLSelectElement).value).toBe("team_shared");
+    expect(await screen.findByText("try later")).toBeTruthy();
+    expect((screen.getByLabelText("Name") as HTMLInputElement).value).toBe("worker-one");
   });
 });

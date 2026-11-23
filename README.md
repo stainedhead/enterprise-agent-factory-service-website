@@ -55,18 +55,18 @@ input field while the form is submitted.
 
 ## Status
 
-Feature complete (1.0.1, Paperclip team collaboration included). The API contract is pinned to `-restapi` commit `763e939` (contract 1.3.1, collaboration; the merge of PR #7);
+Feature complete (1.1.0: team orchestration agent and model access). The API contract is pinned to `-restapi` commit `f8b4404` (contract 1.4.0, 194 operations);
 moving the pin to a tag is a `contract:update --ref <tag>` and a regenerate.
 
 ## What is here
 
-- **`@afs/sdk`** 1.0.1, published to GitHub Packages as **`@stainedhead/afs-sdk`**. Generated from the pinned
-  contract: 189 operations in 43 resource modules, async-iterator pagination, `If-Match` and `Idempotency-Key`
+- **`@afs/sdk`** 1.1.0, published to GitHub Packages as **`@stainedhead/afs-sdk`**. Generated from the pinned
+  contract: 194 operations in 45 resource modules, async-iterator pagination, `If-Match` and `Idempotency-Key`
   handling, retries, `AfsError`, `waitFor` and typed reports (`createReports`). Zero runtime dependencies.
-- **The console**: 35 screens for service admins, team admins, team viewers and the security operator, covering
+- **The console**: 37 screens for service admins, team admins, team viewers and the security operator, covering
   teams, members and API keys, agents, secrets and configuration, external systems, budgets and usage, models and
   pricing, reports, notifications and log delivery, audit and history, cost allocation tags, AWS access,
-  Paperclip team collaboration (endpoints, managed secrets, access reports), export and import, ephemeral teams with pools, work orders and swarm templates. Accessibility (axe on every
+  team orchestration (Paperclip AI or Buzz, Web UI and Web API exposure, managed secrets, access reports), model access at service, team and agent level, export and import, ephemeral teams with pools, work orders and swarm templates. Accessibility (axe on every
   screen), keyboard flows, a secret sentinel, CSP and performance run in the Playwright suite.
 - **Deploy artifacts** in `apps/console/deploy/`: runtime `config.json` schema, security headers and cache behaviors.
 

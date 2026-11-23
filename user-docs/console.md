@@ -47,25 +47,48 @@ admins and service admins only) creates a key with a name, a role and an expiry 
 default). The secret is shown once; copy it before you close the dialog. If a retry returns the key without
 its secret, the dialog says so and offers **Delete key** so you can create a new one.
 
-## Team collaboration (`/t/<team>/collaboration`)
+## Team orchestration (`/t/<team>/orchestration`)
 
-![Team collaboration](../docs/images/screenshots/30-team-collaboration.png)
+![Team orchestration](../docs/images/screenshots/37-team-orchestration.png)
 
-Each team can have one collaboration agent that runs Paperclip (board, chat and roster). **Create agent** has a
-*Role* step: choose *Collaboration agent* to create it. On the collaboration page team admins see the agent's
-status, switch the **public web UI** and **REST API** on or off (turning one on asks for confirmation, and a
-change takes effect within a minute), connect or disconnect the team's worker agents, see the secrets AFS and
-Paperclip manage (names and state only, never values), and read recent access. **Actions** edits the
-endpoints, rotates keys and changes the registration mode. Team viewers and the team collaborator role see a
-read-only version with the same status and a link to open Paperclip.
+Every team has one orchestration agent, created with the team. It runs the team's collaboration tool, **Paperclip AI**
+(the default) or **Buzz**, and the screens call its runtime the *Orchestration runtime*. Purple and the diamond mark
+identify orchestration; they are not used for anything else.
 
-![Read-only collaboration](../docs/images/screenshots/30a-viewer-collaboration.png)
+On the page team admins see the agent's status and conditions, and the **Web UI** and **Web API** endpoints. Each is
+**Off**, **Private** or **Public**, up to the limit a service admin set for the team; a level above the limit stays
+visible but disabled, with the reason. Buzz has no web surface, so both show *N/A*. **Actions** has *Edit endpoints*
+(review step, with a warning before *Public*, and the equivalent `afs` command), *Change tool* (type the team's name to
+confirm; the new tool starts with an empty data directory and the old data stays in a snapshot), *Rotate tool keys*
+and the registration mode. You can also connect or disconnect the team's worker agents, see the secrets AFS and the tool
+manage (names and state only, never values), and read recent access. The **Agent configuration** tab is the same
+screen as any agent's configuration, with models and the persistent volume.
 
-Service admins decide which teams may publish endpoints (team guardrail *May publish collaboration endpoints*),
-set the seven `collab.*` values on **Service settings, Collaboration**, mark agent templates with the
-`paperclip` capability, and choose a collaboration agent template in a swarm template. **Reports,
-Collaboration** (team and service) counts sign-ins, people, requests, denied requests and secret detections by
-day, surface, reason or person, with an *Service admin entry* badge; it cannot be scheduled.
+![Read-only orchestration](../docs/images/screenshots/43-viewer-orchestration.png)
+
+Team viewers and the team collaborator role see a read-only version with the same status and a link to open the tool.
+
+Service admins use **Orchestration** under *Platform* (`/orchestration`):
+
+![Service orchestration](../docs/images/screenshots/34-admin-orchestration.png)
+
+- *Endpoints*: every team's endpoints with tool, level, effective level and hostname, filters, a CSV download and the
+  progress of adding orchestration agents to teams that predate 1.1.0.
+- *Tools and runtimes*, *Defaults* and *Kill switches*: the `orchestration.*` service settings (tool profiles, base
+  domains, the default limit and exposure, the public and private switches).
+
+They also set each team's limit (**Actions, Set endpoint limit** on *Teams*), mark agent templates with the `paperclip`
+capability and choose an orchestration template in a swarm template. **Reports, Collaboration** (team and service)
+counts sign-ins, people, requests, denied requests and secret detections by day, surface, reason or person; it cannot
+be scheduled.
+
+## Models
+
+Model access is set at three levels, each either **All** (follow the level above) or **Selected**, plus a default
+model: the service (**Models**), the team (*S3* step 3 and the team's *Models* tab, service admins only) and the agent
+(*Create agent*, the agent configuration and the pool form, team admins). Each list offers only what the level above
+allows and says how many models that is. Narrowing a list never edits a stored selection below it. Every form shows
+the equivalent `afs` command (`teams put-team-models`, `agents update-agent --models`, `admin put-service-model-access`).
 
 ## Agents (`/t/<team>/agents`)
 

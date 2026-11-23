@@ -123,6 +123,14 @@ export const NAV_ITEMS: readonly NavItem[] = [
     visibleWhen: serviceAdminOrSecOp,
   },
   {
+    id: "orchestration-service",
+    group: "Platform",
+    label: "Orchestration",
+    screen: "S12",
+    route: "/orchestration",
+    visibleWhen: serviceAdmin,
+  },
+  {
     id: "external-systems-catalog",
     group: "Platform",
     label: "External systems",
@@ -157,22 +165,22 @@ export const NAV_ITEMS: readonly NavItem[] = [
     visibleWhen: teamItem("teams:read"),
   },
   {
+    id: "orchestration",
+    group: "Team",
+    label: "Orchestration",
+    screen: "T17",
+    viewerScreen: "V4",
+    writePermission: "collaboration:manage",
+    route: "/t/:teamId/orchestration",
+    visibleWhen: teamItem("collaboration:read"),
+  },
+  {
     id: "agents",
     group: "Team",
     label: "Agents",
     screen: "T2",
     route: "/t/:teamId/agents",
     visibleWhen: teamItem("agents:read"),
-  },
-  {
-    id: "collaboration",
-    group: "Team",
-    label: "Collaboration",
-    screen: "T16",
-    viewerScreen: "V3",
-    writePermission: "collaboration:manage",
-    route: "/t/:teamId/collaboration",
-    visibleWhen: teamItem("collaboration:read"),
   },
   {
     id: "pools",
@@ -308,11 +316,36 @@ export const EXTRA_ROUTES: readonly { route: string; screen: ScreenId }[] = [
   { route: "/work-orders/:id", screen: "P6" },
   { route: "/reports", screen: "S8" },
   { route: "/settings/:section", screen: "S10" },
+  { route: "/t/:teamId/orchestration/:tab", screen: "T17" },
+  { route: "/orchestration/:tab", screen: "S12" },
   { route: "/t/:teamId/agents/new", screen: "T3" },
   { route: "/t/:teamId/agents/:agentId", screen: "T2" },
   { route: "/t/:teamId/reports/agents/:agentId", screen: "T12" },
   { route: "/t/:teamId/pools/new", screen: "P4" },
 ];
+
+/** Old routes that move to a new place (ORC-20): `/t/:teamId/collaboration` is now *Orchestration*. */
+export const REDIRECTS: readonly { from: string; to: string }[] = [
+  { from: "/t/:teamId/collaboration", to: "/t/:teamId/orchestration" },
+];
+
+/** The tabs of the *Orchestration* page, in order; `collaboration` is the default and has no path segment. */
+export const ORCHESTRATION_TABS = [
+  { id: "collaboration", label: "Collaboration" },
+  { id: "config", label: "Agent configuration" },
+  { id: "usage", label: "Usage" },
+  { id: "logs", label: "Logs" },
+  { id: "revisions", label: "Revisions" },
+] as const;
+export type OrchestrationTab = (typeof ORCHESTRATION_TABS)[number]["id"];
+
+/** The tabs of the service *Orchestration* page (S12). */
+export const SERVICE_ORCHESTRATION_TABS = [
+  { id: "endpoints", label: "Endpoints" },
+  { id: "tools", label: "Tools and runtimes" },
+  { id: "defaults", label: "Defaults" },
+  { id: "kill-switches", label: "Kill switches" },
+] as const;
 
 /** Routes outside the navigation (PRD §4.1). */
 export const SYSTEM_ROUTES = ["/sign-in", "/auth/callback", "/signed-out"] as const;

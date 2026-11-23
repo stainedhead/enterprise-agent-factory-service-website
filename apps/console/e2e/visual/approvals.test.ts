@@ -26,8 +26,8 @@ const baselines = (dir: string): string[] =>
 const onDisk = new Set(baselines(join(import.meta.dirname, "..", "specs")));
 
 describe("visual approvals (M6-Q2)", () => {
-  it("has an entry for each of the 35 screens and nothing else", () => {
-    expect(SCREEN_IDS).toHaveLength(35);
+  it("has an entry for each of the 37 screens and nothing else", () => {
+    expect(SCREEN_IDS).toHaveLength(37);
     expect(Object.keys(approvals).sort()).toEqual([...SCREEN_IDS].sort());
   });
   it.each(SCREEN_IDS)("%s has a baseline on disk and a recorded status", (id) => {
@@ -43,7 +43,9 @@ describe("visual approvals (M6-Q2)", () => {
       for (const s of a.snapshots) expect(onDisk.has(s), `${id}: ${s}`).toBe(true);
   });
   it("records every screen but the Paperclip ones as approved by J on 2026-11-22", () => {
-    for (const id of SCREEN_IDS.filter((i) => i !== "T16" && i !== "V3")) {
+    for (const id of SCREEN_IDS.filter(
+      (i) => i !== "T17" && i !== "T18" && i !== "V4" && i !== "S12",
+    )) {
       expect(approvals[id]).toMatchObject({
         status: "approved",
         approver: "J",

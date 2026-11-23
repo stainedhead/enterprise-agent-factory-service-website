@@ -21,6 +21,8 @@ test.describe("P2 ephemeral team", () => {
     await page.getByLabel("Kind").selectOption("ephemeral");
     await page.getByLabel("Tag: environment").selectOption("dev");
     await page.getByRole("button", { name: "Next" }).click();
+    await page.getByRole("button", { name: "Next" }).click();
+    await page.getByRole("radio", { name: "Selected" }).check();
     await page.getByLabel(/Claude Sonnet/).check();
     await page.getByRole("button", { name: "Next" }).click();
     const next = page.getByRole("button", { name: "Next" });
@@ -53,6 +55,8 @@ test.describe("P2 ephemeral team", () => {
     await page.getByLabel("Kind").selectOption("ephemeral");
     await page.getByLabel("Tag: environment").selectOption("dev");
     await page.getByRole("button", { name: "Next" }).click();
+    await page.getByRole("button", { name: "Next" }).click();
+    await page.getByRole("radio", { name: "Selected" }).check();
     await page.getByLabel(/Claude Sonnet/).check();
     await page.getByRole("button", { name: "Next" }).click();
     await page.getByLabel("Lifetime budget (USD)").fill("2000.00");
@@ -71,6 +75,8 @@ test.describe("P2 ephemeral team", () => {
     await page.getByLabel("Kind").selectOption("ephemeral");
     await page.getByLabel("Tag: environment").selectOption("dev");
     await page.getByRole("button", { name: "Next" }).click();
+    await page.getByRole("button", { name: "Next" }).click();
+    await page.getByRole("radio", { name: "Selected" }).check();
     await page.getByLabel(/Claude Sonnet/).check();
     await page.getByRole("button", { name: "Next" }).click();
     await page.getByLabel("Lifetime budget (USD)").fill("100.00");

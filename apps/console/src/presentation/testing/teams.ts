@@ -34,6 +34,9 @@ export const aTeam = (over: Partial<TeamRecord> = {}): TeamRecord => ({
   mayManageAwsAccounts: false,
   allowedAwsAccounts: [],
   costCenter: "CC-1",
+  maxCollaborationExposure: "private",
+  modelAccess: "all",
+  orchestrationAgentId: "agt_orch",
   ...over,
 });
 
@@ -52,7 +55,12 @@ export function fakeTeamsPort(over: Partial<TeamsPort> = {}): FakeTeamsPort {
     resume: vi.fn(async () => aTeam()),
     status: vi.fn(async () => status()),
     models: vi.fn(async () => []),
-    putModels: vi.fn(async () => []),
+    teamModels: vi.fn(async () => ({ access: "all" as const, modelIds: [], items: [] })),
+    putTeamModels: vi.fn(async (_r, i) => ({
+      access: i.access,
+      modelIds: i.modelIds ?? [],
+      items: [],
+    })),
     tags: vi.fn(async () => ({ tags: [] })),
     putTags: vi.fn(async () => ({ tags: [] })),
     catalogModels: vi.fn(async () => [

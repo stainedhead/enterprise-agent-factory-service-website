@@ -59,7 +59,7 @@ describe("reserved names and managed rotation (WEB-US-54)", () => {
     const u = new SecretsUseCases(p as never);
     for (const name of ["paperclip", "paperclip-hub"]) {
       const e = await u.create("t", { scope: "team", name }, "v").catch((x) => x);
-      expect(e.fields.name).toBe("This name is reserved for Paperclip");
+      expect(e.fields.name).toBe("This name is reserved for the collaboration tool");
     }
     await u.create("t", { scope: "agent", name: "paperclip-agent-api-key", agentId: "agt_1" }, "v");
     expect(p.create).toHaveBeenCalledTimes(1);

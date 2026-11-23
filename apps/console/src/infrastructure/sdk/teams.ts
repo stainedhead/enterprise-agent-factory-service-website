@@ -5,6 +5,7 @@ import type {
   ModelRecord,
   ServiceTagRecord,
   StatusRecord,
+  TeamModelsRecord,
   TeamPage,
   TeamRecord,
   TeamRef,
@@ -31,11 +32,48 @@ const modelRecord = (x: {
   displayName: string;
   provider: string;
   enabled: boolean;
+  callable?: boolean | undefined;
+  priceState?: string | undefined;
+  inferenceProfileState?: string | undefined;
 }): ModelRecord => ({
   id: x.id,
   displayName: x.displayName,
   provider: x.provider,
   enabled: x.enabled,
+  callable: x.callable,
+  priceState: x.priceState,
+  inferenceProfileState: x.inferenceProfileState,
+});
+
+const teamModelsRecord = (r: {
+  access: string;
+  modelIds: string[];
+  items: Parameters<typeof modelRecord>[0][];
+}): TeamModelsRecord => ({
+  access: r.access === "selected" ? "selected" : "all",
+  modelIds: r.modelIds,
+  items: r.items.map(modelRecord),
+});
+
+/** The `orchestration` object of `CreateTeam`, with the flat exposure fields (contract f8b4404). */
+const orchestrationBody = (o: NonNullable<CreateTeamInput["orchestration"]>) => ({
+  ...(o.tool && { tool: o.tool }),
+  ...(o.webUiExposure && { webUiExposure: o.webUiExposure }),
+  ...(o.webApiExposure && { webApiExposure: o.webApiExposure }),
+  ...(o.registrationMode && { registrationMode: o.registrationMode }),
+  ...(o.models && {
+    models: {
+      access: o.models.access,
+      ...(o.models.modelIds && { modelIds: [...o.models.modelIds] }),
+      ...(o.models.defaultModelId && { defaultModelId: o.models.defaultModelId }),
+    },
+  }),
+  ...(o.resources && {
+    resources: {
+      ...(o.resources.cpu && { cpu: o.resources.cpu }),
+      ...(o.resources.memory && { memory: o.resources.memory }),
+    },
+  }),
 });
 
 /** `teams.*` calls mapped to {@link TeamsPort}; SDK errors become `AppError`. */
@@ -73,6 +111,11 @@ export class SdkTeams implements TeamsPort {
           identityProviderId: input.identityProviderId,
         }),
         ...(input.models && { models: [...input.models] }),
+        ...(input.modelAccess && { modelAccess: input.modelAccess }),
+        ...(input.maxCollaborationExposure && {
+          maxCollaborationExposure: input.maxCollaborationExposure,
+        }),
+        ...(input.orchestration && { orchestration: orchestrationBody(input.orchestration) }),
         ...(input.tags && { tags: input.tags.map((t) => ({ ...t })) }),
         ...(input.budget && {
           budget: {
@@ -129,6 +172,9 @@ export class SdkTeams implements TeamsPort {
           ...(p.mayManageAwsAccounts !== undefined && {
             mayManageAwsAccounts: p.mayManageAwsAccounts,
           }),
+          ...(p.maxCollaborationExposure !== undefined && {
+            maxCollaborationExposure: p.maxCollaborationExposure,
+          }),
           ...(p.allowedAwsAccounts !== undefined && {
             allowedAwsAccounts: [...p.allowedAwsAccounts],
           }),
@@ -154,11 +200,24 @@ export class SdkTeams implements TeamsPort {
       (await teams(this.client).models.list(id, sig(signal))).items.map(modelRecord),
     );
   }
-  putModels(ref: TeamRef, modelIds: readonly string[]): Promise<readonly ModelRecord[]> {
+  teamModels(id: string, signal?: AbortSignal): Promise<TeamModelsRecord> {
     return wrap(async () =>
-      // the models list has no version of its own: the SDK reads the current one first
-      (await teams(this.client).models.put(ref.id, { modelIds: [...modelIds] })).items.map(
-        modelRecord,
+      teamModelsRecord(await teams(this.client).models.list(id, sig(signal))),
+    );
+  }
+  putTeamModels(
+    ref: TeamRef,
+    input: { access: "all" | "selected"; modelIds?: readonly string[] },
+  ): Promise<TeamModelsRecord> {
+    return wrap(async () =>
+      teamModelsRecord(
+        await teams(this.client).models.put(
+          { id: ref.id, version: ref.version },
+          {
+            access: input.access,
+            ...(input.access === "selected" && { modelIds: [...(input.modelIds ?? [])] }),
+          },
+        ),
       ),
     );
   }

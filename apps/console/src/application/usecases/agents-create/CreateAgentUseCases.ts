@@ -1,4 +1,6 @@
+import { type ModelAccess, toModelsBody } from "../../../domain/modelAccess.js";
 import { isValidName } from "../../../domain/names.js";
+import { ORCHESTRATOR_NAME } from "../../../domain/orchestration.js";
 import { AppError } from "../../errors.js";
 import type { AgentRecord, SecretBindingRecord } from "../../ports/agents.js";
 import type { ConfigValueRecord } from "../../ports/configValues.js";
@@ -21,16 +23,17 @@ export interface BindingRow {
 
 /** Everything the T3 form holds. */
 export interface CreateAgentDraft {
-  /** `worker` when absent. Set on create, never changed (WEB-US-45). */
-  readonly role?: "worker" | "collaboration";
-  /** Worker only: the *Connect to Paperclip* switch; not sent when undefined (the team has no collaboration agent). */
+  /** The *Connect to <tool>* switch of the *Collaboration* section; on by default (COL-10). */
   readonly connect?: boolean;
   readonly name: string;
   readonly template: string;
   readonly image: string;
   /** The persona and instructions: the API's only free-text field is `description` (CQ-14). */
   readonly persona: string;
-  readonly modelId: string;
+  /** The models control: all team models or a selection, and the default model (MOD-3). */
+  readonly modelAccess: ModelAccess;
+  readonly modelIds: readonly string[];
+  readonly defaultModelId: string;
   readonly cpu: string;
   readonly memory: string;
   readonly sizeGiB: string;
@@ -62,7 +65,17 @@ export function validateDraft(
     e.name = "Use 3 to 40 lower-case letters, digits and hyphens, starting with a letter";
   if (!d.template) e.template = "Choose a template";
   if (!d.image.trim()) e.image = "Enter the image, pinned by digest";
-  if (!d.modelId) e.modelId = "Choose a model";
+  if (d.name.trim() === ORCHESTRATOR_NAME)
+    e.name = "The name orchestrator is reserved for the team's orchestration agent";
+  if (!d.defaultModelId) e.defaultModelId = "Choose a default model";
+  if (d.modelAccess === "selected" && d.modelIds.length === 0)
+    e.models = "Choose at least one model";
+  else if (
+    d.modelAccess === "selected" &&
+    d.defaultModelId &&
+    !d.modelIds.includes(d.defaultModelId)
+  )
+    e.defaultModelId = "The default model must be one of the agent's models";
   const size = Number(d.sizeGiB);
   if (!Number.isInteger(size) || size < MIN_SIZE_GIB || size > MAX_SIZE_GIB)
     e["volume.sizeGiB"] = `Enter a whole number from ${MIN_SIZE_GIB} to ${MAX_SIZE_GIB}`;
@@ -130,16 +143,18 @@ export class CreateAgentUseCases {
       delivery: b.delivery,
       target: b.target.trim(),
     }));
-    const collab = d.role === "collaboration";
-    const schedule = collab && d.snapshotSchedule === "off" ? "daily" : d.snapshotSchedule;
+    const schedule = d.snapshotSchedule;
     const agent = await this.agents.create(teamId, {
-      ...(collab && { role: "collaboration" as const }),
-      ...(!collab && d.connect !== undefined && { collaboration: { connect: d.connect } }),
+      ...(d.connect !== undefined && { collaboration: { connect: d.connect } }),
       name: d.name.trim(),
       template: d.template,
       image: d.image.trim(),
-      modelId: d.modelId,
-      iamIdentity: collab ? "dedicated" : d.iamIdentity,
+      models: toModelsBody({
+        access: d.modelAccess,
+        modelIds: d.modelIds,
+        defaultModelId: d.defaultModelId,
+      }) as never,
+      iamIdentity: d.iamIdentity,
       ...(d.persona.trim() && { description: d.persona.trim() }),
       ...((d.cpu || d.memory) && {
         resources: { ...(d.cpu && { cpu: d.cpu }), ...(d.memory && { memory: d.memory }) },

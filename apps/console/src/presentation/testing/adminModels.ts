@@ -61,6 +61,20 @@ export function fakeModelsPort(over: Partial<AdminModelsPort> = {}): FakeModelsP
         ? []
         : [aPrice(), aPrice({ effectiveFrom: "2026-06-01T00:00:00Z", source: "manual" })],
     ),
+    putServiceAccess: vi.fn(async (access: "all" | "selected") => ({
+      access,
+      enabledModels: 1,
+      callableModels: 1,
+      version: 2,
+    })),
+    setEnabled: vi.fn(async (ref, enabled) => ({
+      id: ref.id,
+      displayName: "Model",
+      provider: "p",
+      enabled,
+      contextWindow: 1,
+      maxOutputTokens: 1,
+    })),
     ...over,
   } as unknown as FakeModelsPort;
 }

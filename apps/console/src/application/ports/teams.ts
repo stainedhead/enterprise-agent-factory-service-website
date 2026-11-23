@@ -49,6 +49,12 @@ export interface TeamRecord {
   readonly mayManageAwsAccounts: boolean;
   /** Whether the team may publish its collaboration endpoints (a service guardrail, WEB-US-52). */
   readonly mayExposeCollaboration?: boolean;
+  /** Highest exposure any surface of the orchestration agent may have (`off`, `private`, `public`); service admins set it. */
+  readonly maxCollaborationExposure?: string;
+  /** `all` (every service model, now and later) or `selected` (the team list). */
+  readonly modelAccess?: string;
+  /** The team's orchestration agent; `null` only before the 1.1.0 backfill reached the team. */
+  readonly orchestrationAgentId?: string | null;
   readonly allowedAwsAccounts: readonly string[];
   readonly teardownRule?: string;
   /** When an ephemeral team was torn down, and why (`expired`, `cap_reached`, `work_complete`, `manual`). */
@@ -63,6 +69,20 @@ export interface FirstAdminInput {
   readonly groupName?: string;
 }
 
+/** The orchestration agent created with the team (ORC-26); every field optional, defaults from the service settings. */
+export interface CreateTeamOrchestrationInput {
+  readonly tool?: string | undefined;
+  readonly webUiExposure?: string | undefined;
+  readonly webApiExposure?: string | undefined;
+  readonly registrationMode?: string | undefined;
+  readonly models?: {
+    readonly access: "all" | "selected";
+    readonly modelIds?: readonly string[] | undefined;
+    readonly defaultModelId?: string | undefined;
+  };
+  readonly resources?: { readonly cpu?: string | undefined; readonly memory?: string | undefined };
+}
+
 export interface CreateTeamInput {
   readonly displayName: string;
   readonly slug: string;
@@ -72,7 +92,11 @@ export interface CreateTeamInput {
   readonly description?: string;
   readonly ownerEmail?: string;
   readonly identityProviderId?: string;
+  /** The team list; meaningful with `modelAccess: selected`. */
   readonly models?: readonly string[];
+  readonly modelAccess?: "all" | "selected";
+  readonly maxCollaborationExposure?: string;
+  readonly orchestration?: CreateTeamOrchestrationInput;
   readonly tags?: readonly { key: string; value: string }[];
   readonly budget?: { amountUsd: string; period?: "lifetime"; thresholds?: readonly number[] };
   readonly firstAdmin: FirstAdminInput;
@@ -101,6 +125,7 @@ export interface UpdateTeamInput {
   readonly mayAddExternalSystems?: boolean;
   readonly mayManageAwsAccounts?: boolean;
   readonly mayExposeCollaboration?: boolean;
+  readonly maxCollaborationExposure?: string;
   /** Glob patterns over account ids and names (`teams:set-aws-accounts`). */
   readonly allowedAwsAccounts?: readonly string[];
   readonly quotas?: QuotasRecord;
@@ -117,6 +142,19 @@ export interface ModelRecord {
   readonly displayName: string;
   readonly provider: string;
   readonly enabled: boolean;
+  /** Enabled at the service, priced and (for a team list) allowed (MOD-1). */
+  readonly callable?: boolean | undefined;
+  /** `approved`, `pending` or `none`. */
+  readonly priceState?: string | undefined;
+  /** Team list only: `none`, `provisioning`, `ready`, `failed` or `retiring`. */
+  readonly inferenceProfileState?: string | undefined;
+}
+
+/** The team's model access (MOD-2): the mode, the stored selection and the allowed set (service and team). */
+export interface TeamModelsRecord {
+  readonly access: "all" | "selected";
+  readonly modelIds: readonly string[];
+  readonly items: readonly ModelRecord[];
 }
 
 export interface ServiceTagRecord {
@@ -167,8 +205,13 @@ export interface TeamsPort {
   suspend(id: string): Promise<TeamRecord>;
   resume(id: string): Promise<TeamRecord>;
   status(id: string, signal?: AbortSignal): Promise<StatusRecord>;
+  /** The team's allowed models (service and team): what an agent may choose from. */
   models(id: string, signal?: AbortSignal): Promise<readonly ModelRecord[]>;
-  putModels(ref: TeamRef, modelIds: readonly string[]): Promise<readonly ModelRecord[]>;
+  teamModels(id: string, signal?: AbortSignal): Promise<TeamModelsRecord>;
+  putTeamModels(
+    ref: TeamRef,
+    input: { readonly access: "all" | "selected"; readonly modelIds?: readonly string[] },
+  ): Promise<TeamModelsRecord>;
   tags(id: string, signal?: AbortSignal): Promise<TeamTagsRecord>;
   putTags(ref: TeamRef, tags: readonly { key: string; value: string }[]): Promise<TeamTagsRecord>;
   /** The model catalog S3 offers (`ListModels`). */

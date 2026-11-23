@@ -5,9 +5,26 @@ export interface ModelRecord {
   readonly id: string;
   readonly displayName: string;
   readonly provider: string;
+  /** The per-model flag; ignored (read-only) while the service access is `all` (MOD-1). */
   readonly enabled: boolean;
   readonly contextWindow: number;
   readonly maxOutputTokens: number;
+  readonly version?: number | undefined;
+  /** Enabled at the service level, taking the service access into account. */
+  readonly serviceEnabled?: boolean | undefined;
+  readonly callable?: boolean | undefined;
+  /** `approved`, `pending` or `none`. */
+  readonly priceState?: string | undefined;
+  readonly teamsWithAccess?: number | undefined;
+  /** `manual` or `bedrock_sync`. */
+  readonly origin?: string | undefined;
+}
+
+export interface ServiceModelAccessRecord {
+  readonly access: "all" | "selected";
+  readonly enabledModels: number;
+  readonly callableModels: number;
+  readonly version: number;
 }
 
 export interface PriceRecord {
@@ -38,6 +55,13 @@ export interface ProposalRecord {
 
 export interface AdminModelsPort {
   models(signal?: AbortSignal): Promise<readonly ModelRecord[]>;
+  /** `PutServiceModelAccess` (`admin:models`). */
+  putServiceAccess(access: "all" | "selected"): Promise<ServiceModelAccessRecord>;
+  /** Enable or disable one model; the API refuses it while the service access is `all`. */
+  setEnabled(
+    ref: { id: string; version?: number | undefined },
+    enabled: boolean,
+  ): Promise<ModelRecord>;
   prices(modelId: string, signal?: AbortSignal): Promise<readonly PriceRecord[]>;
 }
 

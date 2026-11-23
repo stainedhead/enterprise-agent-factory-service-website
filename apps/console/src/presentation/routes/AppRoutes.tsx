@@ -1,8 +1,8 @@
 import { Suspense } from "react";
-import { Navigate, Outlet, type RouteObject, useLocation } from "react-router";
+import { Navigate, Outlet, type RouteObject, useLocation, useParams } from "react-router";
 import { teamOf } from "../../domain/me.js";
 import { routeFor, screenFor, visibleItems } from "../../domain/navigation.js";
-import { type RouteDef, resolveRoute, routeTable } from "../../domain/routes.js";
+import { type RouteDef, redirectTarget, resolveRoute, routeTable } from "../../domain/routes.js";
 import {
   CallbackPage,
   SessionExpiredDialog,
@@ -75,9 +75,12 @@ function ConsoleLayout() {
 
 function ScreenRoute({ def }: { def: RouteDef }) {
   const me = useMe();
+  const params = useParams() as Record<string, string>;
+  const target = redirectTarget(def, params);
   const { pathname } = useLocation();
   const teamId = teamIdOf(pathname);
   const { kind, loading } = useTeamKind(teamId);
+  if (target) return <Navigate to={target} replace />;
   if (pathname === "/" && !me.serviceAdmin) {
     const first = me.teams[0];
     if (first) return <Navigate to={`/t/${first.teamId}`} replace />;

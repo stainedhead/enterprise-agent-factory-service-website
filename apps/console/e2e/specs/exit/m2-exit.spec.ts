@@ -18,7 +18,7 @@ test("M2 exit: a team viewer reads every M2 team screen and sends no mutating re
   // T2 and its panel: every action disabled
   await expect(page.getByRole("region", { name: /Agent reviewer/ })).toBeVisible();
   for (const n of ["Restart", "Pause", "Take snapshot", "Edit"])
-    await expect(page.getByRole("button", { name: n, exact: true })).toHaveAttribute(
+    await expect(page.getByRole("button", { name: n, exact: true }).last()).toHaveAttribute(
       "aria-disabled",
       "true",
     );

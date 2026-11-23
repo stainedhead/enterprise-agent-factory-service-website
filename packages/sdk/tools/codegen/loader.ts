@@ -86,6 +86,7 @@ export function loadContract(dir: string): Contract {
       yaml: responses.some((r) => r.contentTypes.includes("application/yaml")),
       list,
       summary: op.summary ?? "",
+      deprecated: op.deprecated === true,
       ifMatch,
       idempotencyKey,
       versionless: false,

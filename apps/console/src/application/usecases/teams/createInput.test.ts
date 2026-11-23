@@ -14,6 +14,7 @@ describe("toCreateInput", () => {
         identityProviderId: "idp_1",
         tags: { env: "prod", empty: "" },
         models: ["m1"],
+        modelAccess: "selected",
         maxBudgetUsd: "5000.00",
         adminGroup: "g",
         adminType: "group",
@@ -27,8 +28,8 @@ describe("toCreateInput", () => {
       description: "d",
       ownerEmail: "o@x.co",
       identityProviderId: "idp_1",
+      modelAccess: "selected",
       models: ["m1"],
-      mayExposeCollaboration: true,
       tags: [{ key: "env", value: "prod" }],
       budget: { amountUsd: "5000.00", thresholds: [50, 80, 100] },
       firstAdmin: { subjectType: "group", groupName: "g" },
@@ -58,9 +59,13 @@ describe("toCreateInput guardrail (WEB-US-52)", () => {
       maxBudgetUsd: "10.00",
       adminEmail: "a@b.co",
     };
-    expect(toCreateInput(d).mayExposeCollaboration).toBe(true);
-    expect(toCreateInput({ ...d, mayExposeCollaboration: false }).mayExposeCollaboration).toBe(
-      false,
-    );
+    const out = toCreateInput({
+      ...d,
+      maxCollaborationExposure: "private",
+      orchTool: "buzz",
+    });
+    expect(out.maxCollaborationExposure).toBe("private");
+    expect(out.orchestration?.tool).toBe("buzz");
+    expect(toCreateInput(d).modelAccess).toBeDefined();
   });
 });

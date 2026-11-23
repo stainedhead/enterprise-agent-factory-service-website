@@ -22,7 +22,7 @@ import { ConflictAlert } from "../../query/ConflictAlert.js";
 import { queryKey } from "../../query/keys.js";
 import { useService } from "../../services.js";
 
-const TONE = { system: "grey", service: "blue", team: "purple" } as const;
+const TONE = { system: "grey", service: "blue", team: "teal" } as const;
 
 /**
  * T13 (WEB-US-33): the team's system, service and team tags with their source. Team-admins set required values and

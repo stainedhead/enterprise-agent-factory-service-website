@@ -32,6 +32,7 @@ import {
   MembersUseCases,
 } from "../application/usecases/members/MembersUseCases.js";
 import { NotificationsUseCases } from "../application/usecases/notifications/NotificationsUseCases.js";
+import { OrchestrationUseCases } from "../application/usecases/orchestration/OrchestrationUseCases.js";
 import { OverviewUseCases } from "../application/usecases/overview/OverviewUseCases.js";
 import { PoolsUseCases } from "../application/usecases/pools/PoolsUseCases.js";
 import { ReportSchedulesUseCases } from "../application/usecases/reportSchedules/ReportSchedulesUseCases.js";
@@ -74,6 +75,7 @@ import { SdkIdentity } from "../infrastructure/sdk/identity.js";
 import { SdkLogDestinations } from "../infrastructure/sdk/logDestinations.js";
 import { SdkApiKeys, SdkMembers } from "../infrastructure/sdk/members.js";
 import { SdkNotifications } from "../infrastructure/sdk/notifications.js";
+import { SdkOrchestration } from "../infrastructure/sdk/orchestration.js";
 import { SdkOverview } from "../infrastructure/sdk/overview.js";
 import { SdkPools } from "../infrastructure/sdk/pools.js";
 import { SdkReportSchedules } from "../infrastructure/sdk/reportSchedules.js";
@@ -136,6 +138,7 @@ export function buildServices(
     pools: new PoolsUseCases(new SdkPools(client), new SdkAgents(client), new SdkReports(client)),
     budgets: new BudgetsUseCases(new SdkBudgets(client), clock),
     collaboration: new CollaborationUseCases(new SdkCollaboration(client)),
+    orchestration: new OrchestrationUseCases(new SdkOrchestration(client)),
     settings: new SettingsUseCases(new SdkSettings(client)),
     identityProviders: new IdentityProvidersUseCases(new SdkIdentityProviders(client)),
     history: new HistoryUseCases(new SdkAudit(client), new SdkRevisions(client)),

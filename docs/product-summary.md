@@ -15,7 +15,7 @@ API's `AccessDenied` as the real answer.
 
 ## Status
 
-Feature complete. The contract snapshot is pinned to `-restapi` commit `763e939` (contract 1.3.1, collaboration; the merge of PR #7). Re-pinning to a release tag
+Feature complete. The contract snapshot is pinned to `-restapi` commit `f8b4404` (contract 1.4.0, orchestration and model access). Re-pinning to a release tag
 waits for `-restapi` to tag one (CQ-1).
 
 Requirements and the console design by role: the root repository's `enterprise-agent-factory-service-initial-PRD.md`.

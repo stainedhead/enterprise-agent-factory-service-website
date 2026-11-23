@@ -1,4 +1,4 @@
-import { cleanup, screen, waitFor } from "@testing-library/react";
+import { cleanup, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { AppError } from "../../../application/errors.js";
@@ -38,10 +38,15 @@ async function fillDetails() {
   await userEvent.type(screen.getByLabelText("Slug"), "payments");
   await userEvent.selectOptions(await screen.findByLabelText("Tag: environment"), "prod");
 }
+async function chooseModel() {
+  await userEvent.click(await screen.findByRole("radio", { name: "Selected" }));
+  await userEvent.click(await screen.findByLabelText(/Model One/));
+}
 async function fillAll() {
   await fillDetails();
-  await userEvent.click(next());
-  await userEvent.click(await screen.findByLabelText(/Model One/));
+  await userEvent.click(next()); // orchestration
+  await userEvent.click(next()); // models
+  await chooseModel();
   await userEvent.click(next());
   await userEvent.type(screen.getByLabelText("Monthly budget (USD)"), "5000.00");
   await userEvent.click(next());
@@ -56,7 +61,11 @@ describe("S3 create team wizard (M1-T5)", () => {
     await fillDetails();
     expect(next().getAttribute("aria-disabled")).toBeNull();
     await userEvent.click(next());
-    expect(next().getAttribute("aria-disabled")).toBe("true"); // no model chosen yet
+    expect(next().getAttribute("aria-disabled")).toBeNull(); // the orchestration defaults are valid
+    await userEvent.click(next());
+    expect(next().getAttribute("aria-disabled")).toBeNull(); // All models is the default
+    await userEvent.click(await screen.findByRole("radio", { name: "Selected" }));
+    expect(next().getAttribute("aria-disabled")).toBe("true"); // none chosen yet
     await userEvent.click(await screen.findByLabelText(/Model One/));
     expect(next().getAttribute("aria-disabled")).toBeNull();
     await userEvent.click(next());
@@ -80,6 +89,7 @@ describe("S3 create team wizard (M1-T5)", () => {
     const sent = port.create.mock.calls[0]?.[0];
     expect(sent).toMatchObject({
       slug: "payments",
+      modelAccess: "selected",
       models: ["m1"],
       tags: [{ key: "environment", value: "prod" }],
       firstAdmin: { email: "lead@example.com" },
@@ -140,7 +150,7 @@ describe("S3 required tags and provider (M1-T6)", () => {
     expect(await screen.findByText("Invalid team")).toBeTruthy();
     expect(screen.getByText(/Request id: req_v/)).toBeTruthy();
     expect(screen.getByText(/slug: Slug is already taken/)).toBeTruthy();
-    for (let i = 0; i < 4; i++)
+    for (let i = 0; i < 5; i++)
       await userEvent.click(screen.getByRole("button", { name: "Previous" }));
     expect(await screen.findByText("Slug is already taken")).toBeTruthy();
   });
@@ -221,32 +231,104 @@ describe("S3 drafts (FR-004, D-3)", () => {
   });
 });
 
-describe("S3 collaboration guardrail (WEB-US-52)", () => {
-  it("guardrail checkbox default on, cli includes the flag, and clearing it sends false", async () => {
+describe("S3 orchestration step (WEB-US-52, ORC-26, ORC-29)", () => {
+  const toOrchestration = async () => {
+    await fillDetails();
+    await userEvent.click(next());
+  };
+  const level = (name: string, option: string) =>
+    within(screen.getByRole("radiogroup", { name })).getByRole("radio", { name: option });
+  it("offers Paperclip AI (default) and Buzz (Preview) and the service defaults", async () => {
+    open();
+    await toOrchestration();
+    expect(
+      ((await screen.findByRole("radio", { name: /Paperclip AI/ })) as HTMLInputElement).checked,
+    ).toBe(true);
+    expect(screen.getByText("Preview")).toBeTruthy();
+    expect((level("Endpoint limit", "Private") as HTMLInputElement).checked).toBe(true);
+    expect((level("Web UI", "Private") as HTMLInputElement).checked).toBe(true);
+    expect((level("Web API", "Off") as HTMLInputElement).checked).toBe(true);
+    expect(screen.getByText(/Orchestration runtime/)).toBeTruthy();
+    expect(document.body.textContent).not.toMatch(/openclaw|hermes/i);
+  });
+  it("a starting level above the limit cannot be chosen, and the reason is on the option", async () => {
+    open();
+    await toOrchestration();
+    const pub = level("Web UI", "Public");
+    expect(pub.getAttribute("aria-disabled")).toBe("true");
+    await userEvent.click(pub);
+    expect((level("Web UI", "Private") as HTMLInputElement).checked).toBe(true);
+  });
+  it("raising the limit enables Public; Buzz turns both surfaces N/A and Off", async () => {
+    open();
+    await toOrchestration();
+    await userEvent.click(level("Endpoint limit", "Public"));
+    expect(level("Web UI", "Public").getAttribute("aria-disabled")).toBeNull();
+    await userEvent.click(screen.getByRole("radio", { name: /Buzz/ }));
+    expect(level("Web UI", "Private").getAttribute("aria-disabled")).toBe("true");
+    expect((level("Web UI", "Off") as HTMLInputElement).checked).toBe(true);
+    expect((level("Web API", "Off") as HTMLInputElement).checked).toBe(true);
+  });
+  it("the review says an orchestration agent will be created and the CLI carries --orchestration", async () => {
+    const { port } = open();
+    await fillAll();
+    expect(
+      screen.getByText(/An orchestration agent named orchestrator will be created/),
+    ).toBeTruthy();
+    const cmd = document.querySelector("code")?.textContent ?? "";
+    expect(cmd).toContain(
+      "--orchestration Tool=paperclip,WebUiExposure=private,WebApiExposure=off",
+    );
+    expect(cmd).toContain("--model-access selected");
+    expect(cmd).not.toContain("--may-expose-collaboration");
+    await userEvent.click(screen.getByRole("button", { name: "Create team" }));
+    await waitFor(() => expect(port.create).toHaveBeenCalled());
+    expect(port.create.mock.calls[0]?.[0]).not.toHaveProperty("mayExposeCollaboration");
+  });
+  it("a changed limit and tool reach the request", async () => {
     const { port } = open();
     await fillDetails();
     await userEvent.click(next());
-    const box = (await screen.findByLabelText(
-      "May publish collaboration endpoints",
-    )) as HTMLInputElement;
-    expect(box.checked).toBe(true);
-    await userEvent.click(box);
-    await userEvent.click(await screen.findByLabelText(/Model One/));
+    await userEvent.click(level("Endpoint limit", "Public"));
+    await userEvent.click(level("Web UI", "Public"));
+    await userEvent.click(next());
     await userEvent.click(next());
     await userEvent.type(screen.getByLabelText("Monthly budget (USD)"), "5000.00");
     await userEvent.click(next());
     await userEvent.type(screen.getByLabelText("Admin email"), "lead@example.com");
     await userEvent.click(next());
-    expect(document.querySelector("code")?.textContent).toContain("--no-may-expose-collaboration");
+    const cmd = document.querySelector("code")?.textContent ?? "";
+    expect(cmd).toContain("--max-collaboration-exposure public");
+    expect(cmd).toContain("WebUiExposure=public");
     await userEvent.click(screen.getByRole("button", { name: "Create team" }));
     await waitFor(() => expect(port.create).toHaveBeenCalled());
-    expect(port.create.mock.calls[0]?.[0]).toMatchObject({ mayExposeCollaboration: false });
+    expect(port.create.mock.calls[0]?.[0]).toMatchObject({
+      maxCollaborationExposure: "public",
+      orchestration: { webUiExposure: "public" },
+    });
   });
-  it("default cli says --may-expose-collaboration", async () => {
-    open();
-    await fillAll();
-    expect(document.querySelector("code")?.textContent).toMatch(/--may-expose-collaboration(\s|$)/);
+});
+
+describe("S3 models step (MOD-2)", () => {
+  it("All is the default and sends modelAccess all without a list", async () => {
+    const { port } = open();
+    await fillDetails();
+    await userEvent.click(next());
+    await userEvent.click(next());
+    expect((screen.getByRole("radio", { name: "All" }) as HTMLInputElement).checked).toBe(true);
+    await userEvent.click(next());
+    await userEvent.type(screen.getByLabelText("Monthly budget (USD)"), "5000.00");
+    await userEvent.click(next());
+    await userEvent.type(screen.getByLabelText("Admin email"), "lead@example.com");
+    await userEvent.click(next());
+    expect(document.querySelector("code")?.textContent).toContain("--model-access all");
+    await userEvent.click(screen.getByRole("button", { name: "Create team" }));
+    await waitFor(() => expect(port.create).toHaveBeenCalled());
+    expect(port.create.mock.calls[0]?.[0]).toMatchObject({ modelAccess: "all" });
   });
+});
+
+describe("S3 hostname", () => {
   it("hostname_held on the slug", async () => {
     open({
       create: vi.fn(async () => {
@@ -256,7 +338,7 @@ describe("S3 collaboration guardrail (WEB-US-52)", () => {
     await fillAll();
     await userEvent.click(screen.getByRole("button", { name: "Create team" }));
     expect(await screen.findByText("held")).toBeTruthy();
-    for (let i = 0; i < 4; i++)
+    for (let i = 0; i < 5; i++)
       await userEvent.click(screen.getByRole("button", { name: "Previous" }));
     expect(await screen.findByText(/hostname is held for 30 days/)).toBeTruthy();
   });

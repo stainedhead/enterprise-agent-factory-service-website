@@ -21,7 +21,10 @@ test.describe("T2 agents", () => {
     await expect(page.getByRole("columnheader", { name: /replica/i })).toHaveCount(0);
     await expectAxeClean(page);
     await row.getByRole("link", { name: "reviewer" }).click();
-    await page.getByRole("button", { name: "Restart" }).click();
+    await page
+      .getByRole("region", { name: "Agent reviewer" })
+      .getByRole("button", { name: "Restart" })
+      .click();
     await expect(page.getByRole("region", { name: "Agent reviewer" })).toContainText("Reconciling");
     expect((await requestsWhere((r) => r.operationId === "RestartAgent")).length).toBe(1);
   });
@@ -31,9 +34,14 @@ test.describe("T2 agents", () => {
     signInAs,
   }) => {
     await signInAs("team-admin", `${agents}/${AGENT_IDS[0]}`);
-    await page.getByRole("button", { name: "Pause" }).click();
+    await page
+      .getByRole("region", { name: "Agent reviewer" })
+      .getByRole("button", { name: "Pause" })
+      .click();
     await page.getByRole("dialog").getByRole("button", { name: "Pause" }).click();
-    await expect(page.getByRole("button", { name: "Resume" })).toBeVisible();
+    await expect(
+      page.getByRole("region", { name: "Agent reviewer" }).getByRole("button", { name: "Resume" }),
+    ).toBeVisible();
     await page.getByRole("button", { name: "Take snapshot" }).click();
     await page.getByRole("dialog").getByRole("button", { name: "Take snapshot" }).click();
     await expect(page.getByRole("dialog")).toHaveCount(0);
@@ -84,9 +92,14 @@ test.describe("T2 agents", () => {
     signInAs,
   }) => {
     await signInAs("viewer", `${agents}/${AGENT_IDS[0]}`);
-    for (const name of ["Restart", "Pause", "Take snapshot", "Edit", "Create agent"])
-      await expect(page.getByRole("button", { name })).toHaveAttribute("aria-disabled", "true");
-    await page.getByRole("button", { name: "Restart" }).click({ force: true });
+    for (const name of ["Restart", "Pause", "Take snapshot", "Edit"])
+      await expect(
+        page.getByRole("region", { name: "Agent reviewer" }).getByRole("button", { name }),
+      ).toHaveAttribute("aria-disabled", "true");
+    await page
+      .getByRole("region", { name: "Agent reviewer" })
+      .getByRole("button", { name: "Restart" })
+      .click({ force: true });
     await expectAxeClean(page);
     expect(await mutatingCount()).toBe(0);
   });

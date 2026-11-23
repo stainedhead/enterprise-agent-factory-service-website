@@ -65,7 +65,7 @@ describe("S3 ephemeral budget step", () => {
     await userEvent.selectOptions(screen.getByLabelText("Kind"), "ephemeral");
     const next = () => screen.getByRole("button", { name: /^(Next|Review)$/ });
     await userEvent.click(next());
-    await userEvent.click(await screen.findByLabelText(/Model One/));
+    await userEvent.click(next());
     await userEvent.click(next());
     return { port, next };
   }

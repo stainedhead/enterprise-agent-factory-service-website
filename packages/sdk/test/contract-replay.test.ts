@@ -69,8 +69,8 @@ function collectMoney(v: unknown, found: [string, unknown][] = []): [string, unk
 }
 
 describe("contract replay (M0-P5)", () => {
-  it("finds the 167 JSON 2xx response examples (170 in all content types and statuses)", () => {
-    expect(examples).toHaveLength(167);
+  it("finds the 172 JSON 2xx response examples (175 in all content types and statuses)", () => {
+    expect(examples).toHaveLength(172);
   });
 
   it.each(examples.map((e) => [`${e.id} ${e.status}`, e] as const))(

@@ -37,17 +37,23 @@ export interface Agent {
   iamIdentity: "team_shared" | "dedicated" | (string & {});
   readonly iamRoleArn?: string;
   readonly id: string;
-  image: ImageRef;
-  modelId: string;
+  /** Null on the orchestration agent for callers who are not service admins */
+  image: ImageRef | null;
+  /** Deprecated: models.defaultModelId
+   * @deprecated Kept until 2.0.0; see the API contract for the successor. */
+  modelId?: string;
+  models: AgentModels;
   readonly name: Name;
   readonly paused: boolean;
   resources?: Resources;
-  /** worker or collaboration; set on create, immutable */
-  role?: "worker" | "collaboration" | (string & {});
+  /** worker or orchestration; read-only (a 1.0.1 collaboration reads as orchestration) */
+  readonly role?: "worker" | "orchestration" | (string & {});
+  /** Present only on the orchestration agent */
+  runtime?: "orchestration" | (string & {});
   secretBindings?: SecretBinding[];
   readonly status: Status;
-  /** Agent template name */
-  template: string;
+  /** Agent template name; null on the orchestration agent for callers who are not service admins */
+  template: string | null;
   readonly updatedAt?: Timestamp;
   /** Optimistic-concurrency version; ETag is "<version>" */
   readonly version: number;
@@ -103,11 +109,29 @@ export interface AgentList {
   nextToken?: string;
 }
 
+/** Which models an agent may call and its default */
+
+export interface AgentModels {
+  /** all follows the team list */
+  access: "all" | "selected" | (string & {});
+  defaultModelId: string;
+  readonly effectiveModelIds?: string[];
+  modelIds?: string[];
+}
+
+/** AgentModelsInput (OpenAPI schema `AgentModelsInput`). */
+
+export interface AgentModelsInput {
+  access?: "all" | "selected" | (string & {});
+  defaultModelId?: string;
+  modelIds?: string[];
+}
+
 /** AgentTemplate (OpenAPI schema `AgentTemplate`). */
 
 export interface AgentTemplate {
   allowedDigests: string[];
-  capabilities?: ("paperclip" | (string & {}))[];
+  capabilities?: ("paperclip" | "orchestration" | "tool:paperclip" | "tool:buzz" | (string & {}))[];
   readonly createdAt?: Timestamp;
   currentDigest: string;
   defaultResources?: Resources;
@@ -259,6 +283,12 @@ export interface CatalogSystemRequest {
   slug: string;
 }
 
+/** ChangeCollaborationToolRequest (OpenAPI schema `ChangeCollaborationToolRequest`). */
+
+export interface ChangeCollaborationToolRequest {
+  tool: "paperclip" | "buzz" | (string & {});
+}
+
 /** What the edge honours (stored choice, team guardrail, service settings and the provider's collaboration client) */
 
 export interface CollaborationEffective {
@@ -286,7 +316,8 @@ export interface CollaborationEndpoint {
   webUiEnabled: boolean;
 }
 
-/** CollaborationEndpointList (OpenAPI schema `CollaborationEndpointList`). */
+/** CollaborationEndpointList (OpenAPI schema `CollaborationEndpointList`).
+ * @deprecated Kept until 2.0.0; see the API contract for the successor. */
 
 export interface CollaborationEndpointList {
   items: CollaborationEndpoint[];
@@ -304,7 +335,10 @@ export interface CollaborationLink {
   readonly lastError?: string | null;
   readonly lastSyncedAt?: string | null;
   readonly linkState: "pending" | "linked" | "failed" | "disabled" | (string & {});
+  /** Paperclip only */
   paperclipAgentId?: string | null;
+  /** Buzz: the agent's public key */
+  readonly toolAgentId?: string | null;
   readonly version: number;
 }
 
@@ -432,11 +466,15 @@ export interface CreateAgentRequest {
   description?: string;
   iamIdentity?: "team_shared" | "dedicated" | (string & {});
   image: ImageRef;
-  modelId: string;
+  /** Deprecated: models.defaultModelId
+   * @deprecated Kept until 2.0.0; see the API contract for the successor. */
+  modelId?: string;
+  models?: AgentModelsInput;
+  /** The name orchestrator is reserved (name_reserved) */
   name: Name;
   resources?: Resources;
-  /** Set on create; immutable */
-  role?: "worker" | "collaboration" | (string & {});
+  /** Workers only; any other value is refused (role_reserved) */
+  role?: "worker" | (string & {});
   secretBindings?: SecretBinding[];
   /** Agent template name */
   template: string;
@@ -525,7 +563,10 @@ export interface CreateNotificationChannelRequest {
 export interface CreatePoolRequest {
   description?: string;
   image: ImageRef;
-  modelId: string;
+  /** Deprecated: models.defaultModelId
+   * @deprecated Kept until 2.0.0; see the API contract for the successor. */
+  modelId?: string;
+  models?: AgentModelsInput;
   name: Name;
   persona?: string;
   resources?: Resources;
@@ -636,14 +677,42 @@ export interface CreateTeamRequest {
   kind: "persistent" | "ephemeral" | (string & {});
   /** Guardrail field: needs teams:set-guardrails */
   maxBudgetUsd: Money;
+  /** Default off */
+  maxCollaborationExposure?: "off" | "private" | "public" | (string & {});
   /** Guardrail field: needs teams:set-guardrails */
   mayAddExternalSystems?: boolean;
-  /** Guardrail field: needs teams:set-guardrails. Whether the team may publish its Paperclip endpoints (default true) */
+  /** Guardrail field: needs teams:set-guardrails. Whether the team may publish its Paperclip endpoints (default true)
+   * @deprecated Kept until 2.0.0; see the API contract for the successor. */
   mayExposeCollaboration?: boolean;
   /** Guardrail field: needs teams:set-guardrails */
   mayManageAwsAccounts?: boolean;
+  modelAccess?: "all" | "selected" | (string & {});
   /** Model ids enabled for the team */
   models?: string[];
+  /** The orchestration agent created with the team; every field optional */
+  orchestration?: {
+    /** Shorthand for models.defaultModelId (CD-36) */
+    modelId?: string;
+    models?: AgentModelsInput;
+    registrationMode?: "manual" | "managed" | (string & {});
+    resources?: Resources;
+    tool?: "paperclip" | "buzz" | (string & {});
+    /** Volume of the orchestration agent; defaults from orchestration.default_volume_gib */
+    volume?: {
+      onDelete?: "snapshot_then_delete" | "delete" | "retain" | (string & {});
+      sizeGiB?: number;
+    };
+    webApi?: {
+      exposure: "off" | "private" | "public" | (string & {});
+    };
+    /** Flat form of webApi.exposure; same rules as webUiExposure */
+    webApiExposure?: "off" | "private" | "public" | (string & {});
+    webUi?: {
+      exposure: "off" | "private" | "public" | (string & {});
+    };
+    /** Flat form of webUi.exposure (contract section 4.4d); both forms may be sent when they agree, otherwise ValidationError on this field. Above the team limit is exposure_above_limit */
+    webUiExposure?: "off" | "private" | "public" | (string & {});
+  };
   ownerEmail?: string;
   quotas?: Quotas;
   slug: Name;
@@ -958,12 +1027,23 @@ export interface MemberList {
 /** Model (OpenAPI schema `Model`). */
 
 export interface Model {
+  /** Enabled at the service, priced and (for a team list) allowed */
+  callable?: boolean;
   contextWindow: number;
   displayName: string;
   enabled: boolean;
   id: string;
+  /** Team list only; the team's inference profile for the model */
+  inferenceProfileState?: "none" | "provisioning" | "ready" | "failed" | "retiring" | (string & {});
   maxOutputTokens: number;
+  /** Admin list only */
+  origin?: "manual" | "bedrock_sync" | (string & {});
+  priceState?: "approved" | "pending" | "none" | (string & {});
   provider: string;
+  /** Admin list only */
+  serviceEnabled?: boolean;
+  /** Admin list only */
+  teamsWithAccess?: number;
   readonly updatedAt?: Timestamp;
   readonly version?: number;
 }
@@ -1041,6 +1121,59 @@ export interface NotificationTestResult {
   testId: string;
 }
 
+/** One team and surface whose stored exposure is not off */
+
+export interface OrchestrationEndpoint {
+  agentId: string;
+  effective: "off" | "private" | "public" | (string & {});
+  exposure: "off" | "private" | "public" | (string & {});
+  hostname: string | null;
+  lastAccessAt?: string | null;
+  limit: "off" | "private" | "public" | (string & {});
+  phase: string;
+  reasons: ("tool_not_supported" | "team_limit" | "service_switch_public" | "service_switch_private" | "base_domain_unset" | "provider_without_collab_client" | (string & {}))[];
+  slug: string;
+  surface: "webUi" | "webApi" | (string & {});
+  teamId: string;
+  teamState: string;
+  tool: "paperclip" | "buzz" | (string & {});
+}
+
+/** A page of OrchestrationEndpoint resources */
+
+export interface OrchestrationEndpointList {
+  items: OrchestrationEndpoint[];
+  migration: OrchestrationMigration;
+  /** Absent on the last page */
+  nextToken?: string;
+}
+
+/** The 1.1.0 backfill progress for S12 */
+
+export interface OrchestrationMigration {
+  blocked: ({
+    reason: "orchestration_runtime_unset" | "no_model" | (string & {});
+    teamId: string;
+  })[];
+  state: "running" | "complete" | "blocked" | (string & {});
+  teamsPending: number;
+  teamsTotal: number;
+  teamsWithOrchestration: number;
+}
+
+/** One surface of the orchestration agent: stored exposure, effective level and why they differ */
+
+export interface OrchestrationSurface {
+  effective: "off" | "private" | "public" | (string & {});
+  exposure: "off" | "private" | "public" | (string & {});
+  /** Of the effective level; null when off */
+  hostname: string | null;
+  reasons: ("tool_not_supported" | "team_limit" | "service_switch_public" | "service_switch_private" | "base_domain_unset" | "provider_without_collab_client" | (string & {}))[];
+  /** From the tool's profile; false renders N/A (Buzz has no web surface) */
+  supported: boolean;
+  url: string | null;
+}
+
 /** OrgAccount (OpenAPI schema `OrgAccount`). */
 
 export interface OrgAccount {
@@ -1072,7 +1205,10 @@ export interface Pool {
   readonly handoffs?: string[];
   readonly id: string;
   image: ImageRef;
-  modelId: string;
+  /** Deprecated: models.defaultModelId
+   * @deprecated Kept until 2.0.0; see the API contract for the successor. */
+  modelId?: string;
+  models?: AgentModels;
   readonly name: Name;
   persona?: string;
   resources?: Resources;
@@ -1245,6 +1381,12 @@ export interface PutSecretValueRequest {
   value: SecretValue;
 }
 
+/** PutServiceModelAccessRequest (OpenAPI schema `PutServiceModelAccessRequest`). */
+
+export interface PutServiceModelAccessRequest {
+  access: "all" | "selected" | (string & {});
+}
+
 /** PutServiceTagRequest (OpenAPI schema `PutServiceTagRequest`). */
 
 export interface PutServiceTagRequest {
@@ -1279,10 +1421,24 @@ export interface PutTeamCollaborationRequest {
   webUiEnabled: boolean;
 }
 
-/** PutTeamModelsRequest (OpenAPI schema `PutTeamModelsRequest`). */
+/** A body with only modelIds is read as access selected (deprecated form) */
 
 export interface PutTeamModelsRequest {
-  modelIds: string[];
+  access?: "all" | "selected" | (string & {});
+  modelIds?: string[];
+}
+
+/** PutTeamOrchestrationRequest (OpenAPI schema `PutTeamOrchestrationRequest`). */
+
+export interface PutTeamOrchestrationRequest {
+  /** Omitted keeps the current value */
+  registrationMode?: "manual" | "managed" | (string & {});
+  webApi: {
+    exposure: "off" | "private" | "public" | (string & {});
+  };
+  webUi: {
+    exposure: "off" | "private" | "public" | (string & {});
+  };
 }
 
 /** PutTeamTagsRequest (OpenAPI schema `PutTeamTagsRequest`). */
@@ -1565,6 +1721,17 @@ export interface SecurityOperatorList {
   nextToken?: string;
 }
 
+/** Service-wide model access (API contract §4.4d) */
+
+export interface ServiceModelAccess {
+  /** all makes every model enabled at the service level; selected uses each model enabled flag */
+  access: "all" | "selected" | (string & {});
+  /** Enabled and priced */
+  callableModels: number;
+  enabledModels: number;
+  readonly version: number;
+}
+
 /** A page of NotificationChannel resources */
 
 export interface ServiceNotificationChannelList {
@@ -1605,7 +1772,7 @@ export interface Setting {
   min?: number;
   nullable?: boolean;
   pattern?: string;
-  type: "string" | "boolean" | "integer" | "array" | (string & {});
+  type: "string" | "boolean" | "integer" | "array" | "object" | (string & {});
   readonly updatedAt?: Timestamp | null;
   /** JSON value of the setting's type */
   value: unknown;
@@ -1740,12 +1907,20 @@ export interface SwarmTemplateList {
 /** SwarmTemplateSpec (OpenAPI schema `SwarmTemplateSpec`). */
 
 export interface SwarmTemplateSpec {
-  /** Optional collaboration agent of the remediation team (PC-D29); the template must be enabled and carry capability paperclip */
+  /** Optional collaboration agent of the remediation team (PC-D29); the template must be enabled and carry capability paperclip
+   * @deprecated Kept until 2.0.0; see the API contract for the successor. */
   collaboration?: {
     templateId: string;
   };
   configValues?: Record<string, unknown>[];
   handoffs?: Record<string, unknown>[];
+  /** The remediation team orchestration agent */
+  orchestration?: {
+    defaultModelId?: string;
+    tool?: "paperclip" | "buzz" | (string & {});
+    webApiExposure?: "off" | "private" | "public" | (string & {});
+    webUiExposure?: "off" | "private" | "public" | (string & {});
+  };
   pools: Record<string, unknown>[];
   /** Secrets a remediation team gets, created empty (the team sets the value with PutSecretValue), each bound to one of the template's pools. A template never holds a value. */
   secrets?: ({
@@ -1791,13 +1966,20 @@ export interface Team {
   kind: "persistent" | "ephemeral" | (string & {});
   /** Guardrail field: needs teams:set-guardrails */
   maxBudgetUsd: Money;
+  /** Highest exposure any surface of the orchestration agent may have; service admins set it (teams:set-guardrails) */
+  maxCollaborationExposure?: "off" | "private" | "public" | (string & {});
   /** Guardrail field: needs teams:set-guardrails */
   mayAddExternalSystems: boolean;
-  /** Guardrail field: needs teams:set-guardrails. Whether the team may publish its Paperclip endpoints (default true) */
+  /** Deprecated: use maxCollaborationExposure (limit is not off)
+   * @deprecated Kept until 2.0.0; see the API contract for the successor. */
   mayExposeCollaboration?: boolean;
   /** Guardrail field: needs teams:set-guardrails */
   mayManageAwsAccounts: boolean;
+  /** Whether the team may use every service-enabled model or only those in its list */
+  modelAccess?: "all" | "selected" | (string & {});
   readonly namespace: string;
+  /** The team orchestration agent; null only before the 1.1.0 backfill reaches the team */
+  readonly orchestrationAgentId?: string | null;
   ownerEmail?: string;
   quotas?: Quotas;
   readonly slug: Name;
@@ -1821,7 +2003,8 @@ export interface TeamBudgetInput {
   thresholds?: number[];
 }
 
-/** The team's collaboration resource; singleton per team (API contract §4.4b) */
+/** The team's collaboration resource; singleton per team (API contract §4.4b)
+ * @deprecated Kept until 2.0.0; see the API contract for the successor. */
 
 export interface TeamCollaboration {
   readonly agentId: string;
@@ -1870,7 +2053,37 @@ export interface TeamList {
 /** TeamModels (OpenAPI schema `TeamModels`). */
 
 export interface TeamModels {
+  access: "all" | "selected" | (string & {});
+  /** Models the team can use, each with inferenceProfileState */
   items: Model[];
+  /** The team list; meaningful when access is selected */
+  modelIds: string[];
+}
+
+/** The team's orchestration resource; singleton per team (API contract §4.4d) */
+
+export interface TeamOrchestration {
+  readonly agentId: string;
+  readonly agentName: string;
+  readonly connectedAgents: number;
+  readonly createdAt?: Timestamp;
+  readonly createdBy?: string;
+  readonly generation: number;
+  /** The team's maxCollaborationExposure */
+  readonly limit: "off" | "private" | "public" | (string & {});
+  /** The orchestration agent's phase */
+  readonly phase: string;
+  registrationMode: "manual" | "managed" | (string & {});
+  readonly status: Status;
+  readonly teamId: string;
+  readonly tool: "paperclip" | "buzz" | (string & {});
+  readonly toolVersion: string | null;
+  readonly unmanagedToolAgents: string[];
+  readonly updatedAt?: Timestamp;
+  /** Optimistic-concurrency version; ETag is "<version>" */
+  readonly version: number;
+  webApi: OrchestrationSurface;
+  webUi: OrchestrationSurface;
 }
 
 /** TeamTag (OpenAPI schema `TeamTag`). */
@@ -1901,8 +2114,15 @@ export interface UpdateAgentRequest {
   description?: string;
   iamIdentity?: "team_shared" | "dedicated" | (string & {});
   image?: ImageRef;
+  /** Deprecated: models.defaultModelId
+   * @deprecated Kept until 2.0.0; see the API contract for the successor. */
   modelId?: string;
+  models?: AgentModelsInput;
+  /** Refused on the orchestration agent (orchestration_field_fixed) */
+  name?: Name;
   resources?: Resources;
+  /** Immutable; a value that differs from the agent's role is a ValidationError (collaboration reads as orchestration until 2.0.0) */
+  role?: "worker" | "orchestration" | "collaboration" | (string & {});
   secretBindings?: SecretBinding[];
   /** Agent template name */
   template?: string;
@@ -1986,7 +2206,10 @@ export interface UpdateNotificationChannelRequest {
 export interface UpdatePoolRequest {
   description?: string;
   image?: ImageRef;
+  /** Deprecated: models.defaultModelId
+   * @deprecated Kept until 2.0.0; see the API contract for the successor. */
   modelId?: string;
+  models?: AgentModelsInput;
   persona?: string;
   resources?: Resources;
   scratchSizeGiB?: number;
@@ -2035,7 +2258,7 @@ export interface UpdateSwarmTemplateRequest {
   ttlHours?: number;
 }
 
-/** Fields to change. maxBudgetUsd, the ceiling override, quotas, isolationTier, viewerKubectl, mayManageAwsAccounts, mayAddExternalSystems and mayExposeCollaboration need teams:set-guardrails; allowedAwsAccounts needs teams:set-aws-accounts */
+/** Fields to change. maxBudgetUsd, the ceiling override, quotas, isolationTier, viewerKubectl, mayManageAwsAccounts, mayAddExternalSystems and mayExposeCollaboration, maxCollaborationExposure and modelAccess need teams:set-guardrails; allowedAwsAccounts needs teams:set-aws-accounts */
 
 export interface UpdateTeamRequest {
   allowedAwsAccounts?: AwsAccountId[];
@@ -2051,7 +2274,9 @@ export interface UpdateTeamRequest {
   /** Immutable; a different value is a ValidationError */
   kind?: "persistent" | "ephemeral" | (string & {});
   maxBudgetUsd?: Money;
+  maxCollaborationExposure?: "off" | "private" | "public" | (string & {});
   mayAddExternalSystems?: boolean;
+  /** @deprecated Kept until 2.0.0; see the API contract for the successor. */
   mayExposeCollaboration?: boolean;
   mayManageAwsAccounts?: boolean;
   ownerEmail?: string;

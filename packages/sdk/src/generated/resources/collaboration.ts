@@ -6,11 +6,13 @@ import type { CollaborationLink, ConnectAgentRequest, PutTeamCollaborationReques
 /** Operations of the `collaboration` namespace. */
 export function collaboration(core: AfsClient) {
   return {
-    /** Get team collaboration (requires `collaboration:read`). GET /v1/teams/{teamId}/collaboration */
+    /** Get team collaboration (requires `collaboration:read`). GET /v1/teams/{teamId}/collaboration
+     * @deprecated Kept until 2.0.0; see the API contract for the successor operation. */
     get(teamId: string, opts?: CallOptions): Promise<TeamCollaboration> {
       return core.call<TeamCollaboration>("GetTeamCollaboration", { path: [teamId] }, opts);
     },
-    /** Put team collaboration (requires `collaboration:manage`). PUT /v1/teams/{teamId}/collaboration */
+    /** Put team collaboration (requires `collaboration:manage`). PUT /v1/teams/{teamId}/collaboration
+     * @deprecated Kept until 2.0.0; see the API contract for the successor operation. */
     put(teamId: string | Versioned, body: PutTeamCollaborationRequest, opts?: CallOptions): Promise<TeamCollaboration> {
       return core.call<TeamCollaboration>("PutTeamCollaboration", { path: [teamId], body }, opts);
     },

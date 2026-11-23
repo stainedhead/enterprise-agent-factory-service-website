@@ -140,10 +140,11 @@ describe("SdkTeams (M1-T1)", () => {
     expect((await s.resume("team_1")).state).toBe("active");
     expect((await s.status("team_1")).phase).toBe("Ready");
     expect((await s.models("team_1"))[0]?.id).toBe("m");
-    await s.putModels({ id: "team_1", version: 1 }, ["m"]);
+    await s.putTeamModels({ id: "team_1", version: 1 }, { access: "selected", modelIds: ["m"] });
     expect((await s.tags("team_1")).tags).toHaveLength(1);
     await s.putTags({ id: "team_1", version: 2 }, [{ key: "env", value: "x" }]);
     expect(calls.find((c) => c.method === "PUT" && c.path.endsWith("/models"))?.body).toEqual({
+      access: "selected",
       modelIds: ["m"],
     });
   });

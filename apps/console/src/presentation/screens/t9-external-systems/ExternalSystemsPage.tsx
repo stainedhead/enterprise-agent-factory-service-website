@@ -113,7 +113,7 @@ export function ExternalSystemsPage() {
               text: (s) => s.name,
               cell: (s) => (
                 <>
-                  {s.name} {s.unmetered && <Badge tone="purple">Unmetered</Badge>}{" "}
+                  {s.name} {s.unmetered && <Badge tone="teal">Unmetered</Badge>}{" "}
                   {s.scope === "team" && <Badge tone="blue">Team-declared</Badge>}
                 </>
               ),

@@ -45,6 +45,16 @@ export class AdminModelsUseCases {
     );
   }
 
+  /** *Save* of the service model access (`admin:models`): `all` ignores the per-model flag (MOD-1). */
+  putServiceAccess(access: "all" | "selected") {
+    return this.port.putServiceAccess(access);
+  }
+
+  /** *Enable* or *Disable* one model; the API refuses it while the service access is `all`. */
+  setEnabled(model: Pick<ModelRecord, "id" | "version">, enabled: boolean) {
+    return this.port.setEnabled({ id: model.id, version: model.version }, enabled);
+  }
+
   /** The price history of one model, newest first. */
   async history(modelId: string, signal?: AbortSignal): Promise<readonly PriceRecord[]> {
     return [...(await this.port.prices(modelId, signal))].sort(byDateDesc);

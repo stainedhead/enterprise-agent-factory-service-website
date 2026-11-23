@@ -82,6 +82,11 @@
     "approver": "J",
     "date": "2026-11-22"
   },
+  "S12": {
+    "status": "pending",
+    "snapshots": ["34-admin-orchestration"],
+    "mockup": "34-admin-orchestration.png"
+  },
   "T1": {
     "status": "approved",
     "snapshots": ["06-team-overview"],
@@ -185,6 +190,16 @@
     "approver": "J",
     "date": "2026-11-22"
   },
+  "T17": {
+    "status": "pending",
+    "snapshots": ["37-team-orchestration"],
+    "mockup": "37-ta-orchestration-collaboration.png"
+  },
+  "T18": {
+    "status": "pending",
+    "snapshots": ["38-orchestration-agent-config"],
+    "mockup": "38-ta-orchestration-agent-config.png"
+  },
   "V1": {
     "status": "approved",
     "snapshots": ["12-viewer-overview"],
@@ -198,6 +213,11 @@
     "mockup": "13-tv-secrets.png",
     "approver": "J",
     "date": "2026-11-22"
+  },
+  "V4": {
+    "status": "pending",
+    "snapshots": ["43-viewer-orchestration"],
+    "mockup": "43-tv-orchestration.png"
   },
   "P2": {
     "status": "approved",
@@ -233,15 +253,5 @@
     "mockup": "29-sec-work-order-detail.png",
     "approver": "J",
     "date": "2026-11-22"
-  },
-  "T16": {
-    "status": "pending",
-    "snapshots": ["30-team-collaboration"],
-    "mockup": "30-ta-collaboration.png"
-  },
-  "V3": {
-    "status": "pending",
-    "snapshots": ["30a-viewer-collaboration"],
-    "mockup": "31-tv-collaboration.png"
   }
 }

@@ -28,6 +28,13 @@ const proposal = (over: Partial<ProposalRecord> = {}): ProposalRecord => ({
 });
 
 const models: AdminModelsPort = {
+  putServiceAccess: vi.fn(async (access: "all" | "selected") => ({
+    access,
+    enabledModels: 0,
+    callableModels: 0,
+    version: 1,
+  })),
+  setEnabled: vi.fn(),
   models: vi.fn(async () => [
     {
       id: "m1",

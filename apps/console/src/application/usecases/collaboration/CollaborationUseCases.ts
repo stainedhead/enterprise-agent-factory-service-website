@@ -1,26 +1,13 @@
-import {
-  aggregatePeople,
-  isCollaborationManaged,
-  type PersonAccess,
-} from "../../../domain/collaboration.js";
+import { aggregatePeople, type PersonAccess } from "../../../domain/collaboration.js";
+import { isToolManaged } from "../../../domain/orchestration.js";
 import { AppError } from "../../errors.js";
 import type {
   CollaborationPort,
-  CollaborationRecord,
-  EndpointsQuery,
   LinkRecord,
   LinksQuery,
   ManagedSecretRecord,
   RotateResult,
 } from "../../ports/collaboration.js";
-
-export const AGENT_MISSING = "collaboration_agent_missing";
-
-/** True for the `404 collaboration_agent_missing` of a team with no collaboration agent (PC-D19). */
-export const isAgentMissing = (e: unknown): boolean =>
-  e instanceof AppError &&
-  (e.kind === "not-found" || e.kind === "conflict") &&
-  e.reason === AGENT_MISSING;
 
 export interface ManagedSecrets {
   readonly items: readonly ManagedSecretRecord[];
@@ -43,22 +30,9 @@ export interface BulkResult {
   readonly requestId?: string | undefined;
 }
 
-/** The collaboration area: load the page data, put the switches, connect, disconnect, rotate, recent access. */
+/** The collaboration area: links of workers, key rotation, managed secrets and recent access. */
 export class CollaborationUseCases {
   constructor(private readonly port: CollaborationPort) {}
-
-  get(teamId: string, signal?: AbortSignal): Promise<CollaborationRecord> {
-    return this.port.get(teamId, signal);
-  }
-
-  /** Sends both switch values (the changed one flipped) with the version the page was showing. */
-  put(
-    teamId: string,
-    current: Pick<CollaborationRecord, "version">,
-    input: { webUiEnabled: boolean; restApiEnabled: boolean; registrationMode?: string },
-  ): Promise<CollaborationRecord> {
-    return this.port.put(teamId, { version: current.version }, input);
-  }
 
   listLinks(teamId: string, query: LinksQuery = {}, signal?: AbortSignal) {
     return this.port.listLinks(teamId, query, signal);
@@ -105,7 +79,7 @@ export class CollaborationUseCases {
     return this.port.rotateKeys(teamId, names);
   }
 
-  /** Two filtered lists, kept to the collaboration agent's secrets (WP-D7). */
+  /** Two filtered lists, kept to the orchestration agent's secrets (WP-D7). */
   async managedSecrets(
     teamId: string,
     collaborationAgentId: string,
@@ -117,7 +91,7 @@ export class CollaborationUseCases {
     ]);
     return {
       items: [...paperclip.items, ...afs.items].filter((s) =>
-        isCollaborationManaged(s, collaborationAgentId),
+        isToolManaged(s, collaborationAgentId),
       ),
       more: paperclip.more || afs.more,
     };
@@ -132,13 +106,5 @@ export class CollaborationUseCases {
       denied: r.deniedRequests,
       top: aggregatePeople(r.rows, 10),
     };
-  }
-
-  listEndpoints(query: EndpointsQuery, signal?: AbortSignal) {
-    return this.port.listEndpoints(query, signal);
-  }
-
-  endpointsCsv(query: EndpointsQuery): Promise<string> {
-    return this.port.endpointsCsv(query);
   }
 }

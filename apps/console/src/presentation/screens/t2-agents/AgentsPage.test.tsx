@@ -252,14 +252,17 @@ describe("T2 viewer (M2-A6)", () => {
   });
 });
 
-describe("T2 collaboration (WEB-US-53)", () => {
+describe("T2 orchestration agent and workers (WEB-US-53, ORC-21)", () => {
   const withRoles = () =>
     fakeAgentsPort({
       list: vi.fn(async () => [
         anAgent({
-          id: "agt_hub",
-          name: "paperclip-hub",
-          role: "collaboration",
+          id: "agt_orch",
+          name: "orchestrator",
+          role: "orchestration",
+          runtime: "orchestration",
+          template: null,
+          image: null,
         }),
         anAgent({
           id: "agt_1",
@@ -276,29 +279,50 @@ describe("T2 collaboration (WEB-US-53)", () => {
         anAgent({ id: "agt_3", name: "plain-worker" }),
       ]),
     });
-  it("collaboration badge and paperclip column", async () => {
+  it("shows the orchestration agent apart from the workers table", async () => {
+    open({ agents: withRoles() });
+    const card = await screen.findByRole("region", { name: "Orchestration agent" });
+    expect(within(card).getByText("orchestrator")).toBeTruthy();
+    expect(within(card).getByText("Orchestration runtime", { exact: false })).toBeTruthy();
+    expect(within(card).getByRole("button", { name: "Manage orchestration" })).toBeTruthy();
+    expect(within(card).getByRole("button", { name: "Restart" })).toBeTruthy();
+    const t = await screen.findByRole("table", { name: "Agents" });
+    expect(within(t).queryByText("orchestrator")).toBeNull();
+    expect(within(t).getByText("reviewer-bot")).toBeTruthy();
+  });
+  it("the Collaboration column and filter", async () => {
     open({ agents: withRoles() });
     const t = await screen.findByRole("table", { name: "Agents" });
-    const hub = (await within(t).findByText("paperclip-hub")).closest("tr") as HTMLElement;
-    expect(within(hub).getByText("Collaboration")).toBeTruthy();
-    expect(within(hub).getByText("—")).toBeTruthy();
-    const w1 = within(t).getByText("reviewer-bot").closest("tr") as HTMLElement;
+    const w1 = (await within(t).findByText("reviewer-bot")).closest("tr") as HTMLElement;
     expect(within(w1).getByText("linked")).toBeTruthy();
     const w2 = within(t).getByText("incident-scribe").closest("tr") as HTMLElement;
     expect(within(w2).getByText("Not connected")).toBeTruthy();
-    expect(
-      within(within(t).getByText("plain-worker").closest("tr") as HTMLElement).getByText(
-        "Not connected",
-      ),
-    ).toBeTruthy();
+    await userEvent.selectOptions(screen.getByLabelText("Collaboration"), "connected");
+    expect(within(t).queryByText("incident-scribe")).toBeNull();
+    expect(within(t).getByText("reviewer-bot")).toBeTruthy();
   });
-  it("role filter follows the URL", async () => {
-    open({ agents: withRoles(), path: "/t/team_1/agents?role=collaboration" });
-    const t = await screen.findByRole("table", { name: "Agents" });
-    expect(await within(t).findByText("paperclip-hub")).toBeTruthy();
-    expect(within(t).queryByText("reviewer-bot")).toBeNull();
-    await userEvent.selectOptions(screen.getByLabelText("Role"), "worker");
-    expect(await within(t).findByText("reviewer-bot")).toBeTruthy();
-    expect(within(t).queryByText("paperclip-hub")).toBeNull();
+  it("the Model column shows the default model and how many more", async () => {
+    open({
+      agents: fakeAgentsPort({
+        list: vi.fn(async () => [
+          anAgent({
+            models: {
+              access: "selected",
+              modelIds: ["a", "b", "c"],
+              defaultModelId: "a",
+              effectiveModelIds: ["a", "b", "c"],
+            },
+          }),
+        ]),
+      }),
+    });
+    expect(await screen.findByText("a +2")).toBeTruthy();
+  });
+  it("a viewer's orchestration actions are disabled naming the role", async () => {
+    open({ agents: withRoles(), me: HARNESS_VIEWER });
+    const card = await screen.findByRole("region", { name: "Orchestration agent" });
+    expect(
+      within(card).getByRole("button", { name: "Restart" }).getAttribute("aria-disabled"),
+    ).toBe("true");
   });
 });

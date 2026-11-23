@@ -8,7 +8,7 @@ const agent = {
   name: "reviewer-bot",
   template: "hermes-dev",
   image: "x@sha256:1",
-  modelId: "m",
+  models: { access: "selected", modelIds: ["m"], defaultModelId: "m" },
   paused: false,
   generation: 1,
   version: 4,
@@ -49,7 +49,7 @@ describe("SdkAgents (M2-A1)", () => {
       name: "a",
       template: "t",
       image: "i",
-      modelId: "m",
+      models: { access: "selected", modelIds: ["m"], defaultModelId: "m" },
       description: undefined,
       volume: { sizeGiB: 20, storageClass: undefined },
     });
@@ -62,7 +62,7 @@ describe("SdkAgents (M2-A1)", () => {
       name: "a",
       template: "t",
       image: "i",
-      modelId: "m",
+      models: { access: "selected", modelIds: ["m"], defaultModelId: "m" },
       volume: { sizeGiB: 20 },
     });
     expect(calls[1]?.headers.get("if-match")).toBe('"4"');
@@ -146,7 +146,12 @@ describe("SdkAgents (M2-A1)", () => {
       ),
     );
     const e = await new SdkAgents(client)
-      .create("team_1", { name: "a", template: "t", image: "i:latest", modelId: "m" })
+      .create("team_1", {
+        name: "a",
+        template: "t",
+        image: "i:latest",
+        models: { access: "all", modelIds: [], defaultModelId: "m" },
+      })
       .catch((x) => x);
     expect(e).toBeInstanceOf(AppError);
     expect((e as AppError).fields.image).toBe("Tags are not accepted");

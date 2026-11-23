@@ -87,3 +87,16 @@ describe("CLI table emitter (M1-L1)", () => {
     expect([...text.matchAll(/^ {2}\w+: \{"service"/gm)].length).toBe(cli.length);
   });
 });
+
+describe("deprecations (WEB-US-46)", () => {
+  it("marks deprecated schema fields and schemas @deprecated", () => {
+    expect(out).toMatch(/@deprecated[^\n]*\*\/\n\n?export interface TeamCollaboration\b/);
+    expect(out).toMatch(/@deprecated[^\n]*\*\/\n\s*mayExposeCollaboration\?: boolean;/);
+  });
+  it("marks deprecated operations @deprecated in the resource modules", () => {
+    const files = generate();
+    const text = files["resources/collaboration.ts"] ?? "";
+    expect(text).toMatch(/GET \/v1\/teams\/\{teamId\}\/collaboration\n\s*\* @deprecated/);
+    expect(files["resources/orchestration.ts"]).not.toContain("@deprecated");
+  });
+});

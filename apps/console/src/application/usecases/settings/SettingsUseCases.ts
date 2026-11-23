@@ -17,6 +17,7 @@ export type ParsedSetting = { ok: true; value: unknown } | { ok: false; message:
 export function settingText(value: unknown): string {
   if (value === null || value === undefined) return "";
   if (Array.isArray(value)) return value.join(", ");
+  if (typeof value === "object") return JSON.stringify(value);
   return String(value);
 }
 
@@ -59,6 +60,16 @@ export function parseSetting(s: SettingRecord, text: string): ParsedSetting {
               .filter((x) => x !== "");
       return { ok: true, value: items };
     }
+    case "object": {
+      try {
+        const v: unknown = JSON.parse(t);
+        if (v === null || typeof v !== "object" || Array.isArray(v))
+          return { ok: false, message: "Enter a JSON object" };
+        return { ok: true, value: v };
+      } catch {
+        return { ok: false, message: "Enter valid JSON" };
+      }
+    }
     default: {
       if (s.pattern && !new RegExp(s.pattern).test(t))
         return { ok: false, message: `Must match ${s.pattern}` };
@@ -73,6 +84,11 @@ export class SettingsUseCases {
 
   list(signal?: AbortSignal): Promise<readonly SettingRecord[]> {
     return this.port.list(signal);
+  }
+
+  /** Puts an already-typed value (a structured setting such as `orchestration.tools`) with the version held. */
+  putValue(setting: SettingRecord, value: unknown): Promise<SettingRecord> {
+    return this.port.put({ key: setting.key, version: setting.version }, value);
   }
 
   /** *Edit*: validates against the setting's own range, then `PutSetting` with the version held. */

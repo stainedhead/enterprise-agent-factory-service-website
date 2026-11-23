@@ -16,8 +16,15 @@ const MODELS: Json[] = [
 }));
 
 let teamModels: string[] = [];
+let teamAccess: "all" | "selected" = "selected";
+const teamModelsBody = (): Json => ({
+  access: teamAccess,
+  modelIds: teamModels,
+  items: MODELS.filter((m) => teamAccess === "all" || teamModels.includes(String(m.id))),
+});
 export const resetOverview = (): void => {
   teamModels = ["anthropic.claude-sonnet-4-5"];
+  teamAccess = "selected";
 };
 resetOverview();
 
@@ -80,20 +87,16 @@ export const overviewFixtures: readonly Fixture[] = [
   {
     method: "GET",
     path: "/v1/teams/{teamId}/models",
-    response: () => ({
-      status: 200,
-      body: { items: MODELS.filter((m) => teamModels.includes(String(m.id))) },
-    }),
+    response: () => ({ status: 200, body: teamModelsBody() }),
   },
   {
     method: "PUT",
     path: "/v1/teams/{teamId}/models",
     response: ({ body }) => {
-      teamModels = [...((body as { modelIds: string[] }).modelIds ?? [])];
-      return {
-        status: 200,
-        body: { items: MODELS.filter((m) => teamModels.includes(String(m.id))) },
-      };
+      const b = body as { access?: "all" | "selected"; modelIds?: string[] };
+      teamAccess = b.access ?? "selected";
+      if (teamAccess === "selected") teamModels = [...(b.modelIds ?? [])];
+      return { status: 200, body: teamModelsBody() };
     },
   },
 ];

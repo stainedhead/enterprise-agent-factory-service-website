@@ -53,6 +53,7 @@ test.describe("T1 team overview", () => {
     await signInAs("svc-admin", `/t/${T}?tab=models`);
     await expect(page.getByText("Claude Sonnet 4.5")).toBeVisible();
     await page.getByRole("button", { name: "Edit models" }).click();
+    await expect(page.getByRole("radio", { name: "Selected models" })).toBeChecked();
     await page.getByRole("checkbox", { name: "Claude Haiku 4.5" }).check();
     await page.getByRole("button", { name: "Save models" }).click();
     await expect(page.getByRole("button", { name: "Edit models" })).toBeVisible();

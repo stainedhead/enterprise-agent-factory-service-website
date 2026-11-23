@@ -3,7 +3,7 @@ import { useState } from "react";
 import { isAppError } from "../../../../../application/errors.js";
 import type { SettingRecord } from "../../../../../application/ports/settings.js";
 import { settingText } from "../../../../../application/usecases/settings/SettingsUseCases.js";
-import { isCollabSetting } from "../../../../../domain/collaboration.js";
+import { isOrchestrationSetting } from "../../../../../domain/orchestration.js";
 import { formatLocal } from "../../../../../domain/time.js";
 import {
   Alert,
@@ -82,7 +82,7 @@ export function SettingsTab() {
             ),
           },
         ]}
-        items={(list.data ?? []).filter((s) => !isCollabSetting(s.key))}
+        items={(list.data ?? []).filter((s) => !isOrchestrationSetting(s.key))}
         getRowId={(s) => s.key}
       />
       {editing && (

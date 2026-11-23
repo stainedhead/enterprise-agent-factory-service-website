@@ -168,3 +168,20 @@ Decisions local to this repository. Cross-repo decisions live in the root reposi
   secrets rule). No secret value is stored in state, URLs, logs or drafts.
 - Consequences: managed secrets are visible and auditable but not editable in the console; the API remains the
   authority and refuses an edit the UI did not predict.
+
+## ADR-017 One orchestration screen set; the tool is a setting, the runtime is not named (ORC-*, OR-D1..D17)
+
+- Status: Accepted (approved by the product owner, 2026-11-23)
+- Context: release 1.1.0 gives every team one orchestration agent that runs Paperclip AI or Buzz. T16 and V3 (Paperclip
+  only) no longer fit, and the agent runtime behind it must not be named on team screens.
+- Decision: T17, T18 and V4 replace T16 and V3, and S12 replaces the S10 *Collaboration* tab. Team screens say
+  "Orchestration runtime"; the tool is read from the API and a surface the tool lacks renders N/A. Exposure (Off,
+  Private, Public) is a per-surface radio group in which an option above the team limit stays visible and disabled with
+  its reason; the API's `reasons` explain every lowered level. Agent configuration is the shared screen; collaboration
+  screens are segregated. Model access is one pair of controls (`ExposureControl`, `ModelsControl`) at three levels.
+  The orchestration use cases live in `application/usecases/orchestration` behind an `OrchestrationPort`; only
+  `main/` wires the SDK adapter, as the dependency rule requires. Routes keep the `/t/:teamId/...` prefix and the old
+  `/collaboration` routes redirect.
+- Consequences: purple and the diamond mark mean orchestration only (other purple badges became teal). Where the contract
+  lags (settings key enum, `ListAgents` role enum) the console uses the contract as pinned and is re-pinned when
+  `-restapi` fixes it.

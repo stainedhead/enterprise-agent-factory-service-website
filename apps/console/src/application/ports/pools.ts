@@ -1,7 +1,7 @@
 // The pools port (M5-P1): stages and pools of an ephemeral team, with the 26 operations behind P4 —
 // `ListStages`..`DeleteStage`, `ListPools`..`DeletePool`, scale/pause/resume, `GetPoolStatus`, handoffs,
 // secret bindings, configuration values, external systems and role links. Pools carry no secret values.
-import type { SecretBindingRecord } from "./agents.js";
+import type { AgentModelsRecord, ModelsInput, SecretBindingRecord } from "./agents.js";
 import type { StatusRecord } from "./teams.js";
 
 export interface StageRecord {
@@ -18,7 +18,7 @@ export interface PoolRecord {
   readonly description?: string | undefined;
   readonly template: string;
   readonly image: string;
-  readonly modelId: string;
+  readonly models: AgentModelsRecord;
   readonly persona?: string | undefined;
   readonly workers: number;
   readonly stageId: string | null;
@@ -53,7 +53,7 @@ export interface CreatePoolInput {
   readonly description?: string | undefined;
   readonly template: string;
   readonly image: string;
-  readonly modelId: string;
+  readonly models: ModelsInput;
   readonly persona?: string | undefined;
   readonly workers: number;
   readonly stageId?: string | null | undefined;

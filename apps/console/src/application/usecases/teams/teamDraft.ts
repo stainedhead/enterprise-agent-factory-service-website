@@ -1,5 +1,7 @@
+import type { ModelAccess } from "../../../domain/modelAccess.js";
 import { compare, parse } from "../../../domain/money.js";
 import { isValidName } from "../../../domain/names.js";
+import { aboveLimit, toolInfo } from "../../../domain/orchestration.js";
 import type { CreateTeamInput, ServiceTagRecord } from "../../ports/teams.js";
 import {
   DEFAULT_EPHEMERAL_MAX_DAYS,
@@ -20,15 +22,27 @@ export interface TeamDraft {
   identityProviderId: string;
   /** Values for required service tags, by key. */
   tags: Record<string, string>;
+  /** The team's list; meaningful with `modelAccess: selected` (MOD-2). */
   models: string[];
+  /** `all` follows the service list now and later (default); `selected` is the list above. */
+  modelAccess: ModelAccess;
+  /** The endpoint limit; "" means the service default (ORC-14). Service admins only. */
+  maxCollaborationExposure: string;
+  /** The collaboration tool; "" means the service default (ORC-8). */
+  orchTool: string;
+  /** Starting Web UI and Web API levels; "" means the service default, lowered to the limit (ORC-26). */
+  orchWebUi: string;
+  orchWebApi: string;
+  /** The orchestration agent's models and resources; "" means the service default. */
+  orchModels: { access: ModelAccess; modelIds: string[]; defaultModelId: string };
+  orchCpu: string;
+  orchMemory: string;
   maxBudgetUsd: string;
   /** Alert thresholds in percent, comma separated: `50, 80, 100`. */
   thresholds: string;
   adminType: "user" | "group";
   adminEmail: string;
   adminGroup: string;
-  /** The guardrail *May publish collaboration endpoints*; on unless set to `false` (WEB-US-52). */
-  mayExposeCollaboration?: boolean;
   /** Lifetime, expiry and teardown of an ephemeral team (M5-E); used only when `kind` is `ephemeral`. */
   ephemeral: EphemeralDraft;
 }
@@ -43,6 +57,14 @@ export const emptyTeamDraft = (): TeamDraft => ({
   identityProviderId: "",
   tags: {},
   models: [],
+  modelAccess: "all",
+  maxCollaborationExposure: "",
+  orchTool: "",
+  orchWebUi: "",
+  orchWebApi: "",
+  orchModels: { access: "all", modelIds: [], defaultModelId: "" },
+  orchCpu: "",
+  orchMemory: "",
   maxBudgetUsd: "",
   thresholds: "50, 80, 100",
   adminType: "user",
@@ -51,10 +73,39 @@ export const emptyTeamDraft = (): TeamDraft => ({
   ephemeral: emptyEphemeral(),
 });
 
-export type StepId = "details" | "models" | "budget" | "members";
+export type StepId = "details" | "orchestration" | "models" | "budget" | "members";
 export type FieldErrors = Readonly<Record<string, string>>;
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+/** The service defaults an empty orchestration field stands for (from the `orchestration.*` settings). */
+export interface OrchestrationDefaults {
+  readonly tool: string;
+  readonly limit: string;
+  readonly webUi: string;
+  readonly webApi: string;
+}
+export const FALLBACK_DEFAULTS: OrchestrationDefaults = {
+  tool: "paperclip",
+  limit: "private",
+  webUi: "private",
+  webApi: "off",
+};
+
+/** The levels the form shows: the draft's choice, else the service default lowered to the limit (never refused for a default). */
+export function effectiveOrchestration(d: TeamDraft, defaults: OrchestrationDefaults) {
+  const tool = d.orchTool || defaults.tool;
+  const limit = d.maxCollaborationExposure || defaults.limit;
+  const supports = toolInfo(tool);
+  const lower = (level: string, supported: boolean) =>
+    !supported ? "off" : aboveLimit(level, limit) ? limit : level;
+  return {
+    tool,
+    limit,
+    webUi: d.orchWebUi || lower(defaults.webUi, supports.webUi),
+    webApi: d.orchWebApi || lower(defaults.webApi, supports.webApi),
+  };
+}
 
 /** Service tags a creator must fill in: required mode, no default. */
 export const requiredTags = (tags: readonly ServiceTagRecord[]): ServiceTagRecord[] =>
@@ -65,9 +116,25 @@ export function validateStep(
   step: StepId,
   d: TeamDraft,
   tags: readonly ServiceTagRecord[],
-  opts: { ephemeralMaxDays?: number; now?: Date } = {},
+  opts: { ephemeralMaxDays?: number; now?: Date; defaults?: OrchestrationDefaults } = {},
 ): FieldErrors {
   const e: Record<string, string> = {};
+  if (step === "orchestration") {
+    const o = effectiveOrchestration(d, opts.defaults ?? FALLBACK_DEFAULTS);
+    const info = toolInfo(o.tool);
+    if (aboveLimit(o.webUi, o.limit)) e.orchWebUi = "Above the endpoint limit";
+    else if (o.webUi !== "off" && !info.webUi) e.orchWebUi = "N/A for this tool";
+    if (aboveLimit(o.webApi, o.limit)) e.orchWebApi = "Above the endpoint limit";
+    else if (o.webApi !== "off" && !info.webApi) e.orchWebApi = "N/A for this tool";
+    if (d.orchModels.access === "selected" && d.orchModels.modelIds.length === 0)
+      e.orchModels = "Choose at least one model";
+    else if (
+      d.orchModels.access === "selected" &&
+      d.orchModels.defaultModelId &&
+      !d.orchModels.modelIds.includes(d.orchModels.defaultModelId)
+    )
+      e.orchDefaultModel = "The default model must be one of the models";
+  }
   if (step === "details") {
     if (d.displayName.trim() === "") e.displayName = "Enter a display name";
     if (!isValidName(d.slug))
@@ -81,7 +148,8 @@ export function validateStep(
         e[`tags.${t.key}`] = `${v} is not an allowed value`;
     }
   }
-  if (step === "models" && d.models.length === 0) e.models = "Choose at least one model";
+  if (step === "models" && d.modelAccess === "selected" && d.models.length === 0)
+    e.models = "Choose at least one model";
   if (step === "budget" && d.kind === "ephemeral") {
     Object.assign(
       e,
@@ -128,6 +196,26 @@ export function parseThresholds(text: string): number[] | undefined {
 export function toCreateInput(d: TeamDraft): CreateTeamInput {
   parse(d.maxBudgetUsd);
   const thresholds = parseThresholds(d.thresholds) ?? [];
+  const resources = {
+    ...(d.orchCpu && { cpu: d.orchCpu }),
+    ...(d.orchMemory && { memory: d.orchMemory }),
+  };
+  const orchModels = d.orchModels.defaultModelId
+    ? {
+        access: d.orchModels.access,
+        ...(d.orchModels.access === "selected" && { modelIds: d.orchModels.modelIds }),
+        defaultModelId: d.orchModels.defaultModelId,
+      }
+    : d.orchModels.access === "selected"
+      ? { access: "selected" as const, modelIds: d.orchModels.modelIds }
+      : undefined;
+  const orchestration = {
+    ...(d.orchTool && { tool: d.orchTool }),
+    ...(d.orchWebUi && { webUiExposure: d.orchWebUi }),
+    ...(d.orchWebApi && { webApiExposure: d.orchWebApi }),
+    ...(orchModels && { models: orchModels }),
+    ...(Object.keys(resources).length > 0 && { resources }),
+  };
   return {
     displayName: d.displayName.trim(),
     slug: d.slug,
@@ -137,8 +225,10 @@ export function toCreateInput(d: TeamDraft): CreateTeamInput {
     ...(d.description !== "" && { description: d.description }),
     ...(d.ownerEmail !== "" && { ownerEmail: d.ownerEmail }),
     ...(d.identityProviderId !== "" && { identityProviderId: d.identityProviderId }),
-    models: d.models,
-    mayExposeCollaboration: d.mayExposeCollaboration !== false,
+    modelAccess: d.modelAccess,
+    ...(d.modelAccess === "selected" && { models: d.models }),
+    ...(d.maxCollaborationExposure && { maxCollaborationExposure: d.maxCollaborationExposure }),
+    ...(Object.keys(orchestration).length > 0 && { orchestration }),
     tags: Object.entries(d.tags)
       .filter(([, v]) => v !== "")
       .map(([key, value]) => ({ key, value })),

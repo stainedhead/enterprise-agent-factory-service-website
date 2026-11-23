@@ -11,6 +11,7 @@ import type {
   StageRecord,
   UpdatePoolInput,
 } from "../../application/ports/pools.js";
+import { toModels } from "./agents.js";
 import { toAppError } from "./errors.js";
 
 const sig = (signal?: AbortSignal) => (signal ? { signal } : {});
@@ -40,7 +41,7 @@ const toPool = (p: WirePool): PoolRecord => ({
   description: p.description,
   template: p.template,
   image: p.image,
-  modelId: p.modelId,
+  models: toModels(p.models, p.modelId),
   persona: p.persona,
   workers: p.workers,
   stageId: p.stageId ?? null,

@@ -3,12 +3,19 @@ import { useState } from "react";
 import { Link } from "react-router";
 import { isAppError } from "../../../application/errors.js";
 import type { ProposalRecord } from "../../../application/ports/adminModels.js";
+import { serviceAccessOf } from "../../../application/usecases/settings/orchestrationSettings.js";
+import {
+  type ModelAccess,
+  priceView,
+  putServiceModelAccessCli,
+} from "../../../domain/modelAccess.js";
 import { formatLocal, utcTitle } from "../../../domain/time.js";
 import {
   Alert,
   Breadcrumbs,
   Button,
   Card,
+  CliPreview,
   ConfirmDialog,
   PageHeader,
   StatusIndicator,
@@ -16,7 +23,7 @@ import {
 } from "../../components/index.js";
 import { gate } from "../../hooks/gate.js";
 import { areaKey, queryKey } from "../../query/keys.js";
-import { useService } from "../../services.js";
+import { useOptionalService, useService } from "../../services.js";
 import { useMe } from "../../shell/ShellContext.js";
 
 const catalogKey = queryKey({ area: "admin-models", resource: "catalog" });
@@ -32,6 +39,32 @@ export function ModelsPage() {
   const me = useMe();
   const qc = useQueryClient();
   const reason = gate(me, "admin:pricing");
+  const modelsReason = gate(me, "admin:models");
+  const settings = useOptionalService("settings");
+  const settingsKey = queryKey({ area: "settings", resource: "settings" });
+  const access = useQuery({
+    queryKey: settingsKey,
+    queryFn: ({ signal }) =>
+      settings ? settings.list(signal) : Promise.reject(new Error("no settings service")),
+    enabled: settings !== undefined,
+    retry: false,
+  });
+  const current: ModelAccess | undefined = access.data ? serviceAccessOf(access.data) : undefined;
+  const [draftAccess, setDraftAccess] = useState<ModelAccess | undefined>();
+  const shownAccess = draftAccess ?? current ?? "all";
+  const saveAccess = useMutation({
+    mutationFn: (a: ModelAccess) => models.putServiceAccess(a),
+    onSuccess: () => {
+      setDraftAccess(undefined);
+      void qc.invalidateQueries({ queryKey: settingsKey });
+      void qc.invalidateQueries({ queryKey: areaKey("admin-models") });
+    },
+  });
+  const toggle = useMutation({
+    mutationFn: (v: { id: string; version: number | undefined; enabled: boolean }) =>
+      models.setEnabled({ id: v.id, version: v.version }, v.enabled),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: areaKey("admin-models") }),
+  });
   const [selected, setSelected] = useState<string | undefined>();
   const [deciding, setDeciding] = useState<
     { p: ProposalRecord; decision: "approve" | "reject" } | undefined
@@ -59,7 +92,7 @@ export function ModelsPage() {
       void qc.invalidateQueries({ queryKey: areaKey("admin-models") });
     },
   });
-  const err = [catalog.error, pending.error, decide.error]
+  const err = [catalog.error, pending.error, decide.error, saveAccess.error, toggle.error]
     .map((e) => (isAppError(e) ? e : undefined))
     .find(Boolean);
   const rows = catalog.data ?? [];
@@ -81,7 +114,50 @@ export function ModelsPage() {
           {err.message}
         </Alert>
       )}
+      <Card title="Service model access">
+        <p>
+          Which models teams may use at all. Teams then narrow the list, and team-admins narrow it
+          per agent. A model with no approved price cannot be called, even when it is enabled.
+        </p>
+        <div role="radiogroup" aria-label="Service model access">
+          {(["all", "selected"] as const).map((a) => (
+            <label key={a} style={{ marginRight: 12 }}>
+              <input
+                type="radio"
+                name="service-model-access"
+                checked={shownAccess === a}
+                aria-disabled={modelsReason !== undefined || undefined}
+                onChange={() => modelsReason === undefined && setDraftAccess(a)}
+              />{" "}
+              {a === "all" ? "All models" : "Selected models"}
+            </label>
+          ))}
+        </div>
+        {modelsReason && <p>{modelsReason}</p>}
+        <Button
+          variant="primary"
+          disabled={saveAccess.isPending}
+          disabledReason={
+            modelsReason ??
+            (draftAccess === undefined || draftAccess === current ? "Nothing changed" : undefined)
+          }
+          onClick={() => draftAccess && saveAccess.mutate(draftAccess)}
+        >
+          Save access
+        </Button>
+        <CliPreview command={putServiceModelAccessCli(shownAccess)} />
+      </Card>
       <Card title={`Models (${rows.length})`}>
+        {rows.some(
+          (r) =>
+            r.model.enabled &&
+            r.model.priceState !== undefined &&
+            r.model.priceState !== "approved",
+        ) && (
+          <Alert kind="warning" title="Some enabled models have no approved price">
+            A model with no approved price cannot be called. Approve its price below.
+          </Alert>
+        )}
         <Table
           id="admin-models"
           caption="Models"
@@ -109,7 +185,7 @@ export function ModelsPage() {
             },
             {
               id: "status",
-              header: "Status",
+              header: "Service",
               text: (r) => (r.model.enabled ? "Enabled" : "Disabled"),
               cell: (r) => (
                 <StatusIndicator
@@ -119,6 +195,45 @@ export function ModelsPage() {
                       : { word: "Disabled", dot: "grey" }
                   }
                 />
+              ),
+            },
+            {
+              id: "price",
+              header: "Price",
+              text: (r) => priceView(r.model.priceState ?? (r.current ? "approved" : "none")).word,
+              cell: (r) => (
+                <StatusIndicator
+                  view={priceView(r.model.priceState ?? (r.current ? "approved" : "none"))}
+                />
+              ),
+            },
+            {
+              id: "teams",
+              header: "Teams with access",
+              cell: (r) => r.model.teamsWithAccess ?? "—",
+            },
+            {
+              id: "toggle",
+              header: "Actions",
+              alwaysVisible: true,
+              cell: (r) => (
+                <Button
+                  aria-label={`${r.model.enabled ? "Disable" : "Enable"} ${r.model.id}`}
+                  disabled={toggle.isPending}
+                  disabledReason={
+                    modelsReason ??
+                    (shownAccess === "all" ? "Switch to Selected models to change this" : undefined)
+                  }
+                  onClick={() =>
+                    toggle.mutate({
+                      id: r.model.id,
+                      version: r.model.version,
+                      enabled: !r.model.enabled,
+                    })
+                  }
+                >
+                  {r.model.enabled ? "Disable" : "Enable"}
+                </Button>
               ),
             },
             { id: "in", header: "Input $/MTok", cell: (r) => rate(r.current?.inputUsdPerMtok) },

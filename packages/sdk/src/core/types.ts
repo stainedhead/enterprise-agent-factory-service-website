@@ -32,6 +32,8 @@ export interface Page<T> {
   readonly items: T[];
   readonly nextToken?: string;
   readonly meta: ResponseMeta;
+  /** Any other top-level fields of the page body (for example `migration` on the orchestration endpoints list). */
+  readonly extras?: Readonly<Record<string, unknown>>;
 }
 
 /** A lazy list call: iterate items across pages, or take pages one at a time. */

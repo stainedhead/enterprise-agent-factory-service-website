@@ -2,10 +2,13 @@ import { useState } from "react";
 import type { AppError } from "../../../application/errors.js";
 import type { TeamRecord } from "../../../application/ports/teams.js";
 import { format } from "../../../domain/money.js";
+import { exposureLabel, setLimitCli } from "../../../domain/orchestration.js";
 import {
   Alert,
   Button,
+  CliPreview,
   ConfirmDialog,
+  ExposureControl,
   FormField,
   Modal,
   TextInput,
@@ -14,7 +17,7 @@ import {
 import { useService } from "../../services.js";
 
 export interface TeamDialog {
-  readonly kind: "suspend" | "resume" | "delete" | "ceiling" | "raise";
+  readonly kind: "suspend" | "resume" | "delete" | "ceiling" | "raise" | "limit";
   readonly team: TeamRecord;
 }
 
@@ -69,6 +72,8 @@ export function TeamActionDialogs({
         Deleting removes the team's namespace and agents. Its usage, cost and history stay readable.
       </TypeToConfirm>
     );
+  if (dialog.kind === "limit")
+    return <LimitDialog team={team} onClose={onClose} run={run} busy={busy} error={error} />;
   return (
     <CeilingDialog
       key={dialog.kind}
@@ -159,6 +164,65 @@ function CeilingDialog({
           </FormField>
         </>
       )}
+    </Modal>
+  );
+}
+
+/** *Set endpoint limit* (service admins): lowering keeps the team's choices, they apply again if it is raised (ORC-14). */
+function LimitDialog({
+  team,
+  onClose,
+  run,
+  busy,
+  error,
+}: {
+  team: TeamRecord;
+  onClose: () => void;
+  run: (fn: () => Promise<unknown>) => void;
+  busy: boolean;
+  error: AppError | undefined;
+}) {
+  const teams = useService("teams");
+  const current = team.maxCollaborationExposure ?? "private";
+  const [limit, setLimit] = useState(current);
+  return (
+    <Modal
+      title={`Set endpoint limit for ${team.slug}`}
+      onClose={onClose}
+      actions={
+        <>
+          <Button onClick={onClose}>Cancel</Button>
+          <Button
+            variant="primary"
+            disabled={busy}
+            disabledReason={limit === current ? "Nothing changed" : undefined}
+            onClick={() =>
+              run(() => teams.setEndpointLimit({ id: team.id, version: team.version }, limit))
+            }
+          >
+            Set limit
+          </Button>
+        </>
+      }
+    >
+      <p>
+        The team's limit is {exposureLabel(current)}. Lowering it lowers what is in effect within a
+        minute and keeps the team's choices.
+      </p>
+      {error && (
+        <Alert kind="error" requestId={error.requestId}>
+          {error.message}
+        </Alert>
+      )}
+      <ExposureControl
+        label="Endpoint limit"
+        value={limit}
+        limit="public"
+        supported
+        tool="paperclip"
+        onChange={setLimit}
+      />
+      <CliPreview command={setLimitCli(team.id, limit)} />
     </Modal>
   );
 }

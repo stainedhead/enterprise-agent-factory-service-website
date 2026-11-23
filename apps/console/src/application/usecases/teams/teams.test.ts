@@ -39,7 +39,7 @@ function port(over: Partial<TeamsPort> = {}): TeamsPort {
     resume: vi.fn(async () => team()),
     status: vi.fn(async () => status),
     models: vi.fn(async () => []),
-    putModels: vi.fn(async () => []),
+    putTeamModels: vi.fn(async () => ({ access: "all", modelIds: [], items: [] })),
     tags: vi.fn(async () => ({ tags: [] })),
     putTags: vi.fn(async () => ({ tags: [] })),
     catalogModels: vi.fn(async () => []),
@@ -120,12 +120,15 @@ describe("TeamsUseCases", () => {
     await u.resume("team_1");
     await u.delete({ id: "team_1", version: 3 });
     await u.models("team_1");
-    await u.putModels({ id: "team_1", version: 3 }, ["m"]);
+    await u.putTeamModels({ id: "team_1", version: 3 }, { access: "selected", modelIds: ["m"] });
     await u.tags("team_1");
     await u.catalogModels();
     await u.serviceTags();
     await u.update({ id: "team_1", version: 3 }, { displayName: "x" });
-    expect(p.putModels).toHaveBeenCalledWith({ id: "team_1", version: 3 }, ["m"]);
+    expect(p.putTeamModels).toHaveBeenCalledWith(
+      { id: "team_1", version: 3 },
+      { access: "selected", modelIds: ["m"] },
+    );
     expect(p.delete).toHaveBeenCalledWith({ id: "team_1", version: 3 });
   });
 
@@ -192,8 +195,11 @@ describe("team draft validation (M1-T5, M1-T6)", () => {
 
   it("models, budget and members", () => {
     const d = emptyTeamDraft();
-    expect(validateStep("models", d, [])).toHaveProperty("models");
-    expect(validateStep("models", { ...d, models: ["m"] }, [])).toEqual({});
+    expect(validateStep("models", d, [])).toEqual({});
+    expect(validateStep("models", { ...d, modelAccess: "selected" }, [])).toHaveProperty("models");
+    expect(validateStep("models", { ...d, modelAccess: "selected", models: ["m"] }, [])).toEqual(
+      {},
+    );
     expect(validateStep("budget", d, [])).toHaveProperty("maxBudgetUsd");
     expect(validateStep("budget", { ...d, maxBudgetUsd: "0.00" }, [])).toHaveProperty(
       "maxBudgetUsd",

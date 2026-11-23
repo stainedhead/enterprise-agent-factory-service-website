@@ -91,6 +91,8 @@ test.describe("S3 create team", () => {
     await expectAxeClean(page);
     await expectVisual(page, "03-admin-create-team");
     await page.getByRole("button", { name: "Next" }).click();
+    await page.getByRole("button", { name: "Next" }).click();
+    await page.getByRole("radio", { name: "Selected" }).check();
     await page.getByLabel(/Claude Sonnet/).check();
     await page.getByRole("button", { name: "Next" }).click();
     await page.getByLabel("Monthly budget (USD)").fill("2500.00");

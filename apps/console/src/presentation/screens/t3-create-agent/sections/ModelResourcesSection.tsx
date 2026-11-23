@@ -1,24 +1,48 @@
 import type { ModelRecord } from "../../../../application/ports/teams.js";
-import { Card, FormField, SelectInput, TextInput } from "../../../components/index.js";
+import { validateModels } from "../../../../domain/modelAccess.js";
+import { Card, FormField, ModelsControl, TextInput } from "../../../components/index.js";
 import type { SectionProps } from "./types.js";
 
-/** *Model and resources*: the team's models only; one pod per agent, so there is no replica field (WEB-US-26.1). */
+/**
+ * *Models and resources*: All or Selected from the team's models and a default model (MOD-3); one pod per agent,
+ * so there is no replica field (WEB-US-26.1).
+ */
 export function ModelResourcesSection({
   draft,
   set,
   errors,
   models,
 }: SectionProps & { models: readonly ModelRecord[] }) {
+  const spec = {
+    access: draft.modelAccess,
+    modelIds: draft.modelIds,
+    defaultModelId: draft.defaultModelId,
+  };
+  const local =
+    models.length > 0
+      ? validateModels(
+          spec,
+          models.map((m) => m.id),
+        )
+      : {};
   return (
-    <Card title="Model and resources">
-      <FormField label="Model" hint="Enabled for this team" error={errors.modelId}>
-        <SelectInput
-          value={draft.modelId}
-          placeholder="Choose a model"
-          options={models.map((m) => ({ value: m.id, label: m.displayName }))}
-          onChange={(e) => set({ modelId: e.target.value })}
-        />
-      </FormField>
+    <Card title="Models and resources">
+      <ModelsControl
+        value={spec}
+        allowed={models}
+        errors={{
+          models:
+            errors.models ?? (errors["models.modelIds"] ? errors["models.modelIds"] : local.models),
+          defaultModelId: errors.defaultModelId ?? errors["models.defaultModelId"],
+        }}
+        onChange={(m) =>
+          set({
+            modelAccess: m.access,
+            modelIds: [...m.modelIds],
+            defaultModelId: m.defaultModelId,
+          })
+        }
+      />
       <FormField
         label="CPU"
         hint="One pod per agent. Add agents to add capacity."

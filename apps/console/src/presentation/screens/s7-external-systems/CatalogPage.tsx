@@ -104,7 +104,7 @@ export function CatalogPage() {
               text: (s) => s.name,
               cell: (s) => (
                 <>
-                  {s.name} {s.unmetered && <Badge tone="purple">Unmetered</Badge>}{" "}
+                  {s.name} {s.unmetered && <Badge tone="teal">Unmetered</Badge>}{" "}
                   {s.builtin && <Badge>Built-in</Badge>}
                 </>
               ),

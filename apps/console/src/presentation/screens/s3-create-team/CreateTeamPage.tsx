@@ -2,7 +2,9 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { AppError, isAppError } from "../../../application/errors.js";
+import { orchestrationDefaults } from "../../../application/usecases/settings/orchestrationSettings.js";
 import {
+  effectiveOrchestration,
   emptyTeamDraft,
   requiredTags,
   type StepId,
@@ -10,16 +12,32 @@ import {
   toCreateInput,
   validateStep,
 } from "../../../application/usecases/teams/teamDraft.js";
-import { boolFlag, buildCli, type CliCommand, type CliValue } from "../../../domain/cli.js";
+import { buildCli, type CliCommand, type CliValue } from "../../../domain/cli.js";
+import { modelFlags, priceView } from "../../../domain/modelAccess.js";
 import { format } from "../../../domain/money.js";
 import {
+  exposureLabel,
+  ORCHESTRATOR_NAME,
+  orchestrationShorthand,
+  RUNTIME_TEXT,
+  TOOLS,
+  toolInfo,
+  toolLabel,
+} from "../../../domain/orchestration.js";
+import {
   Alert,
+  Badge,
   Breadcrumbs,
   CliPreview,
+  ExposureControl,
   FormField,
   KeyValue,
+  ModelsControl,
+  OrchestrationCard,
+  OrchestrationMark,
   PageHeader,
   SelectInput,
+  StatusIndicator,
   TextInput,
   Wizard,
   type WizardStep,
@@ -27,7 +45,7 @@ import {
 import { gate } from "../../hooks/gate.js";
 import { useDraft } from "../../hooks/useDraft.js";
 import { queryKey } from "../../query/keys.js";
-import { useService } from "../../services.js";
+import { useOptionalService, useService } from "../../services.js";
 import { useMe } from "../../shell/ShellContext.js";
 import { budgetStepVariants } from "./budgetStepVariants.js";
 import {
@@ -38,6 +56,7 @@ import {
 
 const STEPS: { id: StepId; title: string }[] = [
   { id: "details", title: "Details" },
+  { id: "orchestration", title: "Orchestration" },
   { id: "models", title: "Models and network" },
   { id: "budget", title: "Budget" },
   { id: "members", title: "Members" },
@@ -55,7 +74,9 @@ export function cliValues(d: TeamDraft): Record<string, CliValue> {
     description: i.description,
     ownerEmail: i.ownerEmail,
     identityProviderId: i.identityProviderId,
-    models: i.models as readonly string[] | undefined,
+    modelAccess: i.modelAccess,
+    models: i.modelAccess === "selected" ? (i.models as readonly string[] | undefined) : undefined,
+    maxCollaborationExposure: i.maxCollaborationExposure,
     tags: i.tags && i.tags.length > 0 ? [...i.tags] : undefined,
     budget: i.budget,
     expiresAt: i.expiresAt,
@@ -64,12 +85,32 @@ export function cliValues(d: TeamDraft): Record<string, CliValue> {
   };
 }
 
-/** The `create-team` command with the guardrail as an AWS-style flag pair (`--may-expose-collaboration` or `--no-...`). */
-export function createTeamCli(d: TeamDraft): CliCommand {
+/**
+ * The `create-team` command (ORC-29): `--model-access`, `--models`, `--max-collaboration-exposure`, then the
+ * orchestration agent as the AWS shorthand `--orchestration Tool=...,WebUiExposure=...` with the levels the form
+ * resolves (the service default lowered to the limit), and `--models`/`--default-model-id` for its models.
+ */
+export function createTeamCli(
+  d: TeamDraft,
+  defaults: ReturnType<typeof orchestrationDefaults> = orchestrationDefaults(undefined),
+): CliCommand {
   const base = buildCli("CreateTeam", cliValues(d));
+  const o = effectiveOrchestration(d, defaults);
   return {
     ...base,
-    args: [...base.args, boolFlag("may-expose-collaboration", d.mayExposeCollaboration !== false)],
+    args: [
+      ...base.args,
+      [
+        "orchestration",
+        orchestrationShorthand({
+          tool: o.tool,
+          webUiExposure: o.webUi,
+          webApiExposure: o.webApi,
+          modelId: d.orchModels.defaultModelId || undefined,
+        }),
+      ],
+      ...(d.orchModels.access === "selected" ? modelFlags(d.orchModels).slice(0, 1) : []),
+    ],
   };
 }
 
@@ -96,20 +137,32 @@ export function CreateTeamPage() {
     queryKey: queryKey({ area: "teams", resource: "catalog-models" }),
     queryFn: ({ signal }) => teams.catalogModels(signal),
   });
+  const settings = useOptionalService("settings");
+  const settingsQ = useQuery({
+    queryKey: queryKey({ area: "settings", resource: "settings" }),
+    queryFn: ({ signal }) =>
+      settings ? settings.list(signal) : Promise.reject(new Error("no settings service")),
+    enabled: settings !== undefined,
+    retry: false,
+  });
+  const defaults = orchestrationDefaults(settingsQ.data);
   const tags = tagsQ.data ?? [];
   const catalog = (modelsQ.data ?? []).filter((m) => m.enabled);
+  const teamModels =
+    draft.modelAccess === "selected" ? catalog.filter((m) => draft.models.includes(m.id)) : catalog;
   const set = <K extends keyof TeamDraft>(k: K, v: TeamDraft[K]) =>
     setDraft((d) => ({ ...d, [k]: v }));
   const maxDays = useEphemeralMaxDays();
   const [now] = useState(() => new Date());
   const errs = (step: StepId) =>
-    validateStep(step, draft, tags, { ephemeralMaxDays: maxDays, now });
+    validateStep(step, draft, tags, { ephemeralMaxDays: maxDays, now, defaults });
   const server = serverError?.kind === "validation" ? serverError.fields : {};
   const slugError =
     serverError?.reason === "hostname_held"
       ? "A team with this name had a collaboration endpoint that was deleted recently. Its hostname is held for 30 days. Choose another name."
       : server.slug;
   const variant = budgetStepVariants[draft.kind];
+  const orch = effectiveOrchestration(draft, defaults);
   const [busy, setBusy] = useState(false);
   const submit = async () => {
     if (busy) return;
@@ -224,6 +277,97 @@ export function CreateTeamPage() {
       ),
     },
     {
+      id: "orchestration",
+      title: "Orchestration",
+      valid: Object.keys(errs("orchestration")).length === 0,
+      content: (
+        <OrchestrationCard label="Orchestration agent">
+          <h2>
+            <OrchestrationMark /> Orchestration agent
+          </h2>
+          <p>
+            Every team gets one orchestration agent named <code>{ORCHESTRATOR_NAME}</code>. It runs
+            the collaboration tool where people and agents work together.
+          </p>
+          <fieldset>
+            <legend>Collaboration tool</legend>
+            {TOOLS.map((t) => {
+              const info = toolInfo(t);
+              return (
+                <label key={t} style={{ display: "block" }}>
+                  <input
+                    type="radio"
+                    name="orch-tool"
+                    checked={orch.tool === t}
+                    onChange={() =>
+                      setDraft((d) => ({ ...d, orchTool: t, orchWebUi: "", orchWebApi: "" }))
+                    }
+                  />{" "}
+                  <strong>{info.label}</strong>{" "}
+                  {info.preview && <Badge tone="amber">Preview</Badge>}
+                  {t === defaults.tool && <Badge tone="teal">Default</Badge>}
+                  <span style={{ display: "block", color: "var(--muted)" }}>{info.blurb}</span>
+                </label>
+              );
+            })}
+          </fieldset>
+          <fieldset>
+            <legend>Endpoint limit</legend>
+            <p>
+              The most this team may expose. Team-admins choose within it; only a service admin
+              changes it.
+            </p>
+            <ExposureControl
+              label="Endpoint limit"
+              value={orch.limit}
+              limit="public"
+              supported
+              tool={orch.tool}
+              onChange={(v) => set("maxCollaborationExposure", v)}
+            />
+          </fieldset>
+          <fieldset>
+            <legend>Starting exposure</legend>
+            <ExposureControl
+              label="Web UI"
+              value={orch.webUi}
+              limit={orch.limit}
+              supported={toolInfo(orch.tool).webUi}
+              tool={orch.tool}
+              onChange={(v) => set("orchWebUi", v)}
+            />
+            {errs("orchestration").orchWebUi && (
+              <p role="alert">{errs("orchestration").orchWebUi}</p>
+            )}
+            <ExposureControl
+              label="Web API"
+              value={orch.webApi}
+              limit={orch.limit}
+              supported={toolInfo(orch.tool).webApi}
+              tool={orch.tool}
+              onChange={(v) => set("orchWebApi", v)}
+            />
+            {errs("orchestration").orchWebApi && (
+              <p role="alert">{errs("orchestration").orchWebApi}</p>
+            )}
+          </fieldset>
+          <ModelsControl
+            label="Orchestration agent models"
+            value={draft.orchModels}
+            allowed={teamModels}
+            errors={{
+              models: errs("orchestration").orchModels,
+              defaultModelId: errs("orchestration").orchDefaultModel,
+            }}
+            onChange={(m) => set("orchModels", { ...m, modelIds: [...m.modelIds] })}
+          />
+          <p>
+            {RUNTIME_TEXT}. Resources and volume use the service defaults and are read-only here.
+          </p>
+        </OrchestrationCard>
+      ),
+    },
+    {
       id: "models",
       title: "Models and network",
       valid: Object.keys(errs("models")).length === 0,
@@ -231,36 +375,40 @@ export function CreateTeamPage() {
         <fieldset>
           <legend>Models enabled for the team</legend>
           {server.models && <div role="alert">{server.models}</div>}
+          <div role="radiogroup" aria-label="Team model access">
+            {(["all", "selected"] as const).map((a) => (
+              <label key={a} style={{ marginRight: 12 }}>
+                <input
+                  type="radio"
+                  name="team-model-access"
+                  checked={draft.modelAccess === a}
+                  onChange={() => set("modelAccess", a)}
+                />{" "}
+                {a === "all" ? "All" : "Selected"}
+              </label>
+            ))}
+          </div>
           {catalog.length === 0 && <p>No models are enabled in the catalog.</p>}
-          {catalog.map((m) => (
-            <label key={m.id} style={{ display: "block" }}>
-              <input
-                type="checkbox"
-                checked={draft.models.includes(m.id)}
-                onChange={(e) =>
-                  set(
-                    "models",
-                    e.target.checked
-                      ? [...draft.models, m.id]
-                      : draft.models.filter((x) => x !== m.id),
-                  )
-                }
-              />{" "}
-              {m.displayName} <span style={{ color: "var(--muted)" }}>({m.provider})</span>
-            </label>
-          ))}
-          <label style={{ display: "block" }}>
-            <input
-              type="checkbox"
-              checked={draft.mayExposeCollaboration !== false}
-              onChange={(e) => set("mayExposeCollaboration", e.target.checked)}
-            />{" "}
-            May publish collaboration endpoints
-          </label>
-          <p style={{ color: "var(--muted)" }}>
-            Lets this team switch on public access to its Paperclip. Turning it off stops both
-            public surfaces without losing the team's choices.
-          </p>
+          {draft.modelAccess === "selected" &&
+            catalog.map((m) => (
+              <label key={m.id} style={{ display: "block" }}>
+                <input
+                  type="checkbox"
+                  checked={draft.models.includes(m.id)}
+                  onChange={(e) =>
+                    set(
+                      "models",
+                      e.target.checked
+                        ? [...draft.models, m.id]
+                        : draft.models.filter((x) => x !== m.id),
+                    )
+                  }
+                />{" "}
+                {m.displayName} <span style={{ color: "var(--muted)" }}>({m.provider})</span>{" "}
+                <StatusIndicator view={priceView(m.priceState)} />
+              </label>
+            ))}
+          {errs("models").models && <p role="alert">{errs("models").models}</p>}
           <p style={{ color: "var(--muted)" }}>
             Egress is limited to the model gateway and the allow-listed external systems.
           </p>
@@ -394,10 +542,21 @@ export function CreateTeamPage() {
                 .map(([k, v]) => `${k}=${v}`)
                 .join(", ") || "—",
           },
-          { label: "Models", value: draft.models.join(", ") || "—" },
           {
-            label: "May publish collaboration endpoints",
-            value: draft.mayExposeCollaboration !== false ? "Yes" : "No",
+            label: "Models",
+            value:
+              draft.modelAccess === "all"
+                ? "All models the service enables"
+                : draft.models.join(", ") || "—",
+          },
+          {
+            label: "Orchestration",
+            value: `An orchestration agent named ${ORCHESTRATOR_NAME} will be created, running ${toolLabel(orch.tool)}`,
+          },
+          { label: "Endpoint limit", value: exposureLabel(orch.limit) },
+          {
+            label: "Web UI / Web API",
+            value: `${exposureLabel(orch.webUi)} / ${exposureLabel(orch.webApi)}`,
           },
           {
             label: draft.kind === "ephemeral" ? "Lifetime budget" : "Budget",
@@ -411,7 +570,7 @@ export function CreateTeamPage() {
           },
         ]}
       />
-      {allValid && <CliPreview command={createTeamCli(draft)} />}
+      {allValid && <CliPreview command={createTeamCli(draft, defaults)} />}
     </div>
   );
 

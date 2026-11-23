@@ -146,7 +146,10 @@ export class AfsClient {
           items: T[];
           nextToken?: string;
           meta: ResponseMeta;
+          extras?: Readonly<Record<string, unknown>>;
         };
+        const { items: _i, nextToken: _n, meta: _m, ...rest } = body as Record<string, unknown>;
+        if (Object.keys(rest).length > 0) page.extras = rest;
         if (body.nextToken) page.nextToken = body.nextToken;
         return page;
       },

@@ -15,7 +15,9 @@ const draft = (over: Partial<CreateAgentDraft> = {}): CreateAgentDraft => ({
   template: "hermes-dev",
   image: "ghcr.io/acme/hermes-dev@sha256:4b1e",
   persona: "Keeps services patched",
-  modelId: "claude-sonnet",
+  modelAccess: "selected",
+  modelIds: ["claude-sonnet"],
+  defaultModelId: "claude-sonnet",
   cpu: "2",
   memory: "8Gi",
   sizeGiB: "20",
@@ -35,11 +37,19 @@ describe("validateDraft (M2-C1, C3, C5)", () => {
   });
   it("flags required fields, the size range and a bad name", () => {
     const e = validateDraft(
-      draft({ name: "X", template: "", image: " ", modelId: "", sizeGiB: "0" }),
+      draft({
+        name: "X",
+        template: "",
+        image: " ",
+        modelIds: [],
+        defaultModelId: "",
+        sizeGiB: "0",
+      }),
     );
     expect(Object.keys(e).sort()).toEqual([
+      "defaultModelId",
       "image",
-      "modelId",
+      "models",
       "name",
       "template",
       "volume.sizeGiB",

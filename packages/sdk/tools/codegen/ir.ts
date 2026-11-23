@@ -35,6 +35,8 @@ export interface OperationIR {
   yaml: boolean;
   list: boolean;
   summary: string;
+  /** The operation is deprecated in the contract (kept until the next major). */
+  deprecated: boolean;
   ifMatch: "required" | "optional" | "none";
   idempotencyKey: boolean;
   reader?: ReaderIR;

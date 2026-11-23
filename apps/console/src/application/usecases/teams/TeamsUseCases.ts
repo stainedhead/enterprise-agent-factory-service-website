@@ -1,9 +1,11 @@
 import { compare, parse } from "../../../domain/money.js";
+import { isExposure } from "../../../domain/orchestration.js";
 import { AppError } from "../../errors.js";
 import type { ClockPort } from "../../ports/auth.js";
 import type {
   CreateTeamInput,
   ListTeamsQuery,
+  TeamModelsRecord,
   TeamPage,
   TeamRecord,
   TeamRef,
@@ -75,11 +77,34 @@ export class TeamsUseCases {
   delete(ref: TeamRef): Promise<TeamRecord> {
     return this.port.delete(refOf(ref));
   }
+  /** The team's allowed models (service and team): what an agent may choose from. */
   models(id: string, signal?: AbortSignal) {
     return this.port.models(id, signal);
   }
-  putModels(ref: TeamRef, ids: readonly string[]) {
-    return this.port.putModels(refOf(ref), ids);
+  /** The team's model access: mode, stored selection and allowed set (MOD-2). */
+  teamModels(id: string, signal?: AbortSignal) {
+    return this.port.teamModels(id, signal);
+  }
+  /**
+   * *Save* of the team's models (service admins, `teams:set-guardrails`): `all` follows the service list; a
+   * selection needs at least one model. Narrowing never edits an agent's stored selection (MOD-6).
+   */
+  putTeamModels(
+    ref: TeamRef,
+    input: { access: "all" | "selected"; modelIds: readonly string[] },
+  ): Promise<TeamModelsRecord> {
+    if (input.access === "selected" && input.modelIds.length === 0)
+      return Promise.reject(invalid("modelIds", "Choose at least one model"));
+    return this.port.putTeamModels(
+      refOf(ref),
+      input.access === "all" ? { access: "all" } : { access: "selected", modelIds: input.modelIds },
+    );
+  }
+  /** *Set endpoint limit* (service admins, `teams:set-guardrails`): lowering keeps the team's choices (ORC-14). */
+  setEndpointLimit(ref: TeamRef, limit: string): Promise<TeamRecord> {
+    if (!isExposure(limit))
+      return Promise.reject(invalid("maxCollaborationExposure", "Choose Off, Private or Public"));
+    return this.port.update(refOf(ref), { maxCollaborationExposure: limit });
   }
   tags(id: string, signal?: AbortSignal) {
     return this.port.tags(id, signal);

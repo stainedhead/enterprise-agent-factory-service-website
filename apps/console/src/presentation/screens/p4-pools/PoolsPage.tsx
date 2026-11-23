@@ -13,6 +13,7 @@ import {
   templateRetired,
 } from "../../../application/usecases/pools/PoolsUseCases.js";
 import { buildCli } from "../../../domain/cli.js";
+import { modelsColumn } from "../../../domain/modelAccess.js";
 import { format } from "../../../domain/money.js";
 import { formatLocal, utcTitle } from "../../../domain/time.js";
 import {
@@ -199,7 +200,7 @@ export function PoolsPage() {
           </>
         }
       />
-      <Badge tone="purple">Ephemeral</Badge>
+      <Badge tone="teal">Ephemeral</Badge>
       {notice && (
         <Alert kind="success" onDismiss={() => setNotice(undefined)}>
           {notice}
@@ -283,7 +284,12 @@ export function PoolsPage() {
                 sortValue: (p) => p.template,
                 cell: (p) => p.template,
               },
-              { id: "model", header: "Model", sortValue: (p) => p.modelId, cell: (p) => p.modelId },
+              {
+                id: "model",
+                header: "Model",
+                sortValue: (p) => p.models.defaultModelId,
+                cell: (p) => modelsColumn(p.models),
+              },
               {
                 id: "workers",
                 header: "Workers",

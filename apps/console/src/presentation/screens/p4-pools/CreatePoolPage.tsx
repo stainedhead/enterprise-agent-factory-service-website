@@ -5,6 +5,7 @@ import { isAppError } from "../../../application/errors.js";
 import type { CreateAgentDraft } from "../../../application/usecases/agents-create/CreateAgentUseCases.js";
 import { type PoolDraft, validatePool } from "../../../application/usecases/pools/PoolsUseCases.js";
 import { buildCli } from "../../../domain/cli.js";
+import { modelFlags } from "../../../domain/modelAccess.js";
 import {
   Alert,
   Breadcrumbs,
@@ -31,7 +32,9 @@ const EMPTY: PoolDraft = {
   template: "",
   image: "",
   persona: "",
-  modelId: "",
+  modelAccess: "all",
+  modelIds: [],
+  defaultModelId: "",
   cpu: "",
   memory: "",
   sizeGiB: "20",
@@ -52,12 +55,11 @@ const EMPTY: PoolDraft = {
 /** The CLI command equivalent to the form as it stands (WEB-6): `create-pool`. */
 export function cliForPool(teamId: string, d: PoolDraft) {
   const resources = { ...(d.cpu && { cpu: d.cpu }), ...(d.memory && { memory: d.memory }) };
-  return buildCli("CreatePool", {
+  const base = buildCli("CreatePool", {
     teamId,
     name: d.name || "<name>",
     template: d.template || "<template>",
     image: d.image || "<image>",
-    modelId: d.modelId || "<model>",
     workers: /^\d+$/.test(d.workers) ? Number(d.workers) : "<workers>",
     stageId: d.stageId || undefined,
     scratchSizeGiB: /^\d+$/.test(d.scratchSizeGiB) ? Number(d.scratchSizeGiB) : undefined,
@@ -65,6 +67,18 @@ export function cliForPool(teamId: string, d: PoolDraft) {
     persona: d.persona || undefined,
     resources: Object.keys(resources).length > 0 ? resources : undefined,
   });
+  // `--models all | <id> ...` and `--default-model-id` (MOD-8)
+  return {
+    ...base,
+    args: [
+      ...base.args,
+      ...modelFlags({
+        access: d.modelAccess,
+        modelIds: d.modelIds,
+        defaultModelId: d.defaultModelId || "<model>",
+      }),
+    ],
+  };
 }
 
 /** *Create pool* (WEB-US-39.2, 39.3): the T3 sections plus workers, stage, handoffs, scratch space and shared EFS. */
@@ -143,7 +157,7 @@ export function CreatePoolPage() {
         cpu: t.defaultResources?.cpu ?? "",
         memory: t.defaultResources?.memory ?? "",
       }),
-      modelId: models.data[0]?.id ?? "",
+      defaultModelId: d.defaultModelId || (models.data[0]?.id ?? ""),
     }));
   }, [templates.data, models.data, setDraft]);
 
