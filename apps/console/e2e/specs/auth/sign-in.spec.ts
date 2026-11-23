@@ -59,7 +59,9 @@ test.describe("sign-in", () => {
     expect(tokens().length).toBe(3);
     // a page that makes API calls, so the cache is populated too
     await page.getByRole("combobox", { name: "Search" }).fill("pay");
-    await expect(page.getByRole("listbox").getByRole("option", { name: "Payments" })).toBeVisible();
+    await expect(
+      page.getByRole("group", { name: "Teams" }).getByRole("option", { name: "Payments" }),
+    ).toBeVisible();
     const hits = await scanForSentinels(page, tokens(), observed, [
       `http://127.0.0.1:4173`,
       ENDPOINTS.api,
