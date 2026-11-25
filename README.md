@@ -58,20 +58,31 @@ each agent; the console screens T17, T18, V4, S12 and S4 show and change it.
 
 ![Orchestration agent and model access](docs/images/orchestration-agent.svg)
 
+### Governed MCP servers
+
+Agents reach MCP servers only through their team's gateway at `${AFS_GATEWAY_URL}/mcp`, and hold no MCP credential:
+the gateway injects a static key, mints an OAuth or federated token, or signs the call per request. Service admins
+publish enterprise servers (screens 46 to 48), security operators and team-admins review team-registered servers
+and held definition changes (49), teams switch servers on and register their own (50, 51), each agent narrows its
+servers, tools and discovery mode (52), and usage, refusals, discovery and adoption are reported at service and team
+level (53, 55). Access only ever narrows: service, then team, then agent.
+
+![Governed MCP servers](docs/images/mcp-gateway.svg)
+
 ## Status
 
-Feature complete (1.2.0: model endpoint gateway). The API contract is pinned to `-restapi` commit `7d48ea7` (contract 1.5.0, 221 operations);
+Feature complete (1.3.0: governed MCP servers). The API contract is pinned to `-restapi` commit `ef92a4c` (contract 1.6.0, 276 operations);
 moving the pin to a tag is a `contract:update --ref <tag>` and a regenerate.
 
 ## What is here
 
-- **`@afs/sdk`** 1.2.0, published to GitHub Packages as **`@stainedhead/afs-sdk`**. Generated from the pinned
-  contract: 221 operations in 49 resource modules, async-iterator pagination, `If-Match` and `Idempotency-Key`
+- **`@afs/sdk`** 1.3.0, published to GitHub Packages as **`@stainedhead/afs-sdk`**. Generated from the pinned
+  contract: 276 operations (275 with an SDK method; the browser-only OAuth callback has none) in 53 resource modules, async-iterator pagination, `If-Match` and `Idempotency-Key`
   handling, retries, `AfsError`, `waitFor` and typed reports (`createReports`). Zero runtime dependencies.
-- **The console**: 50 screens for service admins, team admins, team viewers and the security operator, covering
+- **The console**: 61 screens for service admins, team admins, team viewers and the security operator, covering
   teams, members and API keys, agents, secrets and configuration, external systems, budgets and usage, models and
   pricing, reports, notifications and log delivery, audit and history, cost allocation tags, AWS access,
-  team orchestration (Paperclip AI or Buzz, Web UI and Web API exposure, managed secrets, access reports), model access at service, team and agent level, model endpoints and routes through the team gateway with provider policy and the inference report, export and import, ephemeral teams with pools, work orders and swarm templates. Accessibility (axe on every
+  team orchestration (Paperclip AI or Buzz, Web UI and Web API exposure, managed secrets, access reports), model access at service, team and agent level, model endpoints and routes through the team gateway with provider policy and the inference report, governed MCP servers (catalog, review, team switches and team servers, agent selection, usage reports, federated identities), export and import, ephemeral teams with pools, work orders and swarm templates. Accessibility (axe on every
   screen), keyboard flows, a secret sentinel, CSP and performance run in the Playwright suite.
 - **Deploy artifacts** in `apps/console/deploy/`: runtime `config.json` schema, security headers and cache behaviors.
 

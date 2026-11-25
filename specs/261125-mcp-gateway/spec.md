@@ -23,8 +23,8 @@ tab and the team usage report, read-only for viewers.
 | 47 Server detail | SM3 | `/mcp-servers/:mcpServerId` (`?tab=`) | service admin, security operator (read, suspend) |
 | 48 Add enterprise server (wizard, import) | SM2 | `/mcp-servers/new` | service admin |
 | 49 MCP review queue and review | SM4 | `/mcp-reviews`, `/mcp-reviews/:mcpServerId` | service admin, security operator |
-| 55 MCP usage across teams | SM5 | `/reports/mcp` | service admin, security operator |
-| MCP section of service settings | SM6 | `/settings/mcp` | service admin |
+| 55 MCP usage across teams (the *MCP* tab of S8) | SM5 | `/reports/mcp` | service admin, security operator |
+| MCP section of service settings (the S10 *MCP* section, no separate screen id) | S10 | `/settings/mcp` | service admin |
 | 50 Team MCP servers | TM1 | `/t/:teamId/mcp-servers` | team-admin |
 | 51 Register team server (wizard) | TM2 | `/t/:teamId/mcp-servers/new` | team-admin |
 | Team server detail (credential, OAuth, federation, held tools) | TM3 | `/t/:teamId/mcp-servers/:mcpServerId` | every team role |

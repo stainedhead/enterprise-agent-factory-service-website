@@ -715,7 +715,7 @@ const effective = (ctx: FixtureContext, kind: "agent" | "pool"): FixtureResponse
     subjectId: id,
     access: "all",
     mode: "search",
-    env: ["AFS_MCP_URL", "AFS_MCP_MODE", "AFS_MCP_CONFIG_FILE"],
+    env: ["AFS_MCP_URL", "AFS_MCP_MODE", "AFS_MCP_SERVERS"],
     servers: on.map((t) => {
       const s = t.server as Json;
       return {

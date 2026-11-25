@@ -2,7 +2,54 @@
 
 All notable changes to `@afs/sdk` and `@afs/console` (versioned together). Format follows
 [Keep a Changelog](https://keepachangelog.com/); versions are [semver](https://semver.org/). The REST API
-(`-restapi`) and the database (`-db`) ship the same version (1.2.0) so a release is one number across the set.
+(`-restapi`) and the database (`-db`) ship the same version (1.3.0) so a release is one number across the set.
+
+## [1.3.0] - 2026-11-25
+
+Governed MCP servers (spec `specs/261125-mcp-gateway`). SDK tag: `sdk-v1.3.0`.
+
+### Added (SDK)
+
+- Contract v1.6.0 resources: `mcpServers` (catalog, import, publish, retire, suspend and resume, refresh, review
+  decisions, inventory and held changes, service policy and credentials), `mcpReviews`, `mcpEvents`, `mcpSettings`
+  (query capture), and on `teams` the team's MCP servers (switches, team servers, credential, OAuth connect and
+  disconnect, federation test, team policy, inventory, review, events and report). `agents` and `pools` gain the
+  effective MCP read and federated identities.
+- `createReports(client).mcpUsage(query)` and `.teamMcpUsage(teamId, query)`: usage, unused, refusals, discovery and
+  adoption views, with `asCsv()`.
+- MCP helpers `isMcpSlug`, `mcpServerUrlEnv`, `qualifiedMcpName`, `effectiveTools` and `MCP_ENV`; `McpReason`
+  constants for `details.reason`.
+
+### Changed (SDK)
+
+- The contract pin moves from v1.5.0 to v1.6.0 (`-restapi` `ef92a4c`), 276 operations (was 221) in 53 resource modules;
+  the browser-only OAuth callback (`CompleteMcpOAuthConnect`) has no SDK method.
+- Codegen names the eleven namespace-less operations after their siblings, and reads a wrapped resource's version
+  (`TeamMcpServer.server.version`) for `If-Match`. MCP credential fields are write-only secrets.
+
+### Added (console)
+
+- Service: *MCP servers* (46) with the review alert, adoption, calls and discovery, and *Import server.json*; *Add
+  enterprise server* (48), a wizard with review step and CLI preview; server detail (47) with overview, inventory and
+  held definition diffs, policy rules, shared and per-team credentials, teams and usage, and publish, retire,
+  suspend, resume and delete; *MCP reviews* (49) for security operators and service admins, with per-definition
+  allow or block and a required note; the *MCP* tab of service reports (55) with query capture; the *MCP* section of
+  service settings (who approves team servers).
+- Team: *MCP servers* (50) with a switch and mode per enterprise server, OAuth connect and reconnect, team
+  credentials and the team's own servers; *Register team server* (51) and the team server page with credential,
+  review, inventory and team policy; the agent's *MCP* tab (52) with server selection, blocks, discovery mode, what
+  the agent receives and effective tools; *MCP usage* (53); the read-only viewer page (54).
+- Federated identities on the agent's *Secrets & identity* tab; *Governed by an MCP server* on external system
+  switches; *MCP servers* in a team's gateway settings (may add servers, placement).
+- Permissions `mcp-servers:read`, `:review`, `:suspend`, `:write`, `mcp-settings:write`, `team-mcp-servers:read`,
+  `:write`, `:approve`, `mcp-events:read` and `agent-federated-identities:write`, with denied cases. Credential values
+  live only in the masked input until sent; the OAuth state is never kept.
+- Fake AFS fixtures for every MCP operation, `e2e/specs/mcp/mcp.spec.ts`, and the MCP routes in the axe, CSP and viewer
+  sweeps.
+
+### Visual baselines
+
+- The 11 new baselines (screens 46 to 55 and 51b) are recorded `pending` until J approves them.
 
 ## [1.2.0] - 2026-11-25
 

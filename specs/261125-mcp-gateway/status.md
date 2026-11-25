@@ -11,7 +11,7 @@ Created: 2026-11-25. Source: [mcp-gateway-PRD.md](mcp-gateway-PRD.md).
 | 2 Research and data modeling | Complete |
 | 3 Architecture and planning | Complete |
 | 4 Task breakdown | Complete |
-| 5 Implementation | In progress (M1-M7 done) |
+| 5 Implementation | Complete (M1-M9) |
 | 6 Completion and archival | Pending |
 
 ## Tasks
@@ -43,3 +43,9 @@ None.
   locally (chromium 1243): the 11 functional MCP tests, the sweeps and the security operator spec pass; the 11 new
   baselines are left for CI (`[regen-new-baselines]`). The security operator navigation test now expects the MCP
   items (M7).
+- 2026-11-25: docs: README *Governed MCP servers* section with `docs/images/mcp-gateway.svg` (copied from the root),
+  CHANGELOG 1.3.0, user-docs (SDK and console MCP sections), AGENTS.md status, PRD stub; research notes 11 to 15
+  and screen placement recorded (M8).
+- 2026-11-25: `bun run gate` green: SDK 461 tests; console 1810 tests in 175 files, domain and application coverage
+  97.3% statements, 92.8% branches, 97.5% functions; lint, typecheck, build, size and TSDoc checks pass. Pushed with
+  `[regen-new-baselines]` so CI writes the 11 pending baselines (M9). Archival waits on J's approval of the baselines.

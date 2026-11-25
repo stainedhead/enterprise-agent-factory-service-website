@@ -19,7 +19,7 @@ requirements and **the console UI design by role** are in that root's
 contract live in [enterprise-agent-factory-service-restapi](https://github.com/stainedhead/enterprise-agent-factory-service-restapi)
 (`api/openapi.yaml`).
 
-Status: feature complete, release 1.2.0 (model endpoint gateway; contract 1.5.0 pinned to `-restapi` `7d48ea7`).
+Status: feature complete, release 1.3.0 (governed MCP servers; contract 1.6.0 pinned to `-restapi` `ef92a4c`).
 
 ## Toolchain
 

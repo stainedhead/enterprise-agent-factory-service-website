@@ -9,5 +9,5 @@
 | M5 | Service screens SM1, SM2, SM3, SM4, SM5 (a tab of S8, like SG4) and the S10 *MCP* section (in place of a separate SM6) | screen tests incl. denied cases; e2e in M7 | done |
 | M6 | Team screens TM1, TM2, TM3, VM1; agent tab TM4; usage TM5; governedBy, gateway settings, federated identities | screen tests incl. viewer; e2e in M7 | done |
 | M7 | Fake AFS fixtures, Playwright spec, route sweeps, visual baselines 46-55 (pending J) | e2e | done |
-| M8 | Docs: user-docs, CHANGELOG, README with diagram, AGENTS.md, PRD stub | links check | open |
-| M9 | Gate and push | gate | open |
+| M8 | Docs: user-docs, CHANGELOG, README with diagram, AGENTS.md, PRD stub | links check | done |
+| M9 | Gate and push | gate | done |

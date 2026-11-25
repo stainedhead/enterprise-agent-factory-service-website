@@ -40,3 +40,26 @@
    The agent's MCP settings are saved through `UpdateAgent` `mcp` with If-Match (no `PutAgentMcp` operation).
 10. **Env values.** The API returns env *names*; the console renders values from `AFS_GATEWAY_URL` (the agent's model
     env, 1.2.0) plus the gateway contract's paths (`/mcp`, `/mcp/<slug>`), and `…` when the gateway URL is unknown.
+11. **Team gateway MCP fields.** `Team` does not carry `mayAddMcpServers` or `mcpPlacement`, so the team pages learn a
+    refusal only from the API's 403 `team_servers_not_allowed` (TM2 then shows why and disables the submit). The
+    service team page sends the MCP members of `PutTeamGatewaySettings` only when changed and shows the values from
+    the response. At `ef92a4c` the handler (`gatewayMcpFields`) still refuses `mayAddMcpServers: true` and any
+    placement ("this release accepts only mayAddMcpServers false"); the console sends what the contract allows and
+    shows the API's refusal.
+12. **Calls ranges.** The usage report has no per-server range parameter in the team list call; *Calls* on screens 46
+    and 50 come from one usage report grouped by server over the report's default range, so the mockups' *30 d* and
+    *last 7 days* labels are not repeated. Screen 50's *agents with access* count has no source and is not shown.
+13. **Approval policy visibility.** `mcp.team_server_approval` is a service setting (`admin:settings`, service admins
+    only). Security operators see the server's `approver` instead of the policy name on the review page.
+14. **No agent-local servers.** Screen 52's *agent-local servers* card has no contract field; it is not built. The
+    *Narrow selected* bulk action of screen 53 is replaced by guidance text (no bulk operation).
+15. **OAuth connect window.** `StartMcpOAuthConnect` returns the authorization URL after an API call, so the console
+    opens it with `window.open` after the call; a strict popup blocker may stop it, and the console then shows the
+    error. The single-use `state` is dropped at the adapter and the URL is not kept in state.
+
+## Screen placement
+
+- SM5 is the *MCP* tab of service reports (S8), like the *Inference* tab of 1.2.0; `/reports/mcp` selects it.
+- The service MCP settings are the *MCP* section of S10 (`/settings/mcp`) rather than a separate SM6.
+- TM3 (team server page) has no mockup of its own; its visual baseline is `51b-ta-team-mcp-server`, compared by eye with
+  mockup 51.
