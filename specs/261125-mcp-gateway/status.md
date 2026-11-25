@@ -49,3 +49,8 @@ None.
 - 2026-11-25: `bun run gate` green: SDK 461 tests; console 1810 tests in 175 files, domain and application coverage
   97.3% statements, 92.8% branches, 97.5% functions; lint, typecheck, build, size and TSDoc checks pass. Pushed with
   `[regen-new-baselines]` so CI writes the 11 pending baselines (M9). Archival waits on J's approval of the baselines.
+- 2026-11-25: 1.2.0 (PR #14) merged to main and merged into this branch; PR #15 retargeted to main. J approved the
+  MCP baselines (46-55, 51b) and the navigation with the MCP items. `[regen-baselines]` on 4b45627 rewrote 60
+  baselines in CI (5cc9518). Each diff was checked: the left nav (MCP reviews, MCP servers, MCP usage), the
+  agent tab strip (*MCP* tab), the service settings and reports tabs (*MCP*) and the team gateway settings
+  (MCP servers and placement). This commit triggers the normal CI run that compares against them.
