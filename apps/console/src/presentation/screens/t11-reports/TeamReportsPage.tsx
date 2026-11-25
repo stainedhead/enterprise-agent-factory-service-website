@@ -1,4 +1,4 @@
-import { Link, useParams, useSearchParams } from "react-router";
+import { Link, useLocation, useParams, useSearchParams } from "react-router";
 import { can } from "../../../domain/me.js";
 import { Breadcrumbs, PageHeader, Tabs } from "../../components/index.js";
 import { NotFoundPage } from "../../shell/pages.js";
@@ -10,8 +10,10 @@ export function TeamReportsPage() {
   const { teamId = "" } = useParams();
   const me = useMe();
   const [params, setParams] = useSearchParams();
+  const { pathname } = useLocation();
+  const wanted = params.get("tab") ?? (pathname.endsWith("/inference") ? "inference" : null);
   const visible = sections.filter((s) => can(me, s.permission, teamId));
-  const active = visible.find((s) => s.id === params.get("tab")) ?? visible[0];
+  const active = visible.find((s) => s.id === wanted) ?? visible[0];
   if (!active) return <NotFoundPage />;
   return (
     <div>

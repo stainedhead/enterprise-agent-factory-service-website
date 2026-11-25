@@ -43,6 +43,7 @@ export default defineConfig({
         "src/application/ports/logDestinations.ts",
         "src/application/ports/me.ts",
         "src/application/ports/members.ts",
+        "src/application/ports/modelEndpoints.ts",
         "src/application/ports/notifications.ts",
         "src/application/ports/overview.ts",
         "src/application/ports/pools.ts",

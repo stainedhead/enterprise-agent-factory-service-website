@@ -31,6 +31,13 @@ import type {
   ApiKeysUseCases,
   MembersUseCases,
 } from "../application/usecases/members/MembersUseCases.js";
+import type {
+  AdminModelEndpointsUseCases,
+  AgentRoutesUseCases,
+  InferenceReportUseCases,
+  ProviderPolicyUseCases,
+  TeamModelEndpointsUseCases,
+} from "../application/usecases/modelEndpoints/ModelEndpointsUseCases.js";
 import type { NotificationsUseCases } from "../application/usecases/notifications/NotificationsUseCases.js";
 import type { OrchestrationUseCases } from "../application/usecases/orchestration/OrchestrationUseCases.js";
 import type { OverviewUseCases } from "../application/usecases/overview/OverviewUseCases.js";
@@ -59,6 +66,12 @@ export interface AppServices {
   readonly adminAgentTemplates: AdminAgentTemplatesUseCases;
   readonly adminModels: AdminModelsUseCases;
   readonly adminPricing: AdminPricingUseCases;
+  /** 1.2.0 model endpoint gateway (contract §4.13). */
+  readonly adminModelEndpoints: AdminModelEndpointsUseCases;
+  readonly providerPolicy: ProviderPolicyUseCases;
+  readonly teamModelEndpoints: TeamModelEndpointsUseCases;
+  readonly agentRoutes: AgentRoutesUseCases;
+  readonly inferenceReports: InferenceReportUseCases;
   readonly budgets: BudgetsUseCases;
   readonly collaboration: CollaborationUseCases;
   readonly orchestration: OrchestrationUseCases;

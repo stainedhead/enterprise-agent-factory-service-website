@@ -61,6 +61,11 @@ export const toModels = (
   modelIds: m?.modelIds ?? [],
   defaultModelId: m?.defaultModelId ?? modelId ?? "",
   ...(m?.effectiveModelIds && { effectiveModelIds: m.effectiveModelIds }),
+  ...(m?.routeAccess && { routeAccess: m.routeAccess === "selected" ? "selected" : "all" }),
+  ...(m?.routes && { routes: m.routes }),
+  ...(m?.defaultRoute !== undefined && { defaultRoute: m.defaultRoute }),
+  ...(m?.effectiveRoutes && { effectiveRoutes: m.effectiveRoutes }),
+  ...(m?.env && { env: m.env }),
 });
 
 const toAgent = (a: WireAgent): AgentRecord => {

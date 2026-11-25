@@ -46,7 +46,7 @@ const ids = (items: readonly { id: string }[]) => items.map((i) => i.id);
 
 describe("navigation (M0-D4)", () => {
   it("has every IA item of PRD §4.1", () => {
-    expect(NAV_ITEMS).toHaveLength(32);
+    expect(NAV_ITEMS).toHaveLength(34);
     const groups = new Set(NAV_ITEMS.map((i) => i.group));
     expect([...groups]).toEqual([
       "Service",
@@ -60,6 +60,13 @@ describe("navigation (M0-D4)", () => {
     expect(ids(NAV_ITEMS)).toContain("config-values");
     expect(NAV_ITEMS.find((i) => i.id === "config-values")?.route).toBe("/t/:teamId/config");
     expect(new Set(ids(NAV_ITEMS)).size).toBe(NAV_ITEMS.length);
+  });
+  it("model endpoints: service admins see the catalog, every team role its routes (MEG-WEB-1, -3)", () => {
+    expect(ids(visibleItems(svc, undefined))).toContain("model-endpoints-service");
+    expect(ids(visibleItems(sec, undefined))).not.toContain("model-endpoints-service");
+    for (const me of [admin, viewer, collaborator])
+      expect(ids(visibleItems(me, team))).toContain("team-model-endpoints");
+    expect(ids(visibleItems(admin, team))).not.toContain("model-endpoints-service");
   });
   it("every item and extra route names a known screen", () => {
     const known = new Set<string>(SCREEN_IDS);

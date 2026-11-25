@@ -261,5 +261,70 @@
     "mockup": "29-sec-work-order-detail.png",
     "approver": "J",
     "date": "2026-11-22"
+  },
+  "SG1": {
+    "status": "pending",
+    "snapshots": ["56-admin-model-endpoints"],
+    "mockup": "56-admin-model-endpoints.png"
+  },
+  "SG2": {
+    "status": "pending",
+    "snapshots": ["57-admin-create-model-endpoint"],
+    "mockup": "57-admin-create-model-endpoint.png"
+  },
+  "SG3": {
+    "status": "pending",
+    "snapshots": ["58-admin-endpoint-detail"],
+    "mockup": "58-admin-endpoint-detail.png"
+  },
+  "SG4": {
+    "status": "pending",
+    "snapshots": ["59-admin-inference-report"],
+    "mockup": "59-admin-inference-report.png"
+  },
+  "SG5": {
+    "status": "pending",
+    "snapshots": ["60-admin-team-routes"],
+    "mockup": "60-admin-team-routes.png"
+  },
+  "TG1": {
+    "status": "pending",
+    "snapshots": ["61-ta-model-endpoints"],
+    "mockup": "61-ta-model-endpoints.png"
+  },
+  "TG2": {
+    "status": "pending",
+    "snapshots": ["62-ta-create-team-endpoint"],
+    "mockup": "62-ta-create-team-endpoint.png"
+  },
+  "TG3": {
+    "status": "pending",
+    "snapshots": ["63-ta-agent-models-routes"],
+    "mockup": "63-ta-agent-models-routes.png"
+  },
+  "TG4": {
+    "status": "pending",
+    "snapshots": ["64-ta-team-inference-report"],
+    "mockup": "64-ta-team-inference-report.png"
+  },
+  "TG5": {
+    "status": "pending",
+    "snapshots": ["65-ta-budget-routes"],
+    "mockup": "65-ta-budget-routes.png"
+  },
+  "VG1": {
+    "status": "pending",
+    "snapshots": ["66-tv-model-endpoints"],
+    "mockup": "66-tv-model-endpoints.png"
+  },
+  "VG2": {
+    "status": "pending",
+    "snapshots": ["67-tv-agent-models-routes"],
+    "mockup": "67-tv-agent-models-routes.png"
+  },
+  "SG6": {
+    "status": "pending",
+    "snapshots": ["68-admin-provider-policy", "68a-admin-provider-policy-confirm"],
+    "mockup": "68-admin-provider-policy.png"
   }
 }

@@ -56,6 +56,31 @@ describe("every permission has a denied case (M6-Q7)", () => {
   });
 });
 
+describe("model endpoint grants (MEG-WEB-1..6)", () => {
+  const me = (r: Role) => meWithRole(r);
+  it("only a service admin manages the catalog and switches providers", () => {
+    for (const p of ["admin:model-endpoints", "admin:inference-providers"] as const) {
+      expect(can(me("service_admin"), p)).toBe(true);
+      for (const r of [
+        "team_viewer",
+        "team_collaborator",
+        "team_admin",
+        "security_operator",
+      ] as const)
+        expect(can(me(r), p, scope(r)), `${r} and ${p}`).toBe(false);
+    }
+  });
+  it("every team role reads its routes; only a team-admin changes them", () => {
+    for (const r of ["team_viewer", "team_collaborator", "team_admin"] as const)
+      expect(can(me(r), "model-endpoints:read", "team_a")).toBe(true);
+    expect(can(me("team_admin"), "model-endpoints:write", "team_a")).toBe(true);
+    expect(can(me("team_viewer"), "model-endpoints:write", "team_a")).toBe(false);
+    expect(can(me("team_collaborator"), "model-endpoints:write", "team_a")).toBe(false);
+    expect(can(me("security_operator"), "model-endpoints:read")).toBe(false);
+    expect(can(me("team_admin"), "model-endpoints:write", "team_b"), "another team").toBe(false);
+  });
+});
+
 describe("the console gates only on catalog permissions", () => {
   const SRC = join(import.meta.dirname, "..");
   const files = (dir: string): string[] =>

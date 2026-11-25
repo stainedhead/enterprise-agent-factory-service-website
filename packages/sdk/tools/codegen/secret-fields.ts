@@ -7,6 +7,10 @@ export const SECRET_FIELDS: Record<string, string[]> = {
   UpdateIdentityProvider: ["clientSecret"],
   CreateApiKey: ["secretKey"],
   CreateServiceApiKey: ["secretKey"],
+  // contract v1.5.0: upstream model endpoint credentials (write-only)
+  PutModelEndpointCredential: ["value"],
+  RotateModelEndpointCredential: ["value"],
+  PutTeamModelEndpointCredential: ["value"],
 };
 
 /** Names that look like secrets; a request property matching this must be listed or allowed. */
