@@ -36,3 +36,5 @@ None.
   shared a test with the team-admin sign-in. Split VG1/VG2 into their own test and wait for the heading.
   Four existing baselines now differ by about 1% (10, 20, 23, 27): the new team nav item, the Inference
   tab and Spend by source change those screens. They are left as they are, for J to decide (not regenerated).
+- 2026-11-25: CI run on 972d81f wrote 62-67; all 14 new baselines (56-68a) are now in the branch, pending J.
+  This commit triggers a normal CI run (no regen marker) to check them and the four changed existing screens.
