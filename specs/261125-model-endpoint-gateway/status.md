@@ -38,3 +38,7 @@ None.
   tab and Spend by source change those screens. They are left as they are, for J to decide (not regenerated).
 - 2026-11-25: CI run on 972d81f wrote 62-67; all 14 new baselines (56-68a) are now in the branch, pending J.
   This commit triggers a normal CI run (no regen marker) to check them and the four changed existing screens.
+- 2026-11-25: Normal CI run on 7b1b3d1: 385 passed, 4 failed, all existing baselines (10, 20, 23, 27) that changed
+  only inside the left nav because of the new team *Model endpoints* item (checked locally with and without the
+  item). Listed on PR #14 for J; not regenerated. Docs screenshots for 56-64, 66-68a added to
+  docs/images/screenshots, downscaled from the CI baselines (65 left out: its baseline masks the clock).
