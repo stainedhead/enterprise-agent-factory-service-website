@@ -770,6 +770,54 @@
       "notes": "Create, update, enable, disable, delete templates; cost tag status"
     },
     {
+      "name": "admin:model-endpoints",
+      "grants": [
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "v1.5.0: service model endpoints, credentials, federation; provider switches including Bedrock"
+    },
+    {
+      "name": "admin:inference-providers",
+      "grants": [
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "v1.5.0: service model endpoints, credentials, federation; provider switches including Bedrock"
+    },
+    {
+      "name": "model-endpoints:read",
+      "grants": [
+        {
+          "role": "team_viewer"
+        },
+        {
+          "role": "team_admin"
+        },
+        {
+          "role": "service_admin"
+        },
+        {
+          "role": "team_collaborator"
+        }
+      ],
+      "notes": "v1.5.0: the team's routes; opt in, declare team endpoints (when allowed), team credentials"
+    },
+    {
+      "name": "model-endpoints:write",
+      "grants": [
+        {
+          "role": "team_admin"
+        },
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "v1.5.0: the team's routes; opt in, declare team endpoints (when allowed), team credentials"
+    },
+    {
       "name": "collaboration:read",
       "grants": [
         {

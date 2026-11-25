@@ -1,6 +1,7 @@
 import type { AfsClient } from "../core/client.js";
 import type { CallOptions, ReportCall } from "../core/types.js";
 import { reports as generatedReports } from "../generated/resources/reports.js";
+import type { InferenceReport } from "../generated/schemas.js";
 
 /** The report kinds of the API; `collaboration` is usage only and cannot be scheduled (SDK-13). */
 export type ReportKind = "usage" | "costs" | "activity" | "traffic" | "collaboration";
@@ -70,10 +71,30 @@ export interface ReportResult<Row extends ReportRow = ReportRow> {
   readonly nextToken?: string;
 }
 
+/** What the inference report is grouped by (API contract 4.13). */
+export type InferenceGroup = "route" | "model" | "agent" | "hour" | "day" | "team" | (string & {});
+
+/** The query of an inference report: a range, what to group by and the filters. */
+export interface InferenceQueryInput extends CallOptions {
+  range?: "24h" | "7d" | "30d" | "90d" | "mtd" | (string & {});
+  from?: string;
+  to?: string;
+  /** One or more group-by values; sent comma-separated. */
+  groupBy?: InferenceGroup | readonly InferenceGroup[];
+  /** Service report only: one team. */
+  teamId?: string;
+  route?: string;
+  modelId?: string;
+  agentId?: string;
+  poolId?: string;
+  maxResults?: number;
+  nextToken?: string;
+}
+
 /** A lazy report: await it for JSON, or call `asCsv()` for the CSV body exactly as the API returns it. */
 export type TypedReportCall<Row extends ReportRow = ReportRow> = ReportCall<ReportResult<Row>>;
 
-function toOptions(q: ReportQueryInput = {}): Record<string, unknown> {
+function toOptions(q: ReportQueryInput | InferenceQueryInput = {}): Record<string, unknown> {
   const { groupBy, ...rest } = q;
   return {
     ...rest,
@@ -84,7 +105,8 @@ function toOptions(q: ReportQueryInput = {}): Record<string, unknown> {
 }
 
 /**
- * Typed report calls (`reports.team`, `reports.agent`, `reports.service`) over the generated namespace.
+ * Typed report calls (`reports.team`, `reports.agent`, `reports.service`, `reports.inference`,
+ * `reports.teamInference`) over the generated namespace.
  * Rows and totals carry the API's measure names (`calls`, `estimatedUsd`, `billedUsd`, ...); `asCsv()`
  * returns the CSV the API sends for the same query, following its page tokens.
  */
@@ -114,6 +136,20 @@ export function createReports(core: AfsClient) {
       query?: ReportQueryInput,
     ): TypedReportCall<Row> {
       return g.service(kind, toOptions(query)) as unknown as TypedReportCall<Row>;
+    },
+    /**
+     * The service inference report (requires `admin:reports`): latency, TTFT, errors, throughput and cost per
+     * route, model or team from the usage ledger; never prompt or completion content.
+     */
+    inference(query?: InferenceQueryInput): ReportCall<InferenceReport> {
+      return g.inference(toOptions(query));
+    },
+    /** A team's inference report (requires `reports:read`); a team sees only its own calls. */
+    teamInference(
+      teamId: string,
+      query?: Omit<InferenceQueryInput, "teamId">,
+    ): ReportCall<InferenceReport> {
+      return g.teamInference(teamId, toOptions(query));
     },
   };
 }

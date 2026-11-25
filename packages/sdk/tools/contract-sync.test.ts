@@ -58,9 +58,10 @@ describe("contract:update", () => {
 });
 
 describe("pinned snapshot (SDK-16)", () => {
-  it("pins v1.4.0 with the team_collaborator role and the five collaboration permissions", () => {
+  it("pins v1.5.0 with the team_collaborator role, the collaboration and the model endpoint permissions", () => {
     const lock = JSON.parse(readFileSync(join(CONTRACT_DIR, "contract.lock.json"), "utf8"));
-    expect(lock.contractVersion).toBe("1.4.0");
+    expect(lock.contractVersion).toBe("1.5.0");
+    expect(lock.commit).toBe("7d48ea70d2f9cb77ef4308b0225ca9d4168dea60");
     expect(lock.commit).toMatch(/^[0-9a-f]{40}$/);
     const perms = JSON.parse(readFileSync(join(CONTRACT_DIR, "permissions.json"), "utf8")) as {
       roles: string[];
@@ -77,5 +78,13 @@ describe("pinned snapshot (SDK-16)", () => {
       "collaboration:manage",
       "collaboration:read",
     ]);
+    const all = perms.permissions.map((p) => p.name);
+    for (const p of [
+      "admin:model-endpoints",
+      "admin:inference-providers",
+      "model-endpoints:read",
+      "model-endpoints:write",
+    ])
+      expect(all, p).toContain(p);
   });
 });

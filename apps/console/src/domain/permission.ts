@@ -259,6 +259,21 @@ export const CATALOG = [
   },
   { permission: "admin:swarm-templates", grants: [{ role: "service_admin" }] },
   { permission: "admin:cost-tag-status", grants: [{ role: "service_admin" }] },
+  { permission: "admin:model-endpoints", grants: [{ role: "service_admin" }] },
+  { permission: "admin:inference-providers", grants: [{ role: "service_admin" }] },
+  {
+    permission: "model-endpoints:read",
+    grants: [
+      { role: "team_viewer" },
+      { role: "team_admin" },
+      { role: "service_admin" },
+      { role: "team_collaborator" },
+    ],
+  },
+  {
+    permission: "model-endpoints:write",
+    grants: [{ role: "team_admin" }, { role: "service_admin" }],
+  },
   {
     permission: "collaboration:read",
     grants: [
@@ -291,7 +306,7 @@ export const CATALOG = [
   },
 ] as const satisfies readonly { permission: string; grants: readonly Grant[] }[];
 
-/** Every permission of the contract (63). */
+/** Every permission of the contract (67; v1.5.0 adds the four model endpoint permissions). */
 export type Permission = (typeof CATALOG)[number]["permission"];
 
 /** The catalog with its wide type, for iteration. */
