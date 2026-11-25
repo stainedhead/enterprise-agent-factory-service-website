@@ -48,6 +48,14 @@ function isVersioned(v: unknown): v is Versioned {
   return typeof v === "object" && v !== null && "version" in v;
 }
 
+/** Reads `version` from a resource, or from its `versionIn` member when the response wraps it. */
+function versionOf(res: Record<string, unknown>, versionIn?: string): number | undefined {
+  const holder = versionIn ? res[versionIn] : res;
+  if (typeof holder !== "object" || holder === null) return undefined;
+  const v = (holder as Record<string, unknown>).version;
+  return typeof v === "number" ? v : undefined;
+}
+
 /** Picks the identifier of a {@link Versioned} for path parameter `param`. */
 function idFrom(v: string | Versioned, param: string): string {
   if (typeof v === "string") return v;
@@ -260,12 +268,12 @@ export class AfsClient {
     const callOpts: AnyCallOptions = signal ? { signal } : {};
     if (r.kind === "get") {
       try {
-        const res = await this.call<{ version?: number }>(
+        const res = await this.call<Record<string, unknown>>(
           r.operationId as OperationId,
           { path: ids },
           callOpts,
         );
-        return def.versionless ? 1 : res.version;
+        return def.versionless ? 1 : versionOf(res, r.versionIn);
       } catch (e) {
         if (e instanceof AfsError && e.isNotFound && def.ifMatch === "optional") return undefined;
         throw e;
@@ -290,7 +298,7 @@ export class AfsClient {
         callOpts,
       );
       const item = (res.items ?? []).find(match);
-      return item ? (def.versionless ? 1 : (item.version as number | undefined)) : undefined;
+      return item ? (def.versionless ? 1 : versionOf(item, r.versionIn)) : undefined;
     }
     for await (const item of this.paginate<Record<string, unknown>>(
       r.operationId as OperationId,
@@ -298,7 +306,7 @@ export class AfsClient {
       callOpts,
     )) {
       if (match(item)) {
-        return def.versionless ? 1 : (item.version as number | undefined);
+        return def.versionless ? 1 : versionOf(item, r.versionIn);
       }
     }
     return undefined;

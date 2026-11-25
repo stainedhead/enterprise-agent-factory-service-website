@@ -7,22 +7,25 @@ import { loadContract, SDK_RENAMES, unlistedSecretLooking } from "./loader.js";
 const c = loadContract(CONTRACT_DIR);
 
 describe("loader (M0-G1, G3)", () => {
-  it("loads 221 operations with the documented method counts", () => {
-    expect(c.operations).toHaveLength(221);
+  it("loads the 275 SDK operations (276 less the browser-only OAuth callback) with the method counts", () => {
+    expect(c.operations).toHaveLength(275);
+    expect(c.operations.find((o) => o.operationId === "CompleteMcpOAuthConnect")).toBeUndefined();
     const count = (m: string) => c.operations.filter((o) => o.method === m).length;
     expect([count("GET"), count("POST"), count("DELETE"), count("PATCH"), count("PUT")]).toEqual([
-      92, 55, 28, 20, 26,
+      109, 79, 32, 22, 33,
     ]);
   });
-  it("finds 12 CSV operations, 48 required If-Match, and Idempotency-Key on every POST", () => {
-    expect(c.operations.filter((o) => o.csv)).toHaveLength(12);
-    expect(c.operations.filter((o) => o.ifMatch === "required")).toHaveLength(48);
+  it("finds 16 CSV operations, 54 required If-Match, and Idempotency-Key on every POST", () => {
+    expect(c.operations.filter((o) => o.csv)).toHaveLength(16);
+    expect(c.operations.filter((o) => o.ifMatch === "required")).toHaveLength(54);
     for (const o of c.operations.filter((x) => x.method === "POST"))
       expect(o.idempotencyKey).toBe(true);
   });
-  it("parses x-afs-sdk namespaces and modules (25 top-level + 24 admin)", () => {
+  it("parses x-afs-sdk namespaces and modules (29 top-level + 24 admin)", () => {
     const mods = new Set(c.operations.map((o) => o.module));
-    expect(mods.size).toBe(49);
+    expect(mods.size).toBe(53);
+    for (const m of ["mcpServers", "mcpReviews", "mcpEvents", "mcpSettings"])
+      expect(mods).toContain(m);
     expect(c.operations.find((o) => o.operationId === "ListTeamModels")?.sdk).toEqual({
       namespace: ["teams", "models"],
       method: "list",
@@ -33,7 +36,7 @@ describe("loader (M0-G1, G3)", () => {
     const u = c.operations.find((o) => o.operationId === "GetUsage");
     expect(u?.responses[0]?.contentTypes).toEqual(["application/json", "text/csv"]);
     expect(c.operations.find((o) => o.operationId === "GetTeamKubeconfig")?.yaml).toBe(true);
-    expect(c.operations.filter((o) => o.responses.some((r) => r.status === 204)).length).toBe(24);
+    expect(c.operations.filter((o) => o.responses.some((r) => r.status === 204)).length).toBe(28);
   });
   it("derives a reader for every operation that needs If-Match", () => {
     const missing = c.operations
@@ -46,6 +49,12 @@ describe("loader (M0-G1, G3)", () => {
       c.operations.find((o) => o.operationId === "UpdateInferenceProvider")?.reader,
     ).toMatchObject({ operationId: "ListInferenceProviders", kind: "list" });
     expect(c.operations.find((o) => o.operationId === "PutSetting")?.reader).toBeUndefined();
+    expect(c.operations.find((o) => o.operationId === "UpdateTeamMcpServer")?.reader).toEqual({
+      operationId: "GetTeamMcpServer",
+      kind: "get",
+      match: [],
+      versionIn: "server",
+    });
     expect(c.operations.find((o) => o.operationId === "DeleteTeam")?.reader).toMatchObject({
       operationId: "GetTeam",
       kind: "get",
@@ -76,14 +85,14 @@ describe("loader (M0-G1, G3)", () => {
       operationId: string;
       sdk: string;
     }[];
-    for (const e of j) {
+    for (const e of j.filter((x) => x.sdk !== "none")) {
       const o = c.operations.find((x) => x.operationId === e.operationId);
       expect(`${o?.sdk.namespace.join(".")}.${o?.sdk.method}()`).toBe(
         SDK_RENAMES[e.operationId] ?? e.sdk,
       );
     }
   });
-  it("renames only the duplicated inference report name (contract v1.5.0)", () => {
+  it("renames only duplicated or namespace-less names (contract v1.5.0, v1.6.0)", () => {
     const j = JSON.parse(readFileSync(join(CONTRACT_DIR, "operations.json"), "utf8")) as {
       operationId: string;
       sdk: string;
@@ -91,7 +100,13 @@ describe("loader (M0-G1, G3)", () => {
     const twice = j
       .filter((e) => j.filter((x) => x.sdk === e.sdk).length > 1)
       .map((e) => e.operationId);
-    expect(Object.keys(SDK_RENAMES).every((id) => twice.includes(id))).toBe(true);
+    const bare = j.filter((e) => e.sdk.startsWith(".")).map((e) => e.operationId);
+    expect(bare).toHaveLength(11);
+    expect(Object.keys(SDK_RENAMES).every((id) => twice.includes(id) || bare.includes(id))).toBe(
+      true,
+    );
+    for (const id of bare)
+      expect(SDK_RENAMES[id], id).toMatch(/^[a-z][A-Za-z.]+\.[a-z][A-Za-z]+\(\)$/);
     const names = c.operations.map((o) => `${o.sdk.namespace.join(".")}.${o.sdk.method}`);
     expect(new Set(names).size).toBe(names.length);
   });

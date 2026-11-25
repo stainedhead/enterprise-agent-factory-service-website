@@ -39,6 +39,7 @@ export interface Agent {
   readonly id: string;
   /** Null on the orchestration agent for callers who are not service admins */
   image: ImageRef | null;
+  mcp?: AgentMcp;
   /** Deprecated: models.defaultModelId
    * @deprecated Kept until 2.0.0; see the API contract for the successor. */
   modelId?: string;
@@ -107,6 +108,30 @@ export interface AgentList {
   items: Agent[];
   /** Absent on the last page */
   nextToken?: string;
+}
+
+/** v1.6.0 MCP access of an agent or pool */
+
+export interface AgentMcp {
+  access: "all" | "selected" | (string & {});
+  blocks?: McpBlockRule[];
+  /** Ids of the servers the agent reaches */
+  readonly effectiveServers?: string[];
+  /** The AFS_MCP_* names */
+  readonly env?: string[];
+  mode: "search" | "full" | (string & {});
+  serverIds?: string[];
+}
+
+/** v1.6.0 MCP access of an agent or pool */
+
+export interface AgentMcpInput {
+  access?: "all" | "selected" | (string & {});
+  blocks?: McpBlockRule[];
+  /** Defaults to mcp.default_agent_mode */
+  mode?: "search" | "full" | (string & {});
+  /** With access selected; each must be on for the team (400 mcp_server_not_enabled_for_team) */
+  serverIds?: string[];
 }
 
 /** Which models an agent may call and its default */
@@ -484,6 +509,7 @@ export interface CreateAgentRequest {
   description?: string;
   iamIdentity?: "team_shared" | "dedicated" | (string & {});
   image: ImageRef;
+  mcp?: AgentMcpInput;
   /** Deprecated: models.defaultModelId
    * @deprecated Kept until 2.0.0; see the API contract for the successor. */
   modelId?: string;
@@ -556,6 +582,31 @@ export interface CreateLogDestinationRequest {
   secretId?: string;
 }
 
+/** An enterprise server; created draft */
+
+export interface CreateMcpServerRequest {
+  allowSampling?: boolean;
+  authHeader?: string;
+  authKind: "none" | "static" | "oauth_client" | "workload_federation" | "oauth_user" | "aws_sigv4" | (string & {});
+  /** PEM certificates for a corporate host */
+  caBundle?: string;
+  credentialMode?: "shared" | "per_team" | (string & {});
+  dataClassification: "public" | "internal" | "confidential" | "restricted" | (string & {});
+  displayName: string;
+  docUrl?: string;
+  driftPolicy?: "hold" | "auto_approve_compatible" | (string & {});
+  federation?: McpFederation;
+  hosted?: McpHostedSpec;
+  limits?: McpLimits;
+  location: "external" | "corporate" | "in_namespace" | (string & {});
+  owner?: string;
+  purpose?: string;
+  slug: string;
+  transport: "streamable_http" | "hosted" | (string & {});
+  trustAnnotations?: boolean;
+  url?: string;
+}
+
 /** A service endpoint; created off (enabled false) */
 
 export interface CreateModelEndpointRequest {
@@ -622,6 +673,7 @@ export interface CreateNotificationChannelRequest {
 export interface CreatePoolRequest {
   description?: string;
   image: ImageRef;
+  mcp?: AgentMcpInput;
   /** Deprecated: models.defaultModelId
    * @deprecated Kept until 2.0.0; see the API contract for the successor. */
   modelId?: string;
@@ -716,6 +768,27 @@ export interface CreateSwarmTemplateRequest {
   spec: SwarmTemplateSpec;
   teardownRule: "at_expiry" | "at_cap_or_expiry" | "at_work_complete" | (string & {});
   ttlHours: number;
+}
+
+/** A team server; needs the team's mayAddMcpServers (403 team_servers_not_allowed); created draft */
+
+export interface CreateTeamMcpServerRequest {
+  authHeader?: string;
+  authKind: "none" | "static" | "oauth_client" | "workload_federation" | "oauth_user" | "aws_sigv4" | (string & {});
+  /** PEM certificates for a corporate host */
+  caBundle?: string;
+  dataClassification: "public" | "internal" | "confidential" | "restricted" | (string & {});
+  displayName: string;
+  docUrl?: string;
+  federation?: McpFederation;
+  hosted?: McpHostedSpec;
+  limits?: McpLimits;
+  location: "external" | "corporate" | "in_namespace" | (string & {});
+  owner: string;
+  purpose: string;
+  slug: string;
+  transport: "streamable_http" | "hosted" | (string & {});
+  url?: string;
 }
 
 /** A team-declared endpoint (needs mayAddModelEndpoints). The provider is derived from the host; a host of a disabled provider is refused (provider_disabled). Created off */
@@ -830,7 +903,7 @@ export interface DecidePriceProposalRequest {
 /** DeclareExternalSystemRequest (OpenAPI schema `DeclareExternalSystemRequest`). */
 
 export interface DeclareExternalSystemRequest {
-  category: "dev_tools" | "collaboration" | "email" | "cloud" | "identity" | "llm" | "other" | (string & {});
+  category: "dev_tools" | "collaboration" | "email" | "cloud" | "identity" | "llm" | "other" | "mcp" | (string & {});
   description?: string;
   docsUrl?: string;
   endpoints: string[];
@@ -848,6 +921,41 @@ export interface DeliveryStatus {
   lastError?: string | null;
   lastFailureAt?: Timestamp | null;
   lastTestId?: string | null;
+}
+
+/** From afs.mcp_admission (CD-51) */
+
+export interface EffectiveMcp {
+  access: "all" | "selected" | (string & {});
+  /** The AFS_MCP_* variable names the agent gets */
+  env: string[];
+  mode: "search" | "full" | (string & {});
+  servers: EffectiveMcpServer[];
+  subjectId: string;
+  subjectKind: "agent" | "pool" | (string & {});
+}
+
+/** EffectiveMcpPrimitive (OpenAPI schema `EffectiveMcpPrimitive`). */
+
+export interface EffectiveMcpPrimitive {
+  allowed: boolean;
+  kind: "tool" | "resource" | "resource_template" | "prompt" | (string & {});
+  level: "service" | "team" | "agent" | "pool" | (string & {}) | null;
+  name: string;
+  rateLimitPerMinute?: number | null;
+  reason: string | null;
+}
+
+/** EffectiveMcpServer (OpenAPI schema `EffectiveMcpServer`). */
+
+export interface EffectiveMcpServer {
+  mode: "full" | "read_only" | (string & {});
+  primitives: EffectiveMcpPrimitive[];
+  scope: "enterprise" | "team" | (string & {});
+  serverId: string;
+  slug: string;
+  /** The gateway path agents use, /mcp/<slug> */
+  url: string;
 }
 
 /** What AFS stores and what the cloud admins must trust (§11.1) */
@@ -1035,11 +1143,13 @@ export interface ErrorDetails {
   missingTags?: string[];
   /** v1.5.0, a model named by the reason */
   model?: string;
-  /** idempotency_mismatch, idempotency_in_progress, team_suspended, not_implemented and others. v1.5.0 adds slug_taken, slug_reserved, slug_invalid, base_url_not_https, provider_disabled, no_fallback_model, endpoint_base_url_placeholder, needs_service_admin, team_endpoints_not_allowed, endpoint_enabled, endpoint_credential_path, agent_routes_team and agents_default_route_allowed */
+  /** idempotency_mismatch, idempotency_in_progress, team_suspended, not_implemented and others. v1.5.0 adds slug_taken, slug_reserved, slug_invalid, base_url_not_https, provider_disabled, no_fallback_model, endpoint_base_url_placeholder, needs_service_admin, team_endpoints_not_allowed, endpoint_enabled, endpoint_credential_path, agent_routes_team and agents_default_route_allowed. v1.6.0 adds url_not_https, host_denied, image_not_pinned, image_unsigned, registry_not_allowed, auth_kind_unsupported, service_account_required, audience_not_allowed, audience_reserved, capture_window_too_long, mcp_server_not_enabled_for_team, invalid_policy_rule, team_servers_not_allowed, approval_not_permitted_by_policy, not_team_server, server_in_use, server_not_published, server_not_approved, team_gateway_required, invalid_review_transition, federated_identity_limit, governed_by_mcp_server and capture_active */
   reason?: string;
   requiredPermission?: string;
   /** v1.5.0, a route slug named by the reason */
   route?: string;
+  /** v1.6.0, an MCP server named by the reason (for example governed_by_mcp_server) */
+  serverId?: string;
   unownedRepos?: string[];
 }
 
@@ -1074,7 +1184,7 @@ export interface ExportList {
 
 export interface ExternalSystem {
   readonly builtin: boolean;
-  category: "dev_tools" | "collaboration" | "email" | "cloud" | "identity" | "llm" | "other" | (string & {});
+  category: "dev_tools" | "collaboration" | "email" | "cloud" | "identity" | "llm" | "other" | "mcp" | (string & {});
   readonly createdAt?: Timestamp;
   description?: string;
   /** The level whose switch has the system off; pool applies to the pool views only. */
@@ -1082,6 +1192,8 @@ export interface ExternalSystem {
   docsUrl?: string;
   enabled: boolean;
   endpoints: string[];
+  /** v1.6.0, category mcp only; the MCP server whose host covers this system. It cannot be granted then (409 governed_by_mcp_server) */
+  readonly governedBy?: string | null;
   readonly id: string;
   name: string;
   owner?: string;
@@ -1106,6 +1218,30 @@ export interface ExternalSystemList {
 
 export interface ExternalSystemState {
   enabled: boolean;
+}
+
+/** FederatedIdentity (OpenAPI schema `FederatedIdentity`). */
+
+export interface FederatedIdentity {
+  audience: string;
+  createdAt: Timestamp;
+  createdBy: string;
+  envVar: string;
+  expirationSeconds: number;
+  filePath: string;
+  /** The cluster OIDC issuer, for the target IdP's trust setup */
+  issuer: string;
+  name: string;
+  /** system:serviceaccount:afs-t-<slug>:<service account> */
+  subject: string;
+  version: number;
+}
+
+/** FederatedIdentityList (OpenAPI schema `FederatedIdentityList`). */
+
+export interface FederatedIdentityList {
+  items: FederatedIdentity[];
+  nextToken?: string | null;
 }
 
 /** FieldError (OpenAPI schema `FieldError`). */
@@ -1170,6 +1306,15 @@ export interface IdentityProviderList {
 /** Container image pinned by digest */
 
 export type ImageRef = string;
+
+/** ImportMcpServerManifestRequest (OpenAPI schema `ImportMcpServerManifestRequest`). */
+
+export interface ImportMcpServerManifestRequest {
+  /** An MCP Registry server.json (preview format). Pre-fills a draft; never counts as approval */
+  manifest: Record<string, unknown>;
+  /** Overrides the slug derived from the manifest name */
+  slug?: string;
+}
 
 /** A provider's monthly statement. A text/csv body (columns teamId,model,amountUsd,tokens) takes period and source as query parameters */
 
@@ -1332,6 +1477,373 @@ export interface LogDestinationList {
   items: LogDestination[];
   /** Absent on the last page */
   nextToken?: string;
+}
+
+/** McpAdoption (OpenAPI schema `McpAdoption`). */
+
+export interface McpAdoption {
+  agents: number;
+  teams: number;
+}
+
+/** An agent-level rule: exactly one of name and class */
+
+export interface McpBlockRule {
+  class?: "read_only" | "destructive" | "open_world" | (string & {});
+  effect: "block" | (string & {});
+  name?: string;
+  serverId: string;
+}
+
+/** McpCheck (OpenAPI schema `McpCheck`). */
+
+export interface McpCheck {
+  checkedAt: Timestamp;
+  detail?: string | null;
+  /** reachability, tls, protocol_version, host_policy, inventory, description_injection, image_signature, image_digest, image_scan */
+  name: string;
+  outcome: "pass" | "warn" | "fail" | (string & {});
+}
+
+/** Credential metadata only; never a value */
+
+export interface McpCredential {
+  expiresAt?: Timestamp | null;
+  kind?: "static" | "oauth_client" | "oauth_user" | (string & {});
+  rotatedAt?: Timestamp | null;
+  /** _shared or the team id */
+  scope: string;
+  scopes: string[];
+  state: "set" | "missing" | "expired" | "not_required" | (string & {});
+  /** oauth_user: the service account that connected */
+  subject?: string | null;
+}
+
+/** Either value, or clientId and clientSecret. Written to Secrets Manager; the database keeps the ARN */
+
+export interface McpCredentialRequest {
+  clientId?: string;
+  /** An OAuth client secret; never returned */
+  clientSecret?: string;
+  /** A static credential; never returned */
+  value?: string;
+}
+
+/** McpDecision (OpenAPI schema `McpDecision`). */
+
+export interface McpDecision {
+  allowed: boolean;
+  level: "service" | "team" | "agent" | "pool" | (string & {}) | null;
+  reason: string | null;
+}
+
+/** One MCP request through the gateway (database contract §7.5.5). Never holds arguments or results */
+
+export interface McpEvent {
+  agentId?: string | null;
+  /** Only when the server has argument hashing on */
+  argsSha256?: string | null;
+  at: Timestamp;
+  authKind?: string | null;
+  digest?: string | null;
+  gatewayMs?: number | null;
+  httpStatus?: number | null;
+  id: number;
+  jsonrpcCode?: number | null;
+  /** JSON-RPC method, for example tools/call */
+  method: string;
+  name?: string | null;
+  outcome: "ok" | "tool_error" | "protocol_error" | "refused" | "upstream_unavailable" | "timeout" | "cancelled" | (string & {});
+  poolId?: string | null;
+  primitiveId?: string | null;
+  protocolDownstream?: string | null;
+  protocolUpstream?: string | null;
+  /** Only inside a query capture window (CD-50) */
+  queryText?: string | null;
+  reason?: string | null;
+  requestBytes?: number | null;
+  requestId: string;
+  responseBytes?: number | null;
+  searchHit?: boolean | null;
+  searchResults?: string[] | null;
+  serverId?: string | null;
+  serverKind?: "enterprise" | "team" | "afs" | (string & {}) | null;
+  teamId: string;
+  upstreamMs?: number | null;
+  workerPod?: string | null;
+}
+
+/** McpEventList (OpenAPI schema `McpEventList`). */
+
+export interface McpEventList {
+  items: McpEvent[];
+  nextToken?: string | null;
+}
+
+/** workload_federation only (PRD §9) */
+
+export interface McpFederation {
+  audience: string;
+  /** The issuer the upstream trusts (the cluster OIDC issuer or the IdP) */
+  issuer: string;
+  /** For example system:serviceaccount:afs-t-{teamSlug}:afs-gateway */
+  subjectTemplate?: string;
+  tokenEndpoint: string;
+}
+
+/** McpFieldDiff (OpenAPI schema `McpFieldDiff`). */
+
+export interface McpFieldDiff {
+  after?: unknown;
+  before?: unknown;
+  field: string;
+}
+
+/** A server AFS runs in the team namespace behind afs-mcp-bridge (PRD §10.2) */
+
+export interface McpHostedSpec {
+  args?: string[];
+  egressHosts?: string[];
+  /** Names only; values are secret references delivered to the pod */
+  envNames?: string[];
+  /** Pinned by digest (400 image_not_pinned); the registry must be in mcp.allowed_image_registries */
+  imageDigest: string;
+  instanceMode?: "per_team" | "per_agent" | (string & {});
+  needsAws?: boolean;
+  resources?: {
+    cpu?: string;
+    memory?: string;
+  };
+}
+
+/** Per-server limits; members left out take mcp.limits */
+
+export interface McpLimits {
+  concurrentPerAgent?: number;
+  requestBytes?: number;
+  responseBytes?: number;
+  timeoutSeconds?: number;
+}
+
+/** McpOAuthStart (OpenAPI schema `McpOAuthStart`). */
+
+export interface McpOAuthStart {
+  authorizationUrl: string;
+  expiresAt: Timestamp;
+  /** Opaque, single use */
+  state: string;
+}
+
+/** McpPolicy (OpenAPI schema `McpPolicy`). */
+
+export interface McpPolicy {
+  allowSampling?: boolean;
+  driftPolicy?: "hold" | "auto_approve_compatible" | (string & {});
+  level: "service" | "team" | (string & {});
+  rules: McpPolicyRule[];
+  serverId: string;
+  teamId: string | null;
+  trustAnnotations?: boolean;
+  version: number;
+}
+
+/** Exactly one of name and class (400 invalid_policy_rule) */
+
+export interface McpPolicyRule {
+  class?: "read_only" | "destructive" | "open_world" | (string & {});
+  effect: "allow" | "block" | (string & {});
+  /** An exact primitive name or a glob (* matches any run) */
+  name?: string;
+  rateLimitPerMinute?: number | null;
+}
+
+/** McpPrimitive (OpenAPI schema `McpPrimitive`). */
+
+export interface McpPrimitive {
+  /** As the server declared them (readOnlyHint, destructiveHint, openWorldHint, idempotentHint) */
+  annotations?: Record<string, unknown>;
+  approvedDigest: string | null;
+  change?: "new" | "compatible" | "incompatible" | (string & {}) | null;
+  decision?: McpDecision;
+  /** RFC 8785 canonical JSON, sha256 */
+  digest: string;
+  firstSeen: Timestamp;
+  id: string;
+  kind: "tool" | "resource" | "resource_template" | "prompt" | (string & {});
+  lastSeen: Timestamp;
+  name: string;
+  serverId: string;
+  status: "approved" | "pending_review" | "blocked" | (string & {});
+  title?: string | null;
+}
+
+/** McpPrimitiveChange (OpenAPI schema `McpPrimitiveChange`). */
+
+export interface McpPrimitiveChange {
+  /** null for a new primitive */
+  approvedDefinition: Record<string, unknown> | null;
+  checks: McpCheck[];
+  /** A new destructive tool or a new host: a team server's change then needs security */
+  crossesRiskLine: boolean;
+  diff: McpFieldDiff[];
+  pendingDefinition: Record<string, unknown>;
+  primitive: McpPrimitive;
+}
+
+/** McpPrimitiveDecision (OpenAPI schema `McpPrimitiveDecision`). */
+
+export interface McpPrimitiveDecision {
+  decision: "approve" | "block" | (string & {});
+  primitiveId: string;
+}
+
+/** McpPrimitiveList (OpenAPI schema `McpPrimitiveList`). */
+
+export interface McpPrimitiveList {
+  items: McpPrimitive[];
+  nextToken?: string | null;
+}
+
+/** McpQueryCapture (OpenAPI schema `McpQueryCapture`). */
+
+export interface McpQueryCapture {
+  id: string;
+  reason: string;
+  startedAt: Timestamp;
+  startedBy: string;
+  stoppedAt: Timestamp | null;
+  stoppedBy?: string | null;
+  until: Timestamp;
+}
+
+/** The open window, or null */
+
+export interface McpQueryCaptureState {
+  capture: McpQueryCapture | null;
+}
+
+/** McpReasonRequest (OpenAPI schema `McpReasonRequest`). */
+
+export interface McpReasonRequest {
+  reason: string;
+}
+
+/** McpReviewItem (OpenAPI schema `McpReviewItem`). */
+
+export interface McpReviewItem {
+  approver: "team_admin" | "security" | (string & {});
+  kind: "server" | "primitive" | (string & {});
+  name?: string | null;
+  primitiveId?: string | null;
+  riskReasons?: string[];
+  riskTier?: "low" | "elevated" | "high" | (string & {}) | null;
+  serverId: string;
+  since: Timestamp;
+  slug: string;
+  teamId: string | null;
+}
+
+/** McpReviewList (OpenAPI schema `McpReviewList`). */
+
+export interface McpReviewList {
+  items: McpReviewItem[];
+  nextToken?: string | null;
+}
+
+/** An optional note */
+
+export interface McpReviewNoteRequest {
+  note?: string;
+}
+
+/** An MCP server of the catalog. Never holds a credential value (credentialState only) */
+
+export interface McpServer {
+  adoption?: McpAdoption;
+  allowSampling?: boolean;
+  /** Who decides the pending review, from mcp.team_server_approval */
+  readonly approver?: "team_admin" | "security" | (string & {}) | null;
+  authHeader?: string | null;
+  authKind: "none" | "static" | "oauth_client" | "workload_federation" | "oauth_user" | "aws_sigv4" | (string & {});
+  readonly checks?: McpCheck[];
+  createdAt: Timestamp;
+  readonly createdBy: string;
+  credentialMode?: "shared" | "per_team" | (string & {});
+  credentialState: "set" | "missing" | "expired" | "not_required" | (string & {});
+  dataClassification: "public" | "internal" | "confidential" | "restricted" | (string & {});
+  defaultForNewTeams?: boolean;
+  displayName: string;
+  docUrl?: string | null;
+  driftPolicy: "hold" | "auto_approve_compatible" | (string & {});
+  federation?: McpFederation | null;
+  hosted?: McpHostedSpec | null;
+  readonly id: string;
+  limits?: McpLimits;
+  location: "external" | "corporate" | "in_namespace" | (string & {});
+  owner?: string;
+  readonly protocolVersion?: string | null;
+  published: boolean;
+  purpose?: string;
+  reviewStatus: "draft" | "pending_review" | "approved" | "rejected" | "suspended" | (string & {});
+  readonly riskReasons?: string[];
+  readonly riskTier?: "low" | "elevated" | "high" | (string & {}) | null;
+  scope: "enterprise" | "team" | (string & {});
+  /** The route /mcp/<slug> and the prefix of its tool names; afs is reserved */
+  slug: string;
+  readonly suspendedReason?: string | null;
+  /** null for an enterprise server */
+  teamId: string | null;
+  transport: "streamable_http" | "hosted" | (string & {});
+  trustAnnotations?: boolean;
+  updatedAt: Timestamp;
+  url?: string | null;
+  readonly version: number;
+}
+
+/** McpServerList (OpenAPI schema `McpServerList`). */
+
+export interface McpServerList {
+  items: McpServer[];
+  nextToken?: string | null;
+}
+
+/** McpServerReviewRequest (OpenAPI schema `McpServerReviewRequest`). */
+
+export interface McpServerReviewRequest {
+  note: string;
+  primitives?: McpPrimitiveDecision[];
+}
+
+/** McpUsageReport (OpenAPI schema `McpUsageReport`). */
+
+export interface McpUsageReport {
+  from: Timestamp;
+  groupBy: "server" | "primitive" | "team" | "agent" | "day" | (string & {});
+  rows: McpUsageRow[];
+  to: Timestamp;
+  view: "usage" | "unused" | "refusals" | "discovery" | "adoption" | (string & {});
+  windowDays?: number | null;
+}
+
+/** McpUsageRow (OpenAPI schema `McpUsageRow`). */
+
+export interface McpUsageRow {
+  /** adoption view */
+  agents?: number | null;
+  calls: number;
+  errors: number;
+  key: string;
+  label: string;
+  lastUsedAt?: Timestamp | null;
+  p50Ms?: number | null;
+  p95Ms?: number | null;
+  refusals: number;
+  /** discovery view, 0 to 1 */
+  searchHitRate?: number | null;
+  /** discovery view */
+  searches?: number | null;
+  /** adoption view */
+  teams?: number | null;
 }
 
 /** Me (OpenAPI schema `Me`). */
@@ -1652,6 +2164,7 @@ export interface Pool {
   readonly handoffs?: string[];
   readonly id: string;
   image: ImageRef;
+  mcp?: AgentMcp;
   /** Deprecated: models.defaultModelId
    * @deprecated Kept until 2.0.0; see the API contract for the successor. */
   modelId?: string;
@@ -1832,6 +2345,25 @@ export interface PutEndpointModelsRequest {
   models: EndpointModelInput[];
 }
 
+/** At most 10 per agent or pool (409 federated_identity_limit) */
+
+export interface PutFederatedIdentityRequest {
+  /** Must match federation.allowed_audiences (400 audience_not_allowed); sts.amazonaws.com and afs-gateway are reserved */
+  audience: string;
+  envVar?: string;
+  expirationSeconds?: number;
+  filePath?: string;
+}
+
+/** The service rules replace the stored ones */
+
+export interface PutMcpPolicyRequest {
+  allowSampling?: boolean;
+  driftPolicy?: "hold" | "auto_approve_compatible" | (string & {});
+  rules: McpPolicyRule[];
+  trustAnnotations?: boolean;
+}
+
 /** PutNamespaceConfigValueRequest (OpenAPI schema `PutNamespaceConfigValueRequest`). */
 
 export interface PutNamespaceConfigValueRequest {
@@ -1906,7 +2438,24 @@ export interface PutTeamEndpointModelsRequest {
 
 export interface PutTeamGatewaySettingsRequest {
   deployment?: "shared" | "per_namespace" | (string & {});
+  /** v1.6.0 */
+  mayAddMcpServers?: boolean;
   mayAddModelEndpoints?: boolean;
+  /** v1.6.0 */
+  mcpPlacement?: "combined" | "separate" | (string & {});
+}
+
+/** The team rules replace the stored ones */
+
+export interface PutTeamMcpPolicyRequest {
+  rules: McpPolicyRule[];
+}
+
+/** An enterprise server must be published (409 server_not_published); 409 team_gateway_required while the team gateway is shared */
+
+export interface PutTeamMcpServerRequest {
+  enabled: boolean;
+  mode?: "full" | "read_only" | (string & {});
 }
 
 /** Replaces the team's opt-in list. Selecting an extra-terms endpoint or one of a provider with teamSelection service_admin, or deselecting one a service admin selected, needs a service admin (403 needs_service_admin) */
@@ -2343,6 +2892,14 @@ export interface StageList {
   nextToken?: string;
 }
 
+/** StartMcpQueryCaptureRequest (OpenAPI schema `StartMcpQueryCaptureRequest`). */
+
+export interface StartMcpQueryCaptureRequest {
+  /** At most mcp.query_capture_max_days (400 capture_window_too_long) */
+  days: number;
+  reason: string;
+}
+
 /** Reconcile status of a desired-state resource (contract §1.1) */
 
 export interface Status {
@@ -2555,7 +3112,11 @@ export interface TeamGatewaySettings {
   readonly gatewayState: "shared" | "provisioning" | "ready" | "degraded" | (string & {});
   /** The opaque AFS_GATEWAY_URL agents of the team receive */
   readonly gatewayUrl?: string | null;
+  /** v1.6.0; team-admins may register team MCP servers */
+  mayAddMcpServers?: boolean;
   mayAddModelEndpoints: boolean;
+  /** v1.6.0; MCP with the model routes or in its own gateway Deployment (default gateway.mcp.placement_default) */
+  mcpPlacement?: "combined" | "separate" | (string & {});
   teamId: string;
   /** The team's version */
   readonly version: number;
@@ -2567,6 +3128,26 @@ export interface TeamList {
   items: Team[];
   /** Absent on the last page */
   nextToken?: string;
+}
+
+/** A server as one team sees it: the switch and mode for enterprise servers, or a team server */
+
+export interface TeamMcpServer {
+  credential?: McpCredential | null;
+  enabled: boolean;
+  federationState?: "unknown" | "ok" | "failed" | (string & {}) | null;
+  managed: "enterprise" | "team" | (string & {});
+  mode: "full" | "read_only" | (string & {});
+  server: McpServer;
+  state: "on" | "off" | "pending" | (string & {});
+  updatedAt?: Timestamp | null;
+}
+
+/** TeamMcpServerList (OpenAPI schema `TeamMcpServerList`). */
+
+export interface TeamMcpServerList {
+  items: TeamMcpServer[];
+  nextToken?: string | null;
 }
 
 /** A route as the team sees it (screens 61, 66) */
@@ -2700,6 +3281,7 @@ export interface UpdateAgentRequest {
   description?: string;
   iamIdentity?: "team_shared" | "dedicated" | (string & {});
   image?: ImageRef;
+  mcp?: AgentMcpInput;
   /** Deprecated: models.defaultModelId
    * @deprecated Kept until 2.0.0; see the API contract for the successor. */
   modelId?: string;
@@ -2775,6 +3357,31 @@ export interface UpdateLogDestinationRequest {
   secretId?: string | null;
 }
 
+/** Members sent replace stored ones; a change of url, hosted.imageDigest, location, transport, authKind or federation returns an approved server to pending_review */
+
+export interface UpdateMcpServerRequest {
+  allowSampling?: boolean;
+  authHeader?: string;
+  authKind?: "none" | "static" | "oauth_client" | "workload_federation" | "oauth_user" | "aws_sigv4" | (string & {});
+  /** PEM certificates for a corporate host */
+  caBundle?: string;
+  credentialMode?: "shared" | "per_team" | (string & {});
+  dataClassification?: "public" | "internal" | "confidential" | "restricted" | (string & {});
+  defaultForNewTeams?: boolean;
+  displayName?: string;
+  docUrl?: string;
+  driftPolicy?: "hold" | "auto_approve_compatible" | (string & {});
+  federation?: McpFederation;
+  hosted?: McpHostedSpec;
+  limits?: McpLimits;
+  location?: "external" | "corporate" | "in_namespace" | (string & {});
+  owner?: string;
+  purpose?: string;
+  transport?: "streamable_http" | "hosted" | (string & {});
+  trustAnnotations?: boolean;
+  url?: string;
+}
+
 /** UpdateMemberRequest (OpenAPI schema `UpdateMemberRequest`). */
 
 export interface UpdateMemberRequest {
@@ -2832,6 +3439,7 @@ export interface UpdateNotificationChannelRequest {
 export interface UpdatePoolRequest {
   description?: string;
   image?: ImageRef;
+  mcp?: AgentMcpInput;
   /** Deprecated: models.defaultModelId
    * @deprecated Kept until 2.0.0; see the API contract for the successor. */
   modelId?: string;
@@ -2882,6 +3490,26 @@ export interface UpdateSwarmTemplateRequest {
   spec?: SwarmTemplateSpec;
   teardownRule?: "at_expiry" | "at_cap_or_expiry" | "at_work_complete" | (string & {});
   ttlHours?: number;
+}
+
+/** Team servers only (403 not_team_server); a change of url, image, location or auth returns it to pending_review */
+
+export interface UpdateTeamMcpServerRequest {
+  authHeader?: string;
+  authKind?: "none" | "static" | "oauth_client" | "workload_federation" | "oauth_user" | "aws_sigv4" | (string & {});
+  /** PEM certificates for a corporate host */
+  caBundle?: string;
+  dataClassification?: "public" | "internal" | "confidential" | "restricted" | (string & {});
+  displayName?: string;
+  docUrl?: string;
+  federation?: McpFederation;
+  hosted?: McpHostedSpec;
+  limits?: McpLimits;
+  location?: "external" | "corporate" | "in_namespace" | (string & {});
+  owner?: string;
+  purpose?: string;
+  transport?: "streamable_http" | "hosted" | (string & {});
+  url?: string;
 }
 
 /** Members sent replace stored ones; slug cannot change */

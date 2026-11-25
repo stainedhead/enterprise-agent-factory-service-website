@@ -22,6 +22,8 @@ export interface ExternalSystemRecord {
   readonly teamState?: string | undefined;
   readonly unmetered: boolean;
   readonly version?: number | undefined;
+  /** 1.6.0, category `mcp`: the MCP server whose host covers this system; it cannot be switched on then. */
+  readonly governedBy?: string | null | undefined;
 }
 
 export interface DeclareSystemInput {

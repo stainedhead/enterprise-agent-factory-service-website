@@ -21,6 +21,7 @@ import { gate } from "../../hooks/gate.js";
 import { queryKey } from "../../query/keys.js";
 import { useService } from "../../services.js";
 import { useMe } from "../../shell/ShellContext.js";
+import { SystemSwitch } from "../t9-external-systems/SystemSwitch.js";
 import { CatalogDialog } from "./CatalogDialog.js";
 import { TeamsMayDeclare } from "./TeamsMayDeclare.js";
 
@@ -120,22 +121,32 @@ export function CatalogPage() {
               id: "service",
               header: "Service switch",
               text: (s) => (s.enabled ? "On" : "Off"),
-              cell: (s) => (
-                <span title={reason}>
-                  <input
-                    type="checkbox"
-                    role="switch"
-                    aria-label={s.name}
-                    aria-checked={s.enabled}
-                    checked={s.enabled}
-                    aria-disabled={reason !== undefined || toggle.isPending}
-                    onChange={(e) => {
-                      if (!reason && !toggle.isPending) flip(s, e.target.checked);
-                    }}
-                  />{" "}
-                  {s.enabled ? "On" : "Off for all teams"}
-                </span>
-              ),
+              cell: (s) =>
+                s.governedBy ? (
+                  <SystemSwitch
+                    name={s.name}
+                    state={{ on: false, locked: true, level: "service" }}
+                    reason={reason}
+                    onChange={() => undefined}
+                    governedBy={s.governedBy}
+                    governedHref={`/mcp-servers/${s.governedBy}`}
+                  />
+                ) : (
+                  <span title={reason}>
+                    <input
+                      type="checkbox"
+                      role="switch"
+                      aria-label={s.name}
+                      aria-checked={s.enabled}
+                      checked={s.enabled}
+                      aria-disabled={reason !== undefined || toggle.isPending}
+                      onChange={(e) => {
+                        if (!reason && !toggle.isPending) flip(s, e.target.checked);
+                      }}
+                    />{" "}
+                    {s.enabled ? "On" : "Off for all teams"}
+                  </span>
+                ),
             },
             {
               id: "actions",

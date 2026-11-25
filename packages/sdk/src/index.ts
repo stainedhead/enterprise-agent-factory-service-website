@@ -6,6 +6,8 @@ export { money } from "./core/money.js";
 export {
   CollaborationReason,
   FieldReason,
+  McpReason,
+  type McpReasonValue,
   ModelEndpointReason,
   ModelReason,
   OrchestrationReason,
@@ -29,6 +31,14 @@ export {
   createCollaboration,
 } from "./resources/collaboration.js";
 export {
+  type EffectiveToolGroup,
+  effectiveTools,
+  isMcpSlug,
+  MCP_ENV,
+  mcpServerUrlEnv,
+  qualifiedMcpName,
+} from "./resources/mcp.js";
+export {
   createInferenceProviders,
   formatRouteModel,
   isRouteName,
@@ -48,6 +58,9 @@ export {
   createReports,
   type InferenceGroup,
   type InferenceQueryInput,
+  type McpUsageGroup,
+  type McpUsageQueryInput,
+  type McpUsageView,
   type ReportGroup,
   type ReportKind,
   type ReportQueryInput,

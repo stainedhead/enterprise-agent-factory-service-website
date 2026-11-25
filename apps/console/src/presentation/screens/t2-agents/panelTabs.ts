@@ -7,6 +7,7 @@ import { DetailsTab } from "./tabs/details/DetailsTab.js";
 import { ExternalSystemsTab } from "./tabs/external-systems/ExternalSystemsTab.js";
 import { IdentitiesTab } from "./tabs/identities/IdentitiesTab.js";
 import { LogsTab } from "./tabs/logs/LogsTab.js";
+import { McpTab } from "./tabs/mcp/McpTab.js";
 import { ModelsRoutesTab } from "./tabs/models-routes/ModelsRoutesTab.js";
 import { RevisionsTab } from "./tabs/revisions/RevisionsTab.js";
 import { SecretsIdentityTab } from "./tabs/secrets-identity/SecretsIdentityTab.js";
@@ -34,6 +35,8 @@ export const panelTabs: readonly PanelTab[] = [
     permission: "model-endpoints:read",
     Component: ModelsRoutesTab,
   },
+  // TM4 (1.3.0): the agent's MCP servers, blocks and discovery mode
+  { id: "mcp", label: "MCP", permission: "team-mcp-servers:read", Component: McpTab },
   { id: "logs", label: "Logs", permission: "logs:read", Component: LogsTab },
   { id: "revisions", label: "Revisions", permission: "revisions:read", Component: RevisionsTab },
   { id: "usage", label: "Usage", permission: "reports:read", Component: UsageTab },

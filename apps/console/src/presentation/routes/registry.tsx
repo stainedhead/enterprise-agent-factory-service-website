@@ -61,4 +61,17 @@ export const registry: Record<Exclude<ScreenId, "AUTH" | "NOT_FOUND">, ScreenCom
   TG5: lazy(() => import("../screens/t5-budget/index.js")),
   VG1: lazy(() => import("../screens/tg-model-endpoints/viewer.js")),
   VG2: lazy(() => import("../screens/t2-agents/index.js")),
+  // 1.3.0 governed MCP servers. SM5 (MCP report) is a tab of the service reports page and TM4 a tab of the agent
+  // panel; SM4 is the review queue and one server's review
+  SM1: lazy(() => import("../screens/sm-mcp/index.js")),
+  SM2: lazy(() => import("../screens/sm-mcp/create.js")),
+  SM3: lazy(() => import("../screens/sm-mcp/detail.js")),
+  SM4: lazy(() => import("../screens/sm-mcp/reviews.js")),
+  SM5: lazy(() => import("../screens/s8-reports/index.js")),
+  TM1: lazy(() => import("../screens/tm-mcp/index.js")),
+  TM2: lazy(() => import("../screens/tm-mcp/register.js")),
+  TM3: lazy(() => import("../screens/tm-mcp/detail.js")),
+  TM4: lazy(() => import("../screens/t2-agents/index.js")),
+  TM5: lazy(() => import("../screens/tm-mcp/usage.js")),
+  VM1: lazy(() => import("../screens/tm-mcp/viewer.js")),
 };

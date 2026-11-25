@@ -378,6 +378,19 @@ describe("CLI previews (WEB-6)", () => {
     ).toBe(
       "afs teams put-team-gateway-settings --team-id team_1 --deployment per_namespace --may-add-model-endpoints",
     );
+    // 1.3.0: the MCP members appear only when they are sent
+    expect(
+      renderCli(
+        putTeamGatewaySettingsCli("team_1", {
+          deployment: "per_namespace",
+          mayAddModelEndpoints: false,
+          mayAddMcpServers: true,
+          mcpPlacement: "separate",
+        }),
+      ),
+    ).toBe(
+      "afs teams put-team-gateway-settings --team-id team_1 --deployment per_namespace --may-add-mcp-servers --no-may-add-model-endpoints --mcp-placement separate",
+    );
     expect(renderCli(updateModelEndpointEnabledCli("mep_1", false))).toBe(
       "afs model-endpoints update-model-endpoint --endpoint-id mep_1 --no-enabled",
     );

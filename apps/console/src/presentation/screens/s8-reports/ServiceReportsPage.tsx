@@ -2,6 +2,7 @@ import { Link, useLocation, useSearchParams } from "react-router";
 import type { ReportKind } from "../../../application/ports/reports.js";
 import { Breadcrumbs, PageHeader, Tabs } from "../../components/index.js";
 import type { FilterKey } from "../../components/report-controls/index.js";
+import { McpUsagePanel } from "../sm-mcp/McpUsagePanel.js";
 import { InferencePanel } from "../t11-reports/InferencePanel.js";
 import { ReportPanel } from "../t11-reports/ReportPanel.js";
 import { Reconciliation } from "./Reconciliation.js";
@@ -64,14 +65,21 @@ const TABS: Tab[] = [
   },
 ];
 
-/** S8 (WEB-US-38): service-wide cost, usage, activity and traffic reports, inference (SG4) and the cost reconciliation. */
+/** S8 (WEB-US-38): service-wide cost, usage, activity and traffic reports, inference (SG4), MCP (SM5) and the cost reconciliation. */
 export function ServiceReportsPage() {
   const [params, setParams] = useSearchParams();
   const { pathname } = useLocation();
   const wanted = pathname.endsWith("/reconciliation")
     ? "reconciliation"
-    : (params.get("tab") ?? (pathname.endsWith("/inference") ? "inference" : null));
-  const active = [...TABS.map((t) => t.id), "inference", "reconciliation"].includes(wanted ?? "")
+    : (params.get("tab") ??
+      (pathname.endsWith("/inference")
+        ? "inference"
+        : pathname.endsWith("/reports/mcp")
+          ? "mcp"
+          : null));
+  const active = [...TABS.map((t) => t.id), "inference", "mcp", "reconciliation"].includes(
+    wanted ?? "",
+  )
     ? (wanted as string)
     : "costs";
   return (
@@ -105,6 +113,11 @@ export function ServiceReportsPage() {
             id: "inference",
             label: "Inference",
             content: <InferencePanel scope={{ level: "service" }} />,
+          },
+          {
+            id: "mcp",
+            label: "MCP",
+            content: <McpUsagePanel scope={{ level: "service" }} />,
           },
           { id: "reconciliation", label: "Reconciliation", content: <Reconciliation /> },
         ]}

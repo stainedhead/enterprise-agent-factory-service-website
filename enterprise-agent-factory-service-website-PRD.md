@@ -17,3 +17,8 @@ stub will then point there.
 [model endpoint gateway PRD](https://github.com/stainedhead/enterprise-agent-factory-service/blob/main/model-endpoint-gateway-PRD.md)
 (Appendix D.5, MEG-WEB-1 to MEG-WEB-6; screens 56 to 68a; stories WEB-US-62 to WEB-US-73) is in the active spec:
 **[specs/261125-model-endpoint-gateway/model-endpoint-gateway-PRD.md](specs/261125-model-endpoint-gateway/model-endpoint-gateway-PRD.md)**.
+
+**Governed MCP servers (1.3.0, 2026-11-25).** The website share of the root
+[MCP gateway PRD](https://github.com/stainedhead/enterprise-agent-factory-service/blob/main/mcp-gateway-PRD.md)
+(Appendix E.4 MCP-SDK-1 and E.5 MCP-WEB-1 to MCP-WEB-5; screens 46 to 55) is in the active spec:
+**[specs/261125-mcp-gateway/mcp-gateway-PRD.md](specs/261125-mcp-gateway/mcp-gateway-PRD.md)**.

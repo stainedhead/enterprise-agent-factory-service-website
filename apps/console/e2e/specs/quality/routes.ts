@@ -1,5 +1,6 @@
 import { AGENT_IDS } from "../../fake-afs/fixtures/agents.js";
 import { TEAMS } from "../../fake-afs/fixtures/core.js";
+import { MCP_IDS } from "../../fake-afs/fixtures/mcp.js";
 import { ENDPOINT_IDS } from "../../fake-afs/fixtures/modelEndpoints.js";
 import { WORK_ORDER_IDS } from "../../fake-afs/fixtures/workOrders.js";
 
@@ -28,6 +29,14 @@ export const SERVICE_ROUTES: readonly string[] = [
   `/model-endpoints/${ENDPOINT_IDS.openai}`,
   "/reports/inference",
   `/teams/${T}/admin?tab=model-endpoints`,
+  "/mcp-servers",
+  "/mcp-servers/new",
+  `/mcp-servers/${MCP_IDS.github}`,
+  `/mcp-servers/${MCP_IDS.github}?tab=primitives`,
+  "/mcp-reviews",
+  `/mcp-reviews/${MCP_IDS.vendorRisk}`,
+  "/reports/mcp",
+  "/settings/mcp",
   "/external-systems",
   "/export-import",
   "/settings/general",
@@ -59,6 +68,12 @@ export const TEAM_ROUTES: readonly string[] = [
   `/t/${T}/model-endpoints`,
   `/t/${T}/agents/${AGENT_IDS[0]}?tab=models`,
   `/t/${T}/reports/inference`,
+  `/t/${T}/mcp-servers`,
+  `/t/${T}/mcp-servers/new`,
+  `/t/${T}/mcp-servers/${MCP_IDS.ledger}`,
+  `/t/${T}/mcp-servers/${MCP_IDS.github}`,
+  `/t/${T}/agents/${AGENT_IDS[0]}?tab=mcp`,
+  `/t/${T}/mcp-usage`,
   `/t/${T}/reports`,
   `/t/${T}/reports?tab=collaboration`,
   `/t/${T}/orchestration`,

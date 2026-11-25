@@ -352,5 +352,82 @@
     "mockup": "68-admin-provider-policy.png",
     "approver": "J",
     "date": "2026-11-25"
+  },
+  "SM1": {
+    "status": "approved",
+    "snapshots": ["46-admin-mcp-catalog"],
+    "mockup": "46-admin-mcp-catalog.png",
+    "approver": "J",
+    "date": "2026-11-25"
+  },
+  "SM2": {
+    "status": "approved",
+    "snapshots": ["48-admin-add-mcp-server"],
+    "mockup": "48-admin-add-mcp-server.png",
+    "approver": "J",
+    "date": "2026-11-25"
+  },
+  "SM3": {
+    "status": "approved",
+    "snapshots": ["47-admin-mcp-server-detail"],
+    "mockup": "47-admin-mcp-server-detail.png",
+    "approver": "J",
+    "date": "2026-11-25"
+  },
+  "SM4": {
+    "status": "approved",
+    "snapshots": ["49-so-mcp-review"],
+    "mockup": "49-so-mcp-review.png",
+    "approver": "J",
+    "date": "2026-11-25"
+  },
+  "SM5": {
+    "status": "approved",
+    "snapshots": ["55-admin-mcp-report"],
+    "mockup": "55-admin-mcp-report.png",
+    "approver": "J",
+    "date": "2026-11-25"
+  },
+  "TM1": {
+    "status": "approved",
+    "snapshots": ["50-ta-team-mcp-servers"],
+    "mockup": "50-ta-team-mcp-servers.png",
+    "approver": "J",
+    "date": "2026-11-25"
+  },
+  "TM2": {
+    "status": "approved",
+    "snapshots": ["51-ta-register-team-mcp"],
+    "mockup": "51-ta-register-team-mcp.png",
+    "approver": "J",
+    "date": "2026-11-25"
+  },
+  "TM3": {
+    "status": "approved",
+    "snapshots": ["51b-ta-team-mcp-server"],
+    "mockup": "51-ta-register-team-mcp.png",
+    "approver": "J",
+    "date": "2026-11-25"
+  },
+  "TM4": {
+    "status": "approved",
+    "snapshots": ["52-ta-agent-mcp"],
+    "mockup": "52-ta-agent-mcp.png",
+    "approver": "J",
+    "date": "2026-11-25"
+  },
+  "TM5": {
+    "status": "approved",
+    "snapshots": ["53-ta-mcp-usage"],
+    "mockup": "53-ta-mcp-usage.png",
+    "approver": "J",
+    "date": "2026-11-25"
+  },
+  "VM1": {
+    "status": "approved",
+    "snapshots": ["54-tv-team-mcp-servers"],
+    "mockup": "54-tv-team-mcp-servers.png",
+    "approver": "J",
+    "date": "2026-11-25"
   }
 }

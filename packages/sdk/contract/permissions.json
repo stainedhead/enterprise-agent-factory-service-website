@@ -818,6 +818,136 @@
       "notes": "v1.5.0: the team's routes; opt in, declare team endpoints (when allowed), team credentials"
     },
     {
+      "name": "mcp-servers:read",
+      "grants": [
+        {
+          "role": "service_admin"
+        },
+        {
+          "role": "security_operator"
+        }
+      ],
+      "notes": "v1.6.0: service MCP paths, review queue, suspend any server"
+    },
+    {
+      "name": "mcp-servers:review",
+      "grants": [
+        {
+          "role": "service_admin"
+        },
+        {
+          "role": "security_operator"
+        }
+      ],
+      "notes": "v1.6.0: service MCP paths, review queue, suspend any server"
+    },
+    {
+      "name": "mcp-servers:suspend",
+      "grants": [
+        {
+          "role": "service_admin"
+        },
+        {
+          "role": "security_operator"
+        }
+      ],
+      "notes": "v1.6.0: service MCP paths, review queue, suspend any server"
+    },
+    {
+      "name": "mcp-servers:write",
+      "grants": [
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "v1.6.0: enterprise servers, service policy, shared credentials, `mcp.*` settings, query capture"
+    },
+    {
+      "name": "mcp-settings:write",
+      "grants": [
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "v1.6.0: enterprise servers, service policy, shared credentials, `mcp.*` settings, query capture"
+    },
+    {
+      "name": "team-mcp-servers:read",
+      "grants": [
+        {
+          "role": "team_viewer"
+        },
+        {
+          "role": "team_admin"
+        },
+        {
+          "role": "service_admin"
+        },
+        {
+          "role": "team_collaborator"
+        }
+      ],
+      "notes": "v1.6.0: the team's switches, team servers, team policy and credentials"
+    },
+    {
+      "name": "team-mcp-servers:write",
+      "grants": [
+        {
+          "role": "team_admin"
+        },
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "v1.6.0: the team's switches, team servers, team policy and credentials"
+    },
+    {
+      "name": "team-mcp-servers:approve",
+      "grants": [
+        {
+          "role": "team_admin",
+          "condition": "mcpApprovalPolicy"
+        },
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "v1.6.0: condition `mcpApprovalPolicy`, decided in the use case"
+    },
+    {
+      "name": "mcp-events:read",
+      "grants": [
+        {
+          "role": "team_viewer"
+        },
+        {
+          "role": "team_admin"
+        },
+        {
+          "role": "service_admin"
+        },
+        {
+          "role": "security_operator"
+        },
+        {
+          "role": "team_collaborator"
+        }
+      ],
+      "notes": "v1.6.0: the MCP ledger and reports; team paths for team roles"
+    },
+    {
+      "name": "agent-federated-identities:write",
+      "grants": [
+        {
+          "role": "team_admin"
+        },
+        {
+          "role": "service_admin"
+        }
+      ],
+      "notes": "v1.6.0: agent and pool federated identities"
+    },
+    {
       "name": "collaboration:read",
       "grants": [
         {

@@ -58,10 +58,10 @@ describe("contract:update", () => {
 });
 
 describe("pinned snapshot (SDK-16)", () => {
-  it("pins v1.5.0 with the team_collaborator role, the collaboration and the model endpoint permissions", () => {
+  it("pins v1.6.0 with the team_collaborator role, the collaboration, model endpoint and MCP permissions", () => {
     const lock = JSON.parse(readFileSync(join(CONTRACT_DIR, "contract.lock.json"), "utf8"));
-    expect(lock.contractVersion).toBe("1.5.0");
-    expect(lock.commit).toBe("7d48ea70d2f9cb77ef4308b0225ca9d4168dea60");
+    expect(lock.contractVersion).toBe("1.6.0");
+    expect(lock.commit).toBe("ef92a4c82e028e812d9f485287ebe26d5605375a");
     expect(lock.commit).toMatch(/^[0-9a-f]{40}$/);
     const perms = JSON.parse(readFileSync(join(CONTRACT_DIR, "permissions.json"), "utf8")) as {
       roles: string[];
@@ -84,6 +84,16 @@ describe("pinned snapshot (SDK-16)", () => {
       "admin:inference-providers",
       "model-endpoints:read",
       "model-endpoints:write",
+      "mcp-servers:read",
+      "mcp-servers:review",
+      "mcp-servers:suspend",
+      "mcp-servers:write",
+      "mcp-settings:write",
+      "team-mcp-servers:read",
+      "team-mcp-servers:write",
+      "team-mcp-servers:approve",
+      "mcp-events:read",
+      "agent-federated-identities:write",
     ])
       expect(all, p).toContain(p);
   });

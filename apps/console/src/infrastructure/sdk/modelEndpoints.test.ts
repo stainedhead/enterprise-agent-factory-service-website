@@ -106,6 +106,16 @@ describe("SdkAdminModelEndpoints (MEG-WEB-2)", () => {
     expect(puts[0]?.headers.get("if-match")).toContain("7");
     expect(puts[1]?.headers.get("if-match")).toBeNull();
     expect(puts[0]?.body).toEqual(v);
+    // 1.3.0: undefined MCP members are not sent; set ones are
+    await a.putGatewaySettings("team_1", undefined, { ...v, mayAddMcpServers: undefined });
+    await a.putGatewaySettings("team_1", undefined, {
+      ...v,
+      mayAddMcpServers: true,
+      mcpPlacement: "combined",
+    });
+    const more = calls.filter((c) => c.method === "PUT");
+    expect(more[2]?.body).toEqual(v);
+    expect(more[3]?.body).toEqual({ ...v, mayAddMcpServers: true, mcpPlacement: "combined" });
   });
 });
 

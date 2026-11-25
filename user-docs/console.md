@@ -220,6 +220,43 @@ The *Inference* tab of the reports (`/reports/inference`, `/t/<team>/reports/inf
 tokens, cost and latency by route, model, agent or time, with a CSV download. *Budget & usage* adds spend by route,
 marking which routes count against the hard cap.
 
+## MCP servers (`/mcp-servers`, service admins and security operators)
+
+MCP servers agents reach through their team gateway. Agents hold no MCP credential: the gateway injects or mints it
+per call. Access only narrows: service, then team, then agent.
+
+- **Catalog**: enterprise and team-managed servers with kind, transport, authentication, status, risk and adoption,
+  the MCP calls and discovery hit rate, and an alert while items wait for review. *Import server.json* pre-fills a
+  draft from an MCP Registry manifest; importing never counts as approval.
+- **Add enterprise server** (`/mcp-servers/new`): purpose, connection and authentication, policy and availability,
+  then review with the equivalent `afs mcp-servers create-mcp-server` command. The server is created as a draft.
+- **Server detail** (`/mcp-servers/<id>`): overview and automatic checks; *Tools, resources & prompts* with held
+  changes and their diff; policy rules (block or allow by name or class, rate limits); shared or per-team
+  credentials (write-only); the teams that use it; usage. *Actions* publishes, retires, suspends (with a reason),
+  resumes or deletes it.
+- **MCP reviews** (`/mcp-reviews`, security operators and service admins): team servers waiting for a decision and
+  held definitions, oldest first. A review shows the checks, why the risk tier, the inventory with *Allow* or
+  *Block* per definition, and a required note; *Approve*, *Reject* or *Ask team for changes*.
+- **Report** (`/reports/mcp`): usage, unused, refusals, discovery and adoption, with CSV, and a time-boxed query
+  capture for tuning search.
+- **Settings** (`/settings/mcp`): who approves team-registered servers.
+- A team's gateway settings (`/teams/<team>/admin`, *Model endpoints* tab) say whether the team may register its own
+  servers and where they run.
+
+## Team MCP servers (`/t/<team>/mcp-servers`)
+
+The enterprise servers with a switch and a mode (Full or Read-only) each, the credential state with *Connect*,
+*Reconnect* or *Set credential*, and the team's own servers with their review state. *Register team server* is a
+wizard that registers the server and submits it for review; the automatic checks set the risk tier, which decides
+whether a team-admin or a security operator approves it. Team viewers see the page read-only.
+
+On an agent, the *MCP* tab chooses all team servers or a selection, blocks single tools, sets the discovery mode
+(*Search*: three `afs_*` tools; *Full*: every allowed tool), shows *What the agent receives* and the effective tools
+with the level that decided each. Saving rolls the pod; the gateway enforces changes at once. The *Secrets &
+identity* tab adds federated identities: a short-lived token for an audience outside AWS, mounted as a file whose
+path is in `AFS_FEDERATED_TOKEN_FILE_<NAME>`. *MCP usage* (`/t/<team>/mcp-usage`) is the team's own report. An
+external system governed by an MCP server shows its switch locked with a link to the server.
+
 ## Model catalog and pricing (`/models`, service admins)
 
 ![Model catalog and pricing](../docs/images/screenshots/04-admin-models.png)

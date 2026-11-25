@@ -14,7 +14,8 @@ export type Condition =
   | "assignedOrOwnRepos"
   | "mayManageAwsAccounts"
   | "assignedTeam"
-  | "viewerKubectl";
+  | "viewerKubectl"
+  | "mcpApprovalPolicy";
 
 export interface Grant {
   readonly role: Role | "workload";
@@ -275,6 +276,51 @@ export const CATALOG = [
     grants: [{ role: "team_admin" }, { role: "service_admin" }],
   },
   {
+    permission: "mcp-servers:read",
+    grants: [{ role: "service_admin" }, { role: "security_operator" }],
+  },
+  {
+    permission: "mcp-servers:review",
+    grants: [{ role: "service_admin" }, { role: "security_operator" }],
+  },
+  {
+    permission: "mcp-servers:suspend",
+    grants: [{ role: "service_admin" }, { role: "security_operator" }],
+  },
+  { permission: "mcp-servers:write", grants: [{ role: "service_admin" }] },
+  { permission: "mcp-settings:write", grants: [{ role: "service_admin" }] },
+  {
+    permission: "team-mcp-servers:read",
+    grants: [
+      { role: "team_viewer" },
+      { role: "team_admin" },
+      { role: "service_admin" },
+      { role: "team_collaborator" },
+    ],
+  },
+  {
+    permission: "team-mcp-servers:write",
+    grants: [{ role: "team_admin" }, { role: "service_admin" }],
+  },
+  {
+    permission: "team-mcp-servers:approve",
+    grants: [{ role: "team_admin", condition: "mcpApprovalPolicy" }, { role: "service_admin" }],
+  },
+  {
+    permission: "mcp-events:read",
+    grants: [
+      { role: "team_viewer" },
+      { role: "team_admin" },
+      { role: "service_admin" },
+      { role: "security_operator" },
+      { role: "team_collaborator" },
+    ],
+  },
+  {
+    permission: "agent-federated-identities:write",
+    grants: [{ role: "team_admin" }, { role: "service_admin" }],
+  },
+  {
     permission: "collaboration:read",
     grants: [
       { role: "team_viewer" },
@@ -306,7 +352,10 @@ export const CATALOG = [
   },
 ] as const satisfies readonly { permission: string; grants: readonly Grant[] }[];
 
-/** Every permission of the contract (67; v1.5.0 adds the four model endpoint permissions). */
+/**
+ * Every permission of the contract (77; v1.5.0 adds the four model endpoint permissions, v1.6.0 the ten MCP and
+ * federated identity permissions).
+ */
 export type Permission = (typeof CATALOG)[number]["permission"];
 
 /** The catalog with its wide type, for iteration. */

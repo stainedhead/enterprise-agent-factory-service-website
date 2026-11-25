@@ -46,6 +46,7 @@ export const toSystem = (s: Wire): ExternalSystemRecord => ({
   teamState: s.teamState,
   unmetered: s.unmetered === true,
   version: s.version,
+  ...(s.governedBy ? { governedBy: s.governedBy } : {}),
 });
 
 const target = (r: SystemRef) =>

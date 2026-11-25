@@ -1,5 +1,6 @@
 import type { Page } from "@playwright/test";
 import { TEAMS } from "../../fake-afs/fixtures/core.js";
+import { MCP_IDS } from "../../fake-afs/fixtures/mcp.js";
 import { expectAxeClean } from "../../helpers/axe.js";
 import { openFrozen, spaGo } from "../../helpers/clock.js";
 import { asEphemeral } from "../../helpers/ephemeralTeam.js";
@@ -56,12 +57,19 @@ test.describe("M6-Q1 axe over every screen", () => {
     }
   });
 
-  test("a security operator: work orders, a work order and swarm templates are clean", async ({
+  test("a security operator: work orders, swarm templates and the MCP review screens are clean", async ({
     page,
     signInAs,
   }) => {
     await openFrozen(page, signInAs, "sec-op", "/");
-    for (const path of ["/work-orders", "/work-orders/new", "/swarm-templates"]) {
+    for (const path of [
+      "/work-orders",
+      "/work-orders/new",
+      "/swarm-templates",
+      "/mcp-servers",
+      "/mcp-reviews",
+      `/mcp-reviews/${MCP_IDS.vendorRisk}`,
+    ]) {
       await spaGo(page, path);
       await settled(page, true, path);
       await expectAxeClean(page);
@@ -86,6 +94,7 @@ test.describe("M6-Q1 axe over every screen", () => {
       [`/t/${TEAMS[0].id}/members/api-keys`, "Create API key"],
       [`/t/${TEAMS[0].id}/secrets`, "Create secret"],
       [`/t/${TEAMS[0].id}/config`, "Add value"],
+      ["/mcp-servers", "Import server.json"],
     ];
     for (const [path, name] of dialogs) {
       await spaGo(page, path);

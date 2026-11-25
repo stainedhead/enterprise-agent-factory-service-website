@@ -26,8 +26,8 @@ const baselines = (dir: string): string[] =>
 const onDisk = new Set(baselines(join(import.meta.dirname, "..", "specs")));
 
 describe("visual approvals (M6-Q2)", () => {
-  it("has an entry for each of the 50 screens and nothing else", () => {
-    expect(SCREEN_IDS).toHaveLength(50);
+  it("has an entry for each of the 61 screens and nothing else", () => {
+    expect(SCREEN_IDS).toHaveLength(61);
     expect(Object.keys(approvals).sort()).toEqual([...SCREEN_IDS].sort());
   });
   it.each(SCREEN_IDS)("%s has a baseline on disk and a recorded status", (id) => {
@@ -65,9 +65,31 @@ describe("visual approvals (M6-Q2)", () => {
       if (a?.status === "approved") expect(a.approver, id).toBe("J");
     }
   });
-  it("records every screen but the Paperclip and gateway ones as approved by J on 2026-11-22", () => {
+  // 1.3.0 governed MCP server screens (46 to 55): pending until J approves the CI-generated baselines
+  const MCP = new Set([
+    "SM1",
+    "SM2",
+    "SM3",
+    "SM4",
+    "SM5",
+    "TM1",
+    "TM2",
+    "TM3",
+    "TM4",
+    "TM5",
+    "VM1",
+  ]);
+  it("records the MCP screens as pending or approved by J", () => {
+    for (const id of MCP) {
+      const a = approvals[id];
+      expect(["pending", "approved"], id).toContain(a?.status);
+      if (a?.status === "approved") expect(a.approver, id).toBe("J");
+    }
+  });
+  it("records every screen but the Paperclip, gateway and MCP ones as approved by J on 2026-11-22", () => {
     for (const id of SCREEN_IDS.filter(
-      (i) => i !== "T17" && i !== "T18" && i !== "V4" && i !== "S12" && !GATEWAY.has(i),
+      (i) =>
+        i !== "T17" && i !== "T18" && i !== "V4" && i !== "S12" && !GATEWAY.has(i) && !MCP.has(i),
     )) {
       expect(approvals[id]).toMatchObject({
         status: "approved",

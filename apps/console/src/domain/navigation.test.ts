@@ -46,7 +46,7 @@ const ids = (items: readonly { id: string }[]) => items.map((i) => i.id);
 
 describe("navigation (M0-D4)", () => {
   it("has every IA item of PRD §4.1", () => {
-    expect(NAV_ITEMS).toHaveLength(34);
+    expect(NAV_ITEMS).toHaveLength(38);
     const groups = new Set(NAV_ITEMS.map((i) => i.group));
     expect([...groups]).toEqual([
       "Service",
@@ -67,6 +67,22 @@ describe("navigation (M0-D4)", () => {
     for (const me of [admin, viewer, collaborator])
       expect(ids(visibleItems(me, team))).toContain("team-model-endpoints");
     expect(ids(visibleItems(admin, team))).not.toContain("model-endpoints-service");
+  });
+  it("MCP: service roles see the catalog and reviews, every team role its servers and usage (MCP-WEB-1..3)", () => {
+    for (const me of [svc, sec]) {
+      expect(ids(visibleItems(me, undefined))).toContain("mcp-servers-service");
+      expect(ids(visibleItems(me, undefined))).toContain("mcp-reviews");
+    }
+    for (const me of [admin, viewer, collaborator]) {
+      expect(ids(visibleItems(me, team))).toContain("team-mcp-servers");
+      expect(ids(visibleItems(me, team))).toContain("mcp-usage");
+      expect(ids(visibleItems(me, undefined))).not.toContain("mcp-reviews");
+      expect(ids(visibleItems(me, team))).not.toContain("mcp-servers-service");
+    }
+    const item = NAV_ITEMS.find((i) => i.id === "team-mcp-servers") as NavItem;
+    expect(screenFor(item, admin, "team_a")).toBe("TM1");
+    expect(screenFor(item, viewer, "team_a")).toBe("VM1");
+    expect(screenFor(item, collaborator, "team_a")).toBe("VM1");
   });
   it("every item and extra route names a known screen", () => {
     const known = new Set<string>(SCREEN_IDS);
@@ -97,9 +113,14 @@ describe("navigation (M0-D4)", () => {
     expect(ids(visibleItems(admin, team))).not.toContain("agent-templates");
     expect(ids(visibleItems(svc))).toContain("service-settings");
   });
-  it("security operators see only Work orders and Swarm templates (WD-26)", () => {
-    expect(ids(visibleItems(sec))).toEqual(["work-orders", "swarm-templates"]);
-    expect(visibleItems(sec, team)).toHaveLength(2);
+  it("security operators see Work orders, Swarm templates and the MCP catalog and reviews (WD-26, 1.3.0)", () => {
+    expect(ids(visibleItems(sec))).toEqual([
+      "work-orders",
+      "mcp-reviews",
+      "mcp-servers-service",
+      "swarm-templates",
+    ]);
+    expect(visibleItems(sec, team)).toHaveLength(4);
   });
   it("service admins see every service item without a team and team items with one", () => {
     expect(

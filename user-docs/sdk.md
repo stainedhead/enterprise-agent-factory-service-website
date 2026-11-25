@@ -100,6 +100,44 @@ const r = await createReports(client).teamInference("team_01...", { range: "mtd"
 
 `routeBaseUrlEnv("openai-prod")` gives `AFS_LLM_OPENAI_PROD_BASE_URL`, the variable an agent reads for a route.
 
+## Governed MCP servers
+
+Contract 1.6.0 adds MCP servers that agents reach only through their team's gateway at `${AFS_GATEWAY_URL}/mcp`.
+The generated resources are `mcpServers` (the catalog, review decisions, inventory, service policy and credentials),
+`mcpReviews`, `mcpEvents`, `mcpSettings` (query capture), `teams(client).mcpServers` (a team's switches, its own
+servers, credential, OAuth connect, team policy) and, on `agents` and `pools`, `mcp` (the effective servers and
+tools) and `federatedIdentities`. Credential values are write-only, and an OAuth start returns a single-use state you
+should not keep.
+
+```ts
+import { AfsClient, AfsError, agents, createReports, effectiveTools, McpReason, mcpServers, teams } from "@afs/sdk";
+
+const client = new AfsClient({ baseUrl, auth });
+for await (const s of mcpServers(client).list({ scope: "all" })) console.log(s.slug, s.reviewStatus, s.riskTier);
+
+// switch an enterprise server on for a team, read-only
+await teams(client).mcpServers.put("team_01...", "mcp_01...", { enabled: true, mode: "read_only" });
+
+// register a team server; a team a service admin has not allowed gets team_servers_not_allowed
+try {
+  await teams(client).mcpServers.create("team_01...", { slug: "ledger-schema", displayName: "Ledger schema",
+    url: "https://ledger-mcp.corp.example.test/mcp", transport: "streamable_http", location: "corporate",
+    authKind: "none", dataClassification: "internal", owner: "Payments", purpose: "Schema lookups" });
+} catch (e) {
+  if (e instanceof AfsError && e.details.reason === McpReason.TeamServersNotAllowed) console.log("ask a service admin");
+}
+
+// what one agent can call, and which level decided each tool
+const eff = await agents(client).mcp("team_01...", "agt_01...");
+for (const g of effectiveTools(eff)) console.log(g);
+
+// usage, unused, refusals, discovery or adoption, by server, primitive, team, agent or day
+const r = await createReports(client).teamMcpUsage("team_01...", { view: "refusals", groupBy: "server" });
+```
+
+`mcpServerUrlEnv("eng-handbook")` gives `AFS_MCP_ENG_HANDBOOK_URL`; `MCP_ENV` names the other variables and the MCP
+host configuration file an agent receives.
+
 ## Versions
 
 Releases are cut by pushing a tag `sdk-v<version>` (for example `sdk-v1.0.1`); the version is taken from the tag.

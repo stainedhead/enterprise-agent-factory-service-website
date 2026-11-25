@@ -16,6 +16,8 @@ export interface OperationDef {
     readonly operationId: string;
     readonly kind: "get" | "list";
     readonly match: readonly (readonly [string, string])[];
+    /** The response property holding the versioned resource, when the response wraps it. */
+    readonly versionIn?: string;
   };
   /** The resource has no `version` property; `If-Match: "1"` is sent (CQ-2 interim). */
   readonly versionless?: true;

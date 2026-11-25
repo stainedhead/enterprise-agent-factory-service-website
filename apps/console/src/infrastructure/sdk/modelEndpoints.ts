@@ -18,6 +18,7 @@ import type {
   EndpointRecord,
   EndpointTeamRecord,
   FederationRecord,
+  GatewaySettingsInput,
   GatewaySettingsRecord,
   InferenceProvidersPort,
   InferenceQuery,
@@ -122,12 +123,12 @@ export class SdkAdminModelEndpoints implements AdminModelEndpointsPort {
   putGatewaySettings(
     teamId: string,
     teamVersion: number | undefined,
-    v: { deployment: string; mayAddModelEndpoints: boolean },
+    v: GatewaySettingsInput,
   ): Promise<GatewaySettingsRecord> {
     return wrap(() =>
       adminTeams(this.client).putGatewaySettings(
         teamVersion === undefined ? teamId : { id: teamId, version: teamVersion },
-        { ...v },
+        Object.fromEntries(Object.entries(v).filter(([, x]) => x !== undefined)) as never,
       ),
     );
   }

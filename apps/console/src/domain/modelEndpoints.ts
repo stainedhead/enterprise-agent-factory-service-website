@@ -513,8 +513,20 @@ export const putTeamModelEndpointsCli = (
 
 export const putTeamGatewaySettingsCli = (
   teamId: string,
-  v: { deployment: string; mayAddModelEndpoints: boolean },
-): CliCommand => cli("PutTeamGatewaySettings", { teamId, ...v });
+  v: {
+    deployment: string;
+    mayAddModelEndpoints: boolean;
+    mayAddMcpServers?: boolean | undefined;
+    mcpPlacement?: string | undefined;
+  },
+): CliCommand =>
+  cli("PutTeamGatewaySettings", {
+    teamId,
+    deployment: v.deployment,
+    mayAddModelEndpoints: v.mayAddModelEndpoints,
+    ...(v.mayAddMcpServers !== undefined && { mayAddMcpServers: v.mayAddMcpServers }),
+    ...(v.mcpPlacement !== undefined && { mcpPlacement: v.mcpPlacement }),
+  });
 
 /** A credential command: the value is a `file://<path>` placeholder, never read (TC-UI-06). */
 export const putModelEndpointCredentialCli = (endpointId: string, scope: string): CliCommand =>

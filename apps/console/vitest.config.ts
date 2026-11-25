@@ -41,6 +41,7 @@ export default defineConfig({
         "src/application/ports/history.ts",
         "src/application/ports/identity.ts",
         "src/application/ports/logDestinations.ts",
+        "src/application/ports/mcp.ts",
         "src/application/ports/me.ts",
         "src/application/ports/members.ts",
         "src/application/ports/modelEndpoints.ts",
