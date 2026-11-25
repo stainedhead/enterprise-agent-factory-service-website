@@ -1,0 +1,30 @@
+# Status: mcp-gateway
+
+Created: 2026-11-25. Source: [mcp-gateway-PRD.md](mcp-gateway-PRD.md).
+
+## Overall progress
+
+| Phase | Status |
+|---|---|
+| 0 Initial research | Complete |
+| 1 Specification | Complete |
+| 2 Research and data modeling | Complete |
+| 3 Architecture and planning | Complete |
+| 4 Task breakdown | Complete |
+| 5 Implementation | In progress (M1 done) |
+| 6 Completion and archival | Pending |
+
+## Tasks
+
+See [tasks.md](tasks.md).
+
+## Blockers
+
+None.
+
+## Recent activity
+
+- 2026-11-25: spec created on top of the 1.2.0 branch (PR #14, not yet merged); contract re-pinned to `ef92a4c`
+  (v1.6.0, 276 operations) with `contract:update`; SDK regenerated; eleven namespace-less SDK names and the
+  browser-only OAuth callback handled in codegen; wrapped-version reader; MCP helpers, `McpReason`, MCP usage
+  reports; version 1.3.0; permission mirror at 77 entries; SDK tests 461 green (M1).

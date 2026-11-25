@@ -14,6 +14,11 @@ export interface ReaderIR {
   kind: "get" | "list";
   /** [path parameter name ("owner/repo" joins two), item property] pairs matched when kind is "list". */
   match: [string, string][];
+  /**
+   * The response property that holds the versioned resource when the response wraps it
+   * (`TeamMcpServer.server.version`, contract v1.6.0). Absent when `version` is top level.
+   */
+  versionIn?: string;
 }
 
 export interface OperationIR {

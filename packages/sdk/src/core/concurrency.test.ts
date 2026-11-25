@@ -63,6 +63,21 @@ describe("concurrency (M0-C6)", () => {
     await mk(f).apiKeys.delete("t", "k1");
     expect(f.requests.at(-1)?.headers.get("If-Match")).toBe('"1"');
   });
+  it("reads the version of a wrapped resource from its nested member (TeamMcpServer.server)", async () => {
+    const f = fakeFetch()
+      .on("GET /v1/teams/t/mcp-servers/m1", {
+        body: { enabled: true, server: { id: "m1", version: 6 } },
+      })
+      .on("PATCH /v1/teams/t/mcp-servers/m1", { body: { server: { id: "m1", version: 7 } } });
+    await mk(f).teams.mcpServers.update("t", "m1", { purpose: "x" });
+    expect(f.requests.at(-1)?.headers.get("If-Match")).toBe('"6"');
+  });
+  it("sends no If-Match version when the wrapped member is missing", async () => {
+    const f = fakeFetch()
+      .on("GET /v1/teams/t/mcp-servers/m1", { body: { enabled: true } })
+      .on("DELETE /v1/teams/t/mcp-servers/m1", { status: 204 });
+    await expect(mk(f).teams.mcpServers.delete("t", "m1")).rejects.toBeDefined();
+  });
   it("PUT sends If-Match when a version is held and none when the reader finds nothing", async () => {
     const held = fakeFetch().on("PUT /v1/teams/t/budget", { body: { version: 3 } });
     await mk(held).budgets.put("t", {} as never, { ifMatch: 2 });

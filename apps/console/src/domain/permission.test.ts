@@ -16,7 +16,7 @@ const json = JSON.parse(
 
 describe("catalog drift (M0-D2)", () => {
   it("has every permission, role and condition of permissions.json and nothing else", () => {
-    expect(PERMISSIONS).toHaveLength(67);
+    expect(PERMISSIONS).toHaveLength(77);
     expect(CATALOG.map((e) => e.permission)).toEqual(json.permissions.map((p) => p.name));
     for (const p of json.permissions) {
       const entry = CATALOG.find((e) => e.permission === p.name);
@@ -50,6 +50,15 @@ describe("requiredRoleLabel", () => {
     ["admin:inference-providers", "service admin"],
     ["model-endpoints:read", "team viewer"],
     ["model-endpoints:write", "team-admin"],
+    ["mcp-servers:read", "service admin"],
+    ["mcp-servers:review", "service admin"],
+    ["mcp-servers:write", "service admin"],
+    ["mcp-settings:write", "service admin"],
+    ["team-mcp-servers:read", "team viewer"],
+    ["team-mcp-servers:write", "team-admin"],
+    ["team-mcp-servers:approve", "service admin"],
+    ["mcp-events:read", "team viewer"],
+    ["agent-federated-identities:write", "team-admin"],
   ] as const)("%s needs %s", (perm, label) => {
     expect(requiredRoleLabel(perm)).toBe(label);
   });

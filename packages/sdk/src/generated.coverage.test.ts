@@ -33,18 +33,23 @@ describe("generated coverage (M0-G5)", () => {
   };
   const fromYaml = Object.values(doc.paths)
     .flatMap((item) => Object.values(item))
-    .filter((o) => o.operationId)
+    .filter((o) => o.operationId && o["x-afs-sdk"] !== "none")
     .map((o) => ({
       id: o.operationId as string,
       sdk: SDK_RENAMES[o.operationId as string] ?? (o["x-afs-sdk"] as string),
     }));
 
-  it("exposes exactly the 221 operations of the contract (WEB-US-1.1)", () => {
+  it("exposes the 275 SDK operations of the 276 in the contract (WEB-US-1.1)", () => {
     const facade = leaves(afs).sort();
-    expect(fromYaml).toHaveLength(221);
-    expect(operationsJson).toHaveLength(221);
+    const withSdk = operationsJson.filter((o) => o.sdk !== "none");
+    expect(operationsJson).toHaveLength(276);
+    // CompleteMcpOAuthConnect is the browser's OAuth redirect target (`x-afs-sdk: none`).
+    expect(operationsJson.filter((o) => o.sdk === "none").map((o) => o.operationId)).toEqual([
+      "CompleteMcpOAuthConnect",
+    ]);
+    expect(fromYaml).toHaveLength(275);
     expect(facade).toEqual(fromYaml.map((o) => o.sdk).sort());
-    expect(facade).toEqual(operationsJson.map((o) => SDK_RENAMES[o.operationId] ?? o.sdk).sort());
+    expect(facade).toEqual(withSdk.map((o) => SDK_RENAMES[o.operationId] ?? o.sdk).sort());
   });
   it("maps GetHealth to health.get()", () => {
     expect(fromYaml.find((o) => o.id === "GetHealth")?.sdk).toBe("health.get()");

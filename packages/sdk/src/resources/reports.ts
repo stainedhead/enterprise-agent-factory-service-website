@@ -1,7 +1,8 @@
 import type { AfsClient } from "../core/client.js";
 import type { CallOptions, ReportCall } from "../core/types.js";
 import { reports as generatedReports } from "../generated/resources/reports.js";
-import type { InferenceReport } from "../generated/schemas.js";
+import { teams as generatedTeams } from "../generated/resources/teams.js";
+import type { InferenceReport, McpUsageReport } from "../generated/schemas.js";
 
 /** The report kinds of the API; `collaboration` is usage only and cannot be scheduled (SDK-13). */
 export type ReportKind = "usage" | "costs" | "activity" | "traffic" | "collaboration";
@@ -91,6 +92,29 @@ export interface InferenceQueryInput extends CallOptions {
   nextToken?: string;
 }
 
+/** The views of the MCP usage report (API contract 4.14); `adoption` is the service report only. */
+export type McpUsageView =
+  | "usage"
+  | "unused"
+  | "refusals"
+  | "discovery"
+  | "adoption"
+  | (string & {});
+
+/** What the MCP usage report is grouped by; `team` is the service report only. */
+export type McpUsageGroup = "server" | "primitive" | "agent" | "team" | "day" | (string & {});
+
+/** The query of an MCP usage report: a view, a grouping and a time range or a window in days. */
+export interface McpUsageQueryInput extends CallOptions {
+  /** `usage` (default), `unused` (enabled but not called in `window` days), `refusals`, `discovery`, `adoption`. */
+  view?: McpUsageView;
+  groupBy?: McpUsageGroup;
+  from?: string;
+  to?: string;
+  /** The `unused` view's window in days (the API defaults it to 30). */
+  window?: number;
+}
+
 /** A lazy report: await it for JSON, or call `asCsv()` for the CSV body exactly as the API returns it. */
 export type TypedReportCall<Row extends ReportRow = ReportRow> = ReportCall<ReportResult<Row>>;
 
@@ -106,12 +130,13 @@ function toOptions(q: ReportQueryInput | InferenceQueryInput = {}): Record<strin
 
 /**
  * Typed report calls (`reports.team`, `reports.agent`, `reports.service`, `reports.inference`,
- * `reports.teamInference`) over the generated namespace.
+ * `reports.teamInference`, `reports.mcpUsage`, `reports.teamMcpUsage`) over the generated namespaces.
  * Rows and totals carry the API's measure names (`calls`, `estimatedUsd`, `billedUsd`, ...); `asCsv()`
  * returns the CSV the API sends for the same query, following its page tokens.
  */
 export function createReports(core: AfsClient) {
   const g = generatedReports(core);
+  const t = generatedTeams(core);
   return {
     /** A team report (requires `reports:read`). */
     team<Row extends ReportRow = ReportRow>(
@@ -150,6 +175,18 @@ export function createReports(core: AfsClient) {
       query?: Omit<InferenceQueryInput, "teamId">,
     ): ReportCall<InferenceReport> {
       return g.teamInference(teamId, toOptions(query));
+    },
+    /**
+     * The service MCP usage report (requires `mcp-events:read`): calls, tool errors, refusals and latency by
+     * server, primitive, team, agent or day from `mcp_events`; never tool arguments, results or query text.
+     * `asCsv()` returns the API's CSV.
+     */
+    mcpUsage(query: McpUsageQueryInput = {}): ReportCall<McpUsageReport> {
+      return g.mcp(query);
+    },
+    /** A team's MCP usage report (requires `mcp-events:read`); a team sees only its own calls. */
+    teamMcpUsage(teamId: string, query: McpUsageQueryInput = {}): ReportCall<McpUsageReport> {
+      return t.reports.mcp(teamId, query);
     },
   };
 }

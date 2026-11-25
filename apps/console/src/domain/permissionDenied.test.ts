@@ -48,8 +48,10 @@ describe("every permission has a denied case (M6-Q7)", () => {
     const holders = rolesGranting(p);
     expect(can(NOBODY, p), "a caller with no access").toBe(false);
     expect(can(NOBODY, p, "team_a"), "a caller with no access, in a team").toBe(false);
-    // a permission held by every role has nothing to deny; the catalog must not contain one
-    expect(holders.length, `${p} is held by every role`).toBeLessThan(ROLES.length);
+    // a permission held by every role has nothing to deny but the no-access caller; only the MCP ledger is one
+    // (every role reads MCP events: team roles their own team, service roles every team; v1.6.0)
+    if (p !== "mcp-events:read")
+      expect(holders.length, `${p} is held by every role`).toBeLessThan(ROLES.length);
     for (const r of ROLES)
       expect(can(meWithRole(r), p, scope(r)), `${r} and ${p}`).toBe(holders.includes(r));
     expect(requiredRoleLabel(p)).toBeTruthy();
@@ -78,6 +80,62 @@ describe("model endpoint grants (MEG-WEB-5)", () => {
     expect(can(me("team_collaborator"), "model-endpoints:write", "team_a")).toBe(false);
     expect(can(me("security_operator"), "model-endpoints:read")).toBe(false);
     expect(can(me("team_admin"), "model-endpoints:write", "team_b"), "another team").toBe(false);
+  });
+});
+
+describe("MCP grants (MCP-WEB-5, PRD Appendix A)", () => {
+  const me = (r: Role) => meWithRole(r);
+  it("only a service admin writes enterprise servers, settings and query capture", () => {
+    for (const p of ["mcp-servers:write", "mcp-settings:write"] as const) {
+      expect(can(me("service_admin"), p)).toBe(true);
+      for (const r of [
+        "team_viewer",
+        "team_collaborator",
+        "team_admin",
+        "security_operator",
+      ] as const)
+        expect(can(me(r), p, scope(r)), `${r} and ${p}`).toBe(false);
+    }
+  });
+  it("service admins and security operators read, review and suspend; team roles do not", () => {
+    for (const p of ["mcp-servers:read", "mcp-servers:review", "mcp-servers:suspend"] as const) {
+      expect(can(me("service_admin"), p)).toBe(true);
+      expect(can(me("security_operator"), p)).toBe(true);
+      for (const r of ["team_viewer", "team_collaborator", "team_admin"] as const)
+        expect(can(me(r), p, "team_a"), `${r} and ${p}`).toBe(false);
+    }
+  });
+  it("every team role reads its servers; only a team-admin changes them", () => {
+    for (const r of ["team_viewer", "team_collaborator", "team_admin"] as const) {
+      expect(can(me(r), "team-mcp-servers:read", "team_a")).toBe(true);
+      expect(can(me(r), "mcp-events:read", "team_a")).toBe(true);
+    }
+    for (const p of ["team-mcp-servers:write", "agent-federated-identities:write"] as const) {
+      expect(can(me("team_admin"), p, "team_a")).toBe(true);
+      expect(can(me("team_viewer"), p, "team_a")).toBe(false);
+      expect(can(me("team_collaborator"), p, "team_a")).toBe(false);
+      expect(can(me("security_operator"), p)).toBe(false);
+      expect(can(me("team_admin"), p, "team_b"), "another team").toBe(false);
+    }
+    expect(can(me("security_operator"), "team-mcp-servers:read")).toBe(false);
+  });
+  it("a team-admin approves team servers only when the API grants it (policy condition)", () => {
+    expect(can(me("team_admin"), "team-mcp-servers:approve", "team_a")).toBe(false);
+    const granted: Me = {
+      ...base,
+      serviceAdmin: false,
+      securityOperator: false,
+      teams: [
+        {
+          teamId: "team_a",
+          slug: "a",
+          role: "team_admin",
+          permissions: ["team-mcp-servers:approve"],
+        },
+      ],
+    };
+    expect(can(granted, "team-mcp-servers:approve", "team_a")).toBe(true);
+    expect(can(me("team_viewer"), "team-mcp-servers:approve", "team_a")).toBe(false);
   });
 });
 

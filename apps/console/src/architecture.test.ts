@@ -21,8 +21,9 @@ const FORBIDDEN: Record<string, RegExp[]> = {
 
 // A hyphen is not an identifier character: a kebab-case flag such as "context-window" (generated CLI
 // table) is data, not a reference to the global.
+// A quoted name (`"window"`, the MCP report's query parameter in the generated CLI table) is data, not a reference.
 const BROWSER_GLOBALS =
-  /(?<![\w-])(window|document|fetch|localStorage|sessionStorage|indexedDB)(?![\w-])/;
+  /(?<![\w"'-])(window|document|fetch|localStorage|sessionStorage|indexedDB)(?![\w"'-])/;
 // XSS and CSP sinks (ASVS V5, M6-Q6): nothing may build markup or code from strings.
 const XSS_SINKS =
   /dangerouslySetInnerHTML|\.innerHTML\s*=|\.outerHTML\s*=|insertAdjacentHTML|\beval\(|new Function\(/;
@@ -151,6 +152,12 @@ describe("the rules themselves (red cases)", () => {
       browserApiViolations("domain", "/x/src/domain/a.ts", "const w = window.innerWidth;"),
     ).toHaveLength(1);
     expect(browserApiViolations("domain", "/x/src/domain/a.ts", "fetch(url)")).toHaveLength(1);
+    expect(
+      browserApiViolations("domain", "/x/src/domain/a.ts", '{"name":"window","flag":"window"}'),
+    ).toEqual([]);
+    expect(
+      browserApiViolations("domain", "/x/src/domain/a.ts", 'const x = { a: "1", w: window };'),
+    ).toHaveLength(1);
   });
   const f = (p: string) => join(SRC, p);
   it("presentation importing oauth4webapi is a violation", () => {

@@ -86,3 +86,88 @@ export const ModelEndpointReason = {
   /** 409: an endpoint is deleted only while it is switched off. */
   EndpointEnabled: "endpoint_enabled",
 } as const;
+
+/**
+ * `details.reason` values of governed MCP servers (API contract 4.14 and gateway contract 13.4, v1.6.0): the
+ * validation and conflict reasons of the API and the refusal reasons the gateway records in `mcp_events`.
+ * Unknown reasons still arrive as plain strings.
+ */
+export const McpReason = {
+  /** 400: the slug is not a DNS label (`^[a-z][a-z0-9-]{1,30}$`). */
+  SlugInvalid: "slug_invalid",
+  /** 400: `afs` is reserved for the aggregated endpoint. */
+  SlugReserved: "slug_reserved",
+  /** 409: an enterprise or team server already uses the slug. */
+  SlugTaken: "slug_taken",
+  /** 400: a remote server needs an `https` URL. */
+  UrlNotHttps: "url_not_https",
+  /** 400: the host is on `mcp.host_deny_list`. */
+  HostDenied: "host_denied",
+  /** 400: a hosted image is not pinned by digest. */
+  ImageNotPinned: "image_not_pinned",
+  /** 400: a hosted image is not signed. */
+  ImageUnsigned: "image_unsigned",
+  /** 400: a hosted image's registry is not in `mcp.allowed_image_registries`. */
+  RegistryNotAllowed: "registry_not_allowed",
+  /** 400: the auth kind is not supported for this transport or location. */
+  AuthKindUnsupported: "auth_kind_unsupported",
+  /** 400: user-delegated OAuth connects a service account, never a named person. */
+  ServiceAccountRequired: "service_account_required",
+  /** 400: the audience is not in `federation.allowed_audiences`. */
+  AudienceNotAllowed: "audience_not_allowed",
+  /** 400: `sts.amazonaws.com` and `afs-gateway` are reserved audiences. */
+  AudienceReserved: "audience_reserved",
+  /** 400: the query capture is longer than `mcp.query_capture_max_days`. */
+  CaptureWindowTooLong: "capture_window_too_long",
+  /** 409: a query capture is already running. */
+  CaptureActive: "capture_active",
+  /** 400: an agent selects a server the team has not switched on. */
+  ServerNotEnabledForTeamOnAgent: "mcp_server_not_enabled_for_team",
+  /** 400: a policy rule names neither or both of `name` and `class`. */
+  InvalidPolicyRule: "invalid_policy_rule",
+  /** 403: the team may not register servers (`mayAddMcpServers` is off). */
+  TeamServersNotAllowed: "team_servers_not_allowed",
+  /** 403: `mcp.team_server_approval` does not let this caller approve this risk tier. */
+  ApprovalNotPermittedByPolicy: "approval_not_permitted_by_policy",
+  /** 403: the operation is for team-registered servers only. */
+  NotTeamServer: "not_team_server",
+  /** 409: the server is switched on by teams or selected by agents. */
+  ServerInUse: "server_in_use",
+  /** 403 or 409: the server is not published. Also a gateway refusal. */
+  ServerNotPublished: "server_not_published",
+  /** 409: the server is not approved. */
+  ServerNotApproved: "server_not_approved",
+  /** 409: MCP needs the team's own gateway (`gatewayDeployment` `per_namespace`). */
+  TeamGatewayRequired: "team_gateway_required",
+  /** 409: the review status does not allow that step. */
+  InvalidReviewTransition: "invalid_review_transition",
+  /** 409: at most 10 federated identities per agent or pool. */
+  FederatedIdentityLimit: "federated_identity_limit",
+  /** 409: an `mcp` external system covered by an MCP server cannot be granted; use the server. */
+  GovernedByMcpServer: "governed_by_mcp_server",
+  /** Gateway refusal: the server is suspended. */
+  ServerSuspended: "server_suspended",
+  /** Gateway refusal: the team has not switched the server on. */
+  ServerNotEnabledForTeam: "server_not_enabled_for_team",
+  /** Gateway refusal: the agent's selection does not include the server. */
+  ServerNotEnabledForAgent: "server_not_enabled_for_agent",
+  /** Gateway refusal: a service rule blocks the primitive. */
+  PrimitiveBlockedService: "primitive_blocked_service",
+  /** Gateway refusal: a team rule blocks the primitive. */
+  PrimitiveBlockedTeam: "primitive_blocked_team",
+  /** Gateway refusal: an agent block covers the primitive. */
+  PrimitiveBlockedAgent: "primitive_blocked_agent",
+  /** Gateway refusal: the primitive is new or changed and held for review. */
+  PrimitivePendingReview: "primitive_pending_review",
+  /** Gateway refusal: a per-primitive or per-agent rate limit. */
+  RateLimited: "rate_limited",
+  /** Gateway refusal: the service account's OAuth refresh token expired or was revoked. */
+  AuthReconnectNeeded: "auth_reconnect_needed",
+  /** Gateway refusal: workload federation is not trusted or failing. */
+  FederationNotReady: "federation_not_ready",
+  /** Gateway refusal: `Mcp-Method` or `Mcp-Name` differs from the body. */
+  HeaderMismatch: "header_mismatch",
+} as const;
+
+/** One of the {@link McpReason} values. */
+export type McpReasonValue = (typeof McpReason)[keyof typeof McpReason];

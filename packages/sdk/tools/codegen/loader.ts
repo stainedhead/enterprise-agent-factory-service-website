@@ -12,12 +12,25 @@ import {
 const METHODS = ["get", "post", "put", "patch", "delete"] as const;
 
 /**
- * SDK names the contract assigns twice. Contract v1.5.0 gives both `GetInferenceReport` and
+ * SDK names the contract gets wrong. Contract v1.5.0 gives both `GetInferenceReport` and
  * `GetTeamInferenceReport` `reports.inference()`; the team variant becomes `reports.teamInference()`,
- * matching `reports.team()` beside `reports.service()`. Recorded in the 1.2.0 spec's contract notes.
+ * matching `reports.team()` beside `reports.service()` (1.2.0 spec). Contract v1.6.0 gives eleven MCP
+ * and federated-identity operations a name without a namespace (`.reject()`, `.delete()`); each takes
+ * the namespace of its sibling operations on the same resource (1.3.0 spec, contract note 1).
  */
 export const SDK_RENAMES: Readonly<Record<string, string>> = {
   GetTeamInferenceReport: "reports.teamInference()",
+  RejectMcpPrimitive: "mcpServers.rejectPrimitive()",
+  RejectMcpServer: "mcpServers.reject()",
+  RequestMcpServerChanges: "mcpServers.requestChanges()",
+  ResumeMcpServer: "mcpServers.resume()",
+  RetireMcpServer: "mcpServers.retire()",
+  StopMcpQueryCapture: "mcpSettings.stopQueryCapture()",
+  DeleteTeamMcpServer: "teams.mcpServers.delete()",
+  RejectTeamMcpPrimitive: "teams.mcpServers.rejectPrimitive()",
+  RejectTeamMcpServer: "teams.mcpServers.reject()",
+  DeleteAgentFederatedIdentity: "agents.federatedIdentities.delete()",
+  DeletePoolFederatedIdentity: "pools.federatedIdentities.delete()",
 };
 
 export function loadContract(dir: string): Contract {
@@ -43,7 +56,11 @@ export function loadContract(dir: string): Contract {
 
   const raw: { path: string; method: string; op: Node }[] = [];
   for (const [path, item] of Object.entries<Node>(doc.paths)) {
-    for (const m of METHODS) if (item[m]) raw.push({ path, method: m, op: item[m] });
+    for (const m of METHODS) {
+      // `x-afs-sdk: none` marks a browser-only endpoint (CompleteMcpOAuthConnect, contract v1.6.0):
+      // the identity provider redirects the browser there, so the SDK has no method for it.
+      if (item[m] && item[m]["x-afs-sdk"] !== "none") raw.push({ path, method: m, op: item[m] });
+    }
   }
 
   const operations: OperationIR[] = raw.map(({ path, method, op }) => {
@@ -168,9 +185,23 @@ export function loadContract(dir: string): Contract {
       }
     }
     if (reader) {
+      // A wrapper response (TeamMcpServer, contract v1.6.0) carries the version on a nested object.
+      const wrapped =
+        schema && !("version" in (schema.properties ?? {}))
+          ? Object.entries<Node>(schema.properties ?? {}).find(
+              ([, p]) => "version" in (deref(p).properties ?? {}),
+            )?.[0]
+          : undefined;
+      // The wrapped version is the inner resource's; an optional If-Match on such a path (PutTeamMcpServer)
+      // guards a different row (the team's switch, which has no version on the wire), so it gets no reader.
+      if (wrapped && o.ifMatch === "optional") continue;
+      if (wrapped) reader.versionIn = wrapped;
       o.reader = reader;
       o.versionless =
-        !!schema && !("version" in (schema.properties ?? {})) && o.ifMatch === "required";
+        !!schema &&
+        !wrapped &&
+        !("version" in (schema.properties ?? {})) &&
+        o.ifMatch === "required";
     }
   }
 

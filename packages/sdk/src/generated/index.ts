@@ -35,6 +35,10 @@ import { config } from "./resources/config.js";
 import { externalSystems } from "./resources/externalSystems.js";
 import { health } from "./resources/health.js";
 import { logDestinations } from "./resources/logDestinations.js";
+import { mcpEvents } from "./resources/mcpEvents.js";
+import { mcpReviews } from "./resources/mcpReviews.js";
+import { mcpServers } from "./resources/mcpServers.js";
+import { mcpSettings } from "./resources/mcpSettings.js";
 import { me } from "./resources/me.js";
 import { members } from "./resources/members.js";
 import { models } from "./resources/models.js";
@@ -87,6 +91,10 @@ export { config } from "./resources/config.js";
 export { externalSystems } from "./resources/externalSystems.js";
 export { health } from "./resources/health.js";
 export { logDestinations } from "./resources/logDestinations.js";
+export { mcpEvents } from "./resources/mcpEvents.js";
+export { mcpReviews } from "./resources/mcpReviews.js";
+export { mcpServers } from "./resources/mcpServers.js";
+export { mcpSettings } from "./resources/mcpSettings.js";
 export { me } from "./resources/me.js";
 export { members } from "./resources/members.js";
 export { models } from "./resources/models.js";
@@ -118,6 +126,10 @@ export function createAfs(options: AfsClientOptions) {
     externalSystems: externalSystems(core),
     health: health(core),
     logDestinations: logDestinations(core),
+    mcpEvents: mcpEvents(core),
+    mcpReviews: mcpReviews(core),
+    mcpServers: mcpServers(core),
+    mcpSettings: mcpSettings(core),
     me: me(core),
     members: members(core),
     models: models(core),

@@ -11,6 +11,9 @@ export const SECRET_FIELDS: Record<string, string[]> = {
   PutModelEndpointCredential: ["value"],
   RotateModelEndpointCredential: ["value"],
   PutTeamModelEndpointCredential: ["value"],
+  // contract v1.6.0: MCP server credentials (write-only static value or OAuth client secret)
+  PutMcpServerCredential: ["clientSecret", "value"],
+  PutTeamMcpServerCredential: ["clientSecret", "value"],
 };
 
 /** Names that look like secrets; a request property matching this must be listed or allowed. */
