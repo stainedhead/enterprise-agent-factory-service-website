@@ -1,15 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import { Link, useParams } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
 import { InferenceReportUseCases } from "../../../application/usecases/modelEndpoints/ModelEndpointsUseCases.js";
 import { TEAM_ENDPOINTS_NOT_ALLOWED } from "../../../domain/modelEndpoints.js";
-import {
-  Alert,
-  Breadcrumbs,
-  Card,
-  KeyValue,
-  LinkButton,
-  PageHeader,
-} from "../../components/index.js";
+import { Alert, Breadcrumbs, Button, Card, KeyValue, PageHeader } from "../../components/index.js";
 import { gate } from "../../hooks/gate.js";
 import { queryKey } from "../../query/keys.js";
 import { useOptionalService } from "../../services.js";
@@ -21,6 +14,7 @@ import { ServiceRoutes, TeamEndpoints, useTeamRoutes } from "./RouteTables.js";
 export function TeamModelEndpointsPage({ viewer = false }: { viewer?: boolean }) {
   const { teamId = "" } = useParams();
   const me = useMe();
+  const navigate = useNavigate();
   const routes = useTeamRoutes(teamId);
   const reports = useOptionalService("inferenceReports");
   const spend = useQuery({
@@ -59,13 +53,13 @@ export function TeamModelEndpointsPage({ viewer = false }: { viewer?: boolean })
         description="Routes this team's agents can call through the team gateway. No upstream credential ever reaches an agent."
         infoHref="/docs/model-endpoints"
         actions={
-          <LinkButton
+          <Button
             variant="primary"
-            href={`/t/${teamId}/model-endpoints/new`}
             disabledReason={createReason}
+            onClick={() => navigate(`/t/${teamId}/model-endpoints/new`)}
           >
             Create endpoint
-          </LinkButton>
+          </Button>
         }
       />
       <ErrorAlert errors={[routes.error]} />

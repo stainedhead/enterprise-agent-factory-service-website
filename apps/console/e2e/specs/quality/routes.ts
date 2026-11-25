@@ -1,5 +1,6 @@
 import { AGENT_IDS } from "../../fake-afs/fixtures/agents.js";
 import { TEAMS } from "../../fake-afs/fixtures/core.js";
+import { ENDPOINT_IDS } from "../../fake-afs/fixtures/modelEndpoints.js";
 import { WORK_ORDER_IDS } from "../../fake-afs/fixtures/workOrders.js";
 
 const T = TEAMS[0].id;
@@ -20,6 +21,13 @@ export const SERVICE_ROUTES: readonly string[] = [
   "/cost-tags",
   "/audit",
   "/models",
+  "/model-endpoints",
+  "/model-endpoints/new",
+  "/model-endpoints/proposals",
+  "/model-endpoints/providers",
+  `/model-endpoints/${ENDPOINT_IDS.openai}`,
+  "/reports/inference",
+  `/teams/${T}/admin?tab=model-endpoints`,
   "/external-systems",
   "/export-import",
   "/settings/general",
@@ -48,6 +56,9 @@ export const TEAM_ROUTES: readonly string[] = [
   `/t/${T}/delivery/notifications`,
   `/t/${T}/config`,
   `/t/${T}/budget`,
+  `/t/${T}/model-endpoints`,
+  `/t/${T}/agents/${AGENT_IDS[0]}?tab=models`,
+  `/t/${T}/reports/inference`,
   `/t/${T}/reports`,
   `/t/${T}/reports?tab=collaboration`,
   `/t/${T}/orchestration`,

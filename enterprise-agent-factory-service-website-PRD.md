@@ -12,3 +12,8 @@ to this path. The spec was archived on 2026-11-22, so the link above points into
 SDK-12..16, WEB-23..36, stories WEB-US-43..61 (SDK first, milestones C1-SDK to C4 in its §10.1) and the review
 record in its §13. It is a draft for implementation; `create-spec` will move it into a new active spec, and this
 stub will then point there.
+
+**Model endpoint gateway (1.2.0, 2026-11-25).** The website share of the root
+[model endpoint gateway PRD](https://github.com/stainedhead/enterprise-agent-factory-service/blob/main/model-endpoint-gateway-PRD.md)
+(Appendix D.5, MEG-WEB-1 to MEG-WEB-6; screens 56 to 68a; stories WEB-US-62 to WEB-US-73) is in the active spec:
+**[specs/261125-model-endpoint-gateway/model-endpoint-gateway-PRD.md](specs/261125-model-endpoint-gateway/model-endpoint-gateway-PRD.md)**.

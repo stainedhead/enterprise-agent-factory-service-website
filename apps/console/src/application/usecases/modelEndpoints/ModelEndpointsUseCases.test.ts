@@ -39,7 +39,7 @@ const endpoint = (over: Partial<EndpointRecord> = {}): EndpointRecord => ({
   enabled: true,
   models: [
     {
-      modelName: "gpt-5.1",
+      modelName: "chat-large",
       maxOutputTokens: 8192,
       enabled: true,
       callable: true,
@@ -92,7 +92,7 @@ const adminPort = (over: Partial<AdminModelEndpointsPort> = {}): AdminModelEndpo
     {
       id: "epp_1",
       endpointId: "mep_1",
-      modelName: "gpt-5.1",
+      modelName: "chat-large",
       effectiveFrom: "2026-12-01T00:00:00Z",
       fetchedAt: "2026-11-24T00:00:00Z",
       inputUsdPerMtok: "1.00",
@@ -134,12 +134,12 @@ const draft = (over: Partial<EndpointDraft> = {}): EndpointDraft => ({
   baseUrl: "https://example.invalid/openai/v1",
   models: [
     {
-      modelName: "gpt-5.1",
+      modelName: "chat-large",
       maxOutputTokens: 8192,
       inputUsdPerMtok: "1.25",
       outputUsdPerMtok: "10",
     },
-    { modelName: "gpt-5.1-mini", maxOutputTokens: 4096 },
+    { modelName: "chat-small", maxOutputTokens: 4096 },
   ],
   ...over,
 });
@@ -153,7 +153,7 @@ const rejection = async (p: Promise<unknown>) => {
   throw new Error("expected a rejection");
 };
 
-describe("AdminModelEndpointsUseCases (MEG-WEB-1)", () => {
+describe("AdminModelEndpointsUseCases (MEG-WEB-2)", () => {
   it("splits the catalog: built-in first then by route name, team-declared apart", async () => {
     const uc = new AdminModelEndpointsUseCases(adminPort(), clock);
     const c = await uc.catalog();
@@ -178,7 +178,7 @@ describe("AdminModelEndpointsUseCases (MEG-WEB-1)", () => {
     expect(port.create).toHaveBeenCalledOnce();
     expect(port.createPrice).toHaveBeenCalledTimes(1);
     expect(port.createPrice).toHaveBeenCalledWith("mep_new", {
-      modelName: "gpt-5.1",
+      modelName: "chat-large",
       inputUsdPerMtok: "1.25",
       outputUsdPerMtok: "10",
       effectiveFrom: "2026-11-25T00:00:00.000Z",
@@ -206,7 +206,7 @@ describe("AdminModelEndpointsUseCases (MEG-WEB-1)", () => {
     const port = adminPort();
     const uc = new AdminModelEndpointsUseCases(port, clock);
     const p = {
-      modelName: "gpt-5.1",
+      modelName: "chat-large",
       inputUsdPerMtok: "1.25",
       outputUsdPerMtok: "10",
       effectiveFrom: "2026-12-01T00:00:00Z",
@@ -310,12 +310,12 @@ const providers = (): InferenceProvidersPort => ({
   update: vi.fn(async () => ({}) as never),
 });
 
-describe("ProviderPolicyUseCases (MEG-WEB-6)", () => {
+describe("ProviderPolicyUseCases (MEG-WEB-2)", () => {
   const bedrock = { provider: "bedrock", version: 2 };
   const ready = {
     provider: "bedrock",
     reason: " Enterprise policy ",
-    fallbackModel: "azure-openai/gpt-5.1",
+    fallbackModel: "azure-openai/chat-large",
     selectForAllTeams: true,
   };
 
@@ -324,17 +324,18 @@ describe("ProviderPolicyUseCases (MEG-WEB-6)", () => {
     const uc = new ProviderPolicyUseCases(p, adminPort());
     await uc.list();
     expect(p.list).toHaveBeenCalled();
-    expect(await uc.fallbackOptions()).toEqual(["azure-openai/gpt-5.1", "zeta/gpt-5.1"]);
+    expect(await uc.fallbackOptions()).toEqual(["azure-openai/chat-large", "zeta/chat-large"]);
   });
 
   it("previews the impact as a dry run, with a placeholder reason while none is typed", async () => {
     const p = providers();
     const uc = new ProviderPolicyUseCases(p, adminPort());
-    await uc.impact(bedrock, { ...ready, reason: "" });
+    // the preview of Bedrock is always the allowed change: fallback selected for every team
+    await uc.impact(bedrock, { ...ready, reason: "", selectForAllTeams: false });
     expect(p.impact).toHaveBeenCalledWith(bedrock, {
       enabled: false,
       reason: "impact preview",
-      fallbackModel: "azure-openai/gpt-5.1",
+      fallbackModel: "azure-openai/chat-large",
       selectForAllTeams: true,
     });
     await uc.impact({ provider: "openai", version: 1 }, { ...ready, provider: "openai" });
@@ -357,7 +358,7 @@ describe("ProviderPolicyUseCases (MEG-WEB-6)", () => {
     expect(p.update).toHaveBeenCalledWith(bedrock, {
       enabled: false,
       reason: "Enterprise policy",
-      fallbackModel: "azure-openai/gpt-5.1",
+      fallbackModel: "azure-openai/chat-large",
       selectForAllTeams: true,
     });
   });
@@ -389,7 +390,7 @@ const teamPort = (): TeamModelEndpointsPort => ({
   putCredential: vi.fn(async () => ({ state: "set", rotatedAt: null })),
 });
 
-describe("TeamModelEndpointsUseCases (MEG-WEB-3, MEG-WEB-4)", () => {
+describe("TeamModelEndpointsUseCases (MEG-WEB-3)", () => {
   it("groups routes into selected, own and available", async () => {
     const r = await new TeamModelEndpointsUseCases(teamPort()).routes("team_1");
     expect(r.gatewayDeployment).toBe("per_namespace");
@@ -440,7 +441,7 @@ describe("TeamModelEndpointsUseCases (MEG-WEB-3, MEG-WEB-4)", () => {
   });
 });
 
-describe("InferenceReportUseCases (MEG-WEB-5)", () => {
+describe("InferenceReportUseCases (MEG-WEB-2, -3)", () => {
   const data = {
     range: { from: "2026-11-01", to: "2026-11-25" },
     groupBy: ["route"],
@@ -472,10 +473,10 @@ describe("InferenceReportUseCases (MEG-WEB-5)", () => {
 const agent = (models: AgentRecord["models"]): AgentRecord =>
   ({ id: "agt_1", version: 4, models }) as unknown as AgentRecord;
 
-describe("AgentRoutesUseCases (MEG-WEB-4)", () => {
+describe("AgentRoutesUseCases (MEG-WEB-3)", () => {
   const team = [
-    { slug: "bedrock", protocols: ["openai_chat"], models: ["claude-sonnet"] },
-    { slug: "azure-openai", protocols: ["openai_chat"], models: ["gpt-5.1"] },
+    { slug: "bedrock", protocols: ["openai_chat"], models: ["model-a"] },
+    { slug: "azure-openai", protocols: ["openai_chat"], models: ["chat-large"] },
   ];
 
   it("saves the routes with If-Match, keeping the Bedrock selection and sending route/model", async () => {
@@ -483,12 +484,12 @@ describe("AgentRoutesUseCases (MEG-WEB-4)", () => {
     const uc = new AgentRoutesUseCases({ update });
     await uc.save(
       "team_1",
-      agent({ access: "selected", modelIds: ["claude-sonnet"], defaultModelId: "claude-sonnet" }),
+      agent({ access: "selected", modelIds: ["model-a"], defaultModelId: "model-a" }),
       {
         routeAccess: "selected",
         routes: ["azure-openai"],
         defaultRoute: "azure-openai",
-        defaultModel: "gpt-5.1",
+        defaultModel: "chat-large",
       },
       team,
     );
@@ -498,8 +499,8 @@ describe("AgentRoutesUseCases (MEG-WEB-4)", () => {
       {
         models: {
           access: "selected",
-          modelIds: ["claude-sonnet"],
-          defaultModelId: "azure-openai/gpt-5.1",
+          modelIds: ["model-a"],
+          defaultModelId: "azure-openai/chat-large",
           routeAccess: "selected",
           routes: ["azure-openai"],
           defaultRoute: "azure-openai",
@@ -517,8 +518,8 @@ describe("AgentRoutesUseCases (MEG-WEB-4)", () => {
       agent({
         access: "all",
         modelIds: [],
-        defaultModelId: "azure-openai/gpt-5.1",
-        effectiveModelIds: ["claude-sonnet"],
+        defaultModelId: "azure-openai/chat-large",
+        effectiveModelIds: ["model-a"],
         defaultRoute: "azure-openai",
       }),
       spec,
@@ -527,7 +528,7 @@ describe("AgentRoutesUseCases (MEG-WEB-4)", () => {
     expect(update).toHaveBeenLastCalledWith("team_1", expect.anything(), {
       models: {
         access: "all",
-        defaultModelId: "claude-sonnet",
+        defaultModelId: "model-a",
         routeAccess: "all",
         defaultRoute: null,
       },
@@ -537,23 +538,23 @@ describe("AgentRoutesUseCases (MEG-WEB-4)", () => {
       agent({
         access: "all",
         modelIds: [],
-        defaultModelId: "azure-openai/gpt-5.1",
+        defaultModelId: "azure-openai/chat-large",
         defaultRoute: "azure-openai",
       }),
       spec,
       team,
     );
     expect(update).toHaveBeenLastCalledWith("team_1", expect.anything(), {
-      models: expect.objectContaining({ defaultModelId: "azure-openai/gpt-5.1" }),
+      models: expect.objectContaining({ defaultModelId: "azure-openai/chat-large" }),
     });
     await uc.save(
       "team_1",
-      agent({ access: "all", modelIds: [], defaultModelId: "claude-sonnet" }),
+      agent({ access: "all", modelIds: [], defaultModelId: "model-a" }),
       spec,
       team,
     );
     expect(update).toHaveBeenLastCalledWith("team_1", expect.anything(), {
-      models: expect.objectContaining({ defaultModelId: "claude-sonnet" }),
+      models: expect.objectContaining({ defaultModelId: "model-a" }),
     });
   });
 
@@ -563,7 +564,7 @@ describe("AgentRoutesUseCases (MEG-WEB-4)", () => {
     const err = await rejection(
       uc.save(
         "team_1",
-        agent({ access: "all", modelIds: [], defaultModelId: "claude-sonnet" }),
+        agent({ access: "all", modelIds: [], defaultModelId: "model-a" }),
         { routeAccess: "selected", routes: [], defaultRoute: "", defaultModel: "" },
         team,
       ),
@@ -573,15 +574,15 @@ describe("AgentRoutesUseCases (MEG-WEB-4)", () => {
   });
 
   it("reads the route spec an agent holds", () => {
-    expect(
-      routesSpecOf(agent({ access: "all", modelIds: [], defaultModelId: "claude-sonnet" })),
-    ).toEqual({ routeAccess: "all", routes: [], defaultRoute: "", defaultModel: "" });
+    expect(routesSpecOf(agent({ access: "all", modelIds: [], defaultModelId: "model-a" }))).toEqual(
+      { routeAccess: "all", routes: [], defaultRoute: "", defaultModel: "" },
+    );
     expect(
       routesSpecOf(
         agent({
           access: "all",
           modelIds: [],
-          defaultModelId: "azure-openai/gpt-5.1",
+          defaultModelId: "azure-openai/chat-large",
           routeAccess: "selected",
           routes: ["azure-openai"],
           defaultRoute: "azure-openai",
@@ -591,17 +592,17 @@ describe("AgentRoutesUseCases (MEG-WEB-4)", () => {
       routeAccess: "selected",
       routes: ["azure-openai"],
       defaultRoute: "azure-openai",
-      defaultModel: "gpt-5.1",
+      defaultModel: "chat-large",
     });
     expect(
       routesSpecOf(
         agent({
           access: "all",
           modelIds: [],
-          defaultModelId: "gpt-5.1",
+          defaultModelId: "chat-large",
           defaultRoute: "azure-openai",
         }),
       ).defaultModel,
-    ).toBe("gpt-5.1");
+    ).toBe("chat-large");
   });
 });

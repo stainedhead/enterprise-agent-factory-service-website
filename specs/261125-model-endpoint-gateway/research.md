@@ -25,8 +25,20 @@
 5. **`ListTeamModelEndpoints` has no spend or agents-using figures.** Screen 61 shows *Agents using* and *Spend MTD*
    per route; the console takes spend from the team inference report grouped by route and omits *Agents using*.
 6. **No list of recent provider changes.** Screen 68's *Recent changes* card links to the audit log instead.
-7. **`ListModelEndpoints` has no direct-LLM-access view.** Screen 56's *Direct LLM access* card is shown from
-   `ListInferenceProviders.directSystems` counts only.
+7. **`ListModelEndpoints` has no direct-LLM-access view.** Screen 56's *Direct LLM access* card has no data source;
+   the console shows direct-access counts only in the provider turn-off impact (`impact.directSystems`).
 8. **Agent models live on `UpdateAgent`.** The contract describes `PutAgentModels`; 1.5.0 has no such operation, so
    routes are saved through `UpdateAgent` `models` (`routeAccess`, `routes`, `defaultRoute`) with If-Match, and the
    CLI preview is `afs agents update-agent --models '<json>'`.
+9. **`PutTeamGatewaySettings` needs `teams:set-guardrails`,** not `admin:model-endpoints` (the operation sits
+   under `admin.teams`). The console gates the gateway settings on `teams:set-guardrails` and the team's selection on
+   `model-endpoints:write`.
+10. **Bedrock dry run.** `UpdateInferenceProvider?dryRun=true` validates the body as a real change, so a Bedrock
+    preview without `selectForAllTeams: true` is refused (`no_fallback_model`). The console previews the only allowed
+    change: the chosen fallback selected for every team.
+11. **Disabled wording.** TC-UI-04 quotes "Needs team-admin"; the console's established tooltip is
+    "Requires team-admin" (WEB-3, unchanged since 1.0). Endpoint-specific blocks use the PRD's words
+    ("Needs a service admin", "Needs permission from a service admin").
+12. **Gateway URL and state.** `ListTeamModelEndpoints` returns `gatewayDeployment` and `mayAddModelEndpoints` but no
+    gateway URL, state, pods or version; screen 61's gateway card shows the deployment, the route counts and the
+    route spend. The agent's env preview takes `AFS_GATEWAY_URL` from `Agent.models.env` when the API sends it.

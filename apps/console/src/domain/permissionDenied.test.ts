@@ -56,7 +56,7 @@ describe("every permission has a denied case (M6-Q7)", () => {
   });
 });
 
-describe("model endpoint grants (MEG-WEB-1..6)", () => {
+describe("model endpoint grants (MEG-WEB-5)", () => {
   const me = (r: Role) => meWithRole(r);
   it("only a service admin manages the catalog and switches providers", () => {
     for (const p of ["admin:model-endpoints", "admin:inference-providers"] as const) {

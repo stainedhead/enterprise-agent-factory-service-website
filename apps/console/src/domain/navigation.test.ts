@@ -61,7 +61,7 @@ describe("navigation (M0-D4)", () => {
     expect(NAV_ITEMS.find((i) => i.id === "config-values")?.route).toBe("/t/:teamId/config");
     expect(new Set(ids(NAV_ITEMS)).size).toBe(NAV_ITEMS.length);
   });
-  it("model endpoints: service admins see the catalog, every team role its routes (MEG-WEB-1, -3)", () => {
+  it("model endpoints: service admins see the catalog, every team role its routes (MEG-WEB-2, -3)", () => {
     expect(ids(visibleItems(svc, undefined))).toContain("model-endpoints-service");
     expect(ids(visibleItems(sec, undefined))).not.toContain("model-endpoints-service");
     for (const me of [admin, viewer, collaborator])

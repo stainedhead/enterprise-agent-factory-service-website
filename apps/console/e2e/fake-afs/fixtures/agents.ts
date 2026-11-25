@@ -162,10 +162,17 @@ export const agentsOf = (teamId: string): Json[] => {
 const decorate = (teamId: string, a: Json): Json => {
   const role = (a.role as string | undefined) ?? "worker";
   const link = role === "worker" ? linkOf(teamId, String(a.id)) : undefined;
-  const models = (a.models as Json | undefined) ?? {
+  const given = (a.models as Json | undefined) ?? {
     access: "all",
     defaultModelId: String(a.modelId ?? "anthropic.claude-sonnet-4-5"),
     effectiveModelIds: ["anthropic.claude-sonnet-4-5", "anthropic.claude-haiku-4-5"],
+  };
+  // 1.2.0 routes: all team routes unless narrowed; the gateway URL is the team's (gateway contract §8.2)
+  const models = {
+    routeAccess: "all",
+    defaultRoute: null,
+    ...given,
+    env: { AFS_GATEWAY_URL: `https://afs-gateway.afs-t-${teamId.slice(-4)}.svc:8443` },
   };
   return { ...a, role, models, ...(link ? { collaboration: link } : {}) };
 };

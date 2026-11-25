@@ -47,7 +47,7 @@ import { useService } from "../../services.js";
 import { useMe } from "../../shell/ShellContext.js";
 import { AREA, ErrorAlert, endpointKey, endpointTeamsKey, RouteBadges, usd } from "./shared.js";
 
-/** SG3 (screen 58, MEG-WEB-1, -2): an endpoint's details, models and prices, teams, credentials and federation. */
+/** SG3 (screen 58, MEG-WEB-2, -5): an endpoint's details, models and prices, teams, credentials and federation. */
 export function EndpointDetailPage() {
   const { endpointId = "" } = useParams();
   const uc = useService("adminModelEndpoints");

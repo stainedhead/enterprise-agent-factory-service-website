@@ -7,7 +7,7 @@ import { useOptionalService } from "../../services.js";
 import { usd } from "../sg-model-endpoints/shared.js";
 
 /**
- * TG5 (screen 65, MEG-WEB-5): month-to-date spend by route, and whether each counts against the hard cap. Per-token
+ * TG5 (screen 65, MEG-WEB-3): month-to-date spend by route, and whether each counts against the hard cap. Per-token
  * routes and Bedrock are capped; capacity and free routes are metered and reported only.
  */
 export function SpendBySource({ teamId }: { teamId: string }) {

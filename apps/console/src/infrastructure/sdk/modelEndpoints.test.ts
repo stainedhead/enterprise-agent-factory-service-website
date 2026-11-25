@@ -10,7 +10,7 @@ import { fakeApi, json, on } from "./testing.js";
 const ep = { id: "mep_1", slug: "azure-openai", version: 3 };
 const ADMIN = "/v1/admin/model-endpoints";
 
-describe("SdkAdminModelEndpoints (MEG-WEB-1)", () => {
+describe("SdkAdminModelEndpoints (MEG-WEB-2)", () => {
   it("lists with teams, gets, creates, switches with If-Match and deletes", async () => {
     const { client, calls } = fakeApi(
       on("GET", ADMIN, () => json({ items: [ep] })),
@@ -47,13 +47,13 @@ describe("SdkAdminModelEndpoints (MEG-WEB-1)", () => {
     );
     const a = new SdkAdminModelEndpoints(client);
     await a.createPrice("mep_1", {
-      modelName: "gpt-5.1",
+      modelName: "chat-large",
       inputUsdPerMtok: "1.25",
       outputUsdPerMtok: "10.00",
       effectiveFrom: "2026-11-25T00:00:00Z",
     });
     expect(calls[0]?.body).toEqual({
-      modelName: "gpt-5.1",
+      modelName: "chat-large",
       effectiveFrom: "2026-11-25T00:00:00Z",
       inputUsdPerMtok: "1.25",
       outputUsdPerMtok: "10.00",
@@ -109,7 +109,7 @@ describe("SdkAdminModelEndpoints (MEG-WEB-1)", () => {
   });
 });
 
-describe("SdkInferenceProviders (MEG-WEB-6)", () => {
+describe("SdkInferenceProviders (MEG-WEB-2)", () => {
   it("lists, previews as a dry run and updates without undefined members", async () => {
     const bedrock = { provider: "bedrock", enabled: true, version: 2 };
     const { client, calls } = fakeApi(
@@ -189,7 +189,7 @@ describe("SdkTeamModelEndpoints (MEG-WEB-3)", () => {
   });
 });
 
-describe("SdkInferenceReports (MEG-WEB-5)", () => {
+describe("SdkInferenceReports (MEG-WEB-2, -3)", () => {
   const report = {
     range: { from: "2026-11-01", to: "2026-11-25" },
     groupBy: ["route"],

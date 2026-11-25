@@ -21,7 +21,6 @@ import {
   Card,
   CliPreview,
   ConfirmDialog,
-  LinkButton,
   PageHeader,
   StatusIndicator,
   Switch,
@@ -45,7 +44,7 @@ export function tabOfPath(pathname: string): ModelEndpointTab {
   return "endpoints";
 }
 
-/** SG1 (screen 56, MEG-WEB-1): service endpoints, team-declared endpoints, price proposals and provider policy. */
+/** SG1 (screen 56, MEG-WEB-2): service endpoints, team-declared endpoints, price proposals and provider policy. */
 export function ModelEndpointsPage() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
@@ -62,13 +61,13 @@ export function ModelEndpointsPage() {
         description="OpenAI-compatible model services agents reach through their team gateway, by route name. Every call through a route is metered; per-token routes count against team budgets and hard caps."
         infoHref="/docs/model-endpoints"
         actions={
-          <LinkButton
+          <Button
             variant="primary"
-            href="/model-endpoints/new"
             disabledReason={gate(me, "admin:model-endpoints")}
+            onClick={() => navigate("/model-endpoints/new")}
           >
             Create endpoint
-          </LinkButton>
+          </Button>
         }
       />
       <Tabs

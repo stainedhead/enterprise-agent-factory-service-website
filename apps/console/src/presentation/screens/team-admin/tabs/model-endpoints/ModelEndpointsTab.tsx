@@ -20,7 +20,7 @@ import {
   useTeamRoutes,
 } from "../../../tg-model-endpoints/RouteTables.js";
 
-/** SG5 (screen 60, MEG-WEB-3): a team's gateway settings and its routes, as a service admin sees them. */
+/** SG5 (screen 60, MEG-WEB-2): a team's gateway settings and its routes, as a service admin sees them. */
 export function ModelEndpointsTab({ teamId }: { teamId: string }) {
   const me = useMe();
   const routes = useTeamRoutes(teamId);

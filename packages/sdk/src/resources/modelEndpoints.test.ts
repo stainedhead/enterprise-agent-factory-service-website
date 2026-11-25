@@ -46,20 +46,20 @@ describe("route names (MEG-WEB-1)", () => {
     expect(isRouteName("a")).toBe(false);
   });
   it("parses and formats route models", () => {
-    expect(parseRouteModel("azure-openai/gpt-5.1")).toEqual({
+    expect(parseRouteModel("azure-openai/chat-large")).toEqual({
       route: "azure-openai",
-      model: "gpt-5.1",
+      model: "chat-large",
     });
     expect(parseRouteModel("coder-vllm/Qwen/Qwen3-Coder")).toEqual({
       route: "coder-vllm",
       model: "Qwen/Qwen3-Coder",
     });
-    expect(parseRouteModel("anthropic.claude-sonnet-4-5")).toBeNull();
+    expect(parseRouteModel("anthropic.model-a-4-5")).toBeNull();
     expect(parseRouteModel("/x")).toBeNull();
     expect(parseRouteModel("route/")).toBeNull();
     expect(parseRouteModel("Bad/x")).toBeNull();
-    expect(formatRouteModel({ route: "openai-prod", model: "gpt-4.1" })).toBe(
-      "openai-prod/gpt-4.1",
+    expect(formatRouteModel({ route: "openai-prod", model: "chat-large" })).toBe(
+      "openai-prod/chat-large",
     );
   });
   it("names the contract's error reasons", () => {
@@ -86,14 +86,14 @@ describe("inference providers (MEG-WEB-1)", () => {
     const p = createInferenceProviders(client(f));
     const r = await p.impactOf(
       { id: "bedrock", version: 3 },
-      { reason: "policy", fallbackModel: "azure-openai/gpt-5.1", selectForAllTeams: true },
+      { reason: "policy", fallbackModel: "azure-openai/chat-large", selectForAllTeams: true },
     );
     expect(f.requests[0]?.query.get("dryRun")).toBe("true");
     expect(f.requests[0]?.headers.get("if-match")).toBe('"3"');
     expect(f.requests[0]?.body).toEqual({
       enabled: false,
       reason: "policy",
-      fallbackModel: "azure-openai/gpt-5.1",
+      fallbackModel: "azure-openai/chat-large",
       selectForAllTeams: true,
     });
     expect(r.impact?.agentsMovingToFallback).toBe(8);

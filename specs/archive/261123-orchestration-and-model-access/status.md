@@ -11,12 +11,12 @@ Created: 2026-11-23. Source: [orchestration-and-model-access-PRD.md](orchestrati
 | 2 Research and data modeling | Complete |
 | 3 Architecture and planning | Complete |
 | 4 Task breakdown | Complete |
-| 5 Implementation | Complete (O1-O12); CI baselines pending |
-| 6 Completion and archival | Pending |
+| 5 Implementation | Complete (O1-O12) |
+| 6 Completion and archival | Complete (archived 2026-11-25) |
 
 ## Tasks
 
-See [tasks.md](tasks.md). Done: O1 to O12. Visual baselines for S12, T17, T18, V4 and the screens changed by this release regenerate in CI (`[regen-baselines]`), then J approves them.
+See [tasks.md](tasks.md). Done: O1 to O12. Visual baselines for S12, T17, T18, V4 and the screens changed by this release were regenerated in CI and approved by J (2026-11-23).
 
 ## Blockers
 
@@ -31,3 +31,4 @@ None.
   `bun run gate` green (SDK 356, console 1572 tests); real screenshots refreshed.
 - Known deviations: routes use `/t/:teamId/...`; other purple badges re-themed teal; CLI preview flags follow PRD ORC-29;
   CreateTeam orchestration volume is a read-only service default in the UI; S2 has no detail Orchestration tab; SDK `Page.extras`.
+- 2026-11-25: 100% complete (release 1.1.0 merged, baselines approved by J); moved to `specs/archive/`.

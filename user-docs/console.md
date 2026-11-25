@@ -181,6 +181,45 @@ show counts and bytes, never a cost, and flag unmetered systems. An agent's *Usa
 admins also have `/reports` and *Cost reconciliation*, which lists team-days where the gateway estimate and the billed
 cost differ.
 
+## Model endpoints (`/model-endpoints`, service admins)
+
+![Model endpoints](../docs/images/screenshots/56-admin-model-endpoints.png)
+
+OpenAI-compatible model services that agents reach through their team gateway, by route name. Every call is
+metered; per-token routes count against team budgets and hard caps, capacity and free routes are reported only.
+
+- **Endpoints**: the service catalog with its badges (Built-in, Metered, Capped, Extra terms), a switch per endpoint
+  (off means off for every team), health over 15 minutes, and the endpoints teams declared. *Create endpoint* is a
+  wizard with a review step and the equivalent `afs model-endpoints create-model-endpoint` command; the endpoint is
+  created off, and a per-token model without both prices is saved but not callable.
+- **Endpoint detail** (`/model-endpoints/<id>`): models and prices (*Add price*), and *Teams & credentials*: set or
+  rotate a shared or per-team key, or enter the workload identity federation identifiers. Credential values are
+  write-only: they live only in the masked field until sent, and are never shown again.
+- **Price proposals**: approve or reject a price read from a provider price list, beside the price it replaces.
+- **Provider policy** (`/model-endpoints/providers`): one switch per provider, Bedrock included. Turning one off
+  shows the impact first (routes refused, teams and agents affected). Bedrock also needs a fallback route model
+  selected for every team before *Turn off* is enabled.
+- **A team's gateway** (`/teams/<team>/admin`, *Model endpoints* tab): the gateway deployment, whether the team may
+  declare its own endpoints, and the team's routes (endpoints with extra terms are selected here).
+
+## Team model endpoints (`/t/<team>/model-endpoints`)
+
+![Team model endpoints](../docs/images/screenshots/61-ta-model-endpoints.png)
+
+The routes this team's agents can call: the service endpoints the team added (with spend this month), those it may
+add, and the team's own endpoints. Team-admins add and remove service endpoints and set the team's key; an endpoint
+with extra terms says *Needs a service admin*. *Create endpoint* declares a team endpoint (for example vLLM in the
+team's namespace) when a service admin allows it. Team viewers see the same page read-only.
+
+On an agent, the *Models & routes* tab keeps the Bedrock model choice and adds the agent's routes (all team routes
+or a selection), the default route and model, and *What the agent receives*: the `AFS_LLM_*` and `OPENAI_*`
+variables on its next restart. No upstream credential reaches an agent. Saving restarts the agent's pod; the
+equivalent command is `afs agents update-agent --models '<json>'`.
+
+The *Inference* tab of the reports (`/reports/inference`, `/t/<team>/reports/inference`) shows calls, errors,
+tokens, cost and latency by route, model, agent or time, with a CSV download. *Budget & usage* adds spend by route,
+marking which routes count against the hard cap.
+
 ## Model catalog and pricing (`/models`, service admins)
 
 ![Model catalog and pricing](../docs/images/screenshots/04-admin-models.png)

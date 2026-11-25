@@ -47,7 +47,7 @@ const key = (r: InferenceRowRecord, groupBy: readonly string[]) =>
     .join("|");
 const groupKey = (g: string) => (g === "agent" ? "agentId" : g === "team" ? "teamId" : g);
 
-/** SG4 and TG4 (screens 59, 64; MEG-WEB-5): calls, errors, tokens, cost and latency by route, model, agent or time. */
+/** SG4 and TG4 (screens 59, 64; MEG-WEB-2, -3): calls, errors, tokens, cost and latency by route, model, agent or time. */
 export function InferencePanel({ scope }: { scope: InferenceScope }) {
   const uc = useService("inferenceReports");
   const [params] = useSearchParams();

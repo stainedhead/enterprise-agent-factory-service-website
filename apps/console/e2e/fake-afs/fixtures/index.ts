@@ -24,6 +24,7 @@ import { historyFixtures, resetHistory } from "./history.js";
 import { identityFixtures, resetIdentity } from "./identity.js";
 import { logDestinationsFixtures, resetLogDestinations } from "./logDestinations.js";
 import { membersFixtures, resetMembers } from "./members.js";
+import { modelEndpointsFixtures, resetModelEndpoints } from "./modelEndpoints.js";
 import { notificationsFixtures, resetNotifications } from "./notifications.js";
 import { overviewFixtures, resetOverview } from "./overview.js";
 import { poolsFixtures, resetPools } from "./pools.js";
@@ -94,6 +95,7 @@ export const fixtureModules: readonly (readonly Fixture[])[] = [
   poolsFixtures,
   adminApiKeysFixtures,
   collaborationFixtures,
+  modelEndpointsFixtures,
 ];
 
 /** Stateful fixture modules register a reset here; the server calls them on `/__reset`. */
@@ -122,4 +124,5 @@ export const fixtureResets: readonly (() => void)[] = [
   resetSwarmTemplates,
   resetAdminApiKeys,
   resetCollaboration,
+  resetModelEndpoints,
 ];

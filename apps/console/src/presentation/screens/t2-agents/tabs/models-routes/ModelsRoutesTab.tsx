@@ -30,7 +30,7 @@ import { agentsKey } from "../../keys.js";
 import type { PanelTabProps } from "../../panelTabs.js";
 
 /**
- * TG3 and VG2 (screens 63, 67; MEG-WEB-4): the agent's Bedrock models (unchanged from 1.1.0) and its routes, the
+ * TG3 and VG2 (screens 63, 67; MEG-WEB-3, -4): the agent's Bedrock models (unchanged from 1.1.0) and its routes, the
  * default route and model, and the environment it receives on its next restart.
  */
 export function ModelsRoutesTab({ teamId, agent }: PanelTabProps) {

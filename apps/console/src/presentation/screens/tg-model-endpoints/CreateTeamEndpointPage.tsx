@@ -26,7 +26,7 @@ import { EndpointFields } from "../sg-model-endpoints/EndpointFields.js";
 import { AREA, ErrorAlert } from "../sg-model-endpoints/shared.js";
 import { useTeamRoutes } from "./RouteTables.js";
 
-/** TG2 (screen 62, MEG-WEB-4): a team declares its own endpoint, for example vLLM in its namespace. */
+/** TG2 (screen 62, MEG-WEB-3): a team declares its own endpoint, for example vLLM in its namespace. */
 export function CreateTeamEndpointPage() {
   const { teamId = "" } = useParams();
   const uc = useService("teamModelEndpoints");

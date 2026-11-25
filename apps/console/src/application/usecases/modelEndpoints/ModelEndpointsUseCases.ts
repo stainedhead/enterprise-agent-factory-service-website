@@ -213,6 +213,8 @@ export class ProviderPolicyUseCases {
       {
         ...this.#change(d),
         reason: d.reason.trim() || "impact preview",
+        // Bedrock goes off only with its fallback selected for every team, so that is what is previewed
+        ...(d.provider === BEDROCK_ROUTE && { selectForAllTeams: true }),
       },
     );
   }

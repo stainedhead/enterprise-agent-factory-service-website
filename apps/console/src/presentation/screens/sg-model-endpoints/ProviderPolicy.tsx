@@ -33,7 +33,7 @@ import { useService } from "../../services.js";
 import { useMe } from "../../shell/ShellContext.js";
 import { AREA, ErrorAlert, providersKey } from "./shared.js";
 
-/** SG6 (screens 68, 68a; MEG-WEB-6): one switch per provider, Bedrock included. */
+/** SG6 (screens 68, 68a; MEG-WEB-2): one switch per provider, Bedrock included. */
 export function ProviderPolicy() {
   const uc = useService("providerPolicy");
   const me = useMe();

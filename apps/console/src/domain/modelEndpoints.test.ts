@@ -151,7 +151,7 @@ describe("agent routes and environment (gateway contract §8.2, US-68)", () => {
     routeAccess: "selected" as const,
     routes: ["bedrock", "openai-prod", "coder-vllm"],
     defaultRoute: "openai-prod",
-    defaultModel: "gpt-4.1",
+    defaultModel: "chat-large",
   };
   it("puts the default first, then by name", () => {
     expect(effectiveRoutes(spec, team)).toEqual(["openai-prod", "bedrock", "coder-vllm"]);
@@ -202,7 +202,7 @@ describe("agent routes and environment (gateway contract §8.2, US-68)", () => {
   });
   it("validates the selection, the default route and its model", () => {
     const choices = [
-      { slug: "openai-prod", protocols: ["openai_chat"], models: ["gpt-4.1"] },
+      { slug: "openai-prod", protocols: ["openai_chat"], models: ["chat-large"] },
       { slug: "bedrock", protocols: ["openai_chat"], models: [] },
     ];
     expect(validateRoutes(spec, choices)).toEqual({});
@@ -311,11 +311,11 @@ describe("provider policy (screens 68, 68a; TC-UI-11)", () => {
     expect(providerOffBlock({ ...off, reason: "policy" })).toBeUndefined();
     const b = { ...off, provider: "bedrock", reason: "policy" };
     expect(providerOffBlock(b)).toBe("Choose a fallback default model");
-    expect(providerOffBlock({ ...b, fallbackModel: "azure-openai/gpt-5.1" })).toContain(
+    expect(providerOffBlock({ ...b, fallbackModel: "azure-openai/chat-large" })).toContain(
       "every team",
     );
     expect(
-      providerOffBlock({ ...b, fallbackModel: "azure-openai/gpt-5.1", selectForAllTeams: true }),
+      providerOffBlock({ ...b, fallbackModel: "azure-openai/chat-large", selectForAllTeams: true }),
     ).toBeUndefined();
   });
   it("offers callable route models on switched-on endpoints of providers that are on", () => {
@@ -327,7 +327,7 @@ describe("provider policy (screens 68, 68a; TC-UI-11)", () => {
           provider: "azure",
           providerState: "on",
           models: [
-            { modelName: "gpt-5.1", enabled: true, callable: true },
+            { modelName: "chat-large", enabled: true, callable: true },
             { modelName: "old", enabled: false },
             { modelName: "unpriced", enabled: true, callable: false },
           ],
@@ -348,7 +348,7 @@ describe("provider policy (screens 68, 68a; TC-UI-11)", () => {
         { slug: "eval", enabled: false, provider: "other" },
         { slug: "plain", enabled: true, provider: "openai" },
       ]),
-    ).toEqual(["azure-openai/gpt-5.1"]);
+    ).toEqual(["azure-openai/chat-large"]);
   });
 });
 
@@ -412,13 +412,13 @@ describe("CLI previews (WEB-6)", () => {
       renderCli(
         updateInferenceProviderCli("bedrock", {
           enabled: false,
-          fallbackModel: "azure-openai/gpt-5.1",
+          fallbackModel: "azure-openai/chat-large",
           selectForAllTeams: true,
           reason: "Enterprise policy",
         }),
       ),
     ).toBe(
-      "afs model-endpoints update-inference-provider --provider bedrock --no-enabled --fallback-model azure-openai/gpt-5.1 --reason 'Enterprise policy' --select-for-all-teams",
+      "afs model-endpoints update-inference-provider --provider bedrock --no-enabled --fallback-model azure-openai/chat-large --reason 'Enterprise policy' --select-for-all-teams",
     );
     expect(renderCli(updateInferenceProviderCli("google", { enabled: true }))).toBe(
       "afs model-endpoints update-inference-provider --provider google --enabled",

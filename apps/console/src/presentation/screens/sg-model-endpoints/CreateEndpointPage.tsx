@@ -28,7 +28,7 @@ import { useMe } from "../../shell/ShellContext.js";
 import { EndpointFields } from "./EndpointFields.js";
 import { AREA, catalogKey, ErrorAlert } from "./shared.js";
 
-/** SG2 (screen 57, MEG-WEB-1): *Create endpoint*. It is created off; prices go in with it. */
+/** SG2 (screen 57, MEG-WEB-2): *Create endpoint*. It is created off; prices go in with it. */
 export function CreateEndpointPage() {
   const uc = useService("adminModelEndpoints");
   const me = useMe();
