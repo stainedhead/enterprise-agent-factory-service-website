@@ -1,6 +1,7 @@
 // Shared list: the tabs of T11 in order, added by the owning stream (M4-S adds *Schedules* here).
 import type { ComponentType } from "react";
 import type { Permission } from "../../../domain/permission.js";
+import { InferencePanel } from "./InferencePanel.js";
 import { type ReportSectionConfig, ReportSectionView } from "./ReportSection.js";
 import { SchedulesTab } from "./schedules/SchedulesTab.js";
 
@@ -69,6 +70,12 @@ export const sections: readonly ReportsSection[] = [
         }
       />
     ),
+  },
+  {
+    id: "inference",
+    label: "Inference",
+    permission: "reports:read",
+    Component: ({ teamId }) => <InferencePanel scope={{ level: "team", teamId }} />,
   },
   {
     id: "external-systems",

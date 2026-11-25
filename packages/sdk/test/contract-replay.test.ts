@@ -5,6 +5,7 @@ import { parse } from "yaml";
 import { operations } from "../src/generated/operations.js";
 import { apiKey, createAfs, type Versioned } from "../src/index.js";
 import { fakeFetch } from "../src/testing/fakeFetch.js";
+import { SDK_RENAMES } from "../tools/codegen/loader.js";
 import { CONTRACT_DIR, sha256 } from "../tools/contract-sync.js";
 
 type Doc = {
@@ -39,7 +40,7 @@ for (const [path, item] of Object.entries(doc.paths)) {
       if (status.startsWith("2") && ex !== undefined) {
         examples.push({
           id: op.operationId,
-          sdk: op["x-afs-sdk"] as string,
+          sdk: SDK_RENAMES[op.operationId] ?? (op["x-afs-sdk"] as string),
           path,
           method: method.toUpperCase(),
           status: Number(status),
@@ -69,8 +70,8 @@ function collectMoney(v: unknown, found: [string, unknown][] = []): [string, unk
 }
 
 describe("contract replay (M0-P5)", () => {
-  it("finds the 172 JSON 2xx response examples (175 in all content types and statuses)", () => {
-    expect(examples).toHaveLength(172);
+  it("finds the 197 JSON 2xx response examples", () => {
+    expect(examples).toHaveLength(197);
   });
 
   it.each(examples.map((e) => [`${e.id} ${e.status}`, e] as const))(

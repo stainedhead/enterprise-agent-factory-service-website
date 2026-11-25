@@ -280,12 +280,24 @@ export class AfsClient {
       wanted.push([prop, rest.slice(k, k + n).join("/")]);
       k += n;
     }
+    const match = (item: Record<string, unknown>) =>
+      wanted.every(([prop, v]) => String(item[prop]) === v);
+    // A plain `{items}` list without paging (ListInferenceProviders) is read in one call.
+    if (!readerDef.list) {
+      const res = await this.call<{ items?: Record<string, unknown>[] }>(
+        r.operationId as OperationId,
+        { path: parentIds },
+        callOpts,
+      );
+      const item = (res.items ?? []).find(match);
+      return item ? (def.versionless ? 1 : (item.version as number | undefined)) : undefined;
+    }
     for await (const item of this.paginate<Record<string, unknown>>(
       r.operationId as OperationId,
       { path: parentIds },
       callOpts,
     )) {
-      if (wanted.every(([prop, v]) => String(item[prop]) === v)) {
+      if (match(item)) {
         return def.versionless ? 1 : (item.version as number | undefined);
       }
     }

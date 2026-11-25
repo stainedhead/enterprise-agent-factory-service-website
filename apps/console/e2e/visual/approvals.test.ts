@@ -26,8 +26,8 @@ const baselines = (dir: string): string[] =>
 const onDisk = new Set(baselines(join(import.meta.dirname, "..", "specs")));
 
 describe("visual approvals (M6-Q2)", () => {
-  it("has an entry for each of the 37 screens and nothing else", () => {
-    expect(SCREEN_IDS).toHaveLength(37);
+  it("has an entry for each of the 50 screens and nothing else", () => {
+    expect(SCREEN_IDS).toHaveLength(50);
     expect(Object.keys(approvals).sort()).toEqual([...SCREEN_IDS].sort());
   });
   it.each(SCREEN_IDS)("%s has a baseline on disk and a recorded status", (id) => {
@@ -42,9 +42,32 @@ describe("visual approvals (M6-Q2)", () => {
     if (a?.status === "approved")
       for (const s of a.snapshots) expect(onDisk.has(s), `${id}: ${s}`).toBe(true);
   });
-  it("records every screen but the Paperclip ones as approved by J on 2026-11-22", () => {
+  // 1.2.0 model endpoint gateway screens (56 to 68a): pending until J approves the CI-generated baselines
+  const GATEWAY = new Set([
+    "SG1",
+    "SG2",
+    "SG3",
+    "SG4",
+    "SG5",
+    "SG6",
+    "TG1",
+    "TG2",
+    "TG3",
+    "TG4",
+    "TG5",
+    "VG1",
+    "VG2",
+  ]);
+  it("records the model endpoint gateway screens as pending or approved by J", () => {
+    for (const id of GATEWAY) {
+      const a = approvals[id];
+      expect(["pending", "approved"], id).toContain(a?.status);
+      if (a?.status === "approved") expect(a.approver, id).toBe("J");
+    }
+  });
+  it("records every screen but the Paperclip and gateway ones as approved by J on 2026-11-22", () => {
     for (const id of SCREEN_IDS.filter(
-      (i) => i !== "T17" && i !== "T18" && i !== "V4" && i !== "S12",
+      (i) => i !== "T17" && i !== "T18" && i !== "V4" && i !== "S12" && !GATEWAY.has(i),
     )) {
       expect(approvals[id]).toMatchObject({
         status: "approved",

@@ -31,6 +31,13 @@ import {
   ApiKeysUseCases,
   MembersUseCases,
 } from "../application/usecases/members/MembersUseCases.js";
+import {
+  AdminModelEndpointsUseCases,
+  AgentRoutesUseCases,
+  InferenceReportUseCases,
+  ProviderPolicyUseCases,
+  TeamModelEndpointsUseCases,
+} from "../application/usecases/modelEndpoints/ModelEndpointsUseCases.js";
 import { NotificationsUseCases } from "../application/usecases/notifications/NotificationsUseCases.js";
 import { OrchestrationUseCases } from "../application/usecases/orchestration/OrchestrationUseCases.js";
 import { OverviewUseCases } from "../application/usecases/overview/OverviewUseCases.js";
@@ -74,6 +81,12 @@ import { SdkAudit, SdkRevisions } from "../infrastructure/sdk/history.js";
 import { SdkIdentity } from "../infrastructure/sdk/identity.js";
 import { SdkLogDestinations } from "../infrastructure/sdk/logDestinations.js";
 import { SdkApiKeys, SdkMembers } from "../infrastructure/sdk/members.js";
+import {
+  SdkAdminModelEndpoints,
+  SdkInferenceProviders,
+  SdkInferenceReports,
+  SdkTeamModelEndpoints,
+} from "../infrastructure/sdk/modelEndpoints.js";
 import { SdkNotifications } from "../infrastructure/sdk/notifications.js";
 import { SdkOrchestration } from "../infrastructure/sdk/orchestration.js";
 import { SdkOverview } from "../infrastructure/sdk/overview.js";
@@ -104,7 +117,16 @@ export function buildServices(
   const workOrdersPort = new SdkWorkOrders(client);
   const agentsUseCases = new AgentsUseCases(new SdkAgents(client));
   const configValues = new ConfigUseCases(new SdkConfig(client));
+  const modelEndpointsPort = new SdkAdminModelEndpoints(client);
   return {
+    adminModelEndpoints: new AdminModelEndpointsUseCases(modelEndpointsPort, clock),
+    providerPolicy: new ProviderPolicyUseCases(
+      new SdkInferenceProviders(client),
+      modelEndpointsPort,
+    ),
+    teamModelEndpoints: new TeamModelEndpointsUseCases(new SdkTeamModelEndpoints(client)),
+    agentRoutes: new AgentRoutesUseCases(new SdkAgents(client)),
+    inferenceReports: new InferenceReportUseCases(new SdkInferenceReports(client)),
     signInProviders: shared.listProviders,
     agents: agentsUseCases,
     secrets: new SecretsUseCases(new SdkSecrets(client)),

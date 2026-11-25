@@ -7,6 +7,7 @@ import { DetailsTab } from "./tabs/details/DetailsTab.js";
 import { ExternalSystemsTab } from "./tabs/external-systems/ExternalSystemsTab.js";
 import { IdentitiesTab } from "./tabs/identities/IdentitiesTab.js";
 import { LogsTab } from "./tabs/logs/LogsTab.js";
+import { ModelsRoutesTab } from "./tabs/models-routes/ModelsRoutesTab.js";
 import { RevisionsTab } from "./tabs/revisions/RevisionsTab.js";
 import { SecretsIdentityTab } from "./tabs/secrets-identity/SecretsIdentityTab.js";
 import { UsageTab } from "./tabs/usage/UsageTab.js";
@@ -26,6 +27,13 @@ export interface PanelTab {
 
 export const panelTabs: readonly PanelTab[] = [
   { id: "details", label: "Details", permission: "agents:read", Component: DetailsTab },
+  // TG3/VG2 (1.2.0): Bedrock models and the agent's routes
+  {
+    id: "models",
+    label: "Models & routes",
+    permission: "model-endpoints:read",
+    Component: ModelsRoutesTab,
+  },
   { id: "logs", label: "Logs", permission: "logs:read", Component: LogsTab },
   { id: "revisions", label: "Revisions", permission: "revisions:read", Component: RevisionsTab },
   { id: "usage", label: "Usage", permission: "reports:read", Component: UsageTab },

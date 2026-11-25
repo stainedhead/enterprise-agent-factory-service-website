@@ -37,6 +37,20 @@ export const SCREEN_IDS = [
   "P4",
   "P5",
   "P6",
+  // 1.2.0 model endpoint gateway (root PRD Appendix A: S-G1..6, T-G1..5, V-G1..2)
+  "SG1",
+  "SG2",
+  "SG3",
+  "SG4",
+  "SG5",
+  "SG6",
+  "TG1",
+  "TG2",
+  "TG3",
+  "TG4",
+  "TG5",
+  "VG1",
+  "VG2",
 ] as const;
 
 export type ScreenId = (typeof SCREEN_IDS)[number] | "AUTH" | "NOT_FOUND";

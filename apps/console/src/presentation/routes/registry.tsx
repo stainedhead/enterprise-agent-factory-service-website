@@ -46,4 +46,19 @@ export const registry: Record<Exclude<ScreenId, "AUTH" | "NOT_FOUND">, ScreenCom
   V4: lazy(() => import("../screens/t17-orchestration/viewer.js")),
   S12: lazy(() => import("../screens/s12-orchestration/index.js")),
   V1: lazy(() => import("../screens/t1-overview/viewer.js")),
+  // 1.2.0 model endpoint gateway. SG6 (provider policy) is a tab of SG1; SG4/TG4 (inference) are tabs of the
+  // reports pages, SG5 a tab of the service-admin team page, TG3/VG2 a tab of the agent panel, TG5 a card of budget
+  SG1: lazy(() => import("../screens/sg-model-endpoints/index.js")),
+  SG2: lazy(() => import("../screens/sg-model-endpoints/create.js")),
+  SG3: lazy(() => import("../screens/sg-model-endpoints/detail.js")),
+  SG4: lazy(() => import("../screens/s8-reports/index.js")),
+  SG5: lazy(() => import("../screens/s2-teams/index.js")),
+  SG6: lazy(() => import("../screens/sg-model-endpoints/index.js")),
+  TG1: lazy(() => import("../screens/tg-model-endpoints/index.js")),
+  TG2: lazy(() => import("../screens/tg-model-endpoints/create.js")),
+  TG3: lazy(() => import("../screens/t2-agents/index.js")),
+  TG4: lazy(() => import("../screens/t11-reports/index.js")),
+  TG5: lazy(() => import("../screens/t5-budget/index.js")),
+  VG1: lazy(() => import("../screens/tg-model-endpoints/viewer.js")),
+  VG2: lazy(() => import("../screens/t2-agents/index.js")),
 };

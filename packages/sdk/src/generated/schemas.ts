@@ -114,17 +114,35 @@ export interface AgentList {
 export interface AgentModels {
   /** all follows the team list */
   access: "all" | "selected" | (string & {});
+  /** A Bedrock model id, or (v1.5.0) a route model as <route>/<model> or, with defaultRoute, the route's model name */
   defaultModelId: string;
+  /** v1.5.0: set when the default model is a route model; defaultModelId then holds the model name */
+  defaultRoute?: string | null;
   readonly effectiveModelIds?: string[];
+  /** v1.5.0: route slugs the agent can call (service routes the team opted in to and team routes, narrowed by routes, on providers that are on), default first */
+  readonly effectiveRoutes?: string[];
+  /** v1.5.0: the AFS_LLM_*, OPENAI_BASE_URL and OPENAI_API_KEY variables the agent receives on its next roll (names and non-secret values; OPENAI_API_KEY is the afs-gateway placeholder) */
+  readonly env?: Record<string, string>;
   modelIds?: string[];
+  /** v1.5.0: all follows the team's routes; selected narrows them to routes */
+  routeAccess?: "all" | "selected" | (string & {});
+  /** v1.5.0: route slugs selected when routeAccess is selected */
+  routes?: string[];
 }
 
 /** AgentModelsInput (OpenAPI schema `AgentModelsInput`). */
 
 export interface AgentModelsInput {
   access?: "all" | "selected" | (string & {});
+  /** A Bedrock model id or (v1.5.0) <route>/<model> */
   defaultModelId?: string;
+  /** v1.5.0; with defaultModelId as the route's model name. Sending both defaultRoute and a <route>/<model> defaultModelId that disagree → 400 conflicting_fields */
+  defaultRoute?: string | null;
   modelIds?: string[];
+  /** v1.5.0; create defaults to all */
+  routeAccess?: "all" | "selected" | (string & {});
+  /** v1.5.0; route slugs of the team's set (400 agent_routes_team otherwise) */
+  routes?: string[];
 }
 
 /** AgentTemplate (OpenAPI schema `AgentTemplate`). */
@@ -490,6 +508,19 @@ export interface CreateApiKeyRequest {
   role: "team_admin" | "team_collaborator" | "team_viewer" | (string & {});
 }
 
+/** CreateEndpointModelPriceRequest (OpenAPI schema `CreateEndpointModelPriceRequest`). */
+
+export interface CreateEndpointModelPriceRequest {
+  cachedInputUsdPerMtok?: Money;
+  effectiveFrom: Timestamp;
+  inputUsdPerMtok: Money;
+  modelName: string;
+  outputUsdPerMtok: Money;
+  requestFeeUsd?: Money;
+  /** transfer for an internal platform's chargeback rate */
+  source?: "manual" | "transfer" | (string & {});
+}
+
 /** CreateExportRequest (OpenAPI schema `CreateExportRequest`). */
 
 export interface CreateExportRequest {
@@ -523,6 +554,34 @@ export interface CreateLogDestinationRequest {
   kind: "cloudwatch" | "s3" | "otlp" | "splunk_hec" | "datadog" | (string & {});
   name: string;
   secretId?: string;
+}
+
+/** A service endpoint; created off (enabled false) */
+
+export interface CreateModelEndpointRequest {
+  /** Header name, required when authKind is header */
+  authHeader?: string | null;
+  authKind: "none" | "bearer" | "header" | "azure_federated" | "google_federated" | (string & {});
+  /** https for external and corporate; in_namespace may be http://<service>.<namespace>.svc:<port> */
+  baseUrl: string;
+  /** PEM; not a secret */
+  caBundle?: string | null;
+  credentialMode?: "shared" | "per_team" | (string & {});
+  description?: string;
+  displayName: string;
+  externalSystemId?: string;
+  location: "external" | "corporate" | (string & {});
+  maxBodyMib?: number;
+  models?: EndpointModelInput[];
+  pricingMode: "per_token" | "capacity" | "free" | (string & {});
+  /** openai_chat always; openai_responses and openai_embeddings add those paths */
+  protocols: ("openai_chat" | "openai_responses" | "openai_embeddings" | (string & {}))[];
+  /** Provider key of inference_providers (bedrock, openai, openrouter, nous, opencode, azure, google, other) or internal for corporate and in-namespace endpoints, which have no provider switch */
+  provider: string;
+  requiresTerms?: boolean;
+  slug: string;
+  timeoutSeconds?: number;
+  useProviderCost?: boolean;
 }
 
 /** CreateModelPriceRequest (OpenAPI schema `CreateModelPriceRequest`). */
@@ -659,6 +718,32 @@ export interface CreateSwarmTemplateRequest {
   ttlHours: number;
 }
 
+/** A team-declared endpoint (needs mayAddModelEndpoints). The provider is derived from the host; a host of a disabled provider is refused (provider_disabled). Created off */
+
+export interface CreateTeamModelEndpointRequest {
+  /** Header name, required when authKind is header */
+  authHeader?: string | null;
+  authKind: "none" | "bearer" | "header" | "azure_federated" | "google_federated" | (string & {});
+  /** https for external and corporate; in_namespace may be http://<service>.<namespace>.svc:<port> */
+  baseUrl: string;
+  /** PEM; not a secret */
+  caBundle?: string | null;
+  description?: string;
+  displayName: string;
+  location: "external" | "corporate" | "in_namespace" | (string & {});
+  maxBodyMib?: number;
+  metricsPort?: number;
+  models?: TeamEndpointModelInput[];
+  owner: string;
+  pricingMode: "per_token" | "capacity" | "free" | (string & {});
+  /** openai_chat always; openai_responses and openai_embeddings add those paths */
+  protocols: ("openai_chat" | "openai_responses" | "openai_embeddings" | (string & {}))[];
+  purpose: string;
+  /** Unique in the team and not a service slug */
+  slug: string;
+  timeoutSeconds?: number;
+}
+
 /** CreateTeamRequest (OpenAPI schema `CreateTeamRequest`). */
 
 export interface CreateTeamRequest {
@@ -765,6 +850,167 @@ export interface DeliveryStatus {
   lastTestId?: string | null;
 }
 
+/** What AFS stores and what the cloud admins must trust (§11.1) */
+
+export interface EndpointFederation {
+  readonly checkedAt?: Timestamp | null;
+  clientId?: string | null;
+  endpointId: string;
+  /** Azure: api://AzureADTokenExchange */
+  readonly expectedAudience?: string | null;
+  /** Azure: the EKS cluster's OIDC issuer URL to trust */
+  readonly expectedIssuer?: string | null;
+  /** Google: the team gateway's AWS role to map in the pool provider */
+  readonly expectedRoleArn?: string | null;
+  /** Azure: system:serviceaccount:afs-t-<slug>:afs-gateway */
+  readonly expectedSubject?: string | null;
+  kind: "azure" | "google" | (string & {});
+  readonly lastError?: string | null;
+  location?: string | null;
+  poolId?: string | null;
+  projectId?: string | null;
+  projectNumber?: string | null;
+  providerId?: string | null;
+  readonly status: "pending" | "ready" | "failing" | (string & {});
+  teamId: string;
+  tenantId?: string | null;
+  readonly version?: number;
+}
+
+/** Metadata only, no secret. Azure endpoints (authKind azure_federated) take tenantId and clientId; Google endpoints (google_federated) take projectNumber, poolId, providerId, projectId and location */
+
+export interface EndpointFederationRequest {
+  /** Azure: the managed identity or app registration */
+  clientId?: string;
+  /** Google, for example us-central1 or global */
+  location?: string;
+  /** Google workload identity pool */
+  poolId?: string;
+  /** Google */
+  projectId?: string;
+  /** Google */
+  projectNumber?: string;
+  /** Google pool provider */
+  providerId?: string;
+  /** Azure */
+  tenantId?: string;
+}
+
+/** EndpointModel (OpenAPI schema `EndpointModel`). */
+
+export interface EndpointModel {
+  /** Enabled and, on a per_token route, priced in force */
+  readonly callable?: boolean;
+  contextTokens?: number | null;
+  enabled: boolean;
+  maxOutputTokens: number;
+  /** What the client sends in model (for Azure, the deployment name) */
+  modelName: string;
+  /** The price in force, if any */
+  readonly price?: EndpointModelPriceInline | null;
+  /** not_required on capacity and free routes */
+  readonly priceState?: "approved" | "pending" | "none" | "not_required" | (string & {});
+}
+
+/** EndpointModelInput (OpenAPI schema `EndpointModelInput`). */
+
+export interface EndpointModelInput {
+  contextTokens?: number;
+  enabled?: boolean;
+  maxOutputTokens: number;
+  modelName: string;
+}
+
+/** The route models of an endpoint */
+
+export interface EndpointModelList {
+  endpointId: string;
+  items: EndpointModel[];
+  /** The endpoint's version after the change */
+  readonly version?: number;
+}
+
+/** An effective-dated price of a route model (append-only) */
+
+export interface EndpointModelPrice {
+  readonly approvedBy?: string | null;
+  cachedInputUsdPerMtok?: Money;
+  readonly createdAt?: Timestamp;
+  effectiveFrom: Timestamp;
+  endpointId: string;
+  inputUsdPerMtok: Money;
+  modelName: string;
+  outputUsdPerMtok: Money;
+  requestFeeUsd?: Money;
+  source: "manual" | "price_list" | "transfer" | "provider" | (string & {});
+}
+
+/** USD per million tokens and an optional per-call fee; team endpoints set prices inline (PutTeamEndpointModels) */
+
+export interface EndpointModelPriceInline {
+  cachedInputUsdPerMtok?: Money;
+  inputUsdPerMtok: Money;
+  outputUsdPerMtok: Money;
+  requestFeeUsd?: Money;
+}
+
+/** EndpointPriceProposal (OpenAPI schema `EndpointPriceProposal`). */
+
+export interface EndpointPriceProposal {
+  cachedInputUsdPerMtok?: Money;
+  readonly decidedAt?: Timestamp | null;
+  readonly decidedBy?: string | null;
+  effectiveFrom: Timestamp;
+  endpointId: string;
+  readonly fetchedAt: Timestamp;
+  readonly id: string;
+  inputUsdPerMtok: Money;
+  modelName: string;
+  note?: string | null;
+  outputUsdPerMtok: Money;
+  requestFeeUsd?: Money;
+  readonly slug?: string;
+  /** LiteLLM's list or the provider's published prices */
+  source?: "price_list" | "provider" | (string & {});
+  readonly status: "pending" | "approved" | "rejected" | "superseded" | (string & {});
+  /** 1 while pending, 2 once decided */
+  readonly version?: number;
+}
+
+/** A page of EndpointPriceProposal resources */
+
+export interface EndpointPriceProposalList {
+  items: EndpointPriceProposal[];
+  /** Absent on the last page */
+  nextToken?: string;
+}
+
+/** One team's view of a service endpoint (screen 58) */
+
+export interface EndpointTeam {
+  credentialRotatedAt?: Timestamp | null;
+  credentialState: "set" | "missing" | "not_required" | (string & {});
+  federationState: "pending" | "ready" | "failing" | "not_required" | (string & {});
+  gatewayDeployment: "shared" | "per_namespace" | (string & {});
+  /** Image version of the team gateway, when rendered */
+  gatewayVersion?: string | null;
+  health?: ModelEndpointHealth;
+  selected: boolean;
+  selectedBy?: "team_admin" | "service_admin" | (string & {}) | null;
+  spendMtdUsd: Money;
+  teamDisplayName?: string;
+  teamId: string;
+  teamSlug?: string;
+}
+
+/** A page of EndpointTeam resources */
+
+export interface EndpointTeamList {
+  items: EndpointTeam[];
+  /** Absent on the last page */
+  nextToken?: string;
+}
+
 /** Error (OpenAPI schema `Error`). */
 
 export interface Error {
@@ -787,9 +1033,13 @@ export interface ErrorDetails {
   dependents?: string[];
   fields?: FieldError[];
   missingTags?: string[];
-  /** idempotency_mismatch, idempotency_in_progress, team_suspended, not_implemented and others */
+  /** v1.5.0, a model named by the reason */
+  model?: string;
+  /** idempotency_mismatch, idempotency_in_progress, team_suspended, not_implemented and others. v1.5.0 adds slug_taken, slug_reserved, slug_invalid, base_url_not_https, provider_disabled, no_fallback_model, endpoint_base_url_placeholder, needs_service_admin, team_endpoints_not_allowed, endpoint_enabled, endpoint_credential_path, agent_routes_team and agents_default_route_allowed */
   reason?: string;
   requiredPermission?: string;
+  /** v1.5.0, a route slug named by the reason */
+  route?: string;
   unownedRepos?: string[];
 }
 
@@ -921,6 +1171,15 @@ export interface IdentityProviderList {
 
 export type ImageRef = string;
 
+/** A provider's monthly statement. A text/csv body (columns teamId,model,amountUsd,tokens) takes period and source as query parameters */
+
+export interface ImportProviderStatementRequest {
+  /** Month, YYYY-MM */
+  period: string;
+  rows: ProviderStatementRow[];
+  source: "nous_statement" | "opencode_csv" | (string & {});
+}
+
 /** ImportReport (OpenAPI schema `ImportReport`). */
 
 export interface ImportReport {
@@ -945,6 +1204,103 @@ export interface ImportTeamResult {
   error?: string | null;
   result: "created" | "updated" | "skipped" | "failed" | (string & {});
   slug: Name;
+}
+
+/** A provider switch (Bedrock included). impact is present on a dryRun and after a change */
+
+export interface InferenceProvider {
+  readonly changedAt?: Timestamp | null;
+  readonly changedBy?: string | null;
+  readonly directSystems: number;
+  disabledReason?: string | null;
+  displayName: string;
+  enabled: boolean;
+  /** Bedrock only: <route>/<model> chosen when it was turned off */
+  fallbackModel?: string | null;
+  /** FQDN globs; other has none and matches any unlisted external host */
+  hosts: string[];
+  impact?: InferenceProviderImpact;
+  provider: string;
+  readonly routes: number;
+  teamSelection: "team_admin" | "service_admin" | (string & {});
+  readonly teams: number;
+  readonly version: number;
+}
+
+/** What turning the provider off (or on) changes (screen 68a) */
+
+export interface InferenceProviderImpact {
+  /** Agents and pools with a route or model of the provider */
+  agents: number;
+  /** Agents left with no model (for example templates that speak only Anthropic Messages) */
+  agentsDegraded: number;
+  /** Bedrock off: agents whose default moves to fallbackModel */
+  agentsMovingToFallback: number;
+  /** llm external systems that stop rendering */
+  directSystems: number;
+  fallbackModel?: string | null;
+  /** Endpoints on the provider (service and team) */
+  routes: number;
+  /** Teams with a route of the provider selected or declared */
+  teams: number;
+  /** Bedrock off: teams the fallback route would be selected for (selectForAllTeams) */
+  teamsToSelect: number;
+}
+
+/** Every provider */
+
+export interface InferenceProviderList {
+  items: InferenceProvider[];
+}
+
+/** Latency, TTFT, errors, throughput and cost from the usage ledger (PRD §10.5); never prompt or completion content */
+
+export interface InferenceReport {
+  groupBy: string[];
+  nextToken?: string;
+  notes: string[];
+  range: ReportRange;
+  rows: InferenceReportRow[];
+  totals: InferenceReportRow;
+}
+
+/** groupBy columns, then measures; percentiles are null with no calls */
+
+export interface InferenceReportRow {
+  agentId?: string;
+  cachedTokens?: number;
+  calls: number;
+  costUsd: Money;
+  costUsdPerHour?: Money;
+  day?: string;
+  /** capacity routes: allocated cost over tokens */
+  effectiveUsdPerMtok?: Money | null;
+  errorRatePct?: number;
+  errors: number;
+  /** Share of calls settled with usage_source estimated */
+  estimatedPct?: number;
+  /** Gateway added latency */
+  gatewayP99Ms?: number | null;
+  hour?: Timestamp;
+  inputTokens: number;
+  latencyP50Ms?: number | null;
+  latencyP95Ms?: number | null;
+  latencyP99Ms?: number | null;
+  model?: string;
+  outputTokens: number;
+  outputTokensPerSecond?: number | null;
+  poolId?: string;
+  pricingMode?: "per_token" | "capacity" | "free" | "bedrock" | (string & {});
+  reasoningTokens?: number;
+  /** AFS refusals (402, 403) */
+  refused?: number;
+  /** Endpoint slug; bedrock for Bedrock calls */
+  route?: string;
+  teamId?: string;
+  throttled?: number;
+  ttftP50Ms?: number | null;
+  ttftP95Ms?: number | null;
+  ttftP99Ms?: number | null;
 }
 
 /** kubeconfig YAML with an exec credential plugin; never a token */
@@ -1040,12 +1396,103 @@ export interface Model {
   origin?: "manual" | "bedrock_sync" | (string & {});
   priceState?: "approved" | "pending" | "none" | (string & {});
   provider: string;
+  /** v1.5.0: off while the model's provider (bedrock) is switched off by provider policy */
+  providerState?: "on" | "off" | (string & {});
   /** Admin list only */
   serviceEnabled?: boolean;
   /** Admin list only */
   teamsWithAccess?: number;
   readonly updatedAt?: Timestamp;
   readonly version?: number;
+}
+
+/** One configured upstream (a route). Never holds a credential value */
+
+export interface ModelEndpoint {
+  /** Header name, required when authKind is header */
+  authHeader?: string | null;
+  authKind: "none" | "bearer" | "header" | "azure_federated" | "google_federated" | (string & {});
+  /** https for external and corporate; in_namespace may be http://<service>.<namespace>.svc:<port> */
+  baseUrl: string;
+  readonly builtin?: boolean;
+  /** PEM; not a secret */
+  caBundle?: string | null;
+  /** per_token routes reserve and settle against the team budget */
+  readonly capped?: boolean;
+  readonly createdAt?: Timestamp;
+  readonly createdBy?: string;
+  /** Team endpoints are always per_team */
+  credentialMode: "shared" | "per_team" | (string & {});
+  description?: string;
+  displayName: string;
+  /** The service (or team) switch; new endpoints are off */
+  enabled: boolean;
+  /** The llm external system of the same provider (direct-access policy, MEG-OQ-5) */
+  externalSystemId?: string | null;
+  health?: ModelEndpointHealth;
+  readonly id: string;
+  location: "external" | "corporate" | "in_namespace" | (string & {});
+  maxBodyMib?: number;
+  readonly metered?: boolean;
+  /** in_namespace only */
+  metricsPort?: number | null;
+  readonly models?: EndpointModel[];
+  /** Required on team endpoints */
+  owner?: string | null;
+  pricingMode: "per_token" | "capacity" | "free" | (string & {});
+  /** openai_chat always; openai_responses and openai_embeddings add those paths */
+  protocols: ("openai_chat" | "openai_responses" | "openai_embeddings" | (string & {}))[];
+  /** Provider key of inference_providers (bedrock, openai, openrouter, nous, opencode, azure, google, other) or internal for corporate and in-namespace endpoints, which have no provider switch */
+  provider: string;
+  /** off when the provider's switch is off (provider policy) */
+  readonly providerState: "on" | "off" | (string & {});
+  /** Required on team endpoints */
+  purpose?: string | null;
+  /** Extra terms: only a service admin selects it for a team */
+  requiresTerms: boolean;
+  /** The route name; bedrock is reserved; immutable */
+  slug: string;
+  /** null for a service endpoint */
+  readonly teamId: string | null;
+  readonly teamsSelected?: number;
+  timeoutSeconds?: number;
+  readonly updatedAt?: Timestamp;
+  /** Settle to the larger of the provider's usage.cost and the token-price cost */
+  useProviderCost?: boolean;
+  readonly version: number;
+}
+
+/** Credential metadata only; there is no value member */
+
+export interface ModelEndpointCredential {
+  endpointId: string;
+  rotatedAt: Timestamp | null;
+  scope: string;
+  state: "set" | "missing" | (string & {});
+}
+
+/** The upstream credential (API key). Write-only: never stored in the database, returned or logged */
+
+export interface ModelEndpointCredentialRequest {
+  value: SecretValue;
+}
+
+/** Route health; Unknown before the first evaluation */
+
+export interface ModelEndpointHealth {
+  /** Why the state is not Ready, for example error_rate or ttft_objective */
+  reason?: string | null;
+  since?: Timestamp | null;
+  /** Route condition derived by the reconciler from the gateway ledger over 5 minutes (PRD §10.4) */
+  state: "Ready" | "Degraded" | "Unavailable" | "Unknown" | (string & {});
+}
+
+/** A page of ModelEndpoint resources */
+
+export interface ModelEndpointList {
+  items: ModelEndpoint[];
+  /** Absent on the last page */
+  nextToken?: string;
 }
 
 /** A page of Model resources */
@@ -1326,6 +1773,28 @@ export interface Principal {
   type: "user" | "api_key" | "workload" | (string & {});
 }
 
+/** ProviderStatement (OpenAPI schema `ProviderStatement`). */
+
+export interface ProviderStatement {
+  endpointId: string;
+  readonly id: string;
+  importedAt: Timestamp;
+  importedBy: string;
+  period: string;
+  rowCount: number;
+  source: "nous_statement" | "opencode_csv" | (string & {});
+  totalUsd: Money;
+}
+
+/** ProviderStatementRow (OpenAPI schema `ProviderStatementRow`). */
+
+export interface ProviderStatementRow {
+  amountUsd: Money;
+  model: string;
+  teamId: string;
+  tokens?: number;
+}
+
 /** PutAgentTemplateRequest (OpenAPI schema `PutAgentTemplateRequest`). */
 
 export interface PutAgentTemplateRequest {
@@ -1355,6 +1824,12 @@ export interface PutConfigValueRequest {
   source: "literal" | "namespace" | (string & {});
   /** Required when source is literal */
   value?: string;
+}
+
+/** Replaces the endpoint's route models; a model left out is removed */
+
+export interface PutEndpointModelsRequest {
+  models: EndpointModelInput[];
 }
 
 /** PutNamespaceConfigValueRequest (OpenAPI schema `PutNamespaceConfigValueRequest`). */
@@ -1419,6 +1894,26 @@ export interface PutTeamCollaborationRequest {
   registrationMode?: "manual" | "managed" | (string & {});
   restApiEnabled: boolean;
   webUiEnabled: boolean;
+}
+
+/** Replaces the team endpoint's route models and their prices (written as manual prices effective now) */
+
+export interface PutTeamEndpointModelsRequest {
+  models: TeamEndpointModelInput[];
+}
+
+/** Members sent replace stored ones (service admins only, teams_guardrail_guard). Routes are served only by team gateways */
+
+export interface PutTeamGatewaySettingsRequest {
+  deployment?: "shared" | "per_namespace" | (string & {});
+  mayAddModelEndpoints?: boolean;
+}
+
+/** Replaces the team's opt-in list. Selecting an extra-terms endpoint or one of a provider with teamSelection service_admin, or deselecting one a service admin selected, needs a service admin (403 needs_service_admin) */
+
+export interface PutTeamModelEndpointsRequest {
+  /** Service endpoints to opt in to; one left out is deselected */
+  endpointIds: string[];
 }
 
 /** A body with only modelIds is read as access selected (deprecated form) */
@@ -1957,6 +2452,8 @@ export interface Team {
   displayName: string;
   readonly effectiveCeilingUsd: Money;
   expiresAt?: Timestamp;
+  /** v1.5.0: shared gateway or a team gateway in the namespace; set with PutTeamGatewaySettings */
+  readonly gatewayDeployment?: "shared" | "per_namespace" | (string & {});
   readonly generation: number;
   readonly id: string;
   identityProviderId?: string;
@@ -1970,6 +2467,8 @@ export interface Team {
   maxCollaborationExposure?: "off" | "private" | "public" | (string & {});
   /** Guardrail field: needs teams:set-guardrails */
   mayAddExternalSystems: boolean;
+  /** v1.5.0: the team may declare its own model endpoints; set with PutTeamGatewaySettings */
+  readonly mayAddModelEndpoints?: boolean;
   /** Deprecated: use maxCollaborationExposure (limit is not off)
    * @deprecated Kept until 2.0.0; see the API contract for the successor. */
   mayExposeCollaboration?: boolean;
@@ -2042,12 +2541,99 @@ export interface TeamDirectoryList {
   nextToken?: string;
 }
 
+/** TeamEndpointModelInput (OpenAPI schema `TeamEndpointModelInput`). */
+
+export type TeamEndpointModelInput = EndpointModelInput & {
+  price?: EndpointModelPriceInline;
+};
+
+/** TeamGatewaySettings (OpenAPI schema `TeamGatewaySettings`). */
+
+export interface TeamGatewaySettings {
+  deployment: "shared" | "per_namespace" | (string & {});
+  /** shared until the reconciler has rendered the team gateway */
+  readonly gatewayState: "shared" | "provisioning" | "ready" | "degraded" | (string & {});
+  /** The opaque AFS_GATEWAY_URL agents of the team receive */
+  readonly gatewayUrl?: string | null;
+  mayAddModelEndpoints: boolean;
+  teamId: string;
+  /** The team's version */
+  readonly version: number;
+}
+
 /** A page of Team resources */
 
 export interface TeamList {
   items: Team[];
   /** Absent on the last page */
   nextToken?: string;
+}
+
+/** A route as the team sees it (screens 61, 66) */
+
+export interface TeamModelEndpoint {
+  authKind?: "none" | "bearer" | "header" | "azure_federated" | "google_federated" | (string & {});
+  /** Team endpoints only; null for service endpoints */
+  baseUrl?: string | null;
+  /** AFS_LLM_<ROUTE>_BASE_URL */
+  baseUrlEnv?: string;
+  capped?: boolean;
+  credentialMode?: "shared" | "per_team" | (string & {});
+  credentialState: "set" | "missing" | "not_required" | (string & {});
+  description?: string | null;
+  displayName: string;
+  enabled: boolean;
+  federationState?: "pending" | "ready" | "failing" | "not_required" | (string & {});
+  health?: ModelEndpointHealth;
+  id: string;
+  location: "external" | "corporate" | "in_namespace" | (string & {});
+  metered?: boolean;
+  models: EndpointModel[];
+  /** Why the route does not reach the team's agents */
+  offReason: "provider_disabled" | "endpoint_disabled" | "not_selected" | "credential_missing" | "federation_not_ready" | (string & {}) | null;
+  owner?: string | null;
+  pricingMode: "per_token" | "capacity" | "free" | (string & {});
+  protocols: ("openai_chat" | "openai_responses" | "openai_embeddings" | (string & {}))[];
+  provider: string;
+  providerState: "on" | "off" | (string & {});
+  purpose?: string | null;
+  /** selected: an opted-in service endpoint; own: declared by the team; available: switched on, not opted in */
+  relation: "selected" | "own" | "available" | (string & {});
+  requiresTerms?: boolean;
+  /** service_admin for extra-terms endpoints and providers with teamSelection service_admin */
+  selectableBy: "team_admin" | "service_admin" | (string & {});
+  selectedBy?: "team_admin" | "service_admin" | (string & {}) | null;
+  slug: string;
+  /** null for a service endpoint */
+  teamId: string | null;
+  version: number;
+}
+
+/** The team's selected, own and available routes */
+
+export interface TeamModelEndpointList {
+  /** Routes reach agents only with per_namespace */
+  gatewayDeployment: "shared" | "per_namespace" | (string & {});
+  items: TeamModelEndpoint[];
+  mayAddModelEndpoints: boolean;
+  /** Absent on the last page */
+  nextToken?: string;
+}
+
+/** TeamModelEndpointSelection (OpenAPI schema `TeamModelEndpointSelection`). */
+
+export interface TeamModelEndpointSelection {
+  endpointId: string;
+  selectedBy: "team_admin" | "service_admin" | (string & {});
+  slug: string;
+}
+
+/** TeamModelEndpointSelections (OpenAPI schema `TeamModelEndpointSelections`). */
+
+export interface TeamModelEndpointSelections {
+  endpointIds: string[];
+  selections: TeamModelEndpointSelection[];
+  teamId: string;
 }
 
 /** TeamModels (OpenAPI schema `TeamModels`). */
@@ -2167,6 +2753,19 @@ export interface UpdateIdentityProviderRequest {
   name?: string;
 }
 
+/** Turning Bedrock off without a usable fallback → 400 no_fallback_model */
+
+export interface UpdateInferenceProviderRequest {
+  enabled?: boolean;
+  /** Bedrock off only: becomes models.default_model_id; its route must be enabled, on a provider that is on */
+  fallbackModel?: string;
+  /** Recorded as disabledReason and in the audit record */
+  reason?: string;
+  /** Bedrock off only: select the fallback route for every team that lacks it (selectedBy service_admin) in the same transaction */
+  selectForAllTeams?: boolean;
+  teamSelection?: "team_admin" | "service_admin" | (string & {});
+}
+
 /** UpdateLogDestinationRequest (OpenAPI schema `UpdateLogDestinationRequest`). */
 
 export interface UpdateLogDestinationRequest {
@@ -2180,6 +2779,33 @@ export interface UpdateLogDestinationRequest {
 
 export interface UpdateMemberRequest {
   role: "team_admin" | "team_collaborator" | "team_viewer" | (string & {});
+}
+
+/** Members sent replace stored ones; slug cannot change */
+
+export interface UpdateModelEndpointRequest {
+  /** Header name, required when authKind is header */
+  authHeader?: string | null;
+  authKind?: "none" | "bearer" | "header" | "azure_federated" | "google_federated" | (string & {});
+  /** https for external and corporate; in_namespace may be http://<service>.<namespace>.svc:<port> */
+  baseUrl?: string;
+  /** PEM; not a secret */
+  caBundle?: string | null;
+  credentialMode?: "shared" | "per_team" | (string & {});
+  description?: string;
+  displayName?: string;
+  /** Refused while the provider is off (provider_disabled) or the base URL holds a placeholder (endpoint_base_url_placeholder) */
+  enabled?: boolean;
+  externalSystemId?: string | null;
+  location?: "external" | "corporate" | (string & {});
+  maxBodyMib?: number;
+  pricingMode?: "per_token" | "capacity" | "free" | (string & {});
+  /** openai_chat always; openai_responses and openai_embeddings add those paths */
+  protocols?: ("openai_chat" | "openai_responses" | "openai_embeddings" | (string & {}))[];
+  provider?: string;
+  requiresTerms?: boolean;
+  timeoutSeconds?: number;
+  useProviderCost?: boolean;
 }
 
 /** UpdateModelRequest (OpenAPI schema `UpdateModelRequest`). */
@@ -2256,6 +2882,30 @@ export interface UpdateSwarmTemplateRequest {
   spec?: SwarmTemplateSpec;
   teardownRule?: "at_expiry" | "at_cap_or_expiry" | "at_work_complete" | (string & {});
   ttlHours?: number;
+}
+
+/** Members sent replace stored ones; slug cannot change */
+
+export interface UpdateTeamModelEndpointRequest {
+  /** Header name, required when authKind is header */
+  authHeader?: string | null;
+  authKind?: "none" | "bearer" | "header" | "azure_federated" | "google_federated" | (string & {});
+  /** https for external and corporate; in_namespace may be http://<service>.<namespace>.svc:<port> */
+  baseUrl?: string;
+  /** PEM; not a secret */
+  caBundle?: string | null;
+  description?: string;
+  displayName?: string;
+  enabled?: boolean;
+  location?: "external" | "corporate" | "in_namespace" | (string & {});
+  maxBodyMib?: number;
+  metricsPort?: number | null;
+  owner?: string;
+  pricingMode?: "per_token" | "capacity" | "free" | (string & {});
+  /** openai_chat always; openai_responses and openai_embeddings add those paths */
+  protocols?: ("openai_chat" | "openai_responses" | "openai_embeddings" | (string & {}))[];
+  purpose?: string;
+  timeoutSeconds?: number;
 }
 
 /** Fields to change. maxBudgetUsd, the ceiling override, quotas, isolationTier, viewerKubectl, mayManageAwsAccounts, mayAddExternalSystems and mayExposeCollaboration, maxCollaborationExposure and modelAccess need teams:set-guardrails; allowedAwsAccounts needs teams:set-aws-accounts */

@@ -22,6 +22,7 @@ import { useOptionalService, useService } from "../../services.js";
 import { useMe } from "../../shell/ShellContext.js";
 import { downloadText } from "../t15-history/download.js";
 import { EditBudgetDialog } from "./EditBudgetDialog.js";
+import { SpendBySource } from "./SpendBySource.js";
 
 const ON_EXHAUST: Record<string, { title: string; text: string }> = {
   block: {
@@ -231,6 +232,7 @@ export function BudgetPage() {
                 getRowId={(a) => a.agentId}
               />
             </Card>
+            <SpendBySource teamId={teamId} />
             <Card title="Budget settings">
               <KeyValue
                 items={[

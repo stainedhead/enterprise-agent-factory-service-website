@@ -59,6 +59,47 @@ const costs = await reports.team("team_01...", "costs", { range: "30d", groupBy:
 const csv = await reports.team("team_01...", "usage", { range: "7d" }).asCsv();
 ```
 
+## Model endpoints and routes
+
+Contract 1.5.0 adds OpenAI-compatible model endpoints reached through each team's gateway. The generated resources
+are `adminModelEndpoints` (catalog, prices, credentials, federation, the teams of an endpoint),
+`adminEndpointPriceProposals`, `adminTeams.putGatewaySettings` and `teams(client).modelEndpoints` (a team's routes,
+its selection and its own endpoints). `createInferenceProviders` adds the provider switch helpers, and
+`createReports` the inference report. Credential values are write-only: send them once, they never come back.
+
+```ts
+import { AfsClient, adminModelEndpoints, createInferenceProviders, createReports, money, teams } from "@afs/sdk";
+
+const client = new AfsClient({ baseUrl, auth });
+for await (const e of adminModelEndpoints(client).list({ includeTeams: true })) console.log(e.slug, e.enabled);
+
+// a team's routes: items plus the gateway settings on the first page's extras
+const page = await teams(client).modelEndpoints.list("team_01...").first();
+await teams(client).modelEndpoints.putSelections("team_01...", { endpointIds: ["mep_01..."] });
+
+// prices are decimal strings in USD per million tokens
+await adminModelEndpoints(client).createPrice("mep_01...", {
+  modelName: "chat-large",
+  effectiveFrom: "2026-12-01T00:00:00Z",
+  inputUsdPerMtok: money("2.00"),
+  outputUsdPerMtok: money("8.00"),
+});
+
+// provider policy: preview, then turn off; Bedrock needs a fallback route model selected for every team
+const providers = createInferenceProviders(client);
+const preview = await providers.impactOf("bedrock", {
+  reason: "Enterprise policy",
+  fallbackModel: "openai-prod/chat-large",
+  selectForAllTeams: true,
+});
+console.log(preview.impact);
+
+// the inference report: calls, errors, tokens, cost and latency by route, model, agent or time
+const r = await createReports(client).teamInference("team_01...", { range: "mtd", groupBy: ["route"] });
+```
+
+`routeBaseUrlEnv("openai-prod")` gives `AFS_LLM_OPENAI_PROD_BASE_URL`, the variable an agent reads for a route.
+
 ## Versions
 
 Releases are cut by pushing a tag `sdk-v<version>` (for example `sdk-v1.0.1`); the version is taken from the tag.

@@ -59,3 +59,30 @@ export const ModelReason = {
   NotPriced: "model_not_priced",
   IdsNotAllowedForAll: "model_ids_not_allowed_for_all",
 } as const;
+
+/**
+ * `details.reason` values of model endpoints, routes and provider switches (API contract 4.13, v1.5.0).
+ * Unknown reasons still arrive as plain strings.
+ */
+export const ModelEndpointReason = {
+  /** 409: the route name is used by a service or team endpoint. */
+  SlugTaken: "slug_taken",
+  /** 400: `bedrock` is reserved for the built-in route. */
+  SlugReserved: "slug_reserved",
+  /** 400: the route name is not a DNS label (`^[a-z][a-z0-9-]{1,30}$`). */
+  SlugInvalid: "slug_invalid",
+  /** 400: external and corporate endpoints need an `https` base URL. */
+  BaseUrlNotHttps: "base_url_not_https",
+  /** 400 or 403: the endpoint's provider is switched off by provider policy. */
+  ProviderDisabled: "provider_disabled",
+  /** 400: Bedrock cannot be turned off until the service default is a route model selected for every team. */
+  NoFallbackModel: "no_fallback_model",
+  /** 400: the base URL still holds a placeholder. */
+  BaseUrlPlaceholder: "endpoint_base_url_placeholder",
+  /** 403: an extra-terms endpoint or a service-selected provider is selected by a service admin only. */
+  NeedsServiceAdmin: "needs_service_admin",
+  /** 403: the team may not declare its own endpoints (`mayAddModelEndpoints` is off). */
+  TeamEndpointsNotAllowed: "team_endpoints_not_allowed",
+  /** 409: an endpoint is deleted only while it is switched off. */
+  EndpointEnabled: "endpoint_enabled",
+} as const;

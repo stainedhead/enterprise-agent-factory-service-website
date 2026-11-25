@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import { isAppError } from "../../../application/errors.js";
 import { label } from "../../../domain/labels.js";
 import { format } from "../../../domain/money.js";
@@ -24,6 +24,10 @@ import { tabs } from "./tabs.js";
 /** Team detail for service admins (`/teams/:teamId/admin`): a summary plus the tabs other streams add. */
 export function TeamAdminPage({ teamId }: { teamId: string }) {
   const teams = useService("teams");
+  const [params, setParams] = useSearchParams();
+  const ids = ["summary", ...tabs.map((x) => x.id)];
+  const wanted = params.get("tab") ?? "summary";
+  const active = ids.includes(wanted) ? wanted : "summary";
   const q = usePolledQuery({
     queryKey: queryKey({ area: "teams", teamId, resource: "team" }),
     queryFn: ({ signal }) => teams.get(teamId, signal),
@@ -80,6 +84,8 @@ export function TeamAdminPage({ teamId }: { teamId: string }) {
       <PageHeader title={t.displayName} description={`Team administration for ${t.slug}`} />
       <Tabs
         label="Team administration"
+        activeId={active}
+        onChange={(id) => setParams(id === "summary" ? {} : { tab: id }, { replace: true })}
         tabs={[
           { id: "summary", label: "Summary", content: summary },
           ...tabs.map((x) => ({

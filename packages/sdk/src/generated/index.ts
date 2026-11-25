@@ -5,10 +5,13 @@ import { adminApiKeys } from "./resources/admin-apiKeys.js";
 import { adminAudit } from "./resources/admin-audit.js";
 import { adminCollaborationEndpoints } from "./resources/admin-collaborationEndpoints.js";
 import { adminCostTagStatus } from "./resources/admin-costTagStatus.js";
+import { adminEndpointPriceProposals } from "./resources/admin-endpointPriceProposals.js";
 import { adminExports } from "./resources/admin-exports.js";
 import { adminExternalSystems } from "./resources/admin-externalSystems.js";
 import { adminIdentityProviders } from "./resources/admin-identityProviders.js";
 import { adminImports } from "./resources/admin-imports.js";
+import { adminInferenceProviders } from "./resources/admin-inferenceProviders.js";
+import { adminModelEndpoints } from "./resources/admin-modelEndpoints.js";
 import { adminModels } from "./resources/admin-models.js";
 import { adminNotificationChannels } from "./resources/admin-notificationChannels.js";
 import { adminOrchestrationEndpoints } from "./resources/admin-orchestrationEndpoints.js";
@@ -20,6 +23,7 @@ import { adminSecurityOperators } from "./resources/admin-securityOperators.js";
 import { adminServiceTags } from "./resources/admin-serviceTags.js";
 import { adminSettings } from "./resources/admin-settings.js";
 import { adminStorageClasses } from "./resources/admin-storageClasses.js";
+import { adminTeams } from "./resources/admin-teams.js";
 import { agents } from "./resources/agents.js";
 import { agentTemplates } from "./resources/agentTemplates.js";
 import { apiKeys } from "./resources/apiKeys.js";
@@ -53,10 +57,13 @@ export { adminApiKeys } from "./resources/admin-apiKeys.js";
 export { adminAudit } from "./resources/admin-audit.js";
 export { adminCollaborationEndpoints } from "./resources/admin-collaborationEndpoints.js";
 export { adminCostTagStatus } from "./resources/admin-costTagStatus.js";
+export { adminEndpointPriceProposals } from "./resources/admin-endpointPriceProposals.js";
 export { adminExports } from "./resources/admin-exports.js";
 export { adminExternalSystems } from "./resources/admin-externalSystems.js";
 export { adminIdentityProviders } from "./resources/admin-identityProviders.js";
 export { adminImports } from "./resources/admin-imports.js";
+export { adminInferenceProviders } from "./resources/admin-inferenceProviders.js";
+export { adminModelEndpoints } from "./resources/admin-modelEndpoints.js";
 export { adminModels } from "./resources/admin-models.js";
 export { adminNotificationChannels } from "./resources/admin-notificationChannels.js";
 export { adminOrchestrationEndpoints } from "./resources/admin-orchestrationEndpoints.js";
@@ -68,6 +75,7 @@ export { adminSecurityOperators } from "./resources/admin-securityOperators.js";
 export { adminServiceTags } from "./resources/admin-serviceTags.js";
 export { adminSettings } from "./resources/admin-settings.js";
 export { adminStorageClasses } from "./resources/admin-storageClasses.js";
+export { adminTeams } from "./resources/admin-teams.js";
 export { agents } from "./resources/agents.js";
 export { agentTemplates } from "./resources/agentTemplates.js";
 export { apiKeys } from "./resources/apiKeys.js";
@@ -130,10 +138,13 @@ export function createAfs(options: AfsClientOptions) {
       audit: adminAudit(core),
       collaborationEndpoints: adminCollaborationEndpoints(core),
       costTagStatus: adminCostTagStatus(core),
+      endpointPriceProposals: adminEndpointPriceProposals(core),
       exports: adminExports(core),
       externalSystems: adminExternalSystems(core),
       identityProviders: adminIdentityProviders(core),
       imports: adminImports(core),
+      inferenceProviders: adminInferenceProviders(core),
+      modelEndpoints: adminModelEndpoints(core),
       models: adminModels(core),
       notificationChannels: adminNotificationChannels(core),
       orchestrationEndpoints: adminOrchestrationEndpoints(core),
@@ -145,6 +156,7 @@ export function createAfs(options: AfsClientOptions) {
       serviceTags: adminServiceTags(core),
       settings: adminSettings(core),
       storageClasses: adminStorageClasses(core),
+      teams: adminTeams(core),
     },
   };
 }

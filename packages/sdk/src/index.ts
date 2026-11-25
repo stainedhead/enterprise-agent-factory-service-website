@@ -6,6 +6,7 @@ export { money } from "./core/money.js";
 export {
   CollaborationReason,
   FieldReason,
+  ModelEndpointReason,
   ModelReason,
   OrchestrationReason,
 } from "./core/reasons.js";
@@ -28,6 +29,15 @@ export {
   createCollaboration,
 } from "./resources/collaboration.js";
 export {
+  createInferenceProviders,
+  formatRouteModel,
+  isRouteName,
+  type ProviderOffInput,
+  parseRouteModel,
+  type RouteModel,
+  routeBaseUrlEnv,
+} from "./resources/modelEndpoints.js";
+export {
   createOrchestration,
   type EndpointUrl,
   endpointUrls,
@@ -36,6 +46,8 @@ export {
 export {
   type CollaborationReportRow,
   createReports,
+  type InferenceGroup,
+  type InferenceQueryInput,
   type ReportGroup,
   type ReportKind,
   type ReportQueryInput,

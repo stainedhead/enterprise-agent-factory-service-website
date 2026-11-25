@@ -60,18 +60,18 @@ each agent; the console screens T17, T18, V4, S12 and S4 show and change it.
 
 ## Status
 
-Feature complete (1.1.0: team orchestration agent and model access). The API contract is pinned to `-restapi` commit `f8b4404` (contract 1.4.0, 194 operations);
+Feature complete (1.2.0: model endpoint gateway). The API contract is pinned to `-restapi` commit `7d48ea7` (contract 1.5.0, 221 operations);
 moving the pin to a tag is a `contract:update --ref <tag>` and a regenerate.
 
 ## What is here
 
-- **`@afs/sdk`** 1.1.0, published to GitHub Packages as **`@stainedhead/afs-sdk`**. Generated from the pinned
-  contract: 194 operations in 45 resource modules, async-iterator pagination, `If-Match` and `Idempotency-Key`
+- **`@afs/sdk`** 1.2.0, published to GitHub Packages as **`@stainedhead/afs-sdk`**. Generated from the pinned
+  contract: 221 operations in 49 resource modules, async-iterator pagination, `If-Match` and `Idempotency-Key`
   handling, retries, `AfsError`, `waitFor` and typed reports (`createReports`). Zero runtime dependencies.
-- **The console**: 37 screens for service admins, team admins, team viewers and the security operator, covering
+- **The console**: 50 screens for service admins, team admins, team viewers and the security operator, covering
   teams, members and API keys, agents, secrets and configuration, external systems, budgets and usage, models and
   pricing, reports, notifications and log delivery, audit and history, cost allocation tags, AWS access,
-  team orchestration (Paperclip AI or Buzz, Web UI and Web API exposure, managed secrets, access reports), model access at service, team and agent level, export and import, ephemeral teams with pools, work orders and swarm templates. Accessibility (axe on every
+  team orchestration (Paperclip AI or Buzz, Web UI and Web API exposure, managed secrets, access reports), model access at service, team and agent level, model endpoints and routes through the team gateway with provider policy and the inference report, export and import, ephemeral teams with pools, work orders and swarm templates. Accessibility (axe on every
   screen), keyboard flows, a secret sentinel, CSP and performance run in the Playwright suite.
 - **Deploy artifacts** in `apps/console/deploy/`: runtime `config.json` schema, security headers and cache behaviors.
 

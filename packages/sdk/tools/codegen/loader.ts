@@ -11,6 +11,15 @@ import {
 
 const METHODS = ["get", "post", "put", "patch", "delete"] as const;
 
+/**
+ * SDK names the contract assigns twice. Contract v1.5.0 gives both `GetInferenceReport` and
+ * `GetTeamInferenceReport` `reports.inference()`; the team variant becomes `reports.teamInference()`,
+ * matching `reports.team()` beside `reports.service()`. Recorded in the 1.2.0 spec's contract notes.
+ */
+export const SDK_RENAMES: Readonly<Record<string, string>> = {
+  GetTeamInferenceReport: "reports.teamInference()",
+};
+
 export function loadContract(dir: string): Contract {
   const doc: Node = parse(readFileSync(join(dir, "openapi.yaml"), "utf8"));
   const deref = (n: Node): Node => {
@@ -56,7 +65,7 @@ export function loadContract(dir: string): Contract {
         const json = content["application/json"] ?? content["application/yaml"];
         return { status: Number(s), schema: json?.schema, contentTypes: types };
       });
-    const sdk = String(op["x-afs-sdk"]);
+    const sdk = SDK_RENAMES[String(op.operationId)] ?? String(op["x-afs-sdk"]);
     const sm = /^([A-Za-z0-9.]+)\.([A-Za-z0-9]+)\(\)$/.exec(sdk);
     if (!sm) throw new Error(`${op.operationId}: bad x-afs-sdk ${sdk}`);
     const namespace = (sm[1] as string).split(".");
@@ -126,7 +135,9 @@ export function loadContract(dir: string): Contract {
       }
       const parent = trailing.length > 0 ? getAt(p) : undefined;
       const item = parent ? itemSchema(parent) : undefined;
-      if (parent?.list && item) {
+      // A plain `{items}` list without nextToken (ListInferenceProviders, contract v1.5.0) is a
+      // reader only where If-Match is required, so optional If-Match operations keep 1.1.0 behaviour.
+      if (parent && item && (parent.list || o.ifMatch === "required")) {
         const props = Object.keys(item.properties ?? {});
         const match: [string, string][] = [];
         // {owner}/{repo} path segments are one "owner/repo" value in the item's `repo` property.

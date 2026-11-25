@@ -41,6 +41,13 @@ export interface AgentModelsRecord {
   readonly modelIds: readonly string[];
   readonly defaultModelId: string;
   readonly effectiveModelIds?: readonly string[] | undefined;
+  /** v1.5.0 routes: `all` follows the team's routes; `selected` narrows them to `routes`. */
+  readonly routeAccess?: "all" | "selected" | undefined;
+  readonly routes?: readonly string[] | undefined;
+  readonly defaultRoute?: string | null | undefined;
+  readonly effectiveRoutes?: readonly string[] | undefined;
+  /** The `AFS_LLM_*` and `OPENAI_*` variables the agent receives (names and non-secret values). */
+  readonly env?: Readonly<Record<string, string>> | undefined;
 }
 
 /** `models` as sent on create and update: the selection is omitted for `all`. */
@@ -48,6 +55,9 @@ export interface ModelsInput {
   readonly access: "all" | "selected";
   readonly modelIds?: readonly string[] | undefined;
   readonly defaultModelId: string;
+  readonly routeAccess?: "all" | "selected" | undefined;
+  readonly routes?: readonly string[] | undefined;
+  readonly defaultRoute?: string | null | undefined;
 }
 
 export interface AgentRecord {

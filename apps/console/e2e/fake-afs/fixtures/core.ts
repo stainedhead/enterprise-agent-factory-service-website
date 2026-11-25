@@ -130,6 +130,10 @@ const teamPerms = {
     "collaboration:access",
   ],
 };
+// 1.2.0 model endpoint gateway (permissions.json, contract 1.5.0)
+teamPerms.team_admin.push("model-endpoints:read", "model-endpoints:write");
+teamPerms.team_collaborator.push("model-endpoints:read");
+teamPerms.team_viewer.push("model-endpoints:read");
 
 /** Identity, providers, teams and health: what the shell needs (M0). */
 export const coreFixtures: readonly Fixture[] = [

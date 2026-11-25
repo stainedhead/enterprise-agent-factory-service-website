@@ -61,7 +61,7 @@ jobs:
     env:
       HOME: /root # Firefox refuses to start when $HOME is not owned by the current user
     permissions:
-      contents: write # only used by the [regen-baselines] path below
+      contents: write # only used by the [regen-baselines] and [regen-new-baselines] paths below
     steps:
       - uses: actions/checkout@v5
         with:
@@ -71,8 +71,13 @@ jobs:
         id: regen
         run: |
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          if [ "${{ github.event_name }}" = "pull_request" ] && git log -1 --format=%B | grep -qF "[regen-baselines]"; then
-            echo "on=true" >> "$GITHUB_OUTPUT"
+          # [regen-baselines] rewrites every changed baseline; [regen-new-baselines] only writes missing ones and
+          # never touches an existing (approved) baseline
+          msg="$(git log -1 --format=%B)"
+          if [ "${{ github.event_name }}" = "pull_request" ] && printf '%s' "$msg" | grep -qF "[regen-baselines]"; then
+            echo "on=true" >> "$GITHUB_OUTPUT"; echo "mode=all" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event_name }}" = "pull_request" ] && printf '%s' "$msg" | grep -qF "[regen-new-baselines]"; then
+            echo "on=true" >> "$GITHUB_OUTPUT"; echo "mode=missing" >> "$GITHUB_OUTPUT"
           else
             echo "on=false" >> "$GITHUB_OUTPUT"
           fi
@@ -82,7 +87,7 @@ jobs:
         if: steps.regen.outputs.on == 'true'
         working-directory: apps/console
         run: |
-          bunx playwright test --project=chromium --update-snapshots || true
+          bunx playwright test --project=chromium --update-snapshots=${{ steps.regen.outputs.mode }} || true
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A -- 'e2e/specs/**/*-snapshots/*.png'

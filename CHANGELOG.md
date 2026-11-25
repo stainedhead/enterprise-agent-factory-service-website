@@ -2,11 +2,52 @@
 
 All notable changes to `@afs/sdk` and `@afs/console` (versioned together). Format follows
 [Keep a Changelog](https://keepachangelog.com/); versions are [semver](https://semver.org/). The REST API
-(`-restapi`) and the database (`-db`) ship the same version (1.1.0) so a release is one number across the set.
+(`-restapi`) and the database (`-db`) ship the same version (1.2.0) so a release is one number across the set.
+
+## [1.2.0] - 2026-11-25
+
+Model endpoint gateway (spec `specs/261125-model-endpoint-gateway`). SDK tag: `sdk-v1.2.0`.
+
+### Added (SDK)
+
+- Contract v1.5.0 resources: `adminModelEndpoints` (catalog, `createPrice`, `putCredential`, `rotateCredential`,
+  `putFederation`, `teams`), `adminEndpointPriceProposals`, `adminInferenceProviders`, `adminTeams.putGatewaySettings`
+  and `teams.modelEndpoints` (routes, `putSelections`, team endpoints and their credential).
+- `createInferenceProviders(client)`: `impactOf` (dry run), `turnOff` (with the Bedrock fallback) and `turnOn`.
+- `createReports(client).inference(query)` and `.teamInference(teamId, query)`, typed rows with latency and
+  time-to-first-token measures and `asCsv()`.
+- Route helpers `isRouteName`, `routeBaseUrlEnv`, `parseRouteModel`, `formatRouteModel`; `ModelEndpointReason`
+  constants for `details.reason`.
+
+### Changed (SDK)
+
+- The contract pin moves from v1.4.0 to v1.5.0 (`-restapi` `7d48ea7`), 221 operations (was 194) in 49 resource modules.
+  The MCP operations of v1.6.0 are not included.
+- Codegen: an operation whose SDK name collides with another is renamed in `SDK_RENAMES`
+  (`GetTeamInferenceReport` is `reports.teamInference()`); an `If-Match` update whose parent is a plain list
+  (`UpdateInferenceProvider`) reads its version through that list.
+
+### Added (console)
+
+- Service: *Model endpoints* (screens 56 to 58) with the catalog, a create wizard with CLI preview, endpoint detail
+  with prices, credentials and federation, and endpoint price proposals; *Provider policy* (68, 68a) with one switch per
+  provider, the dry-run impact, and Bedrock's fallback and every-team selection before *Turn off*; the *Inference* report
+  tab (59); a team's gateway settings and routes on the service team page (60).
+- Team: *Model endpoints* (61) with service endpoints to add or remove, the team's own endpoints and keys; *Create
+  endpoint* (62); the agent's *Models & routes* tab (63) with the default route and model and the environment the agent
+  receives; the team *Inference* report (64); spend by route on *Budget & usage* (65); read-only variants for viewers
+  (66, 67).
+- Permissions `admin:model-endpoints`, `admin:inference-providers`, `model-endpoints:read` and `model-endpoints:write`,
+  with denied cases. Credential values live only in the masked input until sent.
+- CI: `[regen-new-baselines]` in a commit message writes only missing Playwright baselines and leaves the approved ones.
+
+### Visual baselines
+
+- The 14 new baselines (screens 56 to 68a) are recorded `pending` until J approves them.
 
 ## [1.1.0] - 2026-11-23
 
-Team orchestration agent and model access (spec `specs/261123-orchestration-and-model-access`). SDK tag: `sdk-v1.1.0`.
+Team orchestration agent and model access (spec `specs/archive/261123-orchestration-and-model-access`). SDK tag: `sdk-v1.1.0`.
 
 ### Added (SDK)
 

@@ -107,6 +107,14 @@ export const NAV_ITEMS: readonly NavItem[] = [
     visibleWhen: serviceAdmin,
   },
   {
+    id: "model-endpoints-service",
+    group: "Platform",
+    label: "Model endpoints",
+    screen: "SG1",
+    route: "/model-endpoints",
+    visibleWhen: serviceAdmin,
+  },
+  {
     id: "agent-templates",
     group: "Platform",
     label: "Agent templates",
@@ -241,6 +249,16 @@ export const NAV_ITEMS: readonly NavItem[] = [
     visibleWhen: teamItem("models:read"),
   },
   {
+    id: "team-model-endpoints",
+    group: "Configuration",
+    label: "Model endpoints",
+    screen: "TG1",
+    viewerScreen: "VG1",
+    writePermission: "model-endpoints:write",
+    route: "/t/:teamId/model-endpoints",
+    visibleWhen: teamItem("model-endpoints:read"),
+  },
+  {
     id: "log-delivery",
     group: "Configuration",
     label: "Log delivery",
@@ -322,7 +340,22 @@ export const EXTRA_ROUTES: readonly { route: string; screen: ScreenId }[] = [
   { route: "/t/:teamId/agents/:agentId", screen: "T2" },
   { route: "/t/:teamId/reports/agents/:agentId", screen: "T12" },
   { route: "/t/:teamId/pools/new", screen: "P4" },
+  { route: "/model-endpoints/new", screen: "SG2" },
+  { route: "/model-endpoints/proposals", screen: "SG1" },
+  { route: "/model-endpoints/providers", screen: "SG6" },
+  { route: "/model-endpoints/:endpointId", screen: "SG3" },
+  { route: "/reports/inference", screen: "SG4" },
+  { route: "/t/:teamId/model-endpoints/new", screen: "TG2" },
+  { route: "/t/:teamId/reports/inference", screen: "TG4" },
 ];
+
+/** The tabs of the service *Model endpoints* page (screens 56 and 68), each with its own path. */
+export const MODEL_ENDPOINT_TABS = [
+  { id: "endpoints", label: "Endpoints", path: "/model-endpoints" },
+  { id: "proposals", label: "Price proposals", path: "/model-endpoints/proposals" },
+  { id: "providers", label: "Provider policy", path: "/model-endpoints/providers" },
+] as const;
+export type ModelEndpointTab = (typeof MODEL_ENDPOINT_TABS)[number]["id"];
 
 /** Old routes that move to a new place (ORC-20): `/t/:teamId/collaboration` is now *Orchestration*. */
 export const REDIRECTS: readonly { from: string; to: string }[] = [
