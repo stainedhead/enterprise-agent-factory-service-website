@@ -326,5 +326,60 @@
     "status": "pending",
     "snapshots": ["68-admin-provider-policy", "68a-admin-provider-policy-confirm"],
     "mockup": "68-admin-provider-policy.png"
+  },
+  "SM1": {
+    "status": "pending",
+    "snapshots": ["46-admin-mcp-catalog"],
+    "mockup": "46-admin-mcp-catalog.png"
+  },
+  "SM2": {
+    "status": "pending",
+    "snapshots": ["48-admin-add-mcp-server"],
+    "mockup": "48-admin-add-mcp-server.png"
+  },
+  "SM3": {
+    "status": "pending",
+    "snapshots": ["47-admin-mcp-server-detail"],
+    "mockup": "47-admin-mcp-server-detail.png"
+  },
+  "SM4": {
+    "status": "pending",
+    "snapshots": ["49-so-mcp-review"],
+    "mockup": "49-so-mcp-review.png"
+  },
+  "SM5": {
+    "status": "pending",
+    "snapshots": ["55-admin-mcp-report"],
+    "mockup": "55-admin-mcp-report.png"
+  },
+  "TM1": {
+    "status": "pending",
+    "snapshots": ["50-ta-team-mcp-servers"],
+    "mockup": "50-ta-team-mcp-servers.png"
+  },
+  "TM2": {
+    "status": "pending",
+    "snapshots": ["51-ta-register-team-mcp"],
+    "mockup": "51-ta-register-team-mcp.png"
+  },
+  "TM3": {
+    "status": "pending",
+    "snapshots": ["51b-ta-team-mcp-server"],
+    "mockup": "51-ta-register-team-mcp.png"
+  },
+  "TM4": {
+    "status": "pending",
+    "snapshots": ["52-ta-agent-mcp"],
+    "mockup": "52-ta-agent-mcp.png"
+  },
+  "TM5": {
+    "status": "pending",
+    "snapshots": ["53-ta-mcp-usage"],
+    "mockup": "53-ta-mcp-usage.png"
+  },
+  "VM1": {
+    "status": "pending",
+    "snapshots": ["54-tv-team-mcp-servers"],
+    "mockup": "54-tv-team-mcp-servers.png"
   }
 }

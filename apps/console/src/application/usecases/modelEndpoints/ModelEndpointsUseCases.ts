@@ -20,6 +20,7 @@ import type {
   CredentialRecord,
   EndpointProposalRecord,
   EndpointRecord,
+  GatewaySettingsInput,
   InferenceProvidersPort,
   InferenceQuery,
   InferenceReportData,
@@ -169,12 +170,11 @@ export class AdminModelEndpointsUseCases {
     return decision === "approve" ? this.port.approve(id, n) : this.port.reject(id, n);
   }
 
-  /** Screen 60: the team's gateway deployment and whether it may declare its own endpoints. */
-  putGatewaySettings(
-    teamId: string,
-    teamVersion: number | undefined,
-    v: { deployment: string; mayAddModelEndpoints: boolean },
-  ) {
+  /**
+   * Screen 60: the team's gateway deployment, whether it may declare its own endpoints and (1.3.0) register its own
+   * MCP servers, and where MCP runs in the gateway.
+   */
+  putGatewaySettings(teamId: string, teamVersion: number | undefined, v: GatewaySettingsInput) {
     return this.port.putGatewaySettings(teamId, teamVersion, v);
   }
 }

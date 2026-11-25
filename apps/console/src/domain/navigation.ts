@@ -97,6 +97,14 @@ export const NAV_ITEMS: readonly NavItem[] = [
     route: "/audit",
     visibleWhen: serviceAdmin,
   },
+  {
+    id: "mcp-reviews",
+    group: "Governance",
+    label: "MCP reviews",
+    screen: "SM4",
+    route: "/mcp-reviews",
+    visibleWhen: (me) => can(me, "mcp-servers:review"),
+  },
 
   {
     id: "models-catalog",
@@ -113,6 +121,14 @@ export const NAV_ITEMS: readonly NavItem[] = [
     screen: "SG1",
     route: "/model-endpoints",
     visibleWhen: serviceAdmin,
+  },
+  {
+    id: "mcp-servers-service",
+    group: "Platform",
+    label: "MCP servers",
+    screen: "SM1",
+    route: "/mcp-servers",
+    visibleWhen: (me) => can(me, "mcp-servers:read"),
   },
   {
     id: "agent-templates",
@@ -259,6 +275,16 @@ export const NAV_ITEMS: readonly NavItem[] = [
     visibleWhen: teamItem("model-endpoints:read"),
   },
   {
+    id: "team-mcp-servers",
+    group: "Configuration",
+    label: "MCP servers",
+    screen: "TM1",
+    viewerScreen: "VM1",
+    writePermission: "team-mcp-servers:write",
+    route: "/t/:teamId/mcp-servers",
+    visibleWhen: teamItem("team-mcp-servers:read"),
+  },
+  {
     id: "log-delivery",
     group: "Configuration",
     label: "Log delivery",
@@ -298,6 +324,14 @@ export const NAV_ITEMS: readonly NavItem[] = [
     screen: "T11",
     route: "/t/:teamId/reports",
     visibleWhen: teamItem("reports:read"),
+  },
+  {
+    id: "mcp-usage",
+    group: "Cost",
+    label: "MCP usage",
+    screen: "TM5",
+    route: "/t/:teamId/mcp-usage",
+    visibleWhen: teamItem("mcp-events:read"),
   },
   {
     id: "cost-tags",
@@ -347,7 +381,24 @@ export const EXTRA_ROUTES: readonly { route: string; screen: ScreenId }[] = [
   { route: "/reports/inference", screen: "SG4" },
   { route: "/t/:teamId/model-endpoints/new", screen: "TG2" },
   { route: "/t/:teamId/reports/inference", screen: "TG4" },
+  { route: "/mcp-servers/new", screen: "SM2" },
+  { route: "/mcp-servers/:mcpServerId", screen: "SM3" },
+  { route: "/mcp-reviews/:mcpServerId", screen: "SM4" },
+  { route: "/reports/mcp", screen: "SM5" },
+  { route: "/t/:teamId/mcp-servers/new", screen: "TM2" },
+  { route: "/t/:teamId/mcp-servers/:mcpServerId", screen: "TM3" },
 ];
+
+/** The tabs of the service MCP server detail (screen 47, MCP-WEB-1), as `?tab=<id>`. */
+export const MCP_SERVER_TABS = [
+  { id: "overview", label: "Overview" },
+  { id: "primitives", label: "Tools, resources & prompts" },
+  { id: "policy", label: "Policy" },
+  { id: "credentials", label: "Credentials" },
+  { id: "teams", label: "Teams" },
+  { id: "usage", label: "Usage" },
+] as const;
+export type McpServerTab = (typeof MCP_SERVER_TABS)[number]["id"];
 
 /** The tabs of the service *Model endpoints* page (screens 56 and 68), each with its own path. */
 export const MODEL_ENDPOINT_TABS = [

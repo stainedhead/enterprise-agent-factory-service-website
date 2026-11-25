@@ -51,6 +51,18 @@ export const SCREEN_IDS = [
   "TG5",
   "VG1",
   "VG2",
+  // 1.3.0 governed MCP servers (MCP gateway PRD §17, screens 46 to 55)
+  "SM1",
+  "SM2",
+  "SM3",
+  "SM4",
+  "SM5",
+  "TM1",
+  "TM2",
+  "TM3",
+  "TM4",
+  "TM5",
+  "VM1",
 ] as const;
 
 export type ScreenId = (typeof SCREEN_IDS)[number] | "AUTH" | "NOT_FOUND";

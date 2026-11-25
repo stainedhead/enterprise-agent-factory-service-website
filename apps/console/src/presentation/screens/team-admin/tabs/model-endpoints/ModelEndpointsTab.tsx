@@ -65,18 +65,29 @@ function GatewaySettings({
   const uc = useService("adminModelEndpoints");
   const qc = useQueryClient();
   const [v, setV] = useState(current);
+  // the Team resource does not report the MCP members (contract note 11): they are sent only when changed here,
+  // and the saved values come back in the response
+  const [mcp, setMcp] = useState<{ mayAddMcpServers?: boolean; mcpPlacement?: string }>({});
   const save = useMutation({
-    mutationFn: () => uc.putGatewaySettings(teamId, undefined, v),
-    onSuccess: () => void qc.invalidateQueries({ queryKey: areaKey(AREA) }),
+    mutationFn: () => uc.putGatewaySettings(teamId, undefined, { ...v, ...mcp }),
+    onSuccess: () => {
+      setMcp({});
+      void qc.invalidateQueries({ queryKey: areaKey(AREA) });
+    },
   });
+  const saved = save.data;
   const changed =
-    v.deployment !== current.deployment || v.mayAddModelEndpoints !== current.mayAddModelEndpoints;
+    v.deployment !== current.deployment ||
+    v.mayAddModelEndpoints !== current.mayAddModelEndpoints ||
+    Object.keys(mcp).length > 0;
+  const mayAddMcp = mcp.mayAddMcpServers ?? saved?.mayAddMcpServers ?? false;
+  const placement = mcp.mcpPlacement ?? saved?.mcpPlacement ?? "";
   return (
     <Card title="Team gateway">
       <ErrorAlert errors={[save.error]} title="The gateway settings were not saved" />
       <FormField
         label="Deployment"
-        hint="A team gateway runs in the team's namespace; a team with its own endpoints needs one."
+        hint="A team gateway runs in the team's namespace; a team with its own endpoints or MCP servers needs one."
       >
         <SelectInput
           value={v.deployment}
@@ -97,6 +108,43 @@ function GatewaySettings({
           showLabel
         />
       </p>
+      <fieldset style={{ border: 0, padding: 0 }}>
+        <legend style={{ fontWeight: 700 }}>MCP servers</legend>
+        <p>
+          <Switch
+            label="Team-admins may register team MCP servers"
+            checked={mayAddMcp}
+            disabledReason={reason}
+            onChange={(on) => setMcp({ ...mcp, mayAddMcpServers: on })}
+            showLabel
+          />
+        </p>
+        <FormField
+          label="MCP placement"
+          hint="With the model routes in one gateway Deployment, or in its own. Empty keeps the stored value (service default gateway.mcp.placement_default)."
+        >
+          <SelectInput
+            value={placement}
+            placeholder="Keep the stored placement"
+            aria-disabled={reason !== undefined || undefined}
+            options={[
+              { value: "combined", label: "Combined with the model routes" },
+              { value: "separate", label: "Separate gateway Deployment" },
+            ]}
+            onChange={(e) => {
+              if (reason !== undefined) return;
+              const { mcpPlacement: _drop, ...rest } = mcp;
+              setMcp(e.target.value ? { ...rest, mcpPlacement: e.target.value } : rest);
+            }}
+          />
+        </FormField>
+        {saved && (
+          <p role="status">
+            Saved: team MCP servers {saved.mayAddMcpServers ? "allowed" : "not allowed"}
+            {saved.mcpPlacement ? `, placement ${saved.mcpPlacement}` : ""}.
+          </p>
+        )}
+      </fieldset>
       <Button
         variant="primary"
         disabled={save.isPending}
@@ -105,7 +153,7 @@ function GatewaySettings({
       >
         Save gateway settings
       </Button>
-      <CliPreview command={putTeamGatewaySettingsCli(teamId, v)} />
+      <CliPreview command={putTeamGatewaySettingsCli(teamId, { ...v, ...mcp })} />
     </Card>
   );
 }

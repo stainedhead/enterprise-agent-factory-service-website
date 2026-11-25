@@ -386,6 +386,7 @@ export const STEP_FIELDS: Readonly<Record<string, readonly (keyof McpServerDraft
   "Server details": ["slug", "displayName", "owner", "purpose", "docUrl"],
   "Purpose and owner": ["slug", "displayName", "owner", "purpose", "docUrl"],
   "Connection and authentication": [
+    "authKind",
     "url",
     "imageDigest",
     "authHeader",

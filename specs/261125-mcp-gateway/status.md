@@ -11,7 +11,7 @@ Created: 2026-11-25. Source: [mcp-gateway-PRD.md](mcp-gateway-PRD.md).
 | 2 Research and data modeling | Complete |
 | 3 Architecture and planning | Complete |
 | 4 Task breakdown | Complete |
-| 5 Implementation | In progress (M1-M4 done) |
+| 5 Implementation | In progress (M1-M6 done) |
 | 6 Completion and archival | Pending |
 
 ## Tasks
@@ -32,3 +32,7 @@ None.
   env preview, CLI builders), application (MCP ports and six use-case classes) and infrastructure (`SdkMcpCatalog`,
   `SdkTeamMcp`, `SdkMcpUsage`, `SdkFederatedIdentities`) wired in `main/wiring.ts`; console 1778 tests green,
   domain and application coverage 97.3% statements, 92.8% branches (M2-M4).
+- 2026-11-25: screens SM1 to SM5 (SM5 as the *MCP* tab of service reports), the S10 *MCP* section, TM1 to TM5 and
+  VM1 (TM4 as the agent panel's *MCP* tab), `governedBy` on external system switches, the MCP members of the team
+  gateway settings, federated identities on *Secrets & identity*; visual approvals recorded `pending` for the 11
+  new screens; console 1803 tests green (M5, M6).

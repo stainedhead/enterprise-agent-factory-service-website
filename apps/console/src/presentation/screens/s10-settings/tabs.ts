@@ -4,6 +4,7 @@ import type { ComponentType } from "react";
 import type { Permission } from "../../../domain/permission.js";
 import { AgentTemplatesTab } from "./tabs/agent-templates/AgentTemplatesTab.js";
 import { IdentityProvidersTab } from "./tabs/identity-providers/IdentityProvidersTab.js";
+import { McpSettingsTab } from "./tabs/mcp/McpSettingsTab.js";
 import { NotificationChannelsTab } from "./tabs/notification-channels/NotificationChannelsTab.js";
 import { SecurityOperatorsTab } from "./tabs/security-operators/SecurityOperatorsTab.js";
 import { ServiceApiKeysTab } from "./tabs/service-api-keys/ServiceApiKeysTab.js";
@@ -57,4 +58,5 @@ export const sections: readonly SettingsSection[] = [
     permission: "admin:settings",
     Component: SecurityOperatorsTab,
   },
+  { id: "mcp", label: "MCP", permission: "admin:settings", Component: McpSettingsTab },
 ];

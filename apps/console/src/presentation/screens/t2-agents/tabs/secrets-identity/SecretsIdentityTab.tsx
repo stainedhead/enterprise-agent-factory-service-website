@@ -19,6 +19,7 @@ import { queryKey } from "../../../../query/keys.js";
 import { useService } from "../../../../services.js";
 import type { PanelTabProps } from "../../panelTabs.js";
 import { AddRoleDialog } from "./AddRoleDialog.js";
+import { FederatedIdentitiesCard } from "./FederatedIdentitiesCard.js";
 import { TrustPolicyDialog } from "./TrustPolicyDialog.js";
 
 const DOT = {
@@ -236,6 +237,7 @@ export function SecretsIdentityTab({ teamId, agent }: PanelTabProps) {
           getRowId={(l) => l.id}
         />
       </Card>
+      <FederatedIdentitiesCard teamId={teamId} agent={agent} />
       <Card title="Secrets">
         {agent.secretBindings.length === 0 ? (
           <p>No secrets are bound to this agent.</p>

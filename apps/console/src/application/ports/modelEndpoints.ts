@@ -131,10 +131,22 @@ export interface ProviderChange {
   readonly selectForAllTeams?: boolean | undefined;
 }
 
+/** `PutTeamGatewaySettings`: members sent replace stored ones; the MCP members are v1.6.0. */
+export interface GatewaySettingsInput {
+  readonly deployment: string;
+  readonly mayAddModelEndpoints: boolean;
+  readonly mayAddMcpServers?: boolean | undefined;
+  readonly mcpPlacement?: string | undefined;
+}
+
 export interface GatewaySettingsRecord {
   readonly teamId: string;
   readonly deployment: string;
   readonly mayAddModelEndpoints: boolean;
+  /** v1.6.0: team-admins may register team MCP servers. */
+  readonly mayAddMcpServers?: boolean | undefined;
+  /** v1.6.0: MCP with the model routes (`combined`) or in its own gateway Deployment (`separate`). */
+  readonly mcpPlacement?: string | undefined;
   readonly gatewayState: string;
   readonly gatewayUrl?: string | null | undefined;
   readonly version: number;
@@ -265,7 +277,7 @@ export interface AdminModelEndpointsPort {
   putGatewaySettings(
     teamId: string,
     teamVersion: number | undefined,
-    v: { deployment: string; mayAddModelEndpoints: boolean },
+    v: GatewaySettingsInput,
   ): Promise<GatewaySettingsRecord>;
 }
 

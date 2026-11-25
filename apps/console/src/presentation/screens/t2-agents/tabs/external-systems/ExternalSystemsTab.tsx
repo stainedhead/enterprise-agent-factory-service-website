@@ -65,6 +65,8 @@ export function ExternalSystemsTab({ teamId, agent }: PanelTabProps) {
                 reason={reason}
                 busy={toggle.isPending}
                 onChange={(on) => toggle.mutate({ s, on })}
+                governedBy={s.governedBy}
+                governedHref={s.governedBy ? `/t/${teamId}/mcp-servers/${s.governedBy}` : undefined}
               />
             ),
           },
