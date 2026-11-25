@@ -298,11 +298,12 @@ test.describe("TG1 to TG5, VG1, VG2: a team's routes", () => {
     );
   });
 
-  test("visual: TG1 to TG5, VG1, VG2", async ({ page, signInAs }) => {
+  test("visual: TG1 to TG5", async ({ page, signInAs }) => {
     await signInAs("team-admin", `/t/${T}/model-endpoints`);
     await expect(page.getByText("coder-vllm")).toBeVisible();
     await expectVisual(page, "61-ta-model-endpoints");
     await page.goto(`/t/${T}/model-endpoints/new`);
+    await expect(page.getByRole("heading", { name: "Create endpoint" })).toBeVisible();
     await expectVisual(page, "62-ta-create-team-endpoint");
     await page.goto(`/t/${T}/agents/${AGENT_IDS[0]}?tab=models`);
     await expect(page.getByRole("region", { name: "Environment preview" })).toBeVisible();
@@ -313,6 +314,9 @@ test.describe("TG1 to TG5, VG1, VG2: a team's routes", () => {
     await page.goto(`/t/${T}/budget`);
     await expect(page.getByRole("table", { name: "Spend by route this month" })).toBeVisible();
     await expectVisual(page, "65-ta-budget-routes", { mask: ["time"] });
+  });
+
+  test("visual: VG1, VG2", async ({ page, signInAs }) => {
     await signInAs("viewer", `/t/${T}/model-endpoints`);
     await expect(page.getByText("Read-only access")).toBeVisible();
     await expectVisual(page, "66-tv-model-endpoints");
