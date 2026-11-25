@@ -42,3 +42,8 @@ None.
   only inside the left nav because of the new team *Model endpoints* item (checked locally with and without the
   item). Listed on PR #14 for J; not regenerated. Docs screenshots for 56-64, 66-68a added to
   docs/images/screenshots, downscaled from the CI baselines (65 left out: its baseline masks the clock).
+- 2026-11-25: J approved the 14 new baselines (56-68a) and the new navigation. `[regen-baselines]` on 9c62030
+  rewrote 45 baselines in CI (19b1253). Each diff was checked: they change in the left nav (Orchestration and
+  Model endpoints items, from 1.1.0 and 1.2.0) and in the content that 1.1.0 and 1.2.0 changed (By route on
+  the budget, the service settings tabs without Collaboration, the agents table); sign-in moves by a pixel.
+  This commit triggers the normal CI run that compares against them.
