@@ -11,7 +11,7 @@ Created: 2026-11-25. Source: [mcp-gateway-PRD.md](mcp-gateway-PRD.md).
 | 2 Research and data modeling | Complete |
 | 3 Architecture and planning | Complete |
 | 4 Task breakdown | Complete |
-| 5 Implementation | In progress (M1-M6 done) |
+| 5 Implementation | In progress (M1-M7 done) |
 | 6 Completion and archival | Pending |
 
 ## Tasks
@@ -36,3 +36,10 @@ None.
   VM1 (TM4 as the agent panel's *MCP* tab), `governedBy` on external system switches, the MCP members of the team
   gateway settings, federated identities on *Secrets & identity*; visual approvals recorded `pending` for the 11
   new screens; console 1803 tests green (M5, M6).
+- 2026-11-25: stateful fake MCP fixtures (`e2e/fake-afs/fixtures/mcp.ts`, every MCP operation of contract 1.6.0, bodies
+  validated against the pinned OpenAPI, 7 fixture tests), GetMe grants for the MCP permissions (team roles and the
+  security operator), `e2e/specs/mcp/mcp.spec.ts` (14 tests: SM1, SM3, SM4, SM5, TM1 to TM4, VM1, denied cases, a
+  credential sentinel scan, visuals 46 to 55 and 51b), MCP routes in the axe, CSP and viewer sweeps. Playwright ran
+  locally (chromium 1243): the 11 functional MCP tests, the sweeps and the security operator spec pass; the 11 new
+  baselines are left for CI (`[regen-new-baselines]`). The security operator navigation test now expects the MCP
+  items (M7).

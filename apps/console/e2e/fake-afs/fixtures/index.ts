@@ -23,6 +23,7 @@ import { externalSystemsFixtures, resetExternalSystems } from "./externalSystems
 import { historyFixtures, resetHistory } from "./history.js";
 import { identityFixtures, resetIdentity } from "./identity.js";
 import { logDestinationsFixtures, resetLogDestinations } from "./logDestinations.js";
+import { mcpFixtures, resetMcp } from "./mcp.js";
 import { membersFixtures, resetMembers } from "./members.js";
 import { modelEndpointsFixtures, resetModelEndpoints } from "./modelEndpoints.js";
 import { notificationsFixtures, resetNotifications } from "./notifications.js";
@@ -96,6 +97,7 @@ export const fixtureModules: readonly (readonly Fixture[])[] = [
   adminApiKeysFixtures,
   collaborationFixtures,
   modelEndpointsFixtures,
+  mcpFixtures,
 ];
 
 /** Stateful fixture modules register a reset here; the server calls them on `/__reset`. */
@@ -125,4 +127,5 @@ export const fixtureResets: readonly (() => void)[] = [
   resetAdminApiKeys,
   resetCollaboration,
   resetModelEndpoints,
+  resetMcp,
 ];

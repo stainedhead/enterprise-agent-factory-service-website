@@ -7,7 +7,7 @@ const nav = (page: import("@playwright/test").Page) =>
   page.getByRole("navigation", { name: "Main" });
 
 test.describe("Security operator console", () => {
-  test("header says Security operator, navigation is only Work orders and Swarm templates, landing on /work-orders @smoke", async ({
+  test("header says Security operator, navigation is Work orders, MCP reviews, MCP servers and Swarm templates, landing on /work-orders @smoke", async ({
     page,
     signInAs,
   }) => {
@@ -16,9 +16,13 @@ test.describe("Security operator console", () => {
     await expect(page).toHaveURL(/\/work-orders$/);
     await expect(page.getByRole("heading", { name: "Work orders" })).toBeVisible();
     const links = nav(page).getByRole("link");
-    await expect(links).toHaveCount(2);
-    await expect(links.nth(0)).toHaveText("Work orders");
-    await expect(links.nth(1)).toHaveText("Swarm templates");
+    // 1.3.0: security operators read and review MCP servers (contract 1.6.0, mcp-servers:read and :review)
+    await expect(links).toHaveText([
+      "Work orders",
+      "MCP reviews",
+      "MCP servers",
+      "Swarm templates",
+    ]);
     await expect(nav(page).locator("#team-switcher")).toHaveCount(0);
     await expectAxeClean(page);
   });

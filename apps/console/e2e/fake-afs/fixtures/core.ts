@@ -134,6 +134,17 @@ const teamPerms = {
 teamPerms.team_admin.push("model-endpoints:read", "model-endpoints:write");
 teamPerms.team_collaborator.push("model-endpoints:read");
 teamPerms.team_viewer.push("model-endpoints:read");
+// 1.3.0 governed MCP servers (permissions.json, contract 1.6.0). team-mcp-servers:approve is conditional on
+// mcp.team_server_approval; the fake's settings leave it at the team-admin-may-approve-low default.
+teamPerms.team_admin.push(
+  "team-mcp-servers:read",
+  "team-mcp-servers:write",
+  "team-mcp-servers:approve",
+  "mcp-events:read",
+  "agent-federated-identities:write",
+);
+teamPerms.team_collaborator.push("team-mcp-servers:read", "mcp-events:read");
+teamPerms.team_viewer.push("team-mcp-servers:read", "mcp-events:read");
 
 /** Identity, providers, teams and health: what the shell needs (M0). */
 export const coreFixtures: readonly Fixture[] = [
@@ -197,6 +208,10 @@ export const coreFixtures: readonly Fixture[] = [
                 "work-orders:read",
                 "work-orders:write",
                 "swarm-templates:read",
+                "mcp-servers:read",
+                "mcp-servers:review",
+                "mcp-servers:suspend",
+                "mcp-events:read",
               ],
               teams: [],
             },
