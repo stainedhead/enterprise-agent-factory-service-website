@@ -11,7 +11,7 @@ Created: 2026-11-25. Source: [mcp-gateway-PRD.md](mcp-gateway-PRD.md).
 | 2 Research and data modeling | Complete |
 | 3 Architecture and planning | Complete |
 | 4 Task breakdown | Complete |
-| 5 Implementation | In progress (M1 done) |
+| 5 Implementation | In progress (M1-M4 done) |
 | 6 Completion and archival | Pending |
 
 ## Tasks
@@ -28,3 +28,7 @@ None.
   (v1.6.0, 276 operations) with `contract:update`; SDK regenerated; eleven namespace-less SDK names and the
   browser-only OAuth callback handled in codegen; wrapped-version reader; MCP helpers, `McpReason`, MCP usage
   reports; version 1.3.0; permission mirror at 77 entries; SDK tests 461 green (M1).
+- 2026-11-25: console domain (`domain/mcp.ts`: words, badges, approval rules, drafts and validation, policy rules,
+  env preview, CLI builders), application (MCP ports and six use-case classes) and infrastructure (`SdkMcpCatalog`,
+  `SdkTeamMcp`, `SdkMcpUsage`, `SdkFederatedIdentities`) wired in `main/wiring.ts`; console 1778 tests green,
+  domain and application coverage 97.3% statements, 92.8% branches (M2-M4).

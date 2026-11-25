@@ -28,6 +28,14 @@ import type { HistoryUseCases } from "../application/usecases/history/HistoryUse
 import type { IdentityUseCases } from "../application/usecases/identity/IdentityUseCases.js";
 import type { LogDestinationsUseCases } from "../application/usecases/logDestinations/LogDestinationsUseCases.js";
 import type {
+  AgentMcpUseCases,
+  FederatedIdentitiesUseCases,
+  McpCatalogUseCases,
+  McpReviewUseCases,
+  McpUsageUseCases,
+  TeamMcpUseCases,
+} from "../application/usecases/mcp/McpUseCases.js";
+import type {
   ApiKeysUseCases,
   MembersUseCases,
 } from "../application/usecases/members/MembersUseCases.js";
@@ -72,6 +80,13 @@ export interface AppServices {
   readonly teamModelEndpoints: TeamModelEndpointsUseCases;
   readonly agentRoutes: AgentRoutesUseCases;
   readonly inferenceReports: InferenceReportUseCases;
+  /** 1.3.0 governed MCP servers (contract §4.14). */
+  readonly mcpCatalog: McpCatalogUseCases;
+  readonly mcpReviews: McpReviewUseCases;
+  readonly teamMcp: TeamMcpUseCases;
+  readonly agentMcp: AgentMcpUseCases;
+  readonly mcpUsage: McpUsageUseCases;
+  readonly federatedIdentities: FederatedIdentitiesUseCases;
   readonly budgets: BudgetsUseCases;
   readonly collaboration: CollaborationUseCases;
   readonly orchestration: OrchestrationUseCases;

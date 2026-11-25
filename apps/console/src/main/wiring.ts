@@ -28,6 +28,14 @@ import { HistoryUseCases } from "../application/usecases/history/HistoryUseCases
 import { IdentityUseCases } from "../application/usecases/identity/IdentityUseCases.js";
 import { LogDestinationsUseCases } from "../application/usecases/logDestinations/LogDestinationsUseCases.js";
 import {
+  AgentMcpUseCases,
+  FederatedIdentitiesUseCases,
+  McpCatalogUseCases,
+  McpReviewUseCases,
+  McpUsageUseCases,
+  TeamMcpUseCases,
+} from "../application/usecases/mcp/McpUseCases.js";
+import {
   ApiKeysUseCases,
   MembersUseCases,
 } from "../application/usecases/members/MembersUseCases.js";
@@ -80,6 +88,12 @@ import {
 import { SdkAudit, SdkRevisions } from "../infrastructure/sdk/history.js";
 import { SdkIdentity } from "../infrastructure/sdk/identity.js";
 import { SdkLogDestinations } from "../infrastructure/sdk/logDestinations.js";
+import {
+  SdkFederatedIdentities,
+  SdkMcpCatalog,
+  SdkMcpUsage,
+  SdkTeamMcp,
+} from "../infrastructure/sdk/mcp.js";
 import { SdkApiKeys, SdkMembers } from "../infrastructure/sdk/members.js";
 import {
   SdkAdminModelEndpoints,
@@ -118,7 +132,14 @@ export function buildServices(
   const agentsUseCases = new AgentsUseCases(new SdkAgents(client));
   const configValues = new ConfigUseCases(new SdkConfig(client));
   const modelEndpointsPort = new SdkAdminModelEndpoints(client);
+  const mcpCatalogPort = new SdkMcpCatalog(client);
   return {
+    mcpCatalog: new McpCatalogUseCases(mcpCatalogPort),
+    mcpReviews: new McpReviewUseCases(mcpCatalogPort),
+    teamMcp: new TeamMcpUseCases(new SdkTeamMcp(client)),
+    agentMcp: new AgentMcpUseCases(new SdkAgents(client)),
+    mcpUsage: new McpUsageUseCases(new SdkMcpUsage(client)),
+    federatedIdentities: new FederatedIdentitiesUseCases(new SdkFederatedIdentities(client)),
     adminModelEndpoints: new AdminModelEndpointsUseCases(modelEndpointsPort, clock),
     providerPolicy: new ProviderPolicyUseCases(
       new SdkInferenceProviders(client),

@@ -60,6 +60,37 @@ export interface ModelsInput {
   readonly defaultRoute?: string | null | undefined;
 }
 
+/** v1.6.0 `mcp` of an agent or pool: access, selection, discovery mode and agent-level blocks. */
+export interface AgentMcpRecord {
+  readonly access: string;
+  readonly serverIds?: readonly string[] | undefined;
+  readonly mode: string;
+  readonly blocks?:
+    | readonly {
+        readonly serverId: string;
+        readonly name?: string | undefined;
+        readonly class?: string | undefined;
+        readonly effect: string;
+      }[]
+    | undefined;
+  /** Ids of the servers the agent reaches now. */
+  readonly effectiveServers?: readonly string[] | undefined;
+  /** The `AFS_MCP_*` names the agent receives. */
+  readonly env?: readonly string[] | undefined;
+}
+
+/** `mcp` as sent on update (`UpdateAgent`, with If-Match). */
+export interface AgentMcpInput {
+  readonly access: "all" | "selected";
+  readonly serverIds?: readonly string[] | undefined;
+  readonly mode: "search" | "full";
+  readonly blocks: readonly {
+    readonly serverId: string;
+    readonly name: string;
+    readonly effect: string;
+  }[];
+}
+
 export interface AgentRecord {
   readonly id: string;
   /** `worker` when the API sent no role. */
@@ -73,6 +104,7 @@ export interface AgentRecord {
   readonly template: string | null;
   readonly image: string | null;
   readonly models: AgentModelsRecord;
+  readonly mcp?: AgentMcpRecord | undefined;
   readonly paused: boolean;
   readonly generation: number;
   readonly version: number;
@@ -104,6 +136,7 @@ export interface CreateAgentInput {
 
 export interface UpdateAgentInput {
   readonly description?: string | undefined;
+  readonly mcp?: AgentMcpInput | undefined;
   readonly template?: string | undefined;
   readonly image?: string | undefined;
   readonly models?: ModelsInput | undefined;
