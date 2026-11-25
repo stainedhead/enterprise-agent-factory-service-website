@@ -263,123 +263,171 @@
     "date": "2026-11-22"
   },
   "SG1": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["56-admin-model-endpoints"],
-    "mockup": "56-admin-model-endpoints.png"
+    "mockup": "56-admin-model-endpoints.png",
+    "approver": "J",
+    "date": "2026-11-25"
   },
   "SG2": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["57-admin-create-model-endpoint"],
-    "mockup": "57-admin-create-model-endpoint.png"
+    "mockup": "57-admin-create-model-endpoint.png",
+    "approver": "J",
+    "date": "2026-11-25"
   },
   "SG3": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["58-admin-endpoint-detail"],
-    "mockup": "58-admin-endpoint-detail.png"
+    "mockup": "58-admin-endpoint-detail.png",
+    "approver": "J",
+    "date": "2026-11-25"
   },
   "SG4": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["59-admin-inference-report"],
-    "mockup": "59-admin-inference-report.png"
+    "mockup": "59-admin-inference-report.png",
+    "approver": "J",
+    "date": "2026-11-25"
   },
   "SG5": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["60-admin-team-routes"],
-    "mockup": "60-admin-team-routes.png"
+    "mockup": "60-admin-team-routes.png",
+    "approver": "J",
+    "date": "2026-11-25"
   },
   "TG1": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["61-ta-model-endpoints"],
-    "mockup": "61-ta-model-endpoints.png"
+    "mockup": "61-ta-model-endpoints.png",
+    "approver": "J",
+    "date": "2026-11-25"
   },
   "TG2": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["62-ta-create-team-endpoint"],
-    "mockup": "62-ta-create-team-endpoint.png"
+    "mockup": "62-ta-create-team-endpoint.png",
+    "approver": "J",
+    "date": "2026-11-25"
   },
   "TG3": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["63-ta-agent-models-routes"],
-    "mockup": "63-ta-agent-models-routes.png"
+    "mockup": "63-ta-agent-models-routes.png",
+    "approver": "J",
+    "date": "2026-11-25"
   },
   "TG4": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["64-ta-team-inference-report"],
-    "mockup": "64-ta-team-inference-report.png"
+    "mockup": "64-ta-team-inference-report.png",
+    "approver": "J",
+    "date": "2026-11-25"
   },
   "TG5": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["65-ta-budget-routes"],
-    "mockup": "65-ta-budget-routes.png"
+    "mockup": "65-ta-budget-routes.png",
+    "approver": "J",
+    "date": "2026-11-25"
   },
   "VG1": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["66-tv-model-endpoints"],
-    "mockup": "66-tv-model-endpoints.png"
+    "mockup": "66-tv-model-endpoints.png",
+    "approver": "J",
+    "date": "2026-11-25"
   },
   "VG2": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["67-tv-agent-models-routes"],
-    "mockup": "67-tv-agent-models-routes.png"
+    "mockup": "67-tv-agent-models-routes.png",
+    "approver": "J",
+    "date": "2026-11-25"
   },
   "SG6": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["68-admin-provider-policy", "68a-admin-provider-policy-confirm"],
-    "mockup": "68-admin-provider-policy.png"
+    "mockup": "68-admin-provider-policy.png",
+    "approver": "J",
+    "date": "2026-11-25"
   },
   "SM1": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["46-admin-mcp-catalog"],
-    "mockup": "46-admin-mcp-catalog.png"
+    "mockup": "46-admin-mcp-catalog.png",
+    "approver": "J",
+    "date": "2026-11-25"
   },
   "SM2": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["48-admin-add-mcp-server"],
-    "mockup": "48-admin-add-mcp-server.png"
+    "mockup": "48-admin-add-mcp-server.png",
+    "approver": "J",
+    "date": "2026-11-25"
   },
   "SM3": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["47-admin-mcp-server-detail"],
-    "mockup": "47-admin-mcp-server-detail.png"
+    "mockup": "47-admin-mcp-server-detail.png",
+    "approver": "J",
+    "date": "2026-11-25"
   },
   "SM4": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["49-so-mcp-review"],
-    "mockup": "49-so-mcp-review.png"
+    "mockup": "49-so-mcp-review.png",
+    "approver": "J",
+    "date": "2026-11-25"
   },
   "SM5": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["55-admin-mcp-report"],
-    "mockup": "55-admin-mcp-report.png"
+    "mockup": "55-admin-mcp-report.png",
+    "approver": "J",
+    "date": "2026-11-25"
   },
   "TM1": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["50-ta-team-mcp-servers"],
-    "mockup": "50-ta-team-mcp-servers.png"
+    "mockup": "50-ta-team-mcp-servers.png",
+    "approver": "J",
+    "date": "2026-11-25"
   },
   "TM2": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["51-ta-register-team-mcp"],
-    "mockup": "51-ta-register-team-mcp.png"
+    "mockup": "51-ta-register-team-mcp.png",
+    "approver": "J",
+    "date": "2026-11-25"
   },
   "TM3": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["51b-ta-team-mcp-server"],
-    "mockup": "51-ta-register-team-mcp.png"
+    "mockup": "51-ta-register-team-mcp.png",
+    "approver": "J",
+    "date": "2026-11-25"
   },
   "TM4": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["52-ta-agent-mcp"],
-    "mockup": "52-ta-agent-mcp.png"
+    "mockup": "52-ta-agent-mcp.png",
+    "approver": "J",
+    "date": "2026-11-25"
   },
   "TM5": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["53-ta-mcp-usage"],
-    "mockup": "53-ta-mcp-usage.png"
+    "mockup": "53-ta-mcp-usage.png",
+    "approver": "J",
+    "date": "2026-11-25"
   },
   "VM1": {
-    "status": "pending",
+    "status": "approved",
     "snapshots": ["54-tv-team-mcp-servers"],
-    "mockup": "54-tv-team-mcp-servers.png"
+    "mockup": "54-tv-team-mcp-servers.png",
+    "approver": "J",
+    "date": "2026-11-25"
   }
 }
